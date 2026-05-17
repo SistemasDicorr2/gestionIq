@@ -17,6 +17,7 @@ import QuejasView from '../views/QuejasView.vue';
 import PedidosEspecialesView from '../views/PedidosEspecialesView.vue';
 import NotificationsView from '../views/NotificationsView.vue';
 import ActivitySummaryView from '../views/ActivitySummaryView.vue';
+import InformeSemanalSeguimientoView from '../views/InformeSemanalSeguimientoView.vue';
 import LogisticaControl from '../views/logistica/LogisticaControl.vue';
 import InstrumentadorUpload from '../views/instrumentadores/InstrumentadorUpload.vue';
 import ConsumoView from '../views/logistica/ConsumoView.vue';
@@ -74,6 +75,7 @@ const routes = [
       { path: 'quejas', name: 'Quejas', component: QuejasView },
       { path: 'pedidos-especiales', name: 'PedidosEspeciales', component: PedidosEspecialesView },
       { path: 'notificaciones', name: 'Notificaciones', component: NotificationsView },
+      { path: 'informe-semanal-seguimiento', name: 'InformeSemanalSeguimiento', component: InformeSemanalSeguimientoView },
       { path: 'logistica-control', name: 'LogisticaControl', component: LogisticaControl },
       { path: 'instrumentador-upload', name: 'InstrumentadorUpload', component: InstrumentadorUpload },
       { path: 'control-consumo', name: 'ControlConsumo', component: ConsumoView },
