@@ -8,6 +8,54 @@
       </p>
     </header>
 
+    <section v-if="!isLoading && !error" class="mb-6 space-y-4">
+      <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div v-if="activeKpiFilter" class="flex flex-wrap items-center gap-2">
+          <span class="rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-sm font-medium text-blue-700 dark:border-blue-900/60 dark:bg-blue-900/30 dark:text-blue-200">
+            Filtro activo: {{ activeKpiLabel }}
+          </span>
+          <button type="button" @click="clearKpiFilter" class="rounded-full border border-slate-200 bg-white px-3 py-1 text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700">
+            Limpiar filtro
+          </button>
+        </div>
+        <div v-else class="hidden sm:block"></div>
+
+        <label class="flex flex-col gap-1 sm:w-56">
+          <span class="text-xs font-medium text-slate-500 dark:text-slate-400">Período</span>
+          <select v-model="selectedKpiPeriod" class="form-input">
+            <option v-for="option in kpiPeriodOptions" :key="option.value" :value="option.value">
+              {{ option.label }}
+            </option>
+          </select>
+        </label>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+      <button
+        v-for="stat in paymentKpis"
+        :key="stat.label"
+        type="button"
+        @click="applyKpiFilter(stat.filter)"
+        class="rounded-xl border p-4 text-left shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-slate-900"
+        :class="[stat.cardClass, stat.isActive ? stat.activeClass : 'hover:-translate-y-0.5 hover:shadow-md']"
+      >
+        <div class="flex items-start justify-between gap-3">
+          <div class="min-w-0">
+            <p class="text-sm font-medium text-slate-600 dark:text-slate-300">{{ stat.label }}</p>
+            <p class="mt-2 break-words text-2xl font-bold leading-tight text-slate-900 dark:text-white">{{ stat.value }}</p>
+            <p v-if="stat.subtitle" class="mt-1 text-xs leading-snug text-slate-500 dark:text-slate-400">{{ stat.subtitle }}</p>
+            <p v-if="stat.isActive" class="mt-2 text-xs font-semibold text-blue-700 dark:text-blue-300">Filtro activo</p>
+          </div>
+          <div class="rounded-full p-2.5" :class="stat.iconClass">
+            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path :d="stat.iconPath" />
+            </svg>
+          </div>
+        </div>
+      </button>
+      </div>
+    </section>
+
     <div v-if="isLoading" class="text-center p-10">
       <p>Cargando todas las cirugías pendientes...</p>
     </div>
@@ -112,8 +160,14 @@
         <div class="sticky top-8">
           <div class="bg-white dark:bg-slate-800 rounded-xl shadow p-6">
             <h2 class="text-xl font-bold mb-4">Resumen de Pago</h2>
-            <div v-if="selectedSurgeryIds.length === 0" class="text-center py-10 text-slate-500">
-              <p>Seleccioná una o más cirugías de la lista para comenzar.</p>
+            <div v-if="selectedSurgeryIds.length === 0" class="rounded-xl border border-dashed border-slate-300 bg-slate-50 px-5 py-10 text-center text-slate-500 dark:border-slate-700 dark:bg-slate-900/40 dark:text-slate-400">
+              <div class="mx-auto mb-3 flex h-11 w-11 items-center justify-center rounded-full bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-300">
+                <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M9 11l3 3L22 4" />
+                  <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+                </svg>
+              </div>
+              <p class="text-sm font-medium text-slate-700 dark:text-slate-200">Seleccioná una o más cirugías para generar una orden de pago.</p>
             </div>
             <div v-else>
               <div class="space-y-3 mb-4">
@@ -187,6 +241,15 @@ const isPostPagoModalVisible = ref(false);
 const lastPaymentData = ref(null);
 const showFileUploader = ref(true);
 const justPaidSurgeryIds = ref(new Set());
+const selectedKpiPeriod = ref('current-month');
+const activeKpiFilter = ref(null);
+
+const kpiPeriodOptions = [
+  { value: 'current-month', label: 'Mes actual' },
+  { value: 'last-30-days', label: 'Últimos 30 días' },
+  { value: 'previous-month', label: 'Mes anterior' },
+  { value: 'all', label: 'Todos' },
+];
 
 const filters = reactive({
   searchTerm: '',
@@ -206,6 +269,69 @@ const clearFilters = () => {
   filters.maxAmount = null;
 };
 
+const getSurgeryDate = (surgery) => {
+  if (!surgery?.fecha_cirugia) return null;
+  const rawDate = String(surgery.fecha_cirugia);
+  const date = /^\d{4}-\d{2}-\d{2}$/.test(rawDate)
+    ? new Date(`${rawDate}T00:00:00`)
+    : new Date(rawDate);
+  return Number.isNaN(date.getTime()) ? null : date;
+};
+
+const isCurrentMonthSurgery = (surgery) => {
+  const surgeryDate = getSurgeryDate(surgery);
+  if (!surgeryDate) return false;
+
+  const today = new Date();
+  return surgeryDate.getFullYear() === today.getFullYear() && surgeryDate.getMonth() === today.getMonth();
+};
+
+const isPreviousMonthSurgery = (surgery) => {
+  const surgeryDate = getSurgeryDate(surgery);
+  if (!surgeryDate) return false;
+
+  const today = new Date();
+  const previousMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+  return surgeryDate.getFullYear() === previousMonth.getFullYear() && surgeryDate.getMonth() === previousMonth.getMonth();
+};
+
+const isLast30DaysSurgery = (surgery) => {
+  const surgeryDate = getSurgeryDate(surgery);
+  if (!surgeryDate) return false;
+
+  const today = new Date();
+  const startDate = new Date(today);
+  startDate.setDate(today.getDate() - 30);
+  startDate.setHours(0, 0, 0, 0);
+  today.setHours(23, 59, 59, 999);
+
+  return surgeryDate >= startDate && surgeryDate <= today;
+};
+
+const isInSelectedKpiPeriod = (surgery) => {
+  if (selectedKpiPeriod.value === 'all') return true;
+  if (selectedKpiPeriod.value === 'last-30-days') return isLast30DaysSurgery(surgery);
+  if (selectedKpiPeriod.value === 'previous-month') return isPreviousMonthSurgery(surgery);
+  return isCurrentMonthSurgery(surgery);
+};
+
+const getRealAmount = (surgery) => {
+  const amount = Number(surgery?.monto_a_pagar);
+  return Number.isFinite(amount) ? amount : null;
+};
+
+const hasAmountField = (surgery) => Object.prototype.hasOwnProperty.call(surgery || {}, 'monto_a_pagar');
+
+const hasPositiveAmount = (surgery) => {
+  const amount = getRealAmount(surgery);
+  return amount !== null && amount > 0;
+};
+
+const hasMissingAmount = (surgery) => {
+  if (!hasAmountField(surgery)) return false;
+  return !hasPositiveAmount(surgery);
+};
+
 const instrumentadorOptions = computed(() => {
   if (!allPendingSurgeries.value) return [];
   const instrumentadores = allPendingSurgeries.value.reduce((acc, surgery) => {
@@ -216,6 +342,143 @@ const instrumentadorOptions = computed(() => {
   }, []);
   return instrumentadores.sort((a, b) => a.nombre.localeCompare(b.nombre));
 });
+
+const kpiPeriodSurgeries = computed(() => (
+  allPendingSurgeries.value.filter(surgery => !justPaidSurgeryIds.value.has(surgery.id) && isInSelectedKpiPeriod(surgery))
+));
+
+const currentMonthAmount = computed(() => {
+  const surgeries = kpiPeriodSurgeries.value;
+  if (surgeries.length === 0) {
+    return {
+      status: 'empty',
+      value: 'Sin pendientes',
+      subtitle: '',
+    };
+  }
+
+  if (!surgeries.some(hasAmountField)) {
+    return {
+      status: 'unavailable',
+      value: 'Dato pendiente',
+      subtitle: '',
+    };
+  }
+
+  const amounts = surgeries.map(getRealAmount);
+  const positiveAmounts = amounts.filter(amount => amount > 0);
+
+  if (positiveAmounts.length === 0) {
+    return {
+      status: 'missing',
+      value: 'Sin montos cargados',
+      subtitle: 'Click para ver pendientes sin importe',
+    };
+  }
+
+  return {
+    status: 'ready',
+    value: formatCurrency(positiveAmounts.reduce((sum, amount) => sum + amount, 0)),
+    subtitle: '',
+  };
+});
+
+const kpiPeriodInstrumentadoresCount = computed(() => {
+  const instrumentadores = new Set();
+
+  kpiPeriodSurgeries.value.forEach(surgery => {
+    const key = surgery.instrumentador_dni || surgery.instrumentador_nombre;
+    if (key) instrumentadores.add(key);
+  });
+
+  return instrumentadores.size;
+});
+
+const selectedKpiPeriodLabel = computed(() => (
+  kpiPeriodOptions.find(option => option.value === selectedKpiPeriod.value)?.label || 'Mes actual'
+));
+
+const pendingKpiLabel = computed(() => {
+  if (selectedKpiPeriod.value === 'last-30-days') return 'Pendientes últimos 30 días';
+  if (selectedKpiPeriod.value === 'previous-month') return 'Pendientes mes anterior';
+  if (selectedKpiPeriod.value === 'all') return 'Pendientes totales';
+  return 'Pendientes del mes';
+});
+
+const amountKpiFilterMode = computed(() => (
+  currentMonthAmount.value.status === 'ready' ? 'with-amount' : 'missing-amount'
+));
+
+const activeKpiLabel = computed(() => {
+  const active = paymentKpis.value.find(stat => stat.filter === activeKpiFilter.value);
+  return active?.label || '';
+});
+
+const paymentKpis = computed(() => [
+  {
+    filter: 'pending',
+    label: pendingKpiLabel.value,
+    value: kpiPeriodSurgeries.value.length,
+    subtitle: selectedKpiPeriodLabel.value,
+    isActive: activeKpiFilter.value === 'pending',
+    iconPath: 'M8 2v4m8-4v4M3 10h18M5 4h14a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z',
+    cardClass: 'border-amber-200 bg-white dark:border-amber-900/50 dark:bg-slate-800',
+    activeClass: 'border-amber-400 bg-amber-50 ring-2 ring-amber-200 dark:border-amber-500 dark:bg-amber-950/30 dark:ring-amber-900/70',
+    iconClass: 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300',
+  },
+  {
+    filter: 'amount',
+    label: 'Monto pendiente',
+    value: currentMonthAmount.value.value,
+    subtitle: currentMonthAmount.value.subtitle || selectedKpiPeriodLabel.value,
+    isActive: activeKpiFilter.value === 'amount',
+    iconPath: 'M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7H14a3.5 3.5 0 0 1 0 7H6',
+    cardClass: currentMonthAmount.value.status === 'missing'
+      ? 'border-amber-200 bg-white dark:border-amber-900/50 dark:bg-slate-800'
+      : 'border-emerald-200 bg-white dark:border-emerald-900/50 dark:bg-slate-800',
+    activeClass: currentMonthAmount.value.status === 'missing'
+      ? 'border-amber-400 bg-amber-50 ring-2 ring-amber-200 dark:border-amber-500 dark:bg-amber-950/30 dark:ring-amber-900/70'
+      : 'border-emerald-400 bg-emerald-50 ring-2 ring-emerald-200 dark:border-emerald-500 dark:bg-emerald-950/30 dark:ring-emerald-900/70',
+    iconClass: currentMonthAmount.value.status === 'missing'
+      ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300'
+      : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300',
+  },
+  {
+    filter: 'instrumentadores',
+    label: 'Instrumentadores',
+    value: kpiPeriodInstrumentadoresCount.value,
+    subtitle: 'Con pendientes',
+    isActive: activeKpiFilter.value === 'instrumentadores',
+    iconPath: 'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75',
+    cardClass: 'border-violet-200 bg-white dark:border-violet-900/50 dark:bg-slate-800',
+    activeClass: 'border-violet-400 bg-violet-50 ring-2 ring-violet-200 dark:border-violet-500 dark:bg-violet-950/30 dark:ring-violet-900/70',
+    iconClass: 'bg-violet-100 text-violet-700 dark:bg-violet-900/40 dark:text-violet-300',
+  },
+  {
+    filter: 'selected',
+    label: 'Seleccionadas',
+    value: selectedSurgeryIds.value.length,
+    subtitle: 'Para lote actual',
+    isActive: activeKpiFilter.value === 'selected',
+    iconPath: 'M9 11l3 3L22 4M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11',
+    cardClass: 'border-blue-200 bg-white dark:border-blue-900/50 dark:bg-slate-800',
+    activeClass: 'border-blue-400 bg-blue-50 ring-2 ring-blue-200 dark:border-blue-500 dark:bg-blue-950/30 dark:ring-blue-900/70',
+    iconClass: 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300',
+  },
+]);
+
+const applyKpiFilter = (filter) => {
+  if (filter === 'selected' && selectedSurgeryIds.value.length === 0) {
+    toast.info('No hay cirugías seleccionadas.');
+    return;
+  }
+
+  activeKpiFilter.value = activeKpiFilter.value === filter ? null : filter;
+};
+
+const clearKpiFilter = () => {
+  activeKpiFilter.value = null;
+};
 
 const fetchData = async () => {
   isLoading.value = true;
@@ -264,6 +527,27 @@ const filteredSurgeries = computed(() => {
 
   if (filters.maxAmount !== null && filters.maxAmount > 0) {
     surgeries = surgeries.filter(surgery => surgery.monto_a_pagar <= filters.maxAmount);
+  }
+
+  if (activeKpiFilter.value === 'pending') {
+    surgeries = surgeries.filter(surgery => !justPaidSurgeryIds.value.has(surgery.id) && isInSelectedKpiPeriod(surgery));
+  }
+
+  if (activeKpiFilter.value === 'amount') {
+    surgeries = surgeries.filter(surgery => {
+      if (justPaidSurgeryIds.value.has(surgery.id) || !isInSelectedKpiPeriod(surgery)) return false;
+      return amountKpiFilterMode.value === 'with-amount' ? hasPositiveAmount(surgery) : hasMissingAmount(surgery);
+    });
+  }
+
+  if (activeKpiFilter.value === 'instrumentadores') {
+    surgeries = surgeries
+      .filter(surgery => !justPaidSurgeryIds.value.has(surgery.id) && isInSelectedKpiPeriod(surgery) && (surgery.instrumentador_dni || surgery.instrumentador_nombre))
+      .sort((a, b) => (a.instrumentador_nombre || '').localeCompare(b.instrumentador_nombre || ''));
+  }
+
+  if (activeKpiFilter.value === 'selected') {
+    surgeries = surgeries.filter(surgery => selectedSurgeryIds.value.includes(surgery.id));
   }
 
   return surgeries;

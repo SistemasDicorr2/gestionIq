@@ -1,0 +1,53 @@
+{
+  "version": 1,
+  "skills": {
+    "cognitive-doc-design": {
+      "source": "Gentleman-Programming/gentle-ai",
+      "sourceType": "github",
+      "skillPath": "skills/cognitive-doc-design/SKILL.md",
+      "computedHash": "a8c72c04ec6293cbbc0a753be21147b6816e9ed98d6c25c0a568c340ec5a6af4"
+    },
+    "comment-writer": {
+      "source": "Gentleman-Programming/gentle-ai",
+      "sourceType": "github",
+      "skillPath": "skills/comment-writer/SKILL.md",
+      "computedHash": "ea51664b3ebdb8c1e0ae2f3889c3cd7eebce95eb193ed113be34d5047555d5be"
+    },
+    "find-skills": {
+      "source": "vercel-labs/skills",
+      "sourceType": "github",
+      "skillPath": "skills/find-skills/SKILL.md",
+      "computedHash": "9e1c8b3103f92fa8092568a44fe64858de7c5c9dc65ce4bea8f168080e889cfd"
+    },
+    "frontend-design": {
+      "source": "anthropics/skills",
+      "sourceType": "github",
+      "skillPath": "skills/frontend-design/SKILL.md",
+      "computedHash": "516bd2154eb843a8240e43d5b285229129853114ad7075a5e141e1c08e408c84"
+    },
+    "gentle-ai-branch-pr": {
+      "source": "Gentleman-Programming/gentle-ai",
+      "sourceType": "github",
+      "skillPath": "skills/branch-pr/SKILL.md",
+      "computedHash": "b6b2c737991b2c959a1f5fe243c834ae33cb12e28b1ddbd6968a45f131f63994"
+    },
+    "gentle-ai-chained-pr": {
+      "source": "Gentleman-Programming/gentle-ai",
+      "sourceType": "github",
+      "skillPath": "skills/chained-pr/SKILL.md",
+      "computedHash": "e73df2aa4e3ca99c842507b776aa44e45bb020c83ef460204c0832ab34d4f9c7"
+    },
+    "gentle-ai-issue-creation": {
+      "source": "Gentleman-Programming/gentle-ai",
+      "sourceType": "github",
+      "skillPath": "skills/issue-creation/SKILL.md",
+      "computedHash": "c12ff3ff0c5d74f2b1e8c7f3777fcb9edf34709a8b681785e3e726b9c777563b"
+    },
+    "work-unit-commits": {
+      "source": "Gentleman-Programming/gentle-ai",
+      "sourceType": "github",
+      "skillPath": "skills/work-unit-commits/SKILL.md",
+      "computedHash": "9ec1b703825ab34491c4e4f8d522f1fc0b3deb525e83e1557e6150a411e19936"
+    }
+  }
+}
