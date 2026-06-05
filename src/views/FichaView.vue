@@ -41,6 +41,7 @@
         <SubmissionSuccess 
           v-else-if="viewState === 'submitted'" 
           :paciente-nombre="reporte.paciente"
+          :medico-nombre="reporte.medico"
           :activity-token="activityToken"
           :reporte-id="submittedReportId"
         />

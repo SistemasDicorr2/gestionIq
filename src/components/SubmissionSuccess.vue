@@ -111,7 +111,8 @@ import EvidenceViewer from './shared/EvidenceViewer.vue';
 import { BanknotesIcon, CloudArrowUpIcon } from '@heroicons/vue/24/outline';
 
 const props = defineProps({
-  pacienteNombre: { type: String, required: true },
+  pacienteNombre: { type: String, default: '' },
+  medicoNombre: { type: String, default: '' },
   activityToken: { type: String, default: null },
   reporteId: { type: [String, Number], required: true }
 });
@@ -202,9 +203,11 @@ const finalizeUploads = async () => {
 };
 
 const whatsappUrl = computed(() => {
-  const numero = '543794043788';
-  const mensaje = `Hola, comparto evidencia del material del paciente ${props.pacienteNombre}.`;
-  return `https://wa.me/${numero}?text=${encodeURIComponent(mensaje)}`;
+  const phone = '543794001968';
+  const pacienteNombre = props.pacienteNombre?.trim() || 'sin especificar';
+  const medicoNombre = props.medicoNombre?.trim() || 'sin especificar';
+  const message = `Hola, paso a informar que completé la ficha correspondiente al paciente: ${pacienteNombre}, médico: ${medicoNombre}.`;
+  return `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
 });
 </script>
 
