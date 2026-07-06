@@ -1,68 +1,88 @@
 <!-- src/views/admin/HistorialPagosView.vue -->
 <template>
-  <div class="p-4 sm:p-6 lg:p-8">
-    <h1 class="text-3xl font-bold text-slate-800 dark:text-slate-100">Auditoría y Correcciones</h1>
-    <p class="text-slate-600 dark:text-slate-400 mt-1 mb-8">Auditá el historial de pagos y utilizá las herramientas para corregir errores.</p>
+  <div class="p-4 sm:p-6 lg:p-8 bg-slate-50/30 dark:bg-slate-950/10 min-h-screen">
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-100">Auditoría y Correcciones</h1>
+      <p class="text-slate-500 dark:text-slate-400 mt-1.5 text-sm sm:text-base">Auditá el historial de pagos y utilizá las herramientas para corregir errores de forma segura.</p>
+    </div>
 
-    <!-- Sistema de Pestañas -->
-    <div class="mb-6 border-b border-gray-200 dark:border-slate-700">
-      <nav class="-mb-px flex space-x-6" aria-label="Tabs">
-        <button
-          @click="activeTab = 'historial'"
-          :class="[
-            'whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm',
-            activeTab === 'historial'
-              ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400'
-              : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-slate-400 dark:hover:text-slate-200'
-          ]"
-        >
-          Historial de Órdenes
-        </button>
-        <button
-          @click="activeTab = 'herramientas'"
-          :class="[
-            'whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm',
-            activeTab === 'herramientas'
-              ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400'
-              : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-slate-400 dark:hover:text-slate-200'
-          ]"
-        >
-          Herramientas de Corrección
-        </button>
-      </nav>
+    <!-- Sistema de Pestañas Tipo Pills Moderno -->
+    <div class="mb-8 p-1 bg-slate-100 dark:bg-slate-900/60 rounded-xl inline-flex gap-1.5 border border-slate-200/50 dark:border-slate-800/40">
+      <button
+        @click="activeTab = 'historial'"
+        :class="[
+          'px-5 py-2 text-sm font-semibold rounded-lg transition-all duration-200 active:scale-95 cursor-pointer',
+          activeTab === 'historial'
+            ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-50 shadow-sm border border-slate-200/40 dark:border-slate-700/30'
+            : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+        ]"
+      >
+        Historial de Órdenes
+      </button>
+      <button
+        @click="activeTab = 'herramientas'"
+        :class="[
+          'px-5 py-2 text-sm font-semibold rounded-lg transition-all duration-200 active:scale-95 cursor-pointer',
+          activeTab === 'herramientas'
+            ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-50 shadow-sm border border-slate-200/40 dark:border-slate-700/30'
+            : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+        ]"
+      >
+        Herramientas de Corrección
+      </button>
     </div>
 
     <!-- Contenido de la Pestaña "Historial" -->
-    <div v-show="activeTab === 'historial'">
-      <div v-if="isLoading" class="text-center p-10">
-        <p>Cargando historial...</p>
+    <div v-show="activeTab === 'historial'" class="space-y-6">
+      <div v-if="isLoading" class="text-center py-16 bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800/80 shadow-sm">
+        <div class="inline-block w-8 h-8 border-4 border-slate-200 dark:border-slate-700 border-t-indigo-500 rounded-full animate-spin"></div>
+        <p class="text-slate-500 dark:text-slate-400 mt-3 text-sm font-medium">Cargando historial de pagos...</p>
       </div>
 
-      <div v-else-if="error" class="bg-red-100 text-red-700 p-4 rounded-lg text-center">
+      <div v-else-if="error" class="bg-red-50 dark:bg-red-950/20 text-red-700 dark:text-red-400 p-4 rounded-xl border border-red-200/60 dark:border-red-900/30 text-center text-sm font-medium shadow-sm">
         <p>Error al cargar el historial: {{ error }}</p>
       </div>
 
-      <div v-else-if="historial.length === 0" class="text-center p-10 bg-white dark:bg-slate-800 rounded-xl shadow">
-        <p class="text-slate-500">Aún no se han registrado órdenes de pago.</p>
+      <div v-else-if="historial.length === 0" class="text-center py-16 bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800/80 shadow-sm">
+        <p class="text-slate-500 dark:text-slate-400 text-sm font-medium">Aún no se han registrado órdenes de pago en el sistema.</p>
       </div>
 
-      <div v-else>
-        <div class="bg-white dark:bg-slate-800 p-4 rounded-xl shadow mb-6">
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <input type="text" v-model="dniFilter" placeholder="Filtrar por DNI..." class="form-input"/>
-            <input id="start-date" type="date" v-model="startDateFilter" class="form-input"/>
-            <input id="end-date" type="date" v-model="endDateFilter" class="form-input"/>
+      <div v-else class="space-y-6">
+        <!-- Panel de Filtros Moderno -->
+        <div class="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/80 p-5 rounded-2xl shadow-sm">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+            <div class="space-y-1.5">
+              <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Buscar Profesional</label>
+              <div class="relative rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden bg-slate-50/50 dark:bg-slate-950/20 focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-500/10 transition-all duration-200">
+                <input type="text" v-model="dniFilter" placeholder="DNI o nombre del profesional..." class="form-input-premium"/>
+              </div>
+            </div>
+            
+            <div class="space-y-1.5">
+              <label for="start-date" class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Fecha Desde</label>
+              <div class="relative rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden bg-slate-50/50 dark:bg-slate-950/20 focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-500/10 transition-all duration-200">
+                <input id="start-date" type="date" v-model="startDateFilter" class="form-input-premium"/>
+              </div>
+            </div>
+            
+            <div class="space-y-1.5">
+              <label for="end-date" class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Fecha Hasta</label>
+              <div class="relative rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden bg-slate-50/50 dark:bg-slate-950/20 focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-500/10 transition-all duration-200">
+                <input id="end-date" type="date" v-model="endDateFilter" class="form-input-premium"/>
+              </div>
+            </div>
           </div>
         </div>
 
-        <div v-if="filteredHistorial.length === 0" class="text-center p-10 bg-white dark:bg-slate-800 rounded-xl shadow">
-          <p class="text-slate-500">No se encontraron órdenes de pago que coincidan con los filtros aplicados.</p>
+        <!-- Tabla de Historial Premium -->
+        <div v-if="filteredHistorial.length === 0" class="text-center py-16 bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm">
+          <p class="text-slate-500 dark:text-slate-400 text-sm font-medium">No se encontraron órdenes de pago que coincidan con los filtros aplicados.</p>
         </div>
 
-        <div v-else class="bg-white dark:bg-slate-800 shadow-md rounded-lg overflow-hidden">
+        <div v-else class="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/80 shadow-md rounded-2xl overflow-hidden">
           <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-700">
-              <thead class="bg-gray-50 dark:bg-slate-700">
+            <table class="min-w-full divide-y divide-slate-100 dark:divide-slate-800/60">
+              <thead class="bg-slate-50/80 dark:bg-slate-900/60 border-b border-slate-100 dark:border-slate-800/60">
                 <tr>
                   <th class="table-header">ID Orden</th>
                   <th class="table-header">Fecha de Emisión</th>
@@ -71,22 +91,36 @@
                   <th class="table-header text-center">Acciones</th>
                 </tr>
               </thead>
-              <tbody class="bg-white divide-y divide-gray-200 dark:bg-slate-800 dark:divide-slate-700">
-                <tr v-for="orden in filteredHistorial" :key="orden.id">
-                  <td class="table-cell font-medium">#{{ orden.id }}</td>
-                  <td class="table-cell">{{ formatDate(orden.fecha_emision) }}</td>
-                  <td class="table-cell">{{ formatCurrency(orden.monto_total_general) }}</td>
-                  <td class="table-cell text-xs max-w-xs truncate">{{ orden.instrumentadores_nombres }}</td>
+              <tbody class="divide-y divide-slate-100 dark:divide-slate-800/60 bg-white dark:bg-slate-900">
+                <tr v-for="orden in filteredHistorial" :key="orden.id" class="hover:bg-slate-50/40 dark:hover:bg-slate-800/20 transition-colors duration-150">
+                  <td class="table-cell">
+                    <span class="inline-flex items-center px-2.5 py-1 text-xs font-semibold rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-200/50 dark:border-slate-700/50 font-mono">
+                      #{{ orden.id }}
+                    </span>
+                  </td>
+                  <td class="table-cell text-slate-600 dark:text-slate-350">
+                    {{ formatDate(orden.fecha_emision) }}
+                  </td>
+                  <td class="table-cell font-bold text-slate-900 dark:text-slate-100">
+                    {{ formatCurrency(orden.monto_total_general) }}
+                  </td>
+                  <td class="table-cell text-xs text-slate-600 dark:text-slate-350 max-w-xs truncate" :title="orden.instrumentadores_nombres">
+                    {{ orden.instrumentadores_nombres }}
+                  </td>
                   <td class="table-cell text-center">
-                    <div class="flex items-center justify-center gap-2">
-                      <button @click="verDetalle(orden)" class="btn-secondary">Ver Detalle</button>
+                    <div class="flex items-center justify-center gap-2.5">
+                      <button @click="verDetalle(orden)" class="btn-detail">
+                        Ver Detalle
+                      </button>
                       <a v-if="orden.comprobante_object_key" 
                          :href="getComprobanteUrl(orden.comprobante_object_key)" 
                          target="_blank" 
                          rel="noopener noreferrer"
-                         class="btn-icon"
+                         class="btn-icon-premium"
                          title="Descargar Comprobante">
-                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                        </svg>
                       </a>
                     </div>
                   </td>
@@ -98,13 +132,10 @@
       </div>
     </div>
 
-    <!-- --- INICIO DE LA MODIFICACIÓN --- -->
     <!-- Contenido de la Pestaña "Herramientas" -->
-    <!-- Ahora renderiza nuestro nuevo orquestador modular -->
     <div v-show="activeTab === 'herramientas'">
       <CorrectionWorkspace />
     </div>
-    <!-- --- FIN DE LA MODIFICACIÓN --- -->
 
     <OrdenDePagoDetalleModal
       :is-visible="isModalVisible"
@@ -118,10 +149,7 @@
 import { ref, onMounted, computed, watch } from 'vue';
 import { supabase } from '../../services/supabase';
 import OrdenDePagoDetalleModal from '../../components/admin/OrdenDePagoDetalleModal.vue';
-// --- INICIO DE LA MODIFICACIÓN ---
-// Se importa el nuevo componente orquestador.
 import CorrectionWorkspace from '../../components/admin/corrections/CorrectionWorkspace.vue';
-// --- FIN DE LA MODIFICACIÓN ---
 
 const activeTab = ref('historial');
 const historial = ref([]);
@@ -137,22 +165,20 @@ const filteredHistorial = computed(() => {
   let items = historial.value;
 
   if (dniFilter.value.trim()) {
-    const searchTerm = dniFilter.value.trim();
-    items = items.filter(orden =>
-      orden.instrumentadores_dnis?.some(dni => dni.includes(searchTerm))
-    );
+    const searchTerm = dniFilter.value.trim().toLowerCase();
+    items = items.filter(orden => {
+      const matchDni = orden.instrumentadores_dnis?.some(dni => dni.includes(searchTerm));
+      const matchNombre = orden.instrumentadores_nombres?.toLowerCase().includes(searchTerm);
+      return matchDni || matchNombre;
+    });
   }
 
   if (startDateFilter.value) {
-    const startDate = new Date(startDateFilter.value);
-    startDate.setUTCHours(0, 0, 0, 0);
-    items = items.filter(orden => new Date(orden.fecha_emision) >= startDate);
+    items = items.filter(orden => orden.fecha_emision && orden.fecha_emision.substring(0, 10) >= startDateFilter.value);
   }
 
   if (endDateFilter.value) {
-    const endDate = new Date(endDateFilter.value);
-    endDate.setUTCHours(23, 59, 59, 999);
-    items = items.filter(orden => new Date(orden.fecha_emision) <= endDate);
+    items = items.filter(orden => orden.fecha_emision && orden.fecha_emision.substring(0, 10) <= endDateFilter.value);
   }
 
   return items;
@@ -205,9 +231,27 @@ watch(activeTab, (newTab) => {
 </script>
 
 <style scoped>
-.form-input { @apply px-4 py-2 border border-slate-300 rounded-md w-full; @apply dark:bg-slate-700 dark:border-slate-600 dark:text-slate-200; }
-.table-header { @apply px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-slate-400; }
-.table-cell { @apply px-6 py-4 whitespace-nowrap text-sm text-gray-700 dark:text-slate-300; }
-.btn-secondary { @apply bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 font-semibold py-1.5 px-3 rounded-lg text-sm; @apply hover:bg-slate-50 dark:hover:bg-slate-600; }
-.btn-icon { @apply p-2 rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-800 dark:hover:bg-slate-700 dark:hover:text-slate-200; }
+.form-input-premium {
+  @apply w-full px-4 py-3 bg-transparent border-none text-slate-800 dark:text-slate-100 text-sm focus:outline-none focus:ring-0;
+}
+
+.table-header {
+  @apply px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider dark:text-slate-400;
+}
+
+.table-cell {
+  @apply px-6 py-4 whitespace-nowrap text-sm text-slate-800 dark:text-slate-200;
+}
+
+.btn-detail {
+  @apply bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 font-semibold py-1.5 px-4 rounded-xl text-xs shadow-sm;
+  @apply hover:bg-slate-50 dark:hover:bg-slate-700/80 hover:text-slate-900 dark:hover:text-white;
+  @apply active:scale-95 transition-all duration-150 cursor-pointer;
+}
+
+.btn-icon-premium {
+  @apply p-2 rounded-xl text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-100/50 dark:border-indigo-900/30;
+  @apply hover:bg-indigo-100 dark:hover:bg-indigo-950 hover:text-indigo-800 dark:hover:text-indigo-300;
+  @apply active:scale-95 transition-all duration-150 cursor-pointer flex items-center justify-center;
+}
 </style>

@@ -1,109 +1,137 @@
 <!-- src/components/FilterBar.vue -->
 <template>
-  <div class="bg-white dark:bg-slate-800 p-4 rounded-lg shadow mb-6 space-y-4">
+  <div class="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/80 p-5 rounded-2xl shadow-sm mb-6 space-y-5">
     
     <!-- FILA 1: Filtros Principales y Control de Fechas -->
-    <div class="flex flex-wrap items-end gap-4">
-      <div class="flex-grow grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div>
-          <label for="paciente" class="filter-label">Paciente</label>
-          <input type="text" v-model="filters.paciente" id="paciente" placeholder="Nombre del paciente..." class="input-form">
+    <div class="flex flex-wrap items-end gap-5">
+      <div class="flex-grow grid grid-cols-1 sm:grid-cols-3 gap-5">
+        <div class="space-y-1.5">
+          <label for="paciente" class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Paciente</label>
+          <div class="relative rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden bg-slate-50/50 dark:bg-slate-950/20 focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-500/10 transition-all duration-150">
+            <input type="text" v-model="filters.paciente" id="paciente" placeholder="Nombre del paciente..." class="form-input-premium" @keyup.enter="handleApply">
+          </div>
         </div>
-        <div>
-          <label for="medico" class="filter-label">Médico</label>
-          <input type="text" v-model="filters.medico" id="medico" placeholder="Nombre del médico..." class="input-form">
+        
+        <div class="space-y-1.5">
+          <label for="medico" class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Médico</label>
+          <div class="relative rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden bg-slate-50/50 dark:bg-slate-950/20 focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-500/10 transition-all duration-150">
+            <input type="text" v-model="filters.medico" id="medico" placeholder="Nombre del médico..." class="form-input-premium" @keyup.enter="handleApply">
+          </div>
         </div>
-        <div>
-          <label for="instrumentador" class="filter-label">Instrumentador</label>
-          <input type="text" v-model="filters.instrumentador" id="instrumentador" placeholder="Nombre..." class="input-form">
+        
+        <div class="space-y-1.5">
+          <label for="instrumentador" class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Instrumentador</label>
+          <div class="relative rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden bg-slate-50/50 dark:bg-slate-950/20 focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-500/10 transition-all duration-150">
+            <input type="text" v-model="filters.instrumentador" id="instrumentador" placeholder="Nombre del instrumentador..." class="form-input-premium" @keyup.enter="handleApply">
+          </div>
         </div>
       </div>
       
-      <div class="grid grid-cols-2 gap-4 sm:flex sm:gap-2">
+      <div class="grid grid-cols-2 gap-4 sm:flex sm:gap-3 items-end">
         <div class="relative" ref="dateRangeMenu">
-          <label class="filter-label">Fichas Recibidas</label>
-          <button @click="isDateRangeMenuOpen = !isDateRangeMenuOpen" class="btn-secondary w-full flex items-center justify-between">
+          <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Fichas Recibidas</label>
+          <button @click="isDateRangeMenuOpen = !isDateRangeMenuOpen" class="btn-secondary w-full sm:w-44 flex items-center justify-between shadow-sm">
             <span>{{ selectedRangeLabel }}</span>
-            <ChevronDownIcon class="h-5 w-5" />
+            <ChevronDownIcon class="h-4 w-4 text-slate-500 dark:text-slate-400" />
           </button>
           <Transition name="fade">
-            <div v-if="isDateRangeMenuOpen" class="date-range-menu">
+            <div v-if="isDateRangeMenuOpen" class="date-range-menu border border-slate-100 dark:border-slate-700/80">
               <button @click="setDateRange('today')" class="date-range-menu-item">Hoy</button>
               <button @click="setDateRange('week')" class="date-range-menu-item">Esta Semana</button>
               <button @click="setDateRange('month')" class="date-range-menu-item">Este Mes</button>
             </div>
           </Transition>
         </div>
-        <div>
-          <label for="startDate" class="filter-label">Desde</label>
-          <input type="date" v-model="filters.startDate" id="startDate" class="input-form">
+        
+        <div class="space-y-1.5">
+          <label for="startDate" class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Desde</label>
+          <div class="relative rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden bg-slate-50/50 dark:bg-slate-950/20 focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-500/10 transition-all duration-150">
+            <input type="date" v-model="filters.startDate" id="startDate" class="form-input-premium">
+          </div>
         </div>
-        <div>
-          <label for="endDate" class="filter-label">Hasta</label>
-          <input type="date" v-model="filters.endDate" id="endDate" class="input-form">
+        
+        <div class="space-y-1.5">
+          <label for="endDate" class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Hasta</label>
+          <div class="relative rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden bg-slate-50/50 dark:bg-slate-950/20 focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-500/10 transition-all duration-150">
+            <input type="date" v-model="filters.endDate" id="endDate" class="form-input-premium">
+          </div>
         </div>
       </div>
     </div>
 
     <!-- FILA 2: Filtros de Análisis y Acciones -->
-    <div class="border-t border-gray-200 dark:border-slate-700 pt-4">
-      <div class="flex flex-wrap items-end gap-4">
-        <div class="flex-grow grid grid-cols-1 sm:grid-cols-3 md:grid-cols-5 gap-4">
-          <div>
-            <label for="status" class="filter-label">Estado</label>
-            <select v-model="filters.estado" id="status" class="input-form">
-              <option value="todos">Todos</option>
-              <option value="Pendiente">Pendiente</option>
-              <option value="Enviado">Enviado</option>
-              <option value="Expirado">Expirado</option>
-            </select>
+    <div class="border-t border-slate-100 dark:border-slate-800/80 pt-5">
+      <div class="flex flex-wrap items-end gap-5">
+        <div class="flex-grow grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+          <div class="space-y-1.5">
+            <label for="status" class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Estado</label>
+            <div class="relative rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden bg-slate-50/50 dark:bg-slate-950/20 focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-500/10 transition-all duration-150">
+              <select v-model="filters.estado" id="status" class="form-input-select">
+                <option value="todos">Todos</option>
+                <option value="Pendiente">Pendiente</option>
+                <option value="Enviado">Enviado</option>
+                <option value="Expirado">Expirado</option>
+              </select>
+            </div>
           </div>
-          <div>
-            <label for="puntualidad" class="filter-label">Puntualidad ≤</label>
-            <select v-model.number="filters.rating_puntualidad_max" id="puntualidad" class="input-form">
-              <option :value="null">Cualquiera</option>
-              <option v-for="n in 4" :key="n" :value="n">{{ n }} ★</option>
-            </select>
+          
+          <div class="space-y-1.5">
+            <label for="puntualidad" class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Puntualidad ≤</label>
+            <div class="relative rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden bg-slate-50/50 dark:bg-slate-950/20 focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-500/10 transition-all duration-150">
+              <select v-model.number="filters.rating_puntualidad_max" id="puntualidad" class="form-input-select">
+                <option :value="null">Cualquiera</option>
+                <option v-for="n in 4" :key="n" :value="n">{{ n }} ★</option>
+              </select>
+            </div>
           </div>
-          <div>
-            <label for="condiciones" class="filter-label">Condiciones ≤</label>
-            <select v-model.number="filters.rating_condiciones_max" id="condiciones" class="input-form">
-              <option :value="null">Cualquiera</option>
-              <option v-for="n in 4" :key="n" :value="n">{{ n }} ★</option>
-            </select>
+          
+          <div class="space-y-1.5">
+            <label for="condiciones" class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Condiciones ≤</label>
+            <div class="relative rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden bg-slate-50/50 dark:bg-slate-950/20 focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-500/10 transition-all duration-150">
+              <select v-model.number="filters.rating_condiciones_max" id="condiciones" class="form-input-select">
+                <option :value="null">Cualquiera</option>
+                <option v-for="n in 4" :key="n" :value="n">{{ n }} ★</option>
+              </select>
+            </div>
           </div>
-          <div>
-            <label for="asesoramiento" class="filter-label">Asesoramiento ≤</label>
-            <select v-model.number="filters.rating_asesoramiento_max" id="asesoramiento" class="input-form">
-              <option :value="null">Cualquiera</option>
-              <option v-for="n in 4" :key="n" :value="n">{{ n }} ★</option>
-            </select>
+          
+          <div class="space-y-1.5">
+            <label for="asesoramiento" class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Asesoramiento ≤</label>
+            <div class="relative rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden bg-slate-50/50 dark:bg-slate-950/20 focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-500/10 transition-all duration-150">
+              <select v-model.number="filters.rating_asesoramiento_max" id="asesoramiento" class="form-input-select">
+                <option :value="null">Cualquiera</option>
+                <option v-for="n in 4" :key="n" :value="n">{{ n }} ★</option>
+              </select>
+            </div>
           </div>
-          <div>
-            <label for="general" class="filter-label">General ≤</label>
-            <select v-model.number="filters.rating_evaluacion_general_max" id="general" class="input-form">
-              <option :value="null">Cualquiera</option>
-              <option v-for="n in 4" :key="n" :value="n">{{ n }} ★</option>
-            </select>
+          
+          <div class="space-y-1.5 col-span-2 sm:col-span-1">
+            <label for="general" class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">General ≤</label>
+            <div class="relative rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden bg-slate-50/50 dark:bg-slate-950/20 focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-500/10 transition-all duration-150">
+              <select v-model.number="filters.rating_evaluacion_general_max" id="general" class="form-input-select">
+                <option :value="null">Cualquiera</option>
+                <option v-for="n in 4" :key="n" :value="n">{{ n }} ★</option>
+              </select>
+            </div>
           </div>
         </div>
         
-        <div class="flex items-center gap-2 shrink-0">
-          <button @click="handleClear" class="btn-secondary">Limpiar</button>
-          <button @click="handleApply" class="btn-primary">Aplicar Filtros</button>
+        <div class="flex items-center gap-2.5 shrink-0 w-full sm:w-auto justify-end">
+          <button @click="handleClear" class="btn-clear-large">Limpiar</button>
+          <button @click="handleApply" class="btn-primary-large">Aplicar Filtros</button>
           
           <div class="relative" ref="exportMenu">
-            <button @click="toggleExportMenu" class="btn-export" :disabled="isExporting">
+            <button @click="toggleExportMenu" class="btn-export-premium" :disabled="isExporting" title="Exportar reporte PDF">
               <ArrowDownTrayIcon class="h-5 w-5" />
             </button>
             <Transition name="fade">
-              <div v-if="isExportMenuOpen" class="export-menu">
+              <div v-if="isExportMenuOpen" class="export-menu border border-slate-100 dark:border-slate-700/80">
                 <button @click="exportAndClose('export-lista')" class="export-menu-item">
-                  <ClipboardDocumentListIcon class="h-5 w-5" />
+                  <ClipboardDocumentListIcon class="h-4.5 w-4.5 text-slate-500" />
                   <span>Exportar Lista</span>
                 </button>
                 <button @click="exportAndClose('export-trazabilidad')" class="export-menu-item">
-                  <DocumentChartBarIcon class="h-5 w-5" />
+                  <DocumentChartBarIcon class="h-4.5 w-4.5 text-slate-500" />
                   <span>Exportar Trazabilidad</span>
                 </button>
               </div>
@@ -228,14 +256,44 @@ const exportAndClose = (eventName) => {
 </script>
 
 <style scoped>
-.filter-label { @apply block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1; }
-.input-form { @apply block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm dark:bg-slate-700 dark:border-slate-600 dark:text-white; }
-.btn-primary { @apply bg-blue-600 text-white font-bold py-2 px-4 rounded-lg shadow hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed; }
-.btn-secondary { @apply bg-gray-200 text-gray-700 font-semibold py-2 px-4 rounded-lg hover:bg-gray-300 dark:bg-slate-600 dark:text-slate-200 dark:hover:bg-slate-500 disabled:opacity-50 disabled:cursor-not-allowed; }
-.btn-export { @apply bg-green-600 text-white font-bold p-2.5 rounded-lg shadow hover:bg-green-700 disabled:opacity-50 disabled:cursor-wait; }
+.form-input-premium {
+  @apply w-full px-3 py-2 bg-transparent border-none text-slate-800 dark:text-slate-100 text-sm focus:outline-none focus:ring-0;
+}
 
-.export-menu, .date-range-menu { @apply absolute right-0 mt-2 w-56 origin-top-right rounded-md bg-white dark:bg-slate-700 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-10; }
-.export-menu-item, .date-range-menu-item { @apply flex items-center gap-3 w-full px-4 py-2 text-sm text-gray-700 dark:text-slate-200 hover:bg-gray-100 dark:hover:bg-slate-600; }
+.form-input-select {
+  @apply w-full px-3 py-2 bg-transparent border-none text-slate-800 dark:text-slate-100 text-sm focus:outline-none focus:ring-0 cursor-pointer;
+}
+
+.btn-secondary {
+  @apply bg-slate-100 dark:bg-slate-800 border border-slate-200/40 dark:border-slate-700/60 text-slate-700 dark:text-slate-200 font-semibold py-2.5 px-4 rounded-xl text-sm shadow-sm;
+  @apply hover:bg-slate-200 dark:hover:bg-slate-700;
+  @apply active:scale-95 transition-all duration-150 cursor-pointer;
+}
+
+.btn-clear-large {
+  @apply bg-slate-100 dark:bg-slate-800 border border-slate-200/40 dark:border-slate-700/60 text-slate-700 dark:text-slate-200 font-bold py-2.5 px-4 rounded-xl text-sm shadow-sm;
+  @apply hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white;
+  @apply active:scale-95 transition-all duration-150 cursor-pointer;
+}
+
+.btn-primary-large {
+  @apply bg-indigo-600 text-white font-bold py-2.5 px-5 rounded-xl text-sm shadow-sm transition-all duration-150;
+  @apply hover:bg-indigo-700 hover:shadow-md disabled:bg-slate-300 dark:disabled:bg-slate-800 disabled:text-slate-400 dark:disabled:text-slate-600 disabled:cursor-not-allowed;
+  @apply active:scale-95 cursor-pointer;
+}
+
+.btn-export-premium {
+  @apply bg-emerald-600 text-white font-bold p-2.5 rounded-xl shadow-sm hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-wait;
+  @apply active:scale-95 transition-all duration-150 cursor-pointer;
+}
+
+.export-menu, .date-range-menu {
+  @apply absolute right-0 mt-2 w-56 origin-top-right rounded-xl bg-white dark:bg-slate-800 shadow-xl ring-1 ring-black ring-opacity-5 focus:outline-none z-10 p-1.5;
+}
+
+.export-menu-item, .date-range-menu-item {
+  @apply flex items-center gap-3 w-full px-3 py-2.5 text-sm rounded-lg text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700/80 transition-colors cursor-pointer font-medium;
+}
 
 .fade-enter-active, .fade-leave-active { @apply transition ease-out duration-100; }
 .fade-enter-from, .fade-leave-to { @apply transform opacity-0 scale-95; }

@@ -203,7 +203,7 @@ const finalizeUploads = async () => {
 };
 
 const whatsappUrl = computed(() => {
-  const phone = '543794001968';
+  const phone = '543794009899';
   const pacienteNombre = props.pacienteNombre?.trim() || 'sin especificar';
   const medicoNombre = props.medicoNombre?.trim() || 'sin especificar';
   const message = `Hola, paso a informar que completé la ficha correspondiente al paciente: ${pacienteNombre}, médico: ${medicoNombre}.`;

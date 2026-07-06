@@ -36,6 +36,16 @@ export function useToasts() {
     }
   };
 
+  /**
+   * Muestra una notificación informativa.
+   * @param {string} message - El mensaje a mostrar.
+   */
+  const showInfoToast = (message) => {
+    if (typeof message === 'string') {
+      toast.info(message);
+    }
+  };
+
   // --- INICIO DE LA MODIFICACIÓN ---
 
   /**
@@ -66,6 +76,7 @@ export function useToasts() {
   return {
     showErrorToast,
     showSuccessToast,
+    showInfoToast,
     // --- INICIO DE LA MODIFICACIÓN ---
     showLoadingToast,
     updateToast,

@@ -1,0 +1,927 @@
+{
+  ".vscode/extensions.json": {
+    "mtime": 1782850006.9568417,
+    "ast_hash": "355c30fd3c68c681860970a064d85586",
+    "semantic_hash": ""
+  },
+  "package.json": {
+    "mtime": 1782850006.978014,
+    "ast_hash": "3533aeb6c3259cbc36e8893a3ffc0e9b",
+    "semantic_hash": ""
+  },
+  "postcss.config.js": {
+    "mtime": 1782850006.978014,
+    "ast_hash": "5b84f4567208c7c747079c0477373231",
+    "semantic_hash": ""
+  },
+  "replace.js": {
+    "mtime": 1782850006.9839275,
+    "ast_hash": "768feede6ac01a3f8a6a14f4d7e085cb",
+    "semantic_hash": ""
+  },
+  "skills-lock.json": {
+    "mtime": 1783337266.1365118,
+    "ast_hash": "89d8e233f918a50be103fef63bff99b6",
+    "semantic_hash": ""
+  },
+  "src/App.vue": {
+    "mtime": 1782850006.9844005,
+    "ast_hash": "a2ee90ab8c7522d5c747a0c1d7c758f2",
+    "semantic_hash": ""
+  },
+  "src/HomeView.vue": {
+    "mtime": 1782850006.9844005,
+    "ast_hash": "b2db507eaa592f48e8e053422ad2e34b",
+    "semantic_hash": ""
+  },
+  "src/components/AddPointsModal.vue": {
+    "mtime": 1782850006.9844005,
+    "ast_hash": "14251e967a8f3493ea964c5b2fa3b188",
+    "semantic_hash": ""
+  },
+  "src/components/ArchivoCard.vue": {
+    "mtime": 1782850006.9844005,
+    "ast_hash": "73f7718fc36bd8d21205648e86af6406",
+    "semantic_hash": ""
+  },
+  "src/components/AutocompleteSearch.vue": {
+    "mtime": 1782850006.9844005,
+    "ast_hash": "dc8f910bae38a234b7e42068c90beb74",
+    "semantic_hash": ""
+  },
+  "src/components/DarkModeToggle.vue": {
+    "mtime": 1782850006.9844005,
+    "ast_hash": "2b45ba26dc94cd336041459850df9b02",
+    "semantic_hash": ""
+  },
+  "src/components/EditInstrumentadorModal.vue": {
+    "mtime": 1782850006.9844005,
+    "ast_hash": "b732de42a82143916d169f870938a004",
+    "semantic_hash": ""
+  },
+  "src/components/EditableField.vue": {
+    "mtime": 1782850006.9844005,
+    "ast_hash": "6679889c8064dbbc77765a22dc993941",
+    "semantic_hash": ""
+  },
+  "src/components/EstadisticasInstrumentadorModal.vue": {
+    "mtime": 1782850006.9901142,
+    "ast_hash": "4b8a0f81b931f200dab02e009d350dd3",
+    "semantic_hash": ""
+  },
+  "src/components/ExportModal.vue": {
+    "mtime": 1782850006.9906287,
+    "ast_hash": "8e03873c5989ea25f7abe9e465e500d7",
+    "semantic_hash": ""
+  },
+  "src/components/FaqSection.vue": {
+    "mtime": 1782850006.9906287,
+    "ast_hash": "2910b181044cd3a358766b7b7b7a00ed",
+    "semantic_hash": ""
+  },
+  "src/components/FichaForm.vue": {
+    "mtime": 1782850006.9906287,
+    "ast_hash": "3785cc5f5363cdb4eb972011cbb68f97",
+    "semantic_hash": ""
+  },
+  "src/components/FilterBar.vue": {
+    "mtime": 1782850006.9906287,
+    "ast_hash": "1f9353fd895f4d3be7afd2ab2654f67a",
+    "semantic_hash": ""
+  },
+  "src/components/FormStepComments.vue": {
+    "mtime": 1782850006.9921446,
+    "ast_hash": "ce4e5bda21a83def370173ce6024e111",
+    "semantic_hash": ""
+  },
+  "src/components/FormStepQuestionnaire.vue": {
+    "mtime": 1782850006.9921446,
+    "ast_hash": "c45aa9df1d6434a443c2e2c19fb660d0",
+    "semantic_hash": ""
+  },
+  "src/components/FormStepSignature.vue": {
+    "mtime": 1782850006.9921446,
+    "ast_hash": "63b83fa2177c9cb28d01a648bd2621d3",
+    "semantic_hash": ""
+  },
+  "src/components/GenerateLinkModal.vue": {
+    "mtime": 1782850006.9921446,
+    "ast_hash": "dfbc63bfd5298971d587c143d48e99af",
+    "semantic_hash": ""
+  },
+  "src/components/IdentificationWizard.vue": {
+    "mtime": 1782850006.9921446,
+    "ast_hash": "1822845abb2484e446bb96018ac3df4a",
+    "semantic_hash": ""
+  },
+  "src/components/ImportInstrumentadoresModal.vue": {
+    "mtime": 1782850006.9921446,
+    "ast_hash": "53024483f525fc1f6645824d74cca8d2",
+    "semantic_hash": ""
+  },
+  "src/components/IncidenceDrawer.vue": {
+    "mtime": 1782850006.9921446,
+    "ast_hash": "e8f1bc28e6d9130bfcf72d1295227bd8",
+    "semantic_hash": ""
+  },
+  "src/components/IncidenceFilterBar.vue": {
+    "mtime": 1782850006.9921446,
+    "ast_hash": "6701197c8f48ebb83b0a112262cf6fd2",
+    "semantic_hash": ""
+  },
+  "src/components/InstrumentadoresFilters.vue": {
+    "mtime": 1782850006.9921446,
+    "ast_hash": "4cac4cf32c60dbc3d44eb4af3434502e",
+    "semantic_hash": ""
+  },
+  "src/components/InstrumentadoresRanking.vue": {
+    "mtime": 1782850006.9921446,
+    "ast_hash": "8998e3a6973146695fcdc4092bc8ae48",
+    "semantic_hash": ""
+  },
+  "src/components/MyDataSection.vue": {
+    "mtime": 1782850006.9921446,
+    "ast_hash": "5ad4f5c912fb0bca04147b195b5057e7",
+    "semantic_hash": ""
+  },
+  "src/components/NewIncidenceModal.vue": {
+    "mtime": 1782850006.9921446,
+    "ast_hash": "510b118a14e41d3b60b08bd807878d5a",
+    "semantic_hash": ""
+  },
+  "src/components/NewInstrumentadorModal.vue": {
+    "mtime": 1782850006.9921446,
+    "ast_hash": "a4193d6954783f6a20f9104c3986f66a",
+    "semantic_hash": ""
+  },
+  "src/components/NewSurgeryModal.vue": {
+    "mtime": 1782850006.9921446,
+    "ast_hash": "3719fd3563c7167dcc75322b8dcd151e",
+    "semantic_hash": ""
+  },
+  "src/components/NotificationBell.vue": {
+    "mtime": 1782850006.9921446,
+    "ast_hash": "49f5bee986b0b21b2a645468f23c2995",
+    "semantic_hash": ""
+  },
+  "src/components/NotificationDropdown.vue": {
+    "mtime": 1782850006.9921446,
+    "ast_hash": "70be7261c70255d2271d9fff9de90d59",
+    "semantic_hash": ""
+  },
+  "src/components/NotificationsView.vue": {
+    "mtime": 1782850006.9921446,
+    "ast_hash": "7e48e1242dbfe042d5bb200b64a4748f",
+    "semantic_hash": ""
+  },
+  "src/components/PaginationControls.vue": {
+    "mtime": 1782850006.9993885,
+    "ast_hash": "d207552e2fa96576ffa9753bd291838d",
+    "semantic_hash": ""
+  },
+  "src/components/PaymentDetailModal.vue": {
+    "mtime": 1782850006.9993885,
+    "ast_hash": "4a790bb75ff20f4e64c6d0b1989a4d8b",
+    "semantic_hash": ""
+  },
+  "src/components/PostPagoModal.vue": {
+    "mtime": 1782850007.0004547,
+    "ast_hash": "0e59b646021f9522318f67bae9d9e7bd",
+    "semantic_hash": ""
+  },
+  "src/components/RadioPillSelector.vue": {
+    "mtime": 1782850007.000969,
+    "ast_hash": "cad67f2563ec81df8b9a5e456a20cb1d",
+    "semantic_hash": ""
+  },
+  "src/components/RatingChart.vue": {
+    "mtime": 1782850007.000969,
+    "ast_hash": "d7a82a9e0472078bbabaf776eee5e7dd",
+    "semantic_hash": ""
+  },
+  "src/components/RatingRow.vue": {
+    "mtime": 1782850007.000969,
+    "ast_hash": "10431d2608e8ccee87b704e96491b075",
+    "semantic_hash": ""
+  },
+  "src/components/RatingSelector.vue": {
+    "mtime": 1782850007.000969,
+    "ast_hash": "167ad09811554c32f5aa15c91dce3c26",
+    "semantic_hash": ""
+  },
+  "src/components/RecordWeeklyScoreModal.vue": {
+    "mtime": 1782850007.002491,
+    "ast_hash": "d60bc5a045aa5e837325e77da2f8cf22",
+    "semantic_hash": ""
+  },
+  "src/components/ReportCard.vue": {
+    "mtime": 1782850007.002491,
+    "ast_hash": "e183107fbe0452694a348f0bfc396103",
+    "semantic_hash": ""
+  },
+  "src/components/ReportDrawer.vue": {
+    "mtime": 1782850007.0035746,
+    "ast_hash": "3514600632a9eecb413a0d3b48dd3d90",
+    "semantic_hash": ""
+  },
+  "src/components/ReportPDF.vue": {
+    "mtime": 1782850007.0035746,
+    "ast_hash": "e08c14b6fec81f9a4233e226e29fe47f",
+    "semantic_hash": ""
+  },
+  "src/components/ReportTable.vue": {
+    "mtime": 1782850007.0035746,
+    "ast_hash": "0b6e7b0af5f95cfe8cc85528f2d179ed",
+    "semantic_hash": ""
+  },
+  "src/components/ReporteModal.vue": {
+    "mtime": 1782850007.004578,
+    "ast_hash": "64e508a05a9385fa1fa62d1a8413809a",
+    "semantic_hash": ""
+  },
+  "src/components/SalesRepresentativeModal.vue": {
+    "mtime": 1782850007.004578,
+    "ast_hash": "f958cdafaa1d6d16aab23b17e13221b0",
+    "semantic_hash": ""
+  },
+  "src/components/Sidebar.vue": {
+    "mtime": 1782850007.0055766,
+    "ast_hash": "f9b53fa828f3c34cd8dc51dae6211554",
+    "semantic_hash": ""
+  },
+  "src/components/SignatureModal.vue": {
+    "mtime": 1782850007.0055766,
+    "ast_hash": "9ce808d8c915e53b8f0092fa851fe1a3",
+    "semantic_hash": ""
+  },
+  "src/components/SkeletonLoader.vue": {
+    "mtime": 1782850007.0055766,
+    "ast_hash": "2ee7b9127c25603f46939ebf8b1c1695",
+    "semantic_hash": ""
+  },
+  "src/components/StatCard.vue": {
+    "mtime": 1782850007.0065775,
+    "ast_hash": "1d80af29ea5ca4ba1f3fa7df48fe4795",
+    "semantic_hash": ""
+  },
+  "src/components/SubmissionSuccess.vue": {
+    "mtime": 1782852911.658859,
+    "ast_hash": "1be22298f3fa8d3d15abadcef353cc0a",
+    "semantic_hash": ""
+  },
+  "src/components/SubmittedSummary.vue": {
+    "mtime": 1782850007.0075748,
+    "ast_hash": "680f43ecfd285d82e7ddcb88f55c2450",
+    "semantic_hash": ""
+  },
+  "src/components/SurgerySummaryModal.vue": {
+    "mtime": 1782850007.0075748,
+    "ast_hash": "c528a1d8e9ed077e51321acb7549ae25",
+    "semantic_hash": ""
+  },
+  "src/components/ToggleCard.vue": {
+    "mtime": 1782850007.0085752,
+    "ast_hash": "c759e82a9e3f28ef13ab5794f6217bcb",
+    "semantic_hash": ""
+  },
+  "src/components/admin/AuthorizationModal.vue": {
+    "mtime": 1782850007.0085752,
+    "ast_hash": "45d747a30ab82819c663a22e238ee4be",
+    "semantic_hash": ""
+  },
+  "src/components/admin/DividirOrdenDePago.vue": {
+    "mtime": 1782850007.0095754,
+    "ast_hash": "2c7d0f62bad3c1beafba2e23180d0afb",
+    "semantic_hash": ""
+  },
+  "src/components/admin/GestionPagoModal.vue": {
+    "mtime": 1782850007.0095754,
+    "ast_hash": "df00eb8d5dc880fa3cf0bbf416984705",
+    "semantic_hash": ""
+  },
+  "src/components/admin/OrdenDePagoDetalleModal.vue": {
+    "mtime": 1782850007.0095754,
+    "ast_hash": "ca3ed53ff86e125e31d94b0e11d51f61",
+    "semantic_hash": ""
+  },
+  "src/components/admin/RegistrarIntervencionModal.vue": {
+    "mtime": 1782850007.010576,
+    "ast_hash": "44b4886e9ae616bcdd22392eab8ab5bf",
+    "semantic_hash": ""
+  },
+  "src/components/admin/corrections/CorrectionWorkspace.vue": {
+    "mtime": 1782850007.0110817,
+    "ast_hash": "9fe642c981ae98fc24c611c8fc61de70",
+    "semantic_hash": ""
+  },
+  "src/components/admin/corrections/ToolAnularPago.vue": {
+    "mtime": 1782850007.0110817,
+    "ast_hash": "ded616b9bd43eea4cee60bd289fb725d",
+    "semantic_hash": ""
+  },
+  "src/components/admin/corrections/ToolCambiarComprobante.vue": {
+    "mtime": 1782850007.0110817,
+    "ast_hash": "703ad925069dc24f9565d2a637eca710",
+    "semantic_hash": ""
+  },
+  "src/components/admin/corrections/ToolModificarMontosNotas.vue": {
+    "mtime": 1782850007.0125966,
+    "ast_hash": "71ce7a534f347f677a5123c8db2c2d17",
+    "semantic_hash": ""
+  },
+  "src/components/capture/WebcamCapture.vue": {
+    "mtime": 1782850007.0125966,
+    "ast_hash": "2fa5ba10a23282b8ac8228977b584d33",
+    "semantic_hash": ""
+  },
+  "src/components/reclamos/FormularioMedicoReclamo.vue": {
+    "mtime": 1782850007.0136082,
+    "ast_hash": "c0481d71629d5baed6b6139b526b5cf2",
+    "semantic_hash": ""
+  },
+  "src/components/reclamos/GestionReclamoModal.vue": {
+    "mtime": 1782850007.0136082,
+    "ast_hash": "77c7e69d55f0afb787d9a556faea6eab",
+    "semantic_hash": ""
+  },
+  "src/components/reclamos/PedidoEspecialModal.vue": {
+    "mtime": 1782850007.0146036,
+    "ast_hash": "02d789acb4ab611873c960a0e70d8f75",
+    "semantic_hash": ""
+  },
+  "src/components/reclamos/QuejasFilterBar.vue": {
+    "mtime": 1782850007.0146036,
+    "ast_hash": "ee4ea12c5bf4fba35e2dc6aa1f22da57",
+    "semantic_hash": ""
+  },
+  "src/components/reclamos/ShareReclamoLinkModal.vue": {
+    "mtime": 1782850007.015607,
+    "ast_hash": "16e271284c5e2cbbbad74fb18a5bf482",
+    "semantic_hash": ""
+  },
+  "src/components/report-details/LogisticaTimeline.vue": {
+    "mtime": 1782850007.015607,
+    "ast_hash": "8d3fef437b409f76a450645e6a026733",
+    "semantic_hash": ""
+  },
+  "src/components/report-details/PhotoCard.vue": {
+    "mtime": 1782850007.01661,
+    "ast_hash": "8d9d315a0a65e1446116087ec08a2bac",
+    "semantic_hash": ""
+  },
+  "src/components/report-details/PhotoUploader.vue": {
+    "mtime": 1782850007.01661,
+    "ast_hash": "d41cb3d5de6ca122ed88c135815f375e",
+    "semantic_hash": ""
+  },
+  "src/components/report-details/PhotosGallery.vue": {
+    "mtime": 1782850007.0176046,
+    "ast_hash": "e721be7f5586972a0bababece9618fc8",
+    "semantic_hash": ""
+  },
+  "src/components/report-details/ReportEventsAndPdfs.vue": {
+    "mtime": 1782850007.0176046,
+    "ast_hash": "2e7af9a09ebc2ef02547985afe795cd0",
+    "semantic_hash": ""
+  },
+  "src/components/report-details/ReportTabs.vue": {
+    "mtime": 1782850007.0186043,
+    "ast_hash": "4d3320b7ce52ded8f6228d47816c7585",
+    "semantic_hash": ""
+  },
+  "src/components/shared/EvidenceViewer.vue": {
+    "mtime": 1782850007.0186043,
+    "ast_hash": "abb1193e4b792bf2013096c99bebe8d5",
+    "semantic_hash": ""
+  },
+  "src/components/shared/SurgerySelector.vue": {
+    "mtime": 1782850007.0186043,
+    "ast_hash": "70ca9e744fc7bc750ba109a118a83673",
+    "semantic_hash": ""
+  },
+  "src/components/uploader/FileUpload.vue": {
+    "mtime": 1782850007.0186043,
+    "ast_hash": "6ad7bdbb561607168d45df7f3062b5f0",
+    "semantic_hash": ""
+  },
+  "src/components/uploader/useB2Upload.js": {
+    "mtime": 1782850007.020657,
+    "ast_hash": "6f437d3c51e1684102e784caa3690e77",
+    "semantic_hash": ""
+  },
+  "src/components/uploader/useImageCompression.js": {
+    "mtime": 1782850007.020657,
+    "ast_hash": "2c2e7bf8a676cfbb885e99e566a706f6",
+    "semantic_hash": ""
+  },
+  "src/composables/useAuthorization.js": {
+    "mtime": 1782850007.020657,
+    "ast_hash": "93c0681efc691bbbb8ace60075f0dabc",
+    "semantic_hash": ""
+  },
+  "src/composables/useDarkMode.js": {
+    "mtime": 1782850007.020657,
+    "ast_hash": "91c3de5102627fcb42a9f0a51ae65e71",
+    "semantic_hash": ""
+  },
+  "src/composables/useDeviceDetection.js": {
+    "mtime": 1782850007.022679,
+    "ast_hash": "796506617c4f64776810722316cba55e",
+    "semantic_hash": ""
+  },
+  "src/composables/useOrdenDePagoPDF.js": {
+    "mtime": 1782850007.022679,
+    "ast_hash": "f412db95620ab12ddac338af119a2ad0",
+    "semantic_hash": ""
+  },
+  "src/composables/useToasts.js": {
+    "mtime": 1782850007.022679,
+    "ast_hash": "ca4772ddd6a5de1408ae77dfcb75b9da",
+    "semantic_hash": ""
+  },
+  "src/directives/autosize.js": {
+    "mtime": 1782850007.022679,
+    "ast_hash": "b84b9f2c4effb5e81c4542bffc81ae8c",
+    "semantic_hash": ""
+  },
+  "src/layouts/AdminLayout.vue": {
+    "mtime": 1782850007.022679,
+    "ast_hash": "6ab7d6c41fb11908bbeb456061d9c313",
+    "semantic_hash": ""
+  },
+  "src/main.js": {
+    "mtime": 1782850007.022679,
+    "ast_hash": "ef3660b27bc7e383eda2f04a76a5d266",
+    "semantic_hash": ""
+  },
+  "src/router/index.js": {
+    "mtime": 1782850007.022679,
+    "ast_hash": "6e4b7a090cb834d4a8dbc75d99206355",
+    "semantic_hash": ""
+  },
+  "src/services/pdfGenerator.js": {
+    "mtime": 1782850007.022679,
+    "ast_hash": "9eae17f3120be91e7b595e82f5762d8d",
+    "semantic_hash": ""
+  },
+  "src/services/reportGeneratorService.js": {
+    "mtime": 1782850007.022679,
+    "ast_hash": "6951df54dcbbac81b23032f75c35a29e",
+    "semantic_hash": ""
+  },
+  "src/services/supabase.js": {
+    "mtime": 1782850007.022679,
+    "ast_hash": "f17fb282646682f15fae59318d6dc853",
+    "semantic_hash": ""
+  },
+  "src/services/useImageResizer.js": {
+    "mtime": 1782850007.022679,
+    "ast_hash": "afbdd1421c6279f3bc430843a92c0484",
+    "semantic_hash": ""
+  },
+  "src/views/ActivitySummaryView.vue": {
+    "mtime": 1782850007.022679,
+    "ast_hash": "297e39af66fe6f41287cb8aeed6effb8",
+    "semantic_hash": ""
+  },
+  "src/views/AdminView.vue": {
+    "mtime": 1782850007.022679,
+    "ast_hash": "d2d016dce7a5236dc53f8d84f444fe5f",
+    "semantic_hash": ""
+  },
+  "src/views/ConfigView.vue": {
+    "mtime": 1782850007.022679,
+    "ast_hash": "a801e8d6ab825494a374988a08cf02cb",
+    "semantic_hash": ""
+  },
+  "src/views/FichaView.vue": {
+    "mtime": 1782850007.022679,
+    "ast_hash": "372b96c99db299257fd605148d562bbf",
+    "semantic_hash": ""
+  },
+  "src/views/IncidenciasView.vue": {
+    "mtime": 1782850007.022679,
+    "ast_hash": "c234b05c89f557108d0f02785d9f4e2c",
+    "semantic_hash": ""
+  },
+  "src/views/InformeSemanalSeguimientoView.vue": {
+    "mtime": 1782850007.022679,
+    "ast_hash": "a652fd5d28e792c6f28a0223ae6958d0",
+    "semantic_hash": ""
+  },
+  "src/views/InstrumentadoresView.vue": {
+    "mtime": 1782850007.0307822,
+    "ast_hash": "4e9e5d06f9c6ca9b41dd5df74e611ec2",
+    "semantic_hash": ""
+  },
+  "src/views/LoginView.vue": {
+    "mtime": 1782850007.0307822,
+    "ast_hash": "84353bcdcf4903b8b8c3363f3c6e5989",
+    "semantic_hash": ""
+  },
+  "src/views/NotificationsView.vue": {
+    "mtime": 1782850007.0307822,
+    "ast_hash": "4c22f066b118387820f353f6e065a898",
+    "semantic_hash": ""
+  },
+  "src/views/PedidosEspecialesView.vue": {
+    "mtime": 1782850007.0307822,
+    "ast_hash": "d0868917bbe388662718727be0340f1b",
+    "semantic_hash": ""
+  },
+  "src/views/QuejasView.vue": {
+    "mtime": 1782850007.0307822,
+    "ast_hash": "cce0fe692eb921619243db1a17c43293",
+    "semantic_hash": ""
+  },
+  "src/views/ReclamoView.vue": {
+    "mtime": 1782850007.0328145,
+    "ast_hash": "eca7f12da4b3075af022cb6fbe4881d4",
+    "semantic_hash": ""
+  },
+  "src/views/StatsView.vue": {
+    "mtime": 1782850007.0328145,
+    "ast_hash": "80b2a2d46d23e339d3bdb6a044dc1137",
+    "semantic_hash": ""
+  },
+  "src/views/TestUploaderView.vue": {
+    "mtime": 1782850007.033854,
+    "ast_hash": "46866f30e511b464e8e00c40acedf314",
+    "semantic_hash": ""
+  },
+  "src/views/admin/CrearOrdenDePagoView.vue": {
+    "mtime": 1782850007.0344281,
+    "ast_hash": "d749ba853728879573715f5831272d3d",
+    "semantic_hash": ""
+  },
+  "src/views/admin/GestionPagosView.vue": {
+    "mtime": 1782850007.0344281,
+    "ast_hash": "d1b02bcc34c12d0a16ed7b0e340e614e",
+    "semantic_hash": ""
+  },
+  "src/views/admin/HistorialPagosView.vue": {
+    "mtime": 1782850007.0354345,
+    "ast_hash": "99770cc70c2b94ddb34d01b869e451cb",
+    "semantic_hash": ""
+  },
+  "src/views/admin/PagosDashboardView.vue": {
+    "mtime": 1782850007.0354345,
+    "ast_hash": "048dcc88c024eee84784a6a68c5b8298",
+    "semantic_hash": ""
+  },
+  "src/views/instrumentadores/InstrumentadorUpload.vue": {
+    "mtime": 1782850007.0368848,
+    "ast_hash": "ab9fbb413c88ad025c64ef55e4f0fa25",
+    "semantic_hash": ""
+  },
+  "src/views/logistica/ConsumoView.vue": {
+    "mtime": 1782850007.0368848,
+    "ast_hash": "deffcdeba1a5d0074bf258aa6f50630a",
+    "semantic_hash": ""
+  },
+  "src/views/logistica/LogisticaControl.vue": {
+    "mtime": 1782850007.0378919,
+    "ast_hash": "eb3ce196ecde15e347d97810b81b1868",
+    "semantic_hash": ""
+  },
+  "supabase/functions/b2-presigned-url/deno.json": {
+    "mtime": 1782850007.0394015,
+    "ast_hash": "84fc641f32c824835477aa851257c64f",
+    "semantic_hash": ""
+  },
+  "supabase/functions/b2-presigned-url/index.ts": {
+    "mtime": 1782850007.0394015,
+    "ast_hash": "726cf0455ba0e733d051a364a1a747af",
+    "semantic_hash": ""
+  },
+  "tailwind.config.js": {
+    "mtime": 1782850007.0409179,
+    "ast_hash": "d79099276b0a7ca8418f7e3fb3ecf70b",
+    "semantic_hash": ""
+  },
+  "vercel.json": {
+    "mtime": 1782850007.0409179,
+    "ast_hash": "854af7689869f456e2e4bee84a1b2946",
+    "semantic_hash": ""
+  },
+  "vite.config.js": {
+    "mtime": 1782850007.0409179,
+    "ast_hash": "a67f51ee0b4834670ddaac382debdbfe",
+    "semantic_hash": ""
+  },
+  ".agents/rules/graphify.md": {
+    "mtime": 1783337361.376429,
+    "ast_hash": "a0e4d192b9e2e17256124dbfc8e24e6a",
+    "semantic_hash": ""
+  },
+  ".agents/skills/cognitive-doc-design/SKILL.md": {
+    "mtime": 1782850006.946566,
+    "ast_hash": "8adbb3b8135720c094efa9008e6ca50e",
+    "semantic_hash": ""
+  },
+  ".agents/skills/comment-writer/SKILL.md": {
+    "mtime": 1782850006.9475737,
+    "ast_hash": "46956cc2e2adb3088dfe45fe7240dbc6",
+    "semantic_hash": ""
+  },
+  ".agents/skills/find-skills/SKILL.md": {
+    "mtime": 1782850006.9475737,
+    "ast_hash": "423f2107c2f949cdaa6cad9b2fcc6df3",
+    "semantic_hash": ""
+  },
+  ".agents/skills/frontend-design/LICENSE.txt": {
+    "mtime": 1782850006.948573,
+    "ast_hash": "29256199be2a609aac596980ffc11996",
+    "semantic_hash": ""
+  },
+  ".agents/skills/frontend-design/SKILL.md": {
+    "mtime": 1782850006.948573,
+    "ast_hash": "400c8b8231420f30b48aed0a6f37df9f",
+    "semantic_hash": ""
+  },
+  ".agents/skills/gentle-ai-branch-pr/SKILL.md": {
+    "mtime": 1782850006.9495747,
+    "ast_hash": "3748bcccdd8843ac2fe11887e30776a2",
+    "semantic_hash": ""
+  },
+  ".agents/skills/gentle-ai-chained-pr/SKILL.md": {
+    "mtime": 1782850006.95065,
+    "ast_hash": "e90e731fa54fb0789b58d30a21c6502c",
+    "semantic_hash": ""
+  },
+  ".agents/skills/gentle-ai-chained-pr/references/chaining-details.md": {
+    "mtime": 1782850006.951659,
+    "ast_hash": "a8894fd807e99d4d74f372486b303b7f",
+    "semantic_hash": ""
+  },
+  ".agents/skills/gentle-ai-issue-creation/SKILL.md": {
+    "mtime": 1782850006.9528434,
+    "ast_hash": "d0a346bd27f89aa88f7bfb5b2c8dfd22",
+    "semantic_hash": ""
+  },
+  ".agents/skills/graphify/SKILL.md": {
+    "mtime": 1783337265.5564232,
+    "ast_hash": "669136bfcec86389603bd82ae2032696",
+    "semantic_hash": ""
+  },
+  ".agents/skills/work-unit-commits/SKILL.md": {
+    "mtime": 1782850006.9528434,
+    "ast_hash": "a5d9ba7d8f19f51ff0cc6312db563b53",
+    "semantic_hash": ""
+  },
+  ".agents/workflows/graphify.md": {
+    "mtime": 1783337361.376429,
+    "ast_hash": "637776aa6f7496d069afe7520c845c8a",
+    "semantic_hash": ""
+  },
+  ".skills/gestion-iq-safe-coding.md": {
+    "mtime": 1782850006.9558415,
+    "ast_hash": "9b18fdfbc4b97526374019967320998a",
+    "semantic_hash": ""
+  },
+  "AGENTS.md": {
+    "mtime": 1782850006.9568417,
+    "ast_hash": "6aa045fde5f44cea0f00db089104ffa6",
+    "semantic_hash": ""
+  },
+  "Documentacion/ActivitySummary.txt": {
+    "mtime": 1782850006.9578445,
+    "ast_hash": "ec93d66854a551f5706965939bc7ff36",
+    "semantic_hash": ""
+  },
+  "Documentacion/ConsumoView.txt": {
+    "mtime": 1782850006.9588418,
+    "ast_hash": "9dd1d42af04844a3b8b75cf184d63799",
+    "semantic_hash": ""
+  },
+  "Documentacion/Documentacion 5.0/CONTEXTO UNIFICADO SUPABASE (v5.0 - Verificado).txt": {
+    "mtime": 1782850006.9588418,
+    "ast_hash": "0b1f01eea10ad1570d83cd6a9db07924",
+    "semantic_hash": ""
+  },
+  "Documentacion/Documentacion 5.0/Manual de Arquitectura y Flujo de Datos (v5.0 - Verificado).txt": {
+    "mtime": 1782850006.959841,
+    "ast_hash": "d9ff76b53914f9981c1ceff7ecc1b48f",
+    "semantic_hash": ""
+  },
+  "Documentacion/EvidenceViewer.vue.txt": {
+    "mtime": 1782850006.959841,
+    "ast_hash": "313c6e68344b4187843d767c3a6e3585",
+    "semantic_hash": ""
+  },
+  "Documentacion/FileUpload.txt": {
+    "mtime": 1782850006.9603455,
+    "ast_hash": "701953fb31c4cc42973eb9fa01221769",
+    "semantic_hash": ""
+  },
+  "Documentacion/LogisticaTimeline.txt": {
+    "mtime": 1782850006.9603455,
+    "ast_hash": "8d3fef437b409f76a450645e6a026733",
+    "semantic_hash": ""
+  },
+  "Documentacion/Nuevo Documento de texto.txt": {
+    "mtime": 1782850006.9603455,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": ""
+  },
+  "Documentacion/Pagos sql.txt": {
+    "mtime": 1782850006.9603455,
+    "ast_hash": "ccccdc05e62fd4dd3aa1a9b704ed4155",
+    "semantic_hash": ""
+  },
+  "Documentacion/PagosDashboardView.vue.txt": {
+    "mtime": 1782850006.9618618,
+    "ast_hash": "7569dded3a94dffb532640aafc21986f",
+    "semantic_hash": ""
+  },
+  "Documentacion/PhotoCard.txt": {
+    "mtime": 1782850006.9618618,
+    "ast_hash": "a37087f9bfe0915e852fe322ccf86c4d",
+    "semantic_hash": ""
+  },
+  "Documentacion/PhotolightBox.txt": {
+    "mtime": 1782850006.9628694,
+    "ast_hash": "5131e1537feb15a1118fa8010439a20a",
+    "semantic_hash": ""
+  },
+  "Documentacion/PhotosGalery.txt": {
+    "mtime": 1782850006.9628694,
+    "ast_hash": "f701861417cf2377aad9c32a5eb5c0e6",
+    "semantic_hash": ""
+  },
+  "Documentacion/Sidebar.txt": {
+    "mtime": 1782850006.9638703,
+    "ast_hash": "1631003f1a468238622bd7377348d631",
+    "semantic_hash": ""
+  },
+  "Documentacion/SubmissionSuccess.vue.txt": {
+    "mtime": 1782850006.9638703,
+    "ast_hash": "baa43d033fee28667d2b8f05af69a555",
+    "semantic_hash": ""
+  },
+  "Documentacion/index.js.txt": {
+    "mtime": 1782850006.9638703,
+    "ast_hash": "d94f722534fd07745cbd5238c5c28942",
+    "semantic_hash": ""
+  },
+  "Documentacion/index.tes.txt": {
+    "mtime": 1782850006.9648705,
+    "ast_hash": "2bfa3d116422d7d07b3ec2981f939d83",
+    "semantic_hash": ""
+  },
+  "Documentacion/instrumentadores esquema.txt": {
+    "mtime": 1782850006.9648705,
+    "ast_hash": "802d30d43eceab64552da8d9b8f69fe3",
+    "semantic_hash": ""
+  },
+  "Documentacion/orden_de_pago.txt": {
+    "mtime": 1782850006.9658701,
+    "ast_hash": "adbeb4bc74a05b5293504c87c2e9d8e1",
+    "semantic_hash": ""
+  },
+  "Documentacion/reportes.txt": {
+    "mtime": 1782850006.9658701,
+    "ast_hash": "b0f3dda06064515da1d006beda80b0b9",
+    "semantic_hash": ""
+  },
+  "Documentacion/useB2Upload.js.txt": {
+    "mtime": 1782850006.9676094,
+    "ast_hash": "6f437d3c51e1684102e784caa3690e77",
+    "semantic_hash": ""
+  },
+  "README.md": {
+    "mtime": 1782850006.9676094,
+    "ast_hash": "e8deae457065725271d8de5bc4638307",
+    "semantic_hash": ""
+  },
+  "docs/00_INDEX.md": {
+    "mtime": 1782850006.9683847,
+    "ast_hash": "0fc0bc60fe72db451a8b45cafda6a276",
+    "semantic_hash": ""
+  },
+  "docs/01_PROJECT_OVERVIEW.md": {
+    "mtime": 1782850006.9683847,
+    "ast_hash": "496780d76ba84f231fb23c2bc24bbe9d",
+    "semantic_hash": ""
+  },
+  "docs/02_TECH_STACK.md": {
+    "mtime": 1782850006.9683847,
+    "ast_hash": "8b651aef6541df1136be102fbbf12953",
+    "semantic_hash": ""
+  },
+  "docs/03_FRONTEND_ARCHITECTURE.md": {
+    "mtime": 1782850006.9699202,
+    "ast_hash": "2b212151e2fab3146c7bfa4d182fdefa",
+    "semantic_hash": ""
+  },
+  "docs/04_SUPABASE_DATABASE_ARCHITECTURE.md": {
+    "mtime": 1782850006.9699202,
+    "ast_hash": "ab058460663ef794fe4da13ff10a7365",
+    "semantic_hash": ""
+  },
+  "docs/05_RPC_CATALOG.md": {
+    "mtime": 1782850006.9709275,
+    "ast_hash": "9c0ba0d4c0f2c47f6a098fa858b8e654",
+    "semantic_hash": ""
+  },
+  "docs/06_SECURITY_RLS_MODEL.md": {
+    "mtime": 1782850006.9709275,
+    "ast_hash": "632e3f3c95e6f4a4d8ee1fd19c748db9",
+    "semantic_hash": ""
+  },
+  "docs/07_DATA_FLOW_MAP.md": {
+    "mtime": 1782850006.9709275,
+    "ast_hash": "756c3cdb50691ee74ed02e4f1d8a33fb",
+    "semantic_hash": ""
+  },
+  "docs/08_MODULE_MAP.md": {
+    "mtime": 1782850006.9719274,
+    "ast_hash": "a0fe1677d3c447a4666b77ec1b6a2cce",
+    "semantic_hash": ""
+  },
+  "docs/09_EDGE_FUNCTIONS_AND_STORAGE.md": {
+    "mtime": 1782850006.9719274,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": ""
+  },
+  "docs/10_TECHNICAL_DEBT_AND_RISKS.md": {
+    "mtime": 1782850006.9719274,
+    "ast_hash": "e73e40cdf0cde219fd3a988eb390d400",
+    "semantic_hash": ""
+  },
+  "docs/11_AI_WORKING_CONTEXT.md": {
+    "mtime": 1782850006.9730132,
+    "ast_hash": "07000c164966ff827748286126b83650",
+    "semantic_hash": ""
+  },
+  "docs/12_CONSOLIDATED_TECHNICAL_ARCHITECTURE.md": {
+    "mtime": 1782850006.9730132,
+    "ast_hash": "7eb6819216c6483ead1f7f9242392689",
+    "semantic_hash": ""
+  },
+  "docs/13_SECURITY_AUDIT_CURRENT_STATE.md": {
+    "mtime": 1782850006.974013,
+    "ast_hash": "0d9c407b22771f4143a38e8269603d98",
+    "semantic_hash": ""
+  },
+  "docs/Gestion IQ \u2014 Documento Integral de Magnitud del Proyecto.md": {
+    "mtime": 1782850006.974013,
+    "ast_hash": "d5ded44349eeb2e31f92dcd7ea8cc1a8",
+    "semantic_hash": ""
+  },
+  "docs/Informe Semanal/informe-semanal.md": {
+    "mtime": 1782850006.9750128,
+    "ast_hash": "54f617881cccac8a7cb4182f9b7f7fd2",
+    "semantic_hash": ""
+  },
+  "docs/frontend/ESTACION_PAGOS_RAPIDOS_CHANGELOG.md": {
+    "mtime": 1782850006.9750128,
+    "ast_hash": "c395c0b1ba2c4396007462a9c478fa36",
+    "semantic_hash": ""
+  },
+  "docs/frontend/PORTAL_INSTRUMENTADOR_CHANGELOG.md": {
+    "mtime": 1782850006.9760153,
+    "ast_hash": "67f9e020da4cdb96eca4e727fc24d32d",
+    "semantic_hash": ""
+  },
+  "index.html": {
+    "mtime": 1782850006.9760153,
+    "ast_hash": "7b26375e2a132b921befc1d3811c0421",
+    "semantic_hash": ""
+  },
+  "src/components/PORTAL_INSTRUMENTADOR_CHANGELOG.md": {
+    "mtime": 1782850006.9993885,
+    "ast_hash": "154744263e5fdbdf810cfed8d57967ba",
+    "semantic_hash": ""
+  },
+  ".codeviz/Untitled 1/Untitled-1.png": {
+    "mtime": 1782850006.9548416,
+    "ast_hash": "96148ff51c78510642d0ec70781afe0b",
+    "semantic_hash": ""
+  },
+  "public/1.svg": {
+    "mtime": 1782850006.9790127,
+    "ast_hash": "3ba2d9bd956a3d21756d4d4661126342",
+    "semantic_hash": ""
+  },
+  "public/2.svg": {
+    "mtime": 1782850006.9810424,
+    "ast_hash": "bca5ddec27daa88e4701730746468f47",
+    "semantic_hash": ""
+  },
+  "public/logo.png": {
+    "mtime": 1782850006.9825485,
+    "ast_hash": "98fefd2ee015531a7ce6ecd0078c0efd",
+    "semantic_hash": ""
+  },
+  "public/vite.svg": {
+    "mtime": 1782850006.983621,
+    "ast_hash": "d42eb8f7e81e82fa63ec127a583cd12c",
+    "semantic_hash": ""
+  },
+  "src/assets/vue.svg": {
+    "mtime": 1782850006.9844005,
+    "ast_hash": "d42eb8f7e81e82fa63ec127a583cd12c",
+    "semantic_hash": ""
+  }
+}

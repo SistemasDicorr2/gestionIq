@@ -105,8 +105,18 @@ const generateLink = async () => {
     if (error) throw error;
     
     localShortCode.value = short_code;
-    emit('link-generated', { reporteId: props.reporte.id, short_code });
-    toast.success('¡Link corto generado/actualizado!');
+    
+    // Obtener la fecha de creación real del enlace recién insertado/actualizado
+    const { data: linkDetails, error: fetchErr } = await supabase
+      .from('short_links')
+      .select('created_at')
+      .eq('short_code', short_code)
+      .single();
+
+    const created_at = !fetchErr && linkDetails ? linkDetails.created_at : new Date().toISOString();
+    
+    emit('link-generated', { reporteId: props.reporte.id, short_code, created_at });
+    toast.success('¡Enlace de acceso rápido generado exitosamente!');
   } catch (err) {
     toast.error('Error al generar el link: ' + err.message);
   } finally {
@@ -123,7 +133,7 @@ const copyLink = async () => {
   if (!clipboardText.value) return;
   try {
     await navigator.clipboard.writeText(clipboardText.value);
-    toast.success('¡Mensaje completo copiado!');
+    toast.success('¡Ficha copiada! El enlace y los detalles están listos para ser compartidos.');
   } catch (err) {
     toast.error('No se pudo copiar el mensaje.');
   }

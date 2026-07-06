@@ -36,6 +36,8 @@
           <EvidenceViewer 
             v-if="control.photos && control.photos.length > 0"
             :files="control.photos" 
+            :deletable="true"
+            @file-deleted="(fileId) => handleFileDeleted(control.id, fileId)"
             class="mt-4"
           />
         </div>
@@ -52,6 +54,9 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { supabase } from '../../services/supabase';
+import { format } from 'date-fns'; // Para formatear la fecha
+
+// Importamos nuestros componentes reutilizables
 import EvidenceViewer from '../shared/EvidenceViewer.vue';
 
 const props = defineProps({
@@ -83,6 +88,13 @@ const getStatusColor = (status) => {
   if (status === 'revision') return 'bg-yellow-500';
   if (status === 'problemas') return 'bg-red-500';
   return 'bg-gray-400';
+};
+
+const handleFileDeleted = (controlId, fileId) => {
+  const control = logisticaControls.value.find(c => c.id === controlId);
+  if (control && control.photos) {
+    control.photos = control.photos.filter(p => p.id !== fileId);
+  }
 };
 
 // COMENTARIO: Función principal que carga los datos desde la vista de Supabase.

@@ -82,6 +82,7 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { supabase } from '../../services/supabase';
+import { useToasts } from '../../composables/useToasts';
 import PhotoCard from './PhotoCard.vue';
 // --- CAMBIO: Se elimina la importación del visor antiguo ---
 // import PhotoLightbox from './PhotoLightbox.vue'; 
@@ -108,6 +109,7 @@ const props = defineProps({
 });
 
 // --- ESTADO INTERNO (sin cambios en las variables, se reutilizan) ---
+const { showSuccessToast, showErrorToast } = useToasts();
 const isLoading = ref(true);
 const photos = ref([]); 
 const isLightboxOpen = ref(false);
@@ -221,11 +223,20 @@ const confirmDeletePhoto = () => {
   cancelDeletePhoto();
 };
 
-const handleDeletePhoto = (photoId) => {
-  // TODO: Implementar la lógica de borrado real.
-  console.log(`Eliminar foto ID: ${photoId} del área ${props.area}`);
-  photos.value = photos.value.filter(p => p.id !== photoId);
-  alert(`Foto ${photoId} eliminada (simulación).`);
+const handleDeletePhoto = async (photoId) => {
+  try {
+    const { error } = await supabase
+      .from('reporte_evidencias')
+      .delete()
+      .eq('id', photoId);
+
+    if (error) throw error;
+
+    photos.value = photos.value.filter(p => p.id !== photoId);
+    showSuccessToast('Evidencia eliminada correctamente.');
+  } catch (error) {
+    showErrorToast(error, 'Error al eliminar la evidencia.');
+  }
 };
 </script>
 

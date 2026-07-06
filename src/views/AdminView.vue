@@ -1,6 +1,6 @@
 <!-- src/views/AdminView.vue -->
 <template>
-  <div class="p-4 sm:p-6 lg:p-8">
+  <div class="p-4 sm:p-6 lg:p-8 bg-slate-50/30 dark:bg-slate-950/10 min-h-screen">
     <FilterBar 
       @update-filters="applyFilters" 
       @export-lista="exportarListaPDF"
@@ -11,7 +11,7 @@
     <div v-if="loading" class="space-y-4">
       <SkeletonLoader v-for="n in 5" :key="`skel-${n}`" />
     </div>
-    <div v-else-if="error" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+    <div v-else-if="error" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-xl relative" role="alert">
       <strong class="font-bold">Error:</strong>
       <span class="block sm:inline">{{ error }}</span>
     </div>
@@ -30,21 +30,23 @@
       </div>
       
       <div class="sm:hidden space-y-4">
-        <p v-if="reportes.length === 0" class="text-center text-gray-500 py-10">No se encontraron reportes.</p>
+        <p v-if="reportes.length === 0" class="text-center text-slate-500 py-10 text-sm font-medium">No se encontraron reportes.</p>
         <ReportCard v-for="reporte in reportes" :key="reporte.id" :reporte="reporte" @share="openGenerateLinkModal(reporte)" @details="openDrawer"/>
         <PaginationControls v-if="totalReportes > itemsPerPage" :current-page="currentPage" :total-items="totalReportes" :items-per-page="itemsPerPage" @page-changed="goToPage" />
       </div>
     </div>
     
     <Transition name="slide-up">
-      <div v-if="selectedReportes.size > 0" class="fixed bottom-0 left-0 right-0 bg-white dark:bg-slate-800 shadow-lg border-t dark:border-slate-700 p-4 flex justify-center items-center z-10">
-        <div class="flex items-center gap-4">
-          <span class="font-semibold text-gray-700 dark:text-slate-200">{{ selectedReportes.size }} reporte(s) seleccionado(s)</span>
-          <button @click="exportarSeleccionPDF" class="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg shadow hover:bg-blue-700 flex items-center gap-2" :disabled="isExporting">
-            <DocumentTextIcon class="h-5 w-5" />
+      <div v-if="selectedReportes.size > 0" class="fixed bottom-0 left-0 right-0 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-t border-slate-100 dark:border-slate-800 p-4 shadow-xl flex justify-center items-center z-10 rounded-t-2xl">
+        <div class="flex items-center gap-5">
+          <span class="text-sm font-semibold text-slate-700 dark:text-slate-300">
+            {{ selectedReportes.size }} {{ selectedReportes.size === 1 ? 'reporte seleccionado' : 'reportes seleccionados' }}
+          </span>
+          <button @click="exportarSeleccionPDF" class="bg-indigo-600 text-white font-bold py-2.5 px-5 rounded-xl shadow hover:bg-indigo-700 active:scale-95 flex items-center gap-2 transition-all duration-150 cursor-pointer text-sm" :disabled="isExporting">
+            <DocumentTextIcon class="h-4.5 w-4.5" />
             {{ isExporting ? 'Exportando...' : 'Exportar Selección' }}
           </button>
-          <button @click="selectedReportes.clear()" class="text-sm text-gray-500 hover:underline">Limpiar selección</button>
+          <button @click="selectedReportes.clear()" class="text-xs font-bold text-slate-400 hover:text-slate-650 dark:hover:text-slate-200 transition-colors uppercase tracking-wider cursor-pointer">Limpiar</button>
         </div>
       </div>
     </Transition>
@@ -166,6 +168,70 @@ const fetchReportes = async () => {
     if (data && data.length > 0) {
       reportes.value = data;
       totalReportes.value = data[0].total_count;
+
+      // Consultar links cortos y evidencias cargadas en paralelo para optimizar rendimiento
+      const ids = data.map(r => r.id);
+
+      const [linksResult, evidenciasResult] = await Promise.all([
+        supabase
+          .from('short_links')
+          .select('reporte_id, created_at, short_code')
+          .in('reporte_id', ids),
+        supabase
+          .from('reporte_evidencias')
+          .select('reporte_id, object_key, file_name, content_type')
+          .in('reporte_id', ids)
+          .like('content_type', 'image/%')
+      ]);
+
+      const linksData = linksResult.data;
+      const linksError = linksResult.error;
+      const evidenciasData = evidenciasResult.data;
+      const evidenciasError = evidenciasResult.error;
+
+      const linksMap = {};
+      if (!linksError && linksData) {
+        linksData.forEach(link => {
+          linksMap[link.reporte_id] = link;
+        });
+      }
+
+      const evidenciasMap = {};
+      if (!evidenciasError && evidenciasData) {
+        const R2_PUBLIC_URL = import.meta.env.VITE_R2_PUBLIC_URL;
+        
+        const getThumbnailUrl = (objectKey, contentType) => {
+          if (!objectKey) return '';
+          const lowerKey = objectKey.toLowerCase();
+          const isJpg = (contentType && contentType.startsWith('image/jpeg')) ||
+                        (lowerKey.endsWith('.jpg') || lowerKey.endsWith('.jpeg'));
+          if (!isJpg) {
+            return `${R2_PUBLIC_URL}/${objectKey}`;
+          }
+          const lastDot = objectKey.lastIndexOf('.');
+          if (lastDot === -1) return `${R2_PUBLIC_URL}/${objectKey}`;
+          const base = objectKey.substring(0, lastDot);
+          return `${R2_PUBLIC_URL}/${base}_thumb.webp`;
+        };
+
+        evidenciasData.forEach(ev => {
+          if (!evidenciasMap[ev.reporte_id]) {
+            evidenciasMap[ev.reporte_id] = [];
+          }
+          evidenciasMap[ev.reporte_id].push({
+            url: `${R2_PUBLIC_URL}/${ev.object_key}`,
+            thumbnailUrl: getThumbnailUrl(ev.object_key, ev.content_type),
+            name: ev.file_name || 'Evidencia'
+          });
+        });
+      }
+
+      reportes.value = reportes.value.map(r => ({
+        ...r,
+        short_code: linksMap[r.id]?.short_code || null,
+        fecha_link_generado: linksMap[r.id]?.created_at || null,
+        evidencias: evidenciasMap[r.id] || []
+      }));
     } else {
       reportes.value = [];
       totalReportes.value = 0;
@@ -397,11 +463,19 @@ const closeGenerateLinkModal = () => {
   isGenerateLinkModalVisible.value = false;
   selectedReporteForLink.value = null;
 };
-const handleLinkGenerated = ({ reporteId, short_code }) => {};
+const handleLinkGenerated = ({ reporteId, short_code, created_at }) => {
+  const idx = reportes.value.findIndex(r => r.id === reporteId);
+  if (idx !== -1) {
+    reportes.value[idx].short_code = short_code;
+    reportes.value[idx].fecha_link_generado = created_at || new Date().toISOString();
+  }
+};
 const handleLinkExpired = ({ reporteId }) => {
   const reporteIndex = reportes.value.findIndex(r => r.id === reporteId);
   if (reporteIndex !== -1) {
     reportes.value[reporteIndex].estado = 'Expirado';
+    reportes.value[reporteIndex].short_code = null;
+    reportes.value[reporteIndex].fecha_link_generado = null;
   }
 };
 </script>

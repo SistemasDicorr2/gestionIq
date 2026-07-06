@@ -6,7 +6,12 @@
       <header class="flex justify-between items-start border-b-2 border-slate-200 pb-2">
         <img src="/2.svg" alt="Districorr Logo" class="h-16">
         <div class="text-right">
-          <h1 class="text-xl font-bold text-[#1E3A8A]">Reporte de Cirugía</h1>
+          <div class="flex items-center justify-end gap-2 mt-1">
+            <span v-if="reporte.tipo_logistica === 'con_logistica'" class="bg-red-100 text-red-750 font-extrabold px-2.5 py-0.5 rounded text-[10px] uppercase border border-red-300 tracking-wider shadow-sm mr-2">
+              Posee Logística
+            </span>
+            <h1 class="text-xl font-bold text-[#1E3A8A]">Reporte de Cirugía</h1>
+          </div>
           <p class="text-slate-600 text-sm font-medium">Ficha de Identificación del Instrumentador Quirúrgico</p>
           <div class="text-xs text-slate-500">
             <span>ID Reporte: {{ reporte.id_cirugia }}</span> |
@@ -58,7 +63,7 @@
               <div class="space-y-1 border p-3 rounded-md bg-slate-50">
                 <InfoItem label="Representante" :value="reporte.representante_ventas" />
                 <InfoItem label="Duración Cirugía" :value="reporte.duracion_cirugia" />
-                <InfoItem label="Logística" :value="humanize(reporte.tipo_logistica)" />
+                <InfoItem label="Logística" :value="humanize(reporte.tipo_logistica)" :is-red="reporte.tipo_logistica === 'con_logistica'" />
                 <InfoItem label="Transporte" :value="reporte.transporte_utilizado" />
               </div>
             </div>
@@ -66,27 +71,18 @@
         </section>
       </main>
 
-<!-- --- INICIO DEL FOOTER FINAL --- -->
+      <!-- --- INICIO DEL FOOTER FINAL --- -->
       <footer class="mt-auto pt-4 border-t-2 border-slate-200">
         <div v-if="reporte.url_firma">
-          <!-- Declaración de veracidad -->
           <p class="text-center text-xs text-slate-500 italic mb-4">
             Declaro que la información contenida en este reporte es veraz y completa.
           </p>
           
-          <!-- Contenedor de la firma y aclaración -->
           <div class="max-w-xs mx-auto text-center">
-            
-            <!-- 
-              🔴 LA ÚNICA MODIFICACIÓN ESTÁ AQUÍ 🔴
-              Cambiamos h-32 por h-36 para hacer la caja (y por lo tanto la firma) más alta.
-              Puedes probar con h-40 si la quieres aún más grande.
-            -->
             <div class="w-full h-36 flex items-center justify-center mb-2">
               <img :src="reporte.url_firma" alt="Firma" class="max-w-full max-h-full object-contain">
             </div>
 
-            <!-- Línea y aclaración de firma -->
             <div>
               <p class="border-t-2 border-slate-400 pt-1 font-semibold text-base text-slate-800">
                 {{ reporte.instrumentador_completado }}
@@ -136,7 +132,7 @@ const humanize = (text) => {
 };
 
 const InfoItem = defineComponent({
-  props: ['label', 'value', 'icon', 'isBold'],
+  props: ['label', 'value', 'icon', 'isBold', 'isRed'],
   setup(props) {
     const icons = { UserIcon, ClipboardDocumentCheckIcon, CalendarIcon, MapPinIcon, UserCircleIcon, IdentificationIcon, DocumentTextIcon, ClockIcon };
     return () => h('div', { class: 'grid grid-cols-[auto_1fr] gap-x-2 items-start' }, [
@@ -144,7 +140,13 @@ const InfoItem = defineComponent({
         props.icon ? h(icons[props.icon], { class: 'h-5 w-5 mr-2 text-[#1E3A8A]' }) : null,
         h('span', { class: 'font-semibold text-slate-800 whitespace-nowrap' }, props.label + ':')
       ]),
-      h('span', { class: ['col-start-2 text-slate-800 break-words', { 'font-bold': props.isBold, 'font-medium': !props.isBold }] }, props.value || 'N/A')
+      h('span', { 
+        class: [
+          'col-start-2 break-words', 
+          props.isRed ? 'text-red-600 font-bold' : 'text-slate-800',
+          { 'font-bold': props.isBold, 'font-medium': !props.isBold && !props.isRed }
+        ] 
+      }, props.value || 'N/A')
     ]);
   }
 });
@@ -169,12 +171,26 @@ const RatingStars = defineComponent({
   props: ['label', 'rating'],
   setup(props) {
     const ratingColors = ['text-red-500', 'text-orange-500', 'text-yellow-500', 'text-lime-500', 'text-emerald-500'];
-    const stars = Array.from({ length: 5 }, (_, i) => h('span', { class: i < props.rating ? ratingColors[props.rating - 1] : 'text-slate-300' }, '★'));
-    return () => h('div', { class: 'flex items-center' }, [
-      h('span', { class: 'font-semibold text-slate-800 mr-2 w-28' }, props.label + ':'),
-      h('div', { class: 'flex text-lg' }, stars),
-      h('span', { class: 'ml-2 text-sm text-slate-500' }, `(${props.rating ? props.rating + '/5' : 'N/A'})`)
-    ]);
+    
+    return () => {
+      const ratingVal = (props.rating !== null && props.rating !== undefined) ? parseInt(props.rating, 10) : null;
+      const isValid = !isNaN(ratingVal) && ratingVal >= 1 && ratingVal <= 5;
+      
+      const stars = Array.from({ length: 5 }, (_, i) => {
+        const isActive = isValid && i < ratingVal;
+        const colorClass = isActive ? (ratingColors[ratingVal - 1] || 'text-yellow-500') : 'text-slate-300';
+        return h('span', { class: colorClass }, '★');
+      });
+      
+      const labelText = props.label ? props.label + ':' : '';
+      const scoreText = isValid ? `${ratingVal}/5` : 'N/A';
+      
+      return h('div', { class: 'flex items-center' }, [
+        h('span', { class: 'font-semibold text-slate-800 mr-2 w-28' }, labelText),
+        h('div', { class: 'flex text-lg mr-2' }, stars),
+        h('span', { class: 'text-xs text-slate-500 font-medium' }, `(${scoreText})`)
+      ]);
+    };
   }
 });
 </script>
