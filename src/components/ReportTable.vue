@@ -5,7 +5,7 @@
       <table class="min-w-full divide-y divide-slate-100 dark:divide-slate-800/60">
         <thead class="bg-slate-50/80 dark:bg-slate-900/60 border-b border-slate-100 dark:border-slate-800/60">
           <tr>
-            <th scope="col" class="p-4 w-12 text-center">
+            <th scope="col" class="p-2 w-12 text-center">
               <input 
                 type="checkbox" 
                 class="checkbox-lg-styled"
@@ -29,9 +29,9 @@
             </td>
           </tr>
           <tr v-for="reporte in reportes" :key="reporte.id" 
-              class="transition-all duration-150 hover:bg-slate-50/30 dark:hover:bg-slate-800/20"
-              :class="{'bg-indigo-50/20 dark:bg-indigo-950/10': isReportSelected(reporte.id)}">
-            <td class="p-4 w-12 text-center">
+              class="transition-all duration-150"
+              :class="getRowClass(reporte)">
+            <td class="p-2 w-12 text-center">
               <input 
                 type="checkbox" 
                 class="checkbox-lg-styled"
@@ -40,8 +40,8 @@
               />
             </td>
             <td class="table-cell">
-              <div class="font-semibold text-slate-900 dark:text-slate-100">{{ reporte.paciente }}</div>
-              <div class="text-xs text-slate-400 dark:text-slate-500 mt-0.5">ID: {{ reporte.id_cirugia || 'N/A' }}</div>
+              <div class="font-semibold text-slate-900 dark:text-slate-100 max-w-[100px] lg:max-w-[110px] xl:max-w-[125px] 2xl:max-w-none truncate" :title="reporte.paciente">{{ reporte.paciente }}</div>
+              <div class="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5">ID: {{ reporte.id_cirugia || 'N/A' }}</div>
               
               <!-- Mini-galería de Evidencias Cargadas (Vista Previa Rápida) -->
               <div v-if="reporte.evidencias && reporte.evidencias.length > 0" class="flex items-center gap-1.5 mt-2">
@@ -67,32 +67,38 @@
                 </span>
               </div>
             </td>
-            <td class="table-cell !px-2 text-center text-xs font-semibold text-slate-800 dark:text-slate-200">
+            <td class="table-cell !px-2 text-center font-semibold text-slate-800 dark:text-slate-200">
               {{ formatDate(reporte.fecha_cirugia) }}
             </td>
-            <td class="table-cell text-slate-700 dark:text-slate-300">{{ reporte.medico }}</td>
-            <td class="table-cell text-slate-900 dark:text-white font-black text-sm">
-              {{ reporte.instrumentador_completado || 'No asignado' }}
+            <td class="table-cell text-slate-700 dark:text-slate-300">
+              <div class="max-w-[85px] lg:max-w-[95px] xl:max-w-[110px] 2xl:max-w-none truncate" :title="reporte.medico">
+                {{ reporte.medico }}
+              </div>
+            </td>
+            <td class="table-cell text-slate-800 dark:text-slate-200 font-semibold">
+              <div class="max-w-[85px] lg:max-w-[95px] xl:max-w-[110px] 2xl:max-w-none truncate" :title="reporte.instrumentador_completado || 'No asignado'">
+                {{ reporte.instrumentador_completado || 'No asignado' }}
+              </div>
             </td>
             <td class="table-cell">
-              <span :class="['px-3 py-1 text-xs font-black rounded-full border inline-flex items-center gap-1.5 shadow-sm uppercase tracking-wider', getEstadoClass(reporte.estado)]">
+              <span :class="['px-2.5 py-0.5 text-[10px] font-bold rounded-full border inline-flex items-center gap-1 shadow-sm uppercase tracking-wider', getEstadoClass(reporte.estado)]">
                 <span :class="['w-1.5 h-1.5 rounded-full shrink-0', getDotClass(reporte.estado)]"></span>
                 {{ reporte.estado || 'Pendiente' }}
               </span>
             </td>
             <td class="table-cell">
               <div v-if="reporte.fecha_link_generado" class="flex flex-col gap-0.5">
-                <span class="text-xs font-semibold text-slate-800 dark:text-slate-200">
-                  Creado: <span class="font-bold">{{ formatDateTime(reporte.fecha_link_generado) }}</span>
+                <span class="text-[11px] font-medium text-slate-700 dark:text-slate-300">
+                  Creado: <span class="font-semibold">{{ formatDate(reporte.fecha_link_generado) }}</span>
                 </span>
-                <span class="text-[9px] font-black uppercase tracking-widest text-emerald-650 dark:text-emerald-450 mt-0.5">
+                <span class="text-[9px] font-bold uppercase tracking-widest text-emerald-650 dark:text-emerald-450 mt-0.5">
                   Ficha Activa
                 </span>
               </div>
               <span v-else class="text-slate-400 dark:text-slate-500 text-xs italic font-medium">Sin generar</span>
             </td>
             <td class="table-cell text-right">
-              <div class="inline-flex items-center gap-3">
+              <div class="inline-flex items-center gap-1.5 xl:gap-2 2xl:gap-3">
                 <button @click="$emit('open-link-modal', reporte)" class="action-btn-primary">Compartir</button>
                 <button @click.prevent="$emit('open-drawer', reporte)" class="action-btn-secondary">Detalles</button>
                 <button @click="$emit('export-summary', reporte)" title="Exportar Resumen de Paciente" class="action-icon-btn">
@@ -144,6 +150,19 @@ const emit = defineEmits([
 
 // Lógica de selección que depende de las props.
 const isReportSelected = (reporteId) => props.selectedReportes.has(reporteId);
+
+const getRowClass = (reporte) => {
+  if (isReportSelected(reporte.id)) {
+    return 'bg-indigo-50/30 dark:bg-indigo-950/20 hover:bg-indigo-50/40 dark:hover:bg-indigo-950/30';
+  }
+  if (reporte.estado === 'Enviado') {
+    return 'bg-emerald-50/5 dark:bg-emerald-950/5 hover:bg-emerald-50/15 dark:hover:bg-emerald-950/10';
+  }
+  if (reporte.estado === 'Pendiente') {
+    return 'bg-amber-50/5 dark:bg-amber-950/5 hover:bg-amber-50/15 dark:hover:bg-amber-950/10';
+  }
+  return 'hover:bg-slate-50/30 dark:hover:bg-slate-800/20';
+};
 
 const areAllOnPageSelected = computed(() => {
   const pageIds = props.reportes.map(r => r.id);
@@ -209,11 +228,11 @@ const formatDate = (dateString) => {
 
 <style scoped>
 .table-header {
-  @apply px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider dark:text-slate-400;
+  @apply px-2 py-2.5 text-left text-[11px] font-bold text-slate-400 uppercase tracking-wider dark:text-slate-500 lg:px-2.5 xl:px-3 2xl:px-6;
 }
 
 .table-cell {
-  @apply px-6 py-4 whitespace-nowrap text-sm text-slate-600 dark:text-slate-300;
+  @apply px-2 py-2.5 whitespace-nowrap text-xs text-slate-600 dark:text-slate-300 lg:px-2.5 xl:px-3 2xl:px-6;
 }
 
 .checkbox-lg-styled {
@@ -221,11 +240,11 @@ const formatDate = (dateString) => {
 }
 
 .action-btn-primary {
-  @apply text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 bg-indigo-50/50 dark:bg-indigo-950/40 px-2.5 py-1.5 rounded-lg active:scale-95 transition-all duration-150 cursor-pointer;
+  @apply text-[11px] font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 bg-indigo-50/50 dark:bg-indigo-950/40 px-2 py-1 rounded-lg active:scale-95 transition-all duration-150 cursor-pointer;
 }
 
 .action-btn-secondary {
-  @apply text-xs font-bold text-slate-600 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white bg-slate-50 dark:bg-slate-800 px-2.5 py-1.5 rounded-lg active:scale-95 transition-all duration-150 cursor-pointer;
+  @apply text-[11px] font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white bg-slate-50 dark:bg-slate-800 px-2 py-1 rounded-lg active:scale-95 transition-all duration-150 cursor-pointer;
 }
 
 .action-icon-btn {
