@@ -1,7 +1,7 @@
 # Graph Report - gestionIq  (2026-07-13)
 
 ## Corpus Check
-- 235 files · ~160,327 words
+- 235 files · ~160,271 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
@@ -690,7 +690,7 @@ Cohesion: 0.20
 Nodes (9): Basic Pattern, Bounce Attention, Common Animation Patterns, Composable for Reusable Animations, Highlight on Change, Pulse on Success, Task List, Use Class-based Animations for Non-Enter/Leave Effects (+1 more)
 
 ### Community 143 - "Component Data Flow Best Practices"
-Cohesion: 0.20
+Cohesion: 0.22
 Nodes (9): Component Data Flow Best Practices, Emits: Explicit Events Up, Prefer props/emit over component refs, Props: One-Way Data Down, Provide/Inject: Shared Context Without Prop Drilling, Task List, Type component refs when imperative access is required, Use TypeScript Contracts for Public Component APIs (+1 more)
 
 ### Community 144 - "Component Fallthrough Attributes Best Practices"
@@ -714,7 +714,7 @@ Cohesion: 0.22
 Nodes (9): Backward Compatibility, Basic Configuration, Concept, Custom Environment Instances, Environment API (Vite 6+), Environment Options, Multiple Environments, Plugin Environment Access (+1 more)
 
 ### Community 149 - "Suspense Component Best Practices"
-Cohesion: 0.22
+Cohesion: 0.20
 Nodes (9): Fallback Timing on Reverts (`timeout`), Pending State Only Re-triggers on Root Replacement, Recommended Nesting with RouterView, Transition, KeepAlive, Single Root in Default and Fallback Slots, Suspense Component Best Practices, Task List, Track Loading with Suspense Events, Treat Suspense Cautiously in Production (+1 more)
 
 ### Community 150 - "Render Function Patterns and Performance"

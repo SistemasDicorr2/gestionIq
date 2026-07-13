@@ -107,18 +107,27 @@ onMounted(async () => {
 
     formData.notas = data.notas || '';
     
-    // --- CAMBIO CRÍTICO: Se añade un fallback a un array vacío ---
-    // Si 'data.pagos' es null o undefined, se usará [] para evitar el error con .flatMap()
-    formData.cirugias = (data.pagos || []).flatMap(pago => 
-      pago.cirugias.map(cirugia => ({
-        reporte_id: cirugia.reporte_id,
-        paciente: cirugia.paciente,
-        tipo_cirugia: cirugia.tipo_cirugia,
-        id_cirugia: cirugia.id_cirugia,
-        fecha_cirugia: cirugia.fecha_cirugia,
-        monto_a_pagar: cirugia.monto_a_pagar
-      }))
-    );
+    const pagosList = data.pagos_instrumentadores || data.pagos || [];
+    formData.cirugias = pagosList.flatMap(pago => {
+      const list = pago.cirugias || pago.reportes || [];
+      return list.map(c => {
+        let rId = c.reporte_id || c.id;
+        if (!rId && c.id_cirugia) {
+          const match = c.id_cirugia.match(/CX-(\d+)/i);
+          if (match) {
+            rId = parseInt(match[1]) - 1000;
+          }
+        }
+        return {
+          reporte_id: rId,
+          paciente: c.paciente,
+          tipo_cirugia: c.tipo_cirugia || '',
+          id_cirugia: c.id_cirugia,
+          fecha_cirugia: c.fecha_cirugia,
+          monto_a_pagar: c.monto_final !== undefined ? c.monto_final : (c.monto_a_pagar || 0)
+        };
+      });
+    });
 
   } catch (err) {
     error.value = `Error al cargar los detalles: ${err.message}`;

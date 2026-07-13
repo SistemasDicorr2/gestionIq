@@ -20,22 +20,24 @@
             <p><strong>Monto Total General:</strong> {{ detalle.monto_total_general.toLocaleString('es-AR', { style: 'currency', currency: 'ARS' }) }}</p>
             <p><strong>Comprobante:</strong> <a :href="getComprobanteUrl(detalle.comprobante_object_key)" target="_blank" rel="noopener noreferrer">Ver Comprobante</a></p>
           </div>
-          <div v-for="pago in detalle.pagos" :key="pago.instrumentador_dni" class="instrumentador-section">
+          <div v-for="pago in (detalle.pagos_instrumentadores || detalle.pagos || [])" :key="pago.instrumentador_dni" class="instrumentador-section">
             <h3>Instrumentador: {{ pago.instrumentador_nombre }} ({{ pago.instrumentador_dni }})</h3>
             <p><strong>Monto Total:</strong> {{ pago.monto_total_instrumentador.toLocaleString('es-AR', { style: 'currency', currency: 'ARS' }) }}</p>
             <table>
               <thead>
                 <tr>
+                  <th>ID Cirugía</th>
                   <th>Fecha Cirugía</th>
                   <th>Paciente</th>
                   <th>Monto Pagado</th>
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="reporte in pago.reportes" :key="reporte.id">
+                <tr v-for="reporte in (pago.cirugias || pago.reportes || [])" :key="reporte.id || reporte.id_cirugia">
+                  <td>{{ reporte.id_cirugia || ('CX-' + (1000 + (reporte.id || 0))) }}</td>
                   <td>{{ new Date(reporte.fecha_cirugia).toLocaleDateString('es-AR', { timeZone: 'UTC' }) }}</td>
                   <td>{{ reporte.paciente }}</td>
-                  <td>{{ reporte.monto_a_pagar.toLocaleString('es-AR', { style: 'currency', currency: 'ARS' }) }}</td>
+                  <td>{{ (reporte.monto_final !== undefined ? reporte.monto_final : (reporte.monto_a_pagar || 0)).toLocaleString('es-AR', { style: 'currency', currency: 'ARS' }) }}</td>
                 </tr>
               </tbody>
             </table>
