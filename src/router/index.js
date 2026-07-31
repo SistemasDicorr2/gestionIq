@@ -26,6 +26,7 @@ import HistorialPagosView from '../views/admin/HistorialPagosView.vue';
 // --- INICIO DE LA MODIFICACIÓN ---
 // Se importa la nueva vista de configuración.
 import ConfigView from '../views/ConfigView.vue';
+import ResumenOperativoView from '../views/admin/ResumenOperativoView.vue';
 // --- FIN DE LA MODIFICACIÓN ---
 
 
@@ -68,6 +69,12 @@ const routes = [
     meta: { requiresAuth: true },
     children: [
       { path: '', redirect: '/admin' },
+      {
+        path: 'resumen-operativo',
+        name: 'ResumenOperativo',
+        component: ResumenOperativoView,
+        meta: { requiredRole: ['admin', 'coord'] }
+      },
       { path: 'admin', name: 'Admin', component: AdminView },
       { path: 'estadisticas', name: 'Estadisticas', component: StatsView },
       { path: 'instrumentadores', name: 'Instrumentadores', component: InstrumentadoresView },
@@ -122,12 +129,16 @@ router.beforeEach(async (to, from, next) => {
   if (requiresAuth && !user) {
     return next({ name: 'Login' });
   }
+
+  // Redirección del home '/' al Panel de Cirugías por defecto
+  if (to.path === '/' && user) {
+    return next({ name: 'Admin' });
+  }
   
   if (requiredRole) {
-    // Aseguramos que el usuario y sus metadatos existan antes de comprobar el rol.
-    if (!user || user.app_metadata?.role !== requiredRole) {
-      console.warn(`Acceso denegado a '${to.path}'. Rol requerido: '${requiredRole}', Rol del usuario: '${user?.app_metadata?.role || 'ninguno'}'.`);
-      // Redirige a la página principal de admin si el rol no es el correcto.
+    const rolesAllowed = Array.isArray(requiredRole) ? requiredRole : [requiredRole];
+    if (!user || !rolesAllowed.includes(user.app_metadata?.role)) {
+      console.warn(`Acceso denegado a '${to.path}'. Roles permitidos: '${rolesAllowed.join(', ')}', Rol del usuario: '${user?.app_metadata?.role || 'ninguno'}'.`);
       return next({ name: 'Admin' });
     }
   }

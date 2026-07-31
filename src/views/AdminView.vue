@@ -31,7 +31,14 @@
       
       <div class="sm:hidden space-y-4">
         <p v-if="reportes.length === 0" class="text-center text-slate-500 py-10 text-sm font-medium">No se encontraron reportes.</p>
-        <ReportCard v-for="reporte in reportes" :key="reporte.id" :reporte="reporte" @share="openGenerateLinkModal(reporte)" @details="openDrawer"/>
+        <ReportCard 
+          v-for="reporte in reportes" 
+          :key="reporte.id" 
+          :reporte="reporte" 
+          @share="openGenerateLinkModal(reporte)" 
+          @details="openDrawer"
+          @copy-link="copyLinkFromCard"
+        />
         <PaginationControls v-if="totalReportes > itemsPerPage" :current-page="currentPage" :total-items="totalReportes" :items-per-page="itemsPerPage" @page-changed="goToPage" />
       </div>
     </div>
@@ -462,6 +469,16 @@ const openGenerateLinkModal = (reporte) => {
 const closeGenerateLinkModal = () => {
   isGenerateLinkModalVisible.value = false;
   selectedReporteForLink.value = null;
+};
+const copyLinkFromCard = async (reporte) => {
+  if (!reporte.short_code) return;
+  const fullLink = `${window.location.origin}/f/${reporte.short_code}`;
+  try {
+    await navigator.clipboard.writeText(fullLink);
+    toast.success(`¡Enlace copiado para ${reporte.paciente}!`);
+  } catch (err) {
+    toast.error('No se pudo copiar el enlace.');
+  }
 };
 const handleLinkGenerated = ({ reporteId, short_code, created_at }) => {
   const idx = reportes.value.findIndex(r => r.id === reporteId);
