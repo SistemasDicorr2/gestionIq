@@ -176,8 +176,18 @@
             
             <!-- Pestaña 1: Completadas -->
             <div v-if="activeTab === 'completadas'" key="tab-comp" class="space-y-4">
-              <div class="flex items-center justify-between">
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <p class="text-xs text-slate-500">Estas cirugías ya fueron firmadas por el instrumentador. Hacé clic en "Detalles / Imprimir" para auditarlas o imprimir la ficha.</p>
+                <button 
+                  @click="printList('completadas')" 
+                  class="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold rounded-lg text-xs flex items-center justify-center gap-1.5 border border-slate-200 dark:border-slate-700 shadow-xs cursor-pointer transition active:scale-95 whitespace-nowrap self-end sm:self-auto"
+                  title="Imprimir lista de cirugías completadas"
+                >
+                  <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                  </svg>
+                  <span>Imprimir Lista</span>
+                </button>
               </div>
 
               <!-- Listado Completadas -->
@@ -223,8 +233,18 @@
 
             <!-- Pestaña 2: Pendientes -->
             <div v-else key="tab-pend" class="space-y-4">
-              <div class="flex items-center justify-between">
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <p class="text-xs text-slate-500">Estas cirugías siguen pendientes de firma. Podés copiar el link o enviarlo por WhatsApp para reclamar.</p>
+                <button 
+                  @click="printList('pendientes')" 
+                  class="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold rounded-lg text-xs flex items-center justify-center gap-1.5 border border-slate-200 dark:border-slate-700 shadow-xs cursor-pointer transition active:scale-95 whitespace-nowrap self-end sm:self-auto"
+                  title="Imprimir lista de cirugías pendientes"
+                >
+                  <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                  </svg>
+                  <span>Imprimir Lista</span>
+                </button>
               </div>
 
               <!-- Listado Pendientes -->
@@ -367,6 +387,8 @@ import { ref, computed, onMounted, inject } from 'vue';
 import { supabase } from '../../services/supabase.js';
 import { useToast } from 'vue-toastification';
 import ReportDrawer from '../../components/ReportDrawer.vue';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 const toast = useToast();
 const headerConfig = inject('header-config', null);
@@ -613,6 +635,66 @@ const shareOnWhatsApp = (rep) => {
   const message = `Hola, te recordamos que podés firmar y completar la Ficha Digital de la cirugía de *${rep.paciente}* (Médico: ${rep.medico}) ingresando en este link rápido:\n\n${fullLink}`;
   const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
   window.open(whatsappUrl, '_blank');
+};
+
+const printList = (type) => {
+  const isCompletadas = type === 'completadas';
+  const list = isCompletadas ? listCompletadas.value : listPendientes.value;
+
+  if (list.length === 0) {
+    toast.info("No hay datos en la lista para imprimir.");
+    return;
+  }
+
+  try {
+    const doc = new jsPDF({ orientation: 'landscape' });
+    const title = isCompletadas ? 'Listas para Validar / Imprimir (Fichas Firmadas)' : 'Pendientes de Firma / Enlace';
+    const periodText = `Período: ${formatDate(filters.value.from)} al ${formatDate(filters.value.to)}`;
+    const filterText = selectedDateFilter.value ? `Filtro Día: ${formatDate(selectedDateFilter.value)}` : '';
+
+    doc.setFontSize(14);
+    doc.text(title, 14, 15);
+
+    doc.setFontSize(9);
+    doc.setTextColor(100);
+    doc.text(`${periodText}${filterText ? ' | ' + filterText : ''}`, 14, 22);
+
+    doc.setTextColor(0);
+
+    const headers = ['Fecha', 'ID Cirugía', 'Paciente', 'Médico', isCompletadas ? 'Instrumentador' : 'Técnico Asignado', 'Lugar / Clínica'];
+    const body = list.map(r => [
+      formatDate(r.fecha_cirugia),
+      r.id_cirugia,
+      r.paciente,
+      r.medico,
+      isCompletadas ? (r.instrumentador_completado || r.instrumentador || '—') : (r.instrumentador || 'Sin técnico asignado'),
+      r.lugar_cirugia || '—'
+    ]);
+
+    autoTable(doc, {
+      startY: 26,
+      head: [headers],
+      body: body,
+      theme: 'striped',
+      headStyles: { fillColor: isCompletadas ? [16, 185, 129] : [245, 158, 11] }, // Emerald (Completas) o Amber (Pendientes)
+      styles: { fontSize: 8, cellPadding: 3 },
+      columnStyles: {
+        0: { cellWidth: 25 }, // Fecha
+        1: { cellWidth: 25 }, // ID Cirugía
+        2: { cellWidth: 65 }, // Paciente
+        3: { cellWidth: 55 }, // Médico
+        4: { cellWidth: 55 }, // Instrumentador / Técnico
+        5: { cellWidth: 70 }  // Clínica
+      }
+    });
+
+    const filename = `Resumen_Operativo_${type}_${new Date().toISOString().slice(0, 10)}.pdf`;
+    doc.save(filename);
+    toast.success("Listado exportado a PDF correctamente.");
+  } catch (err) {
+    console.error("Error al exportar a PDF:", err);
+    toast.error("No se pudo exportar el listado: " + err.message);
+  }
 };
 
 onMounted(() => {
