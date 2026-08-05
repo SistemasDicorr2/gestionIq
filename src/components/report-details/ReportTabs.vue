@@ -1,20 +1,22 @@
-<!-- src/components/report-details/ReportTabs.vue -->
+<!-- src/components/report-details/ReportTabs.vue (Pestañas Compactas Estilo Minimalist-UI / Linear) -->
 <template>
-  <div class="report-tabs-container">
-    <!-- 1. Navegación de Pestañas -->
-    <div class="tabs-nav">
+  <div class="w-full">
+    <!-- 1. Navegación de Pestañas Secundaria Compacta -->
+    <div class="flex items-center gap-1.5 pb-2 mb-3 border-b border-slate-200/80 dark:border-slate-800 flex-wrap">
       <button
         v-for="tab in tabs"
         :key="tab.name"
         @click="setActiveTab(tab.name)"
-        :class="['tab-button', { 'active': activeTab === tab.name }]"
+        class="py-1.5 px-3.5 text-xs font-extrabold rounded-xl transition-all cursor-pointer flex items-center gap-1.5"
+        :class="activeTab === tab.name ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-2xs' : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800'"
       >
-        {{ tab.name }}
+        <span>{{ tab.icon }}</span>
+        <span>{{ tab.name }}</span>
       </button>
     </div>
 
-    <!-- 2. Contenido de la Pestaña Activa -->
-    <div class="tab-content">
+    <!-- 2. Contenido de la Pestaña Activa con Espaciado Optimizado -->
+    <div class="tab-content pt-0.5">
       <keep-alive>
         <component
           :is="activeComponent.component"
@@ -30,31 +32,23 @@
 <script setup>
 import { ref, computed, markRaw } from 'vue';
 
-// Importamos los componentes que se usarán como contenido de las pestañas.
 import ReportEventsAndPdfs from './ReportEventsAndPdfs.vue';
 import PhotosGallery from './PhotosGallery.vue';
 import LogisticaTimeline from './LogisticaTimeline.vue'; 
 
 const props = defineProps({
   reportId: { type: [String, Number], required: true },
-  
-  // --- CAMBIO: Se ajusta la definición de la prop 'ownerId' ---
   ownerId: {
-    // Se permite que el tipo sea String, Number u Object (para aceptar null).
     type: [String, Number, Object],
-    // Ya no es requerida, ya que un reporte puede no tener owner.
     required: false,
-    // Se establece 'null' como valor por defecto si no se proporciona.
     default: null
   },
 });
 
-// --- ESTRUCTURA DE LAS PESTAÑAS ---
-// Este array define el orden, nombre y componente de cada pestaña,
-// junto con las props específicas que cada uno necesita para funcionar.
 const tabs = [
   { 
-    name: 'Fotos Instrumentadores', 
+    name: 'Fotos Instrumentadores',
+    icon: '📸',
     component: markRaw(PhotosGallery), 
     props: { 
       area: 'instrumentadores',
@@ -64,17 +58,18 @@ const tabs = [
   },
   { 
     name: 'Logística Interna', 
+    icon: '🚚',
     component: markRaw(LogisticaTimeline), 
     props: {}
   },
   { 
     name: 'Eventos & PDFs', 
+    icon: '📄',
     component: markRaw(ReportEventsAndPdfs), 
     props: {}
   },
 ];
 
-// --- ESTADO Y MÉTODOS DE NAVEGACIÓN ---
 const activeTab = ref(tabs[0].name);
 
 const setActiveTab = (tabName) => {
@@ -85,12 +80,3 @@ const activeComponent = computed(() => {
   return tabs.find(tab => tab.name === activeTab.value);
 });
 </script>
-
-<style scoped>
-.report-tabs-container { width: 100%; }
-.tabs-nav { display: flex; border-bottom: 1px solid #e2e8f0; margin-bottom: 1rem; }
-.tab-button { padding: 0.75rem 1rem; border: none; background-color: transparent; cursor: pointer; font-size: 0.9rem; font-weight: 500; color: #64748b; border-bottom: 2px solid transparent; transition: all 0.2s ease-in-out; }
-.tab-button:hover { color: #334155; }
-.tab-button.active { color: #2563eb; border-bottom-color: #2563eb; }
-.tab-content { padding: 0.5rem 0; }
-</style>

@@ -13,6 +13,7 @@ Confirmado por codigo :
     el entorno relevado es produccion unica sin staging confirmado. Cualquier
     cambio de flujo que requiera modificar RPCs, RLS, grants o buckets debe
     probarse primero en staging.
+
 Flujo de ficha digital
 
 1.  FichaView recibe token o short_code.
@@ -37,12 +38,34 @@ Flujo de evidencias
 5.  Componentes padres insertan metadata en reporte_evidencias o la envian a RPC
     logisticas.
 6.  Visualizacion construye URL con VITE_R2_PUBLIC_URL.
+
 Flujo de logistica/control de consumo
 
   - LogisticaControl.vue: inserta registros en logistica_controles.
   - ConsumoView.vue: selecciona cirugia, verifica controles previos, sube
     evidencia a R2 y llama create_logistica_control_with_evidences.
   - LogisticaTimeline.vue: lee logistica_controles_con_evidencias.
+
+Flujo de Informe Diario de Logística (Nuevo Módulo Independiente 2026)
+
+1.  LogisticaNuevoInformeView.vue:
+    - Permite crear o editar un informe diario de la jornada (`logistica_informes_diarios`).
+    - Búsqueda acotada de cirugías/pacientes existentes mediante la RPC read-only `buscar_cirugias_logistica(p_busqueda)`.
+    - Si la cirugía no figura en Gestión IQ, permite la carga manual de los datos de la cirugía.
+    - Selección táctil por chips de tipo de gestión (Entrega, Retiro, Devolución, Incidencia, Otra gestión, Documentación, Traslado).
+    - Campo de detalle dinámico obligatorio para Incidencia y Otra gestión.
+    - Guardado de borrador e inserción de ítems en `logistica_informe_movimientos` guardando snapshots textuales de cirugías para garantizar inmutabilidad.
+    - Envío definitivo llamando a la RPC transaccional `enviar_informe_logistica(p_informe_id)`.
+
+2.  LogisticaHistorialView.vue & LogisticaInformesView.vue:
+    - Consulta de informes por rango de fecha y estado (`borrador`, `enviado`, `corregido`).
+    - Acceso para usuarios con rol `logistica` o `admin`.
+
+3.  LogisticaDetalleInformeView.vue:
+    - Vista de detalle de informe individual.
+    - Botón `✏️ Editar Informe` para modificar movimientos o corregir observaciones.
+    - Generador `📧 Tabla para Email` que genera una tabla HTML de 660px estilizada y copiable con un clic para pegar en Outlook o Gmail.
+    - Impresión física y guardado en PDF `🖨️ Imprimir / Guardar PDF` con maquetación ejecutiva y líneas de firma.
 
 Flujo de pagos
 
@@ -63,8 +86,8 @@ Flujo de PDFs
   - AdminView exporta listas/resumenes/trazabilidad con jsPDF.
   - ReportDrawer llama log_pdf_generation, renderiza ReportPDF y genera PDF con
     html2canvas + jsPDF.
-  - useOrdenDePagoPDF existe para ordenes de pago; detalle pendiente de validar.
-  - Tabla pdf_generation_log: confirmada por codigo.
+  - useOrdenDePagoPDF existe para ordenes de pago.
+  - LogisticaDetalleInformeView maqueta impresión ejecutiva HTML/PDF directa con `@media print`.
 
 Flujo de actividad de instrumentadores
 1.  Admin genera/copia token permanente con generar_activity_token.
@@ -79,22 +102,10 @@ Notas frontend recientes:
     autenticar_y_obtener_resumen.
   - Mi Perfil calcula metricas visuales en frontend desde activity.
   - Pagos y Comprobantes agrupa liquidaciones en frontend desde allActivityData.
-  - No se agregaron nuevas consultas ni contratos para esta etapa.
-
-Notas Estacion de Pagos Rapidos:
-
-  - PagosDashboardView calcula KPIs en frontend desde allPendingSurgeries,
-    lista obtenida por get_todas_cirugias_pendientes.
-  - Los filtros KPI se aplican localmente despues de los filtros manuales.
-  - La seleccion y el resumen de pago siguen usando selectedSurgeryIds y
-    paymentSummary.
-  - No se agregaron nuevas consultas ni contratos.
 
 Flujo de notificaciones
 
   - AdminLayout carga get_notifications.
   - Se suscribe a inserts en notifications.
   - Marca leidas con mark_notifications_as_read.
-  - Al hacer click busca reportes y abre ReportDrawer. Pendiente de
-    endurecimiento : revisar grants y validacion interna de RPCs de
-    notificaciones segun auditoria actual.
+  - Al hacer click busca reportes y abre ReportDrawer.

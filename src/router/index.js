@@ -1,10 +1,10 @@
 // src/router/index.js
 
 import { createRouter, createWebHistory } from 'vue-router';
-// Importa el cliente de Supabase para la lógica de autenticación.
+// Cliente de Supabase para la lógica de autenticación
 import { supabase } from '../services/supabase';
 
-// --- Vistas y Layouts ---
+// --- Vistas y Layouts Existentes ---
 import AdminLayout from '../layouts/AdminLayout.vue';
 import AdminView from '../views/AdminView.vue';
 import FichaView from '../views/FichaView.vue';
@@ -23,12 +23,15 @@ import InstrumentadorUpload from '../views/instrumentadores/InstrumentadorUpload
 import ConsumoView from '../views/logistica/ConsumoView.vue';
 import PagosDashboardView from '../views/admin/PagosDashboardView.vue';
 import HistorialPagosView from '../views/admin/HistorialPagosView.vue';
-// --- INICIO DE LA MODIFICACIÓN ---
-// Se importa la nueva vista de configuración.
 import ConfigView from '../views/ConfigView.vue';
 import ResumenOperativoView from '../views/admin/ResumenOperativoView.vue';
-// --- FIN DE LA MODIFICACIÓN ---
 
+// --- Vistas y Layouts para el Módulo de Logística ---
+import LogisticaLayout from '../layouts/LogisticaLayout.vue';
+import LogisticaInformesView from '../views/logistica/LogisticaInformesView.vue';
+import LogisticaNuevoInformeView from '../views/logistica/LogisticaNuevoInformeView.vue';
+import LogisticaHistorialView from '../views/logistica/LogisticaHistorialView.vue';
+import LogisticaDetalleInformeView from '../views/logistica/LogisticaDetalleInformeView.vue';
 
 // --- Definición de Rutas ---
 const routes = [
@@ -62,53 +65,82 @@ const routes = [
     props: true,
   },
 
-  // --- Rutas Protegidas (requieren autenticación) ---
+  // --- Rutas Protegidas de Administración ---
   {
     path: '/',
     component: AdminLayout,
-    meta: { requiresAuth: true },
+    meta: { requiresAuth: true, allowedRoles: ['admin'] },
     children: [
       { path: '', redirect: '/admin' },
       {
         path: 'resumen-operativo',
         name: 'ResumenOperativo',
         component: ResumenOperativoView,
-        meta: { requiredRole: ['admin', 'coord'] }
+        meta: { allowedRoles: ['admin'] }
       },
-      { path: 'admin', name: 'Admin', component: AdminView },
-      { path: 'estadisticas', name: 'Estadisticas', component: StatsView },
-      { path: 'instrumentadores', name: 'Instrumentadores', component: InstrumentadoresView },
-      { path: 'incidencias', name: 'Incidencias', component: IncidenciasView },
-      { path: 'quejas', name: 'Quejas', component: QuejasView },
-      { path: 'pedidos-especiales', name: 'PedidosEspeciales', component: PedidosEspecialesView },
-      { path: 'notificaciones', name: 'Notificaciones', component: NotificationsView },
-      { path: 'informe-semanal-seguimiento', name: 'InformeSemanalSeguimiento', component: InformeSemanalSeguimientoView },
-      { path: 'logistica-control', name: 'LogisticaControl', component: LogisticaControl },
-      { path: 'instrumentador-upload', name: 'InstrumentadorUpload', component: InstrumentadorUpload },
-      { path: 'control-consumo', name: 'ControlConsumo', component: ConsumoView },
-      
+      { path: 'admin', name: 'Admin', component: AdminView, meta: { allowedRoles: ['admin'] } },
+      { path: 'estadisticas', name: 'Estadisticas', component: StatsView, meta: { allowedRoles: ['admin'] } },
+      { path: 'instrumentadores', name: 'Instrumentadores', component: InstrumentadoresView, meta: { allowedRoles: ['admin'] } },
+      { path: 'incidencias', name: 'Incidencias', component: IncidenciasView, meta: { allowedRoles: ['admin'] } },
+      { path: 'quejas', name: 'Quejas', component: QuejasView, meta: { allowedRoles: ['admin'] } },
+      { path: 'pedidos-especiales', name: 'PedidosEspeciales', component: PedidosEspecialesView, meta: { allowedRoles: ['admin'] } },
+      { path: 'notificaciones', name: 'Notificaciones', component: NotificationsView, meta: { allowedRoles: ['admin'] } },
+      { path: 'informe-semanal-seguimiento', name: 'InformeSemanalSeguimiento', component: InformeSemanalSeguimientoView, meta: { allowedRoles: ['admin'] } },
+      { path: 'logistica-control', name: 'LogisticaControl', component: LogisticaControl, meta: { allowedRoles: ['admin'] } },
+      { path: 'instrumentador-upload', name: 'InstrumentadorUpload', component: InstrumentadorUpload, meta: { allowedRoles: ['admin'] } },
+      { path: 'control-consumo', name: 'ControlConsumo', component: ConsumoView, meta: { allowedRoles: ['admin'] } },
       {
         path: 'pagos',
         name: 'PagosDashboard',
         component: PagosDashboardView,
-        meta: { requiredRole: 'admin' }
+        meta: { allowedRoles: ['admin'] }
       },
       {
         path: 'historial-pagos',
         name: 'HistorialPagos',
         component: HistorialPagosView,
-        meta: { requiredRole: 'admin' }
+        meta: { allowedRoles: ['admin'] }
       },
-      // --- INICIO DE LA MODIFICACIÓN ---
-      // Se añade la nueva ruta para la vista de configuración.
-      // Se protege para que solo los administradores puedan acceder.
       {
         path: 'configuracion',
         name: 'Configuracion',
         component: ConfigView,
-        meta: { requiredRole: 'admin' }
+        meta: { allowedRoles: ['admin'] }
       }
-      // --- FIN DE LA MODIFICACIÓN ---
+    ]
+  },
+
+  // --- Rutas Protegidas del Módulo Informe Diario de Logística ---
+  {
+    path: '/logistica',
+    component: LogisticaLayout,
+    meta: { requiresAuth: true, allowedRoles: ['logistica', 'admin'] },
+    children: [
+      { path: '', redirect: { name: 'LogisticaInformes' } },
+      {
+        path: 'informes',
+        name: 'LogisticaInformes',
+        component: LogisticaInformesView,
+        meta: { requiresAuth: true, allowedRoles: ['logistica', 'admin'] }
+      },
+      {
+        path: 'informes/nuevo',
+        name: 'LogisticaNuevoInforme',
+        component: LogisticaNuevoInformeView,
+        meta: { requiresAuth: true, allowedRoles: ['logistica', 'admin'] }
+      },
+      {
+        path: 'informes/historial',
+        name: 'LogisticaHistorial',
+        component: LogisticaHistorialView,
+        meta: { requiresAuth: true, allowedRoles: ['logistica', 'admin'] }
+      },
+      {
+        path: 'informes/:id',
+        name: 'LogisticaDetalleInforme',
+        component: LogisticaDetalleInformeView,
+        meta: { requiresAuth: true, allowedRoles: ['logistica', 'admin'] }
+      }
     ]
   }
 ];
@@ -118,28 +150,47 @@ const router = createRouter({
   routes,
 });
 
-// --- Guardia de Navegación Global (con verificación de rol) ---
+// --- Guardia de Navegación Global (verificación estricta por app_metadata.role) ---
 router.beforeEach(async (to, from, next) => {
   const { data: { session } } = await supabase.auth.getSession();
   const user = session?.user;
   
-  const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
-  const requiredRole = to.meta.requiredRole;
+  // LECTURA ESTRICTA: Únicamente user.app_metadata.role
+  const userRole = user?.app_metadata?.role;
 
+  const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
+  
+  // Obtener allowedRoles de la coincidencia más específica
+  const matchedWithRoles = [...to.matched].reverse().find(record => record.meta && record.meta.allowedRoles);
+  const allowedRoles = matchedWithRoles ? matchedWithRoles.meta.allowedRoles : null;
+
+  // 1. Requerir autenticación si no hay sesión
   if (requiresAuth && !user) {
     return next({ name: 'Login' });
   }
 
-  // Redirección del home '/' al Panel de Cirugías por defecto
-  if (to.path === '/' && user) {
+  // 2. Redirección inteligente post-login desde / o /login
+  if ((to.path === '/' || to.name === 'Login') && user) {
+    if (userRole === 'logistica') {
+      return next({ name: 'LogisticaInformes' });
+    }
     return next({ name: 'Admin' });
   }
-  
-  if (requiredRole) {
-    const rolesAllowed = Array.isArray(requiredRole) ? requiredRole : [requiredRole];
-    if (!user || !rolesAllowed.includes(user.app_metadata?.role)) {
-      console.warn(`Acceso denegado a '${to.path}'. Roles permitidos: '${rolesAllowed.join(', ')}', Rol del usuario: '${user?.app_metadata?.role || 'ninguno'}'.`);
-      return next({ name: 'Admin' });
+
+  // 3. Verificación estricta de roles declarativos
+  // Si la ruta define allowedRoles, DEBE DENEGARSE si userRole es undefined o no está incluido.
+  if (allowedRoles) {
+    const rolesArray = Array.isArray(allowedRoles) ? allowedRoles : [allowedRoles];
+    if (!userRole || !rolesArray.includes(userRole)) {
+      console.warn(`Acceso denegado a '${to.path}'. Rol del usuario: '${userRole || 'sin_rol'}'. Roles permitidos: '${rolesArray.join(', ')}'.`);
+      
+      if (userRole === 'logistica') {
+        return next({ name: 'LogisticaInformes' });
+      } else if (userRole === 'admin') {
+        return next({ name: 'Admin' });
+      } else {
+        return next({ name: 'Login' });
+      }
     }
   }
 

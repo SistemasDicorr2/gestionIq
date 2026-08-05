@@ -1,7 +1,7 @@
 # Graph Report - gestionIq  (2026-08-05)
 
 ## Corpus Check
-- 246 files · ~179,063 words
+- 246 files · ~178,998 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
@@ -476,7 +476,7 @@ Nodes (12): emit, filteredSurgeries, handleAgregarCirugia(), isLoading, isSubmit
 
 ### Community 55 - "supabase.js"
 Cohesion: 0.17
-Nodes (12): emit, handleSubmit(), isSubmitting, pointsToAdd, props, toast, emit, isUpdating (+4 more)
+Nodes (12): emit, formData, handleSubmit(), isSubmitting, props, toast, emit, isUpdating (+4 more)
 
 ### Community 56 - "NewInstrumentadorModal.vue"
 Cohesion: 0.29
@@ -620,7 +620,7 @@ Nodes (15): Async Dependencies, Built-in Components & Directives, Custom Directi
 
 ### Community 122 - "FichaView.vue"
 Cohesion: 0.33
-Nodes (6): emit, formData, handleSubmit(), isSubmitting, props, toast
+Nodes (6): emit, handleSubmit(), isSubmitting, pointsToAdd, props, toast
 
 ### Community 123 - "JavaScript API"
 Cohesion: 0.14
