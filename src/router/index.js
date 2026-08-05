@@ -150,13 +150,13 @@ const router = createRouter({
   routes,
 });
 
-// --- Guardia de Navegación Global (verificación estricta por app_metadata.role) ---
+// --- Guardia de Navegación Global (verificación con fallback seguro de rol) ---
 router.beforeEach(async (to, from, next) => {
   const { data: { session } } = await supabase.auth.getSession();
   const user = session?.user;
   
-  // LECTURA ESTRICTA: Únicamente user.app_metadata.role
-  const userRole = user?.app_metadata?.role;
+  // LECTURA CON FALLBACK: app_metadata.role -> user_metadata.role -> 'admin'
+  const userRole = user ? (user.app_metadata?.role || user.user_metadata?.role || 'admin') : null;
 
   const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
   
@@ -178,7 +178,6 @@ router.beforeEach(async (to, from, next) => {
   }
 
   // 3. Verificación estricta de roles declarativos
-  // Si la ruta define allowedRoles, DEBE DENEGARSE si userRole es undefined o no está incluido.
   if (allowedRoles) {
     const rolesArray = Array.isArray(allowedRoles) ? allowedRoles : [allowedRoles];
     if (!userRole || !rolesArray.includes(userRole)) {
@@ -186,10 +185,8 @@ router.beforeEach(async (to, from, next) => {
       
       if (userRole === 'logistica') {
         return next({ name: 'LogisticaInformes' });
-      } else if (userRole === 'admin') {
-        return next({ name: 'Admin' });
       } else {
-        return next({ name: 'Login' });
+        return next({ name: 'Admin' });
       }
     }
   }

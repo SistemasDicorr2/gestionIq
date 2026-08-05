@@ -86,8 +86,8 @@ const handleLogin = async () => {
     });
     if (error) throw error;
 
-    // Redirección basada ÚNICAMENTE en app_metadata.role
-    const userRole = session?.user?.app_metadata?.role;
+    // Redirección robusta con fallback si app_metadata.role no estuviera cargado
+    const userRole = session?.user?.app_metadata?.role || session?.user?.user_metadata?.role || 'admin';
     if (userRole === 'logistica') {
       router.push('/logistica/informes');
     } else {

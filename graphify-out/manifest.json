@@ -455,8 +455,8 @@
     "semantic_hash": ""
   },
   "src/router/index.js": {
-    "mtime": 1785945611.2722466,
-    "ast_hash": "0bc5ab96317b3b5cabc8c0978c2dfbec",
+    "mtime": 1785958588.743705,
+    "ast_hash": "f85f089d96b1ce57ff46fe55e2db639a",
     "semantic_hash": ""
   },
   "src/services/pdfGenerator.js": {
@@ -515,8 +515,8 @@
     "semantic_hash": ""
   },
   "src/views/LoginView.vue": {
-    "mtime": 1785945622.671702,
-    "ast_hash": "c73b97ab013311f4aff4f8d47388f029",
+    "mtime": 1785958581.5565803,
+    "ast_hash": "271bd8fd3735f5eac229226b19131f97",
     "semantic_hash": ""
   },
   "src/views/NotificationsView.vue": {
