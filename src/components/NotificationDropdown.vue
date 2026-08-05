@@ -68,7 +68,7 @@
             :aria-selected="index === focusedIndex"
             class="group p-3 rounded-2xl transition-all duration-200 cursor-pointer flex items-start gap-3 border border-transparent hover:border-slate-200/60 dark:hover:border-slate-800 hover:translate-x-1"
             :class="[
-              !notification.is_read ? 'bg-blue-50/70 dark:bg-blue-950/30 border-blue-100/60 dark:border-blue-900/40' : 'hover:bg-slate-50 dark:hover:bg-slate-850',
+              !notification.is_read ? 'bg-blue-50/70 dark:bg-blue-950/30 border-blue-100/60 dark:border-blue-900/40' : 'hover:bg-slate-50 dark:hover:bg-slate-800',
               index === focusedIndex ? 'bg-slate-100 dark:bg-slate-800' : ''
             ]"
             @click="$emit('notification-click', notification)"

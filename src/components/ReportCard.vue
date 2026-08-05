@@ -28,7 +28,7 @@
             'p-2 rounded-full border transition-all duration-150 active:scale-95 shadow-sm',
             reporte.short_code 
               ? 'bg-blue-50 text-blue-600 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800 hover:bg-blue-100 dark:hover:bg-blue-900/50' 
-              : 'bg-slate-50 text-slate-400 border-slate-200 dark:bg-slate-800/40 dark:text-slate-500 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-850 opacity-60'
+              : 'bg-slate-50 text-slate-400 border-slate-200 dark:bg-slate-800/40 dark:text-slate-500 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 opacity-60'
           ]"
           :title="reporte.short_code ? 'Copiar enlace rápido' : 'Generar enlace'"
         >

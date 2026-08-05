@@ -325,7 +325,7 @@
     <!-- Modal Explicativo de Bienvenida (Una Sola Vez) -->
     <Transition name="fade">
       <div v-if="showWelcomeModal" class="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-850 p-6 max-w-lg shadow-2xl w-full space-y-5 animate-scaleUp">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 max-w-lg shadow-2xl w-full space-y-5 animate-scaleUp">
           
           <div class="flex items-center gap-3">
             <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-blue-50 text-blue-600 dark:bg-blue-900/40 dark:text-blue-400 text-lg">

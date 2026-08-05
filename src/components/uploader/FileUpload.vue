@@ -1,49 +1,94 @@
-<!-- src/components/uploader/FileUpload.vue -->
+<!-- src/components/uploader/FileUpload.vue (Exposición de reset/clear y Soporte Modo Oscuro) -->
 <template>
   <div 
-    class="uploader-container"
+    class="uploader-container bg-slate-50 dark:bg-slate-950/70 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-2xl p-4 sm:p-6 transition-all"
     @dragover.prevent="isDragging = true"
     @dragleave.prevent="isDragging = false"
     @drop.prevent="handleDrop"
-    :class="{ 'is-dragging': isDragging }"
+    :class="{ 'is-dragging bg-blue-50 dark:bg-blue-950/40 border-blue-500': isDragging }"
   >
-    <!-- Inputs ocultos que son la base de la funcionalidad -->
+    <!-- Inputs ocultos -->
     <input type="file" @change="handleFileChange" ref="fileInputMultiple" :accept="acceptedFileTypes" hidden multiple />
     <input type="file" @change="handleFileChange" ref="fileInputCamera" :accept="acceptedFileTypes" capture="environment" hidden />
 
-    <!-- Estado inicial o cuando se arrastran archivos -->
-    <div v-if="selectedFiles.length === 0" class="initial-state">
-      <div class="drag-drop-text">{{ isDragging ? 'Soltá los archivos aquí' : 'Arrastrá archivos o seleccioná una opción' }}</div>
-      <div class="initial-buttons">
-        <button @click="triggerFileInput('multiple')" :disabled="isUploading">Seleccionar Archivos</button>
-        <button v-if="enableCamera && isMobile" @click="triggerFileInput('camera')" :disabled="isUploading">Abrir Cámara</button>
-        <button v-if="enableCamera && !isMobile" @click="isWebcamModalOpen = true" :disabled="isUploading">Usar Webcam</button>
+    <!-- Estado inicial o sin archivos -->
+    <div v-if="selectedFiles.length === 0" class="text-center py-3">
+      <p class="text-xs sm:text-sm font-bold text-slate-500 dark:text-slate-400 mb-3">
+        {{ isDragging ? 'Soltá los archivos aquí' : 'Arrastrá fotos o elegí una opción para adjuntar' }}
+      </p>
+      <div class="flex flex-col sm:flex-row gap-2 justify-center">
+        <button 
+          type="button"
+          @click="triggerFileInput('multiple')" 
+          :disabled="isUploading"
+          class="px-4 py-2.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 font-extrabold text-xs hover:bg-slate-100 dark:hover:bg-slate-700 transition-all cursor-pointer shadow-sm"
+        >
+          📁 Seleccionar Archivos
+        </button>
+        <button 
+          type="button"
+          v-if="enableCamera && isMobile" 
+          @click="triggerFileInput('camera')" 
+          :disabled="isUploading"
+          class="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs transition-all cursor-pointer shadow-sm"
+        >
+          📷 Abrir Cámara
+        </button>
+        <button 
+          type="button"
+          v-if="enableCamera && !isMobile" 
+          @click="isWebcamModalOpen = true" 
+          :disabled="isUploading"
+          class="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs transition-all cursor-pointer shadow-sm"
+        >
+          📷 Usar Webcam
+        </button>
       </div>
     </div>
 
-    <!-- Galería de previsualización de archivos seleccionados -->
-    <div v-else class="preview-gallery-container">
-      <div class="preview-header">
-        <h4 class="preview-title">Archivos listos ({{ selectedFiles.length }}):</h4>
-        <!-- Botón para añadir más archivos -->
-        <button @click="triggerFileInput('multiple')" class="add-more-btn" :disabled="isUploading">+</button>
+    <!-- Galería de previsualización -->
+    <div v-else class="w-full space-y-3">
+      <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-2">
+        <h4 class="text-xs font-black text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+          Archivos listos ({{ selectedFiles.length }}):
+        </h4>
+        <button 
+          type="button"
+          @click="triggerFileInput('multiple')" 
+          class="w-7 h-7 rounded-full bg-blue-600 text-white font-black text-sm flex items-center justify-center hover:bg-blue-700 transition-all cursor-pointer shadow-sm" 
+          :disabled="isUploading"
+          title="Añadir más fotos"
+        >
+          +
+        </button>
       </div>
-      <div class="preview-gallery">
-        <div v-for="(file, index) in selectedFiles" :key="file.uniqueId" class="preview-card">
-          <img v-if="file.type.startsWith('image/')" :src="file.previewUrl" class="preview-image" alt="Previsualización" />
-          <p class="preview-caption" :title="file.name">{{ file.name }}</p>
-          <button @click="removeFile(index)" class="remove-btn" :disabled="isUploading" aria-label="Quitar archivo">×</button>
+      
+      <div class="flex gap-3 overflow-x-auto pb-2 scrollbar-thin">
+        <div v-for="(file, index) in selectedFiles" :key="file.uniqueId" class="relative flex-shrink-0 w-24 group">
+          <img v-if="file.type.startsWith('image/')" :src="file.previewUrl" class="w-24 h-24 rounded-xl object-cover border border-slate-200 dark:border-slate-700 shadow-sm" alt="Previsualización" />
+          <p class="text-[11px] font-bold text-slate-600 dark:text-slate-400 truncate mt-1 text-center" :title="file.name">{{ file.name }}</p>
+          <button 
+            type="button"
+            @click="removeFile(index)" 
+            class="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-rose-600 text-white border-2 border-white dark:border-slate-900 flex items-center justify-center font-bold text-xs cursor-pointer shadow-sm hover:scale-110 transition-transform" 
+            :disabled="isUploading" 
+            aria-label="Quitar archivo"
+          >
+            ×
+          </button>
         </div>
       </div>
     </div>
 
-    <!-- Feedback durante la subida -->
-    <div v-if="isUploading" class="upload-feedback">
-      <p>Subiendo {{ uploadProgress.current }} de {{ uploadProgress.total }}...</p>
-      <progress :value="uploadProgress.current" :max="uploadProgress.total"></progress>
+    <!-- Progreso durante la subida -->
+    <div v-if="isUploading" class="text-center space-y-1.5 pt-2">
+      <p class="text-xs font-bold text-blue-600 dark:text-blue-400">Subiendo {{ uploadProgress.current }} de {{ uploadProgress.total }}...</p>
+      <div class="w-full bg-slate-200 dark:bg-slate-800 rounded-full h-2 overflow-hidden">
+        <div class="bg-blue-600 h-2 rounded-full transition-all duration-300" :style="{ width: `${(uploadProgress.current / uploadProgress.total) * 100}%` }"></div>
+      </div>
     </div>
 
-    <!-- Modal de Webcam para escritorio -->
+    <!-- Modal de Webcam -->
     <WebcamCapture :show="isWebcamModalOpen" @close="isWebcamModalOpen = false" @photo-taken="addFiles" />
   </div>
 </template>
@@ -90,8 +135,8 @@ const addFiles = (files) => {
 
 const triggerFileInput = (mode) => {
   isChainShotActive.value = (mode === 'camera');
-  if (mode === 'multiple') fileInputMultiple.value.click();
-  else if (mode === 'camera') fileInputCamera.value.click();
+  if (mode === 'multiple') fileInputMultiple.value?.click();
+  else if (mode === 'camera') fileInputCamera.value?.click();
 };
 
 const handleFileChange = (event) => {
@@ -115,7 +160,9 @@ const handleDrop = (event) => {
 
 const removeFile = (index) => {
   const fileToRemove = selectedFiles.value[index];
-  URL.revokeObjectURL(fileToRemove.previewUrl);
+  if (fileToRemove?.previewUrl) {
+    URL.revokeObjectURL(fileToRemove.previewUrl);
+  }
   selectedFiles.value.splice(index, 1);
 };
 
@@ -194,61 +241,23 @@ const startUpload = async () => {
   return uploadedFilesData;
 };
 
-// --- INICIO DE LA MODIFICACIÓN (1 de 3) ---
-// Se renombra la función 'clear' a 'reset' para que sea más estándar y coincida
-// con lo que los componentes padres esperan llamar. La lógica interna no cambia.
+// Función de limpieza expuesta tanto como reset() y clear() para compatibilidad completa
 const reset = () => {
-  selectedFiles.value.forEach(file => URL.revokeObjectURL(file.previewUrl));
+  selectedFiles.value.forEach(file => {
+    if (file.previewUrl) URL.revokeObjectURL(file.previewUrl);
+  });
   selectedFiles.value = [];
 };
 
-// --- INICIO DE LA MODIFICACIÓN (2 de 3) ---
-// El hook onUnmounted ahora llama a la nueva función 'reset'.
+const clear = reset;
+
 onUnmounted(reset);
 
-// --- INICIO DE LA MODIFICACIÓN (3 de 3) ---
-// Exponemos las funciones y propiedades que el padre necesita.
-// - 'reset': para que el padre pueda limpiar el componente.
-// - 'hasFiles': para que el padre pueda saber si hay archivos seleccionados.
 defineExpose({
   startUpload,
   reset,
-  hasFiles
+  clear,
+  hasFiles,
+  selectedFiles
 });
 </script>
-
-<style scoped>
-.uploader-container {
-  width: 100%;
-  border: 2px dashed #cbd5e1;
-  border-radius: 8px;
-  padding: 1.5rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  transition: background-color 0.2s ease, border-color 0.2s ease;
-}
-.uploader-container.is-dragging {
-  background-color: #ebf8ff;
-  border-color: #3182ce;
-}
-.initial-state { text-align: center; }
-.drag-drop-text { color: #718096; margin-bottom: 1rem; font-weight: 500; }
-.initial-buttons { display: flex; flex-direction: column; gap: 0.5rem; justify-content: center; }
-@media (min-width: 640px) {
-  .initial-buttons { flex-direction: row; }
-}
-.preview-gallery-container { width: 100%; }
-.preview-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; }
-.preview-title { font-size: 0.875rem; font-weight: 500; color: #4a5568; }
-.add-more-btn { width: 30px; height: 30px; border-radius: 50%; font-size: 1.5rem; line-height: 1; padding: 0; }
-.preview-gallery { display: flex; gap: 0.75rem; overflow-x: auto; padding-bottom: 0.5rem; }
-.preview-card { position: relative; flex-shrink: 0; width: 100px; }
-.preview-image { width: 100px; height: 100px; border-radius: 8px; object-fit: cover; border: 1px solid #e2e8f0; }
-.preview-caption { font-size: 0.75rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 0.25rem; text-align: center; }
-.remove-btn { position: absolute; top: -8px; right: -8px; width: 24px; height: 24px; border-radius: 50%; background-color: rgba(0, 0, 0, 0.7); color: white; border: 2px solid white; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 16px; line-height: 1; padding: 0; }
-.upload-feedback { text-align: center; }
-button { padding: 0.75rem 1rem; border: 1px solid #ccc; border-radius: 8px; background-color: #f8f9fa; cursor: pointer; font-weight: 500; transition: background-color 0.2s; }
-button:disabled { opacity: 0.6; cursor: not-allowed; }
-progress { width: 100%; margin-top: 0.5rem; }
-</style>

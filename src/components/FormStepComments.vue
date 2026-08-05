@@ -1,35 +1,35 @@
-<!-- src/components/FormStepComments.vue -->
+<!-- src/components/FormStepComments.vue (Con Contraste de Texto y Modo Oscuro Corregido) -->
 <template>
   <div>
-    <div class="space-y-8">
+    <div class="space-y-6 sm:space-y-8">
       <!-- Título de la Sección -->
       <div>
-        <h2 class="text-lg md:text-xl font-semibold text-slate-900 dark:text-slate-100">Consumo y Observaciones</h2>
-        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Detalle el material utilizado y cualquier otra información relevante.</p>
+        <h2 class="text-base sm:text-lg md:text-xl font-extrabold text-slate-900 dark:text-white">Consumo y Observaciones</h2>
+        <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">Detallá el material utilizado y cualquier otra información relevante.</p>
       </div>
 
       <!-- Campos de Texto -->
-      <div class="space-y-6">
+      <div class="space-y-5 sm:space-y-6">
         <div>
-          <label for="consumo_realizado" class="block text-[15px] md:text-base font-medium text-slate-800 dark:text-slate-200">
-            Consumo realizado en la cirugía <span class="text-red-500">*</span>
+          <label for="consumo_realizado" class="block text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200">
+            Consumo realizado en la cirugía <span class="text-rose-500">*</span>
           </label>
           <textarea 
             id="consumo_realizado" 
             :value="formData.consumo_realizado"
             @input="updateFormData({ consumo_realizado: $event.target.value })"
             rows="4" 
-            class="form-input mt-2"
+            class="form-input mt-1.5"
             placeholder="Ej: 2 tornillos de 4.5mm, 1 placa de titanio..."
           ></textarea>
-          <p class="text-xs text-slate-500 dark:text-slate-400 mt-1.5">
+          <p class="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 mt-1.5">
             Por favor, detallar cada ítem en una línea nueva. Ej: "1 x Placa de tibia proximal", "6 x Tornillos corticales 5mm".
           </p>
-          <p v-if="errors.consumo_realizado" class="text-sm text-red-500 mt-1">{{ errors.consumo_realizado }}</p>
+          <p v-if="errors.consumo_realizado" class="text-xs text-rose-500 font-bold mt-1">{{ errors.consumo_realizado }}</p>
         </div>
         
         <div>
-          <label for="observaciones" class="block text-[15px] md:text-base font-medium text-slate-800 dark:text-slate-200">
+          <label for="observaciones" class="block text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200">
             ¿Cómo podemos mejorar? Tu feedback es clave
           </label>
           <textarea 
@@ -37,56 +37,56 @@
             :value="formData.observaciones"
             @input="updateFormData({ observaciones: $event.target.value })"
             rows="4" 
-            class="form-input mt-2"
+            class="form-input mt-1.5"
             placeholder="Ej: El set de placas llegó sin la guía. / La caja de tornillos estaba abierta. / Sería útil tener una pinza adicional para..."
           ></textarea>
         </div>
       </div>
 
       <!-- Logística y Datos Adicionales -->
-      <div class="space-y-6 pt-6 border-t border-slate-200/70 dark:border-slate-700/60">
-        <h3 class="text-lg md:text-xl font-semibold text-slate-900 dark:text-slate-100">Datos de Cierre</h3>
+      <div class="space-y-5 sm:space-y-6 pt-5 border-t border-slate-200/70 dark:border-slate-800">
+        <h3 class="text-base sm:text-lg font-extrabold text-slate-900 dark:text-white">Datos de Cierre</h3>
         
         <fieldset>
-          <legend class="block text-[15px] md:text-base font-medium text-slate-800 dark:text-slate-200">
-            Logística <span class="text-red-500">*</span>
+          <legend class="block text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200">
+            Logística <span class="text-rose-500">*</span>
           </legend>
-          <div class="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div class="mt-2.5 grid grid-cols-1 sm:grid-cols-2 gap-2.5">
             <div>
               <input type="radio" id="con_logistica" name="tipo_logistica" value="con_logistica" :checked="formData.tipo_logistica === 'con_logistica'" @change="updateFormData({ tipo_logistica: 'con_logistica' })" class="sr-only">
-              <label for="con_logistica" class="segmented-button-large"><TruckIcon class="h-5 w-5 mr-2" />CON Logística</label>
+              <label for="con_logistica" class="segmented-button-large"><TruckIcon class="h-5 w-5 mr-2 shrink-0" />CON Logística</label>
             </div>
             <div>
               <input type="radio" id="sin_logistica" name="tipo_logistica" value="sin_logistica" :checked="formData.tipo_logistica === 'sin_logistica'" @change="updateFormData({ tipo_logistica: 'sin_logistica' })" class="sr-only">
-              <label for="sin_logistica" class="segmented-button-large"><BuildingStorefrontIcon class="h-5 w-5 mr-2" />SIN Logística</label>
+              <label for="sin_logistica" class="segmented-button-large"><BuildingStorefrontIcon class="h-5 w-5 mr-2 shrink-0" />SIN Logística</label>
             </div>
           </div>
-          <p v-if="errors.tipo_logistica" class="text-sm text-red-500 mt-1">{{ errors.tipo_logistica }}</p>
+          <p v-if="errors.tipo_logistica" class="text-xs text-rose-500 font-bold mt-1">{{ errors.tipo_logistica }}</p>
         </fieldset>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label for="transporte" class="block text-[15px] md:text-base font-medium text-slate-800 dark:text-slate-200">Transporte utilizado</label>
-            <input type="text" id="transporte" :value="formData.transporte_utilizado" @input="updateFormData({ transporte_utilizado: $event.target.value })" class="form-input mt-2" placeholder="Ej: Moto, Correo Andreani, etc.">
+            <label for="transporte" class="block text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200">Transporte utilizado</label>
+            <input type="text" id="transporte" :value="formData.transporte_utilizado" @input="updateFormData({ transporte_utilizado: $event.target.value })" class="form-input mt-1.5" placeholder="Ej: Moto, Correo Andreani, etc.">
           </div>
           <div>
-            <label for="duracion_cirugia" class="block text-[15px] md:text-base font-medium text-slate-800 dark:text-slate-200">Duración de la Cirugía</label>
-            <input type="text" id="duracion_cirugia" :value="formData.duracion_cirugia" @input="updateFormData({ duracion_cirugia: $event.target.value })" class="form-input mt-2" placeholder="Ej: 2 horas 30 minutos">
+            <label for="duracion_cirugia" class="block text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200">Duración de la Cirugía</label>
+            <input type="text" id="duracion_cirugia" :value="formData.duracion_cirugia" @input="updateFormData({ duracion_cirugia: $event.target.value })" class="form-input mt-1.5" placeholder="Ej: 2 horas 30 minutos">
           </div>
         </div>
         
         <div>
-          <label for="representante" class="block text-[15px] md:text-base font-medium text-slate-800 dark:text-slate-200">Representante de ventas</label>
+          <label for="representante" class="block text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200">Representante de ventas</label>
           <button 
             type="button"
             id="representante"
             @click="isRepModalOpen = true"
-            class="form-input mt-2 text-left w-full flex items-center justify-between"
+            class="form-input mt-1.5 text-left w-full flex items-center justify-between cursor-pointer"
           >
-            <span :class="{ 'text-slate-400 dark:text-slate-500': !formData.representante_ventas }">
+            <span :class="formData.representante_ventas ? 'text-slate-900 dark:text-white font-bold' : 'text-slate-400 dark:text-slate-500'">
               {{ formData.representante_ventas || 'Seleccionar un representante...' }}
             </span>
-            <ChevronUpDownIcon class="h-5 w-5 text-slate-400" />
+            <ChevronUpDownIcon class="h-5 w-5 text-slate-400 shrink-0" />
           </button>
         </div>
       </div>
@@ -125,22 +125,19 @@ const handleRepresentativeSelect = (name) => {
 </script>
 
 <style scoped>
-/* ========= INICIO DE LA CORRECCIÓN DE SINTAXIS ========= */
 .form-input {
-  /* La clase 'dark:placeholder-text-slate-500' fue corregida a 'dark:placeholder:text-slate-500' */
-  @apply block w-full h-11 px-4 rounded-xl bg-white dark:bg-slate-800 ring-1 ring-slate-300/70 dark:ring-slate-700 focus:ring-2 focus:ring-blue-500 outline-none transition-colors placeholder:text-slate-400 dark:placeholder:text-slate-500;
+  @apply block w-full px-4 py-2.5 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-medium text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors placeholder:text-slate-400 dark:placeholder:text-slate-600;
 }
-/* ========= FIN DE LA CORRECCIÓN DE SINTAXIS ========= */
 
 textarea.form-input {
-  @apply h-auto py-2;
+  @apply h-auto py-3;
 }
 .segmented-button-large {
-  @apply w-full flex items-center justify-center h-11 px-4 rounded-xl text-sm font-semibold ring-1 ring-inset transition-colors cursor-pointer;
-  @apply ring-slate-300 dark:ring-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800;
+  @apply w-full flex items-center justify-center h-12 px-4 rounded-2xl text-xs sm:text-sm font-extrabold border transition-all cursor-pointer;
+  @apply border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-950 hover:bg-slate-100 dark:hover:bg-slate-800;
 }
 input[type="radio"]:checked + label.segmented-button-large {
-  @apply bg-blue-600 text-white ring-blue-600;
+  @apply bg-blue-600 text-white border-blue-600 shadow-sm;
 }
 input[type="radio"]:focus-visible + label.segmented-button-large {
   @apply ring-2 ring-blue-500 ring-offset-2 dark:ring-offset-slate-900;

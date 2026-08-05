@@ -1,41 +1,40 @@
-<!-- src/views/FichaView.vue (CON BANNER DE ANUNCIO) -->
+<!-- src/views/FichaView.vue (Fondo Dinámico Modo Oscuro/Claro y Layout Responsivo) -->
 <template>
-  <!-- ===== INICIO DEL NUEVO CÓDIGO: BANNER DE ANUNCIO ===== -->
-  <!-- Este banner es fijo, por lo que flotará sobre todo el contenido. -->
+  <!-- BANNER DE ANUNCIO MÓVIL/DESKTOP -->
   <Transition name="slide-down">
-    <div v-if="showAnnouncementBanner" class="fixed top-0 left-0 right-0 z-50 bg-sky-600 text-white shadow-lg">
-      <div class="max-w-4xl mx-auto px-4 py-3">
-        <div class="flex items-center justify-between gap-4">
-          <div class="flex items-center gap-3">
-            <InformationCircleIcon class="w-6 h-6 shrink-0" />
-            <p class="text-sm sm:text-base font-medium">
+    <div v-if="showAnnouncementBanner" class="fixed top-0 left-0 right-0 z-50 bg-blue-600 text-white shadow-md">
+      <div class="max-w-4xl mx-auto px-4 py-2.5">
+        <div class="flex items-center justify-between gap-3">
+          <div class="flex items-center gap-2.5">
+            <InformationCircleIcon class="w-5 h-5 shrink-0" />
+            <p class="text-xs sm:text-sm font-extrabold">
               ¡Recordá que ahora podés subir las imágenes directamente desde la web!
             </p>
           </div>
-          <button @click="dismissBanner" class="p-1 rounded-full hover:bg-white/20">
-            <XMarkIcon class="w-5 h-5" />
+          <button @click="dismissBanner" class="p-1 rounded-full hover:bg-white/20 transition-colors" title="Cerrar aviso">
+            <XMarkIcon class="w-4 h-4" />
           </button>
         </div>
       </div>
     </div>
   </Transition>
-  <!-- ===== FIN DEL NUEVO CÓDIGO ===== -->
 
-  <div class="min-h-screen w-full bg-slate-900 flex flex-col items-center justify-center p-4 sm:p-8">
-    <div class="w-full max-w-4xl">
+  <!-- Fondo de pantalla adaptable a Modo Claro y Modo Oscuro -->
+  <div class="min-h-screen w-full bg-slate-100 dark:bg-slate-950 flex flex-col items-center justify-center p-2.5 sm:p-6 lg:p-8 transition-colors duration-200 font-sans">
+    <div class="w-full max-w-4xl my-auto">
       <Transition name="fade" mode="out-in">
         
-        <div v-if="viewState === 'loading'" class="text-center">
-          <svg class="animate-spin h-12 w-12 text-blue-500 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-          <p class="text-lg text-slate-400 mt-4">Validando enlace y buscando información del caso...</p>
+        <div v-if="viewState === 'loading'" class="text-center py-12">
+          <svg class="animate-spin h-10 w-10 text-blue-600 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+          <p class="text-sm font-bold text-slate-500 dark:text-slate-400 mt-4">Validando enlace y buscando información del caso...</p>
         </div>
         
-        <div v-else-if="viewState === 'error'" class="max-w-lg mx-auto bg-red-500/10 border-l-4 border-red-500 text-red-300 p-4 rounded-md shadow-md flex flex-col items-center space-y-4">
+        <div v-else-if="viewState === 'error'" class="max-w-lg mx-auto bg-rose-50 dark:bg-rose-950/40 border-l-4 border-rose-500 text-rose-700 dark:text-rose-300 p-5 rounded-2xl shadow-md flex flex-col items-center space-y-4">
           <div class="flex items-center space-x-3">
-            <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
-            <p>{{ error }}</p>
+            <svg class="w-7 h-7 text-rose-500" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
+            <p class="text-xs sm:text-sm font-bold">{{ error }}</p>
           </div>
-          <button @click="retryFetch" class="bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-700">Reintentar</button>
+          <button @click="retryFetch" class="bg-blue-600 text-white font-extrabold py-2 px-5 rounded-xl hover:bg-blue-700 transition-colors text-xs">Reintentar</button>
         </div>
         
         <SubmissionSuccess 
@@ -211,13 +210,13 @@ onMounted(() => {
 
 <style scoped>
 .fade-enter-active, .fade-leave-active { 
-  transition: opacity 0.4s ease; 
+  transition: opacity 0.3s ease; 
 }
 .fade-enter-from, .fade-leave-to { 
   opacity: 0; 
 }
 .slide-down-enter-active, .slide-down-leave-active {
-  transition: transform 0.4s ease-out;
+  transition: transform 0.3s ease-out;
 }
 .slide-down-enter-from, .slide-down-leave-to {
   transform: translateY(-100%);

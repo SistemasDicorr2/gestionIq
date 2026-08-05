@@ -1,17 +1,17 @@
-<!-- src/components/SignatureModal.vue -->
+<!-- src/components/SignatureModal.vue (Soporte Modo Oscuro / Claro) -->
 <template>
   <Transition name="fade">
-    <div v-if="show" class="fixed inset-0 z-50 flex flex-col bg-white">
+    <div v-if="show" class="fixed inset-0 z-50 flex flex-col bg-white dark:bg-slate-900 text-slate-900 dark:text-white">
       
-      <div class="flex-shrink-0 p-4 border-b flex items-center justify-between">
-        <h2 class="text-xl font-bold text-gray-800">Realice su firma</h2>
-        <button @click="closeModal" class="text-2xl text-gray-500 hover:text-gray-800">&times;</button>
+      <div class="flex-shrink-0 p-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+        <h2 class="text-base sm:text-lg font-black text-slate-900 dark:text-white">Firma Digital del Instrumentador</h2>
+        <button @click="closeModal" class="p-2 text-slate-400 hover:text-slate-700 dark:hover:text-white text-2xl leading-none">&times;</button>
       </div>
 
-      <div class="flex-grow p-2">
+      <div class="flex-grow p-3 bg-slate-100 dark:bg-slate-950">
         <canvas 
           ref="canvasRef" 
-          class="w-full h-full bg-gray-100 rounded-md cursor-crosshair"
+          class="w-full h-full bg-white dark:bg-slate-900 rounded-2xl border border-slate-300 dark:border-slate-700 cursor-crosshair shadow-inner"
           @mousedown="startDrawing"
           @mousemove="draw"
           @mouseup="stopDrawing"
@@ -22,11 +22,11 @@
         ></canvas>
       </div>
 
-      <div class="flex-shrink-0 p-4 border-t flex items-center justify-end space-x-4">
-        <button @click="clearSignature" class="text-gray-600 font-semibold px-4 py-2 rounded-md hover:bg-gray-100">
+      <div class="flex-shrink-0 p-4 border-t border-slate-200 dark:border-slate-800 flex items-center justify-end gap-3">
+        <button @click="clearSignature" class="text-slate-600 dark:text-slate-300 font-extrabold px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all text-xs cursor-pointer">
           Limpiar Firma
         </button>
-        <button @click="saveSignature" class="bg-blue-600 text-white font-bold px-6 py-3 rounded-md hover:bg-blue-700">
+        <button @click="saveSignature" class="bg-blue-600 hover:bg-blue-700 text-white font-extrabold px-6 py-2.5 rounded-xl text-xs shadow-sm transition-all cursor-pointer">
           Guardar Firma
         </button>
       </div>
@@ -63,13 +63,14 @@ const initializeCanvas = () => {
     canvas.height = canvas.offsetHeight;
     ctx.lineWidth = 3;
     ctx.lineCap = 'round';
-    ctx.strokeStyle = '#000000';
+    // Determinar color del trazo según el tema
+    const isDarkMode = document.documentElement.classList.contains('dark');
+    ctx.strokeStyle = isDarkMode ? '#3b82f6' : '#0f172a';
   }
 };
 
 const getCoordinates = (event) => {
   const canvas = canvasRef.value;
-  // **AÑADIDO:** Comprobación de seguridad
   if (!canvas) return { x: 0, y: 0 };
   const rect = canvas.getBoundingClientRect();
   if (event.touches && event.touches.length > 0) {
@@ -106,7 +107,6 @@ const clearSignature = () => {
 
 const canvasToBlob = (canvas) => {
   return new Promise((resolve, reject) => {
-    // **AÑADIDO:** Comprobación de seguridad
     if (!canvas) {
       return reject(new Error("El canvas no está disponible."));
     }
@@ -116,7 +116,6 @@ const canvasToBlob = (canvas) => {
 
 const saveSignature = async () => {
   try {
-    // **AÑADIDO:** Comprobación de seguridad
     if (!canvasRef.value) {
       console.error("Intento de guardar firma sin un canvas válido.");
       return;
@@ -126,7 +125,6 @@ const saveSignature = async () => {
     closeModal();
   } catch (error) {
     console.error("Error al guardar la firma:", error);
-    // Opcional: mostrar una alerta al usuario
     alert("No se pudo guardar la firma. Por favor, inténtelo de nuevo.");
   }
 };

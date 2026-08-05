@@ -1,16 +1,16 @@
 # Graph Report - gestionIq  (2026-08-05)
 
 ## Corpus Check
-- 246 files · ~178,998 words
+- 246 files · ~179,217 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 2321 nodes · 2632 edges · 231 communities (185 shown, 46 thin omitted)
+- 2323 nodes · 2634 edges · 231 communities (185 shown, 46 thin omitted)
 - Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 30 edges (avg confidence: 0.54)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `e49d686e`
+- Built from commit: `121d7410`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -156,7 +156,6 @@
 - [[_COMMUNITY_11. REDESIGN PROTOCOL|11. REDESIGN PROTOCOL]]
 - [[_COMMUNITY_3. DEFAULT ARCHITECTURE & CONVENTIONS|3. DEFAULT ARCHITECTURE & CONVENTIONS]]
 - [[_COMMUNITY_6. PERFORMANCE & ACCESSIBILITY GUARDRAILS|6. PERFORMANCE & ACCESSIBILITY GUARDRAILS]]
-- [[_COMMUNITY_SKILL|SKILL.md]]
 - [[_COMMUNITY_Teleport Component Best Practices|Teleport Component Best Practices]]
 - [[_COMMUNITY_Transition Component Best Practices|Transition Component Best Practices]]
 - [[_COMMUNITY_TransitionGroup Component Best Practices|TransitionGroup Component Best Practices]]
@@ -220,6 +219,7 @@
 - [[_COMMUNITY_fetchReportes|fetchReportes]]
 - [[_COMMUNITY_EditInstrumentadorModal.vue|EditInstrumentadorModal.vue]]
 - [[_COMMUNITY_generatePDF|generatePDF]]
+- [[_COMMUNITY_PostPagoModal.vue|PostPagoModal.vue]]
 - [[_COMMUNITY_close|close]]
 - [[_COMMUNITY_RegistrarIntervencionModal.vue|RegistrarIntervencionModal.vue]]
 - [[_COMMUNITY_.EditableField.vue|./EditableField.vue]]
@@ -308,7 +308,7 @@ Nodes (9): close(), emit, form, handleSubmit(), isSubmitting, props, quickChips,
 
 ### Community 13 - "AdminLayout.vue"
 Cohesion: 0.06
-Nodes (19): dropdownRef, emit, focusedIndex, handleKeydown(), props, toast, unreadCount, handleNotificationClick() (+11 more)
+Nodes (20): dropdownRef, emit, focusedIndex, handleKeydown(), props, toast, unreadCount, handleNotificationClick() (+12 more)
 
 ### Community 14 - "InstrumentadoresView.vue"
 Cohesion: 0.06
@@ -343,8 +343,8 @@ Cohesion: 0.09
 Nodes (22): Cambios que requieren cautela, Checklist antes de finalizar, Cuándo usar SDD, Documentación obligatoria antes de trabajar, Flujo de trabajo esperado del agente, Fuentes de verdad, gestion-iq-safe-coding, Libertad permitida para el agente (+14 more)
 
 ### Community 22 - "FileUpload.vue"
-Cohesion: 0.10
-Nodes (17): fileInputCamera, fileInputMultiple, hasFiles, isChainShotActive, isDragging, { isMobile }, isUploading, isWebcamModalOpen (+9 more)
+Cohesion: 0.09
+Nodes (21): addFiles(), fileInputCamera, fileInputMultiple, handleDrop(), handleFileChange(), hasFiles, isChainShotActive, isDragging (+13 more)
 
 ### Community 23 - "GestionPagosView.vue"
 Cohesion: 0.09
@@ -443,8 +443,8 @@ Cohesion: 0.27
 Nodes (9): emit, error, isLoading, password, passwordInput, props, resetForm(), toast (+1 more)
 
 ### Community 47 - "ToolModificarMontosNotas.vue"
-Cohesion: 0.22
-Nodes (8): emit, error, formData, handleSaveChanges(), isLoading, isSubmitting, props, { showSuccessToast, showErrorToast }
+Cohesion: 0.20
+Nodes (9): emit, error, formData, handleSaveChanges(), isLoading, isSubmitting, props, { showSuccessToast, showErrorToast } (+1 more)
 
 ### Community 48 - "GestionPagoModal.vue"
 Cohesion: 0.27
@@ -455,8 +455,8 @@ Cohesion: 0.22
 Nodes (8): Approve with a note, Ask for split, Commands, Comment Formula, Examples, Request change, Voice Rules, When to Use
 
 ### Community 50 - "ToolAnularPago.vue"
-Cohesion: 0.14
-Nodes (11): emit, fileUploader, handleUpdate(), isFormValid, isSubmitting, props, { showLoadingToast, updateToast, showErrorToast }, generalSummaryText (+3 more)
+Cohesion: 0.29
+Nodes (7): emit, fileUploader, handleUpdate(), isFormValid, isSubmitting, props, { showLoadingToast, updateToast, showErrorToast }
 
 ### Community 51 - "NewSurgeryModal.vue"
 Cohesion: 0.50
@@ -475,8 +475,8 @@ Cohesion: 0.13
 Nodes (12): emit, filteredSurgeries, handleAgregarCirugia(), isLoading, isSubmitting, montoALiquidar, pendingSurgeries, props (+4 more)
 
 ### Community 55 - "supabase.js"
-Cohesion: 0.17
-Nodes (12): emit, formData, handleSubmit(), isSubmitting, props, toast, emit, isUpdating (+4 more)
+Cohesion: 0.32
+Nodes (6): emit, isUpdating, markAsResolved(), props, toast, supabase
 
 ### Community 56 - "NewInstrumentadorModal.vue"
 Cohesion: 0.29
@@ -579,7 +579,7 @@ Cohesion: 0.20
 Nodes (8): HistoryIcon, HomeIcon, isLoggingOut, navItems, PlusIcon, router, toast, userName
 
 ### Community 82 - "error"
-Cohesion: 0.11
+Cohesion: 0.12
 Nodes (16): Always use `shallowRef()` instead of `ref()` for primitive values (string, number, boolean, null, etc.) for better performance., Avoid destructuring from `reactive()` directly, Best practices for `computed`, Best practices for `reactive`, Best practices for watchers, Choose the correct reactive declaration method for objects/arrays/map/set, Clean up async effects for watchers, Declare reactive state correctly (+8 more)
 
 ### Community 83 - "hasMissingAmount"
@@ -620,7 +620,7 @@ Nodes (15): Async Dependencies, Built-in Components & Directives, Custom Directi
 
 ### Community 122 - "FichaView.vue"
 Cohesion: 0.33
-Nodes (6): emit, handleSubmit(), isSubmitting, pointsToAdd, props, toast
+Nodes (6): emit, formData, handleSubmit(), isSubmitting, props, toast
 
 ### Community 123 - "JavaScript API"
 Cohesion: 0.14
@@ -655,7 +655,7 @@ Cohesion: 0.17
 Nodes (12): Config Migration, Custom Transform Targets, esbuild → oxc, Gradual Migration, JSX Configuration, New Capabilities, Overriding Vite in Frameworks, Performance Impact (+4 more)
 
 ### Community 131 - "Directive Best Practices"
-Cohesion: 0.17
+Cohesion: 0.18
 Nodes (11): Avoid Directives on Components, Clean Up Side Effects in `unmounted`, Decide Between Directives and Components, Directive Best Practices, Handle SSR with `getSSRProps`, Prefer Declarative Templates When Possible, Prefer Function Shorthand for Single-Hook Directives, Task List (+3 more)
 
 ### Community 132 - "OrdenDePagoDetalleModal.vue"
@@ -778,10 +778,6 @@ Nodes (7): 3.A Stack, 3.B State, 3.C Icons, 3.D Emoji Policy, 3. DEFAULT ARCHITE
 Cohesion: 0.29
 Nodes (7): 6.A Hardware Acceleration, 6.B Reduced Motion (mandatory), 6.C Dark Mode (mandatory for any consumer-facing page), 6.D Core Web Vitals Targets, 6.E DOM Cost, 6.F Z-Index Restraint, 6. PERFORMANCE & ACCESSIBILITY GUARDRAILS
 
-### Community 163 - "SKILL.md"
-Cohesion: 0.40
-Nodes (4): Avoid Expensive Operations in Updated Hook, Prefer Computed Properties for Derived Data, Task List, Valid Use Cases for Updated Hook
-
 ### Community 164 - "Teleport Component Best Practices"
 Cohesion: 0.29
 Nodes (6): Logical Hierarchy Is Preserved, Multiple Teleports to the Same Target, Responsive Layouts with `disabled`, Task List, Teleport Component Best Practices, Teleport Overlays Out of Transformed Containers
@@ -791,8 +787,8 @@ Cohesion: 0.29
 Nodes (6): Animate `transform` and `opacity` for Performance, Force Transitions Between Same Element Types, Task List, Transition Component Best Practices, Use `mode` to Avoid Overlap During Swaps, Use Transition for a Single Root Element
 
 ### Community 166 - "TransitionGroup Component Best Practices"
-Cohesion: 0.29
-Nodes (6): Always Provide Stable Keys, Do Not Use `mode` on TransitionGroup, Stagger List Animations with Data Attributes, Task List, TransitionGroup Component Best Practices, Use TransitionGroup for Lists
+Cohesion: 0.14
+Nodes (10): Always Provide Stable Keys, Do Not Use `mode` on TransitionGroup, Stagger List Animations with Data Attributes, Task List, TransitionGroup Component Best Practices, Use TransitionGroup for Lists, Avoid Expensive Operations in Updated Hook, Prefer Computed Properties for Derived Data (+2 more)
 
 ### Community 167 - "Avoid Excessive Component Abstraction in Large Lists"
 Cohesion: 0.29
@@ -887,12 +883,16 @@ Cohesion: 0.50
 Nodes (4): applyFilters(), fetchReportes(), goToPage(), handleSurgeryCreated()
 
 ### Community 225 - "EditInstrumentadorModal.vue"
-Cohesion: 0.50
-Nodes (4): addFiles(), handleDrop(), handleFileChange(), triggerFileInput()
+Cohesion: 0.33
+Nodes (6): emit, handleSubmit(), isSubmitting, pointsToAdd, props, toast
 
 ### Community 226 - "generatePDF"
 Cohesion: 0.67
 Nodes (3): html2canvas, descargarPDF(), generatePDF()
+
+### Community 227 - "PostPagoModal.vue"
+Cohesion: 0.29
+Nodes (3): generalSummaryText, props, { showSuccessToast, showErrorToast }
 
 ### Community 228 - "close"
 Cohesion: 0.47
@@ -907,21 +907,21 @@ Cohesion: 0.50
 Nodes (3): ./EditableField.vue, displayValue, props
 
 ## Knowledge Gaps
-- **1418 isolated node(s):** `name`, `private`, `version`, `type`, `dev` (+1413 more)
+- **1419 isolated node(s):** `name`, `private`, `version`, `type`, `dev` (+1414 more)
   These have ≤1 connection - possible missing edges or undocumented components.
 - **46 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `supabase` connect `supabase.js` to `AdminView.vue`, `ReportEventsAndPdfs.vue`, `InformeSemanalSeguimientoView.vue`, `ActivitySummaryView.vue`, `IncidenciasView.vue`, `ReportDrawer.vue`, `PedidosEspecialesView.vue`, `FichaForm.vue`, `SurgerySelector.vue`, `CrearOrdenDePagoView.vue`, `PagosDashboardView.vue`, `dependencies`, `AdminLayout.vue`, `InstrumentadoresView.vue`, `FichaView.vue`, `LogisticaControl.vue`, `PhotosGallery.vue`, `Sidebar.vue`, `NewIncidenceModal.vue`, `FileUpload.vue`, `GestionPagosView.vue`, `DividirOrdenDePago.vue`, `HistorialPagosView.vue`, `QuejasView.vue`, `InstrumentadorUpload.vue`, `GenerateLinkModal.vue`, `CorrectionWorkspace.vue`, `ConfigView.vue`, `StatsView.vue`, `EstadisticasInstrumentadorModal.vue`, `ConsumoView.vue`, `NotificationsView.vue`, `AuthorizationModal.vue`, `ToolModificarMontosNotas.vue`, `GestionPagoModal.vue`, `ReclamoView.vue`, `ToolAnularPago.vue`, `LoginView.vue`, `ToolCambiarComprobante.vue`, `NewInstrumentadorModal.vue`, `RecordWeeklyScoreModal.vue`, `EditInstrumentadorModal.vue`, `ImportInstrumentadoresModal.vue`, `ReportEventsAndPdfs.vue`, `index.js`, `NewSurgeryModal.vue`, `jspdf`, `GestionReclamoModal.vue`, `addFiles`, `hasMissingAmount`, `copyPermanentLink`, `fetchInstrumentadores`, `FichaView.vue`, `RatingChart.vue`?**
+- **Why does `supabase` connect `supabase.js` to `AdminView.vue`, `ReportEventsAndPdfs.vue`, `InformeSemanalSeguimientoView.vue`, `ActivitySummaryView.vue`, `IncidenciasView.vue`, `ReportDrawer.vue`, `PedidosEspecialesView.vue`, `FichaForm.vue`, `SurgerySelector.vue`, `CrearOrdenDePagoView.vue`, `PagosDashboardView.vue`, `dependencies`, `AdminLayout.vue`, `InstrumentadoresView.vue`, `FichaView.vue`, `LogisticaControl.vue`, `PhotosGallery.vue`, `Sidebar.vue`, `NewIncidenceModal.vue`, `FileUpload.vue`, `GestionPagosView.vue`, `DividirOrdenDePago.vue`, `HistorialPagosView.vue`, `QuejasView.vue`, `InstrumentadorUpload.vue`, `GenerateLinkModal.vue`, `CorrectionWorkspace.vue`, `ConfigView.vue`, `StatsView.vue`, `EstadisticasInstrumentadorModal.vue`, `ConsumoView.vue`, `NotificationsView.vue`, `AuthorizationModal.vue`, `ToolModificarMontosNotas.vue`, `GestionPagoModal.vue`, `ReclamoView.vue`, `ToolAnularPago.vue`, `LoginView.vue`, `ToolCambiarComprobante.vue`, `NewInstrumentadorModal.vue`, `RecordWeeklyScoreModal.vue`, `EditInstrumentadorModal.vue`, `ImportInstrumentadoresModal.vue`, `ReportEventsAndPdfs.vue`, `index.js`, `NewSurgeryModal.vue`, `jspdf`, `GestionReclamoModal.vue`, `addFiles`, `hasMissingAmount`, `copyPermanentLink`, `fetchInstrumentadores`, `EditInstrumentadorModal.vue`, `FichaView.vue`, `RatingChart.vue`?**
   _High betweenness centrality (0.142) - this node is a cross-community bridge._
 - **Why does `dependencies` connect `AddPointsModal.vue` to `Key Config Options`, `generatePDF`, `handleExport`, `getSurgeryDate`?**
   _High betweenness centrality (0.014) - this node is a cross-community bridge._
 - **Why does `supabase` connect `AddPointsModal.vue` to `supabase.js`?**
   _High betweenness centrality (0.012) - this node is a cross-community bridge._
 - **What connects `name`, `private`, `version` to the rest of the system?**
-  _1418 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _1419 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `AdminView.vue` be split into smaller, more focused modules?**
   _Cohesion score 0.07692307692307693 - nodes in this community are weakly interconnected._
 - **Should `ReportEventsAndPdfs.vue` be split into smaller, more focused modules?**

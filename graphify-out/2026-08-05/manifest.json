@@ -80,18 +80,18 @@
     "semantic_hash": ""
   },
   "src/components/FichaForm.vue": {
-    "mtime": 1782850006.9906287,
-    "ast_hash": "3785cc5f5363cdb4eb972011cbb68f97",
+    "mtime": 1785961788.5904033,
+    "ast_hash": "5217d79b82fa8c8613ff600c56611fc2",
     "semantic_hash": ""
   },
   "src/components/FilterBar.vue": {
-    "mtime": 1783598983.7374294,
-    "ast_hash": "f94e27b0a9cc215a43f771496f04d7b3",
+    "mtime": 1785959036.0189981,
+    "ast_hash": "dd2353498377427e9e305ec3641acc07",
     "semantic_hash": ""
   },
   "src/components/FormStepComments.vue": {
-    "mtime": 1782850006.9921446,
-    "ast_hash": "ce4e5bda21a83def370173ce6024e111",
+    "mtime": 1785961394.4655478,
+    "ast_hash": "c8072b153727c6d038b7d5ef564ee9c3",
     "semantic_hash": ""
   },
   "src/components/FormStepQuestionnaire.vue": {
@@ -110,8 +110,8 @@
     "semantic_hash": ""
   },
   "src/components/IdentificationWizard.vue": {
-    "mtime": 1782850006.9921446,
-    "ast_hash": "1822845abb2484e446bb96018ac3df4a",
+    "mtime": 1785961134.8976426,
+    "ast_hash": "7547fdf47f88a1816385b5e23ba96ed7",
     "semantic_hash": ""
   },
   "src/components/ImportInstrumentadoresModal.vue": {
@@ -165,8 +165,8 @@
     "semantic_hash": ""
   },
   "src/components/NotificationDropdown.vue": {
-    "mtime": 1785957148.1505072,
-    "ast_hash": "db5f1ef536b2f7ba635600de7b226a41",
+    "mtime": 1785961296.418334,
+    "ast_hash": "7a838de3ad39b79d535f47152beb2f52",
     "semantic_hash": ""
   },
   "src/components/NotificationsView.vue": {
@@ -215,8 +215,8 @@
     "semantic_hash": ""
   },
   "src/components/ReportCard.vue": {
-    "mtime": 1785502565.4899237,
-    "ast_hash": "a10f2087543c4bfef2d85a85df1d58fb",
+    "mtime": 1785961326.5809913,
+    "ast_hash": "322e75cfecfac1435bab6e5c7aae3220",
     "semantic_hash": ""
   },
   "src/components/ReportDrawer.vue": {
@@ -250,8 +250,8 @@
     "semantic_hash": ""
   },
   "src/components/SignatureModal.vue": {
-    "mtime": 1782850007.0055766,
-    "ast_hash": "9ce808d8c915e53b8f0092fa851fe1a3",
+    "mtime": 1785961173.8891273,
+    "ast_hash": "a92bad561a21f7c859dbff5d32cac06f",
     "semantic_hash": ""
   },
   "src/components/SkeletonLoader.vue": {
@@ -265,8 +265,8 @@
     "semantic_hash": ""
   },
   "src/components/SubmissionSuccess.vue": {
-    "mtime": 1782852911.658859,
-    "ast_hash": "1be22298f3fa8d3d15abadcef353cc0a",
+    "mtime": 1785962075.9271443,
+    "ast_hash": "f7c67f68ebf5687bdbe247c0551e64d6",
     "semantic_hash": ""
   },
   "src/components/SubmittedSummary.vue": {
@@ -400,8 +400,8 @@
     "semantic_hash": ""
   },
   "src/components/uploader/FileUpload.vue": {
-    "mtime": 1782850007.0186043,
-    "ast_hash": "6ad7bdbb561607168d45df7f3062b5f0",
+    "mtime": 1785962066.4093904,
+    "ast_hash": "47589b1a824254b683b74ab19b076bcf",
     "semantic_hash": ""
   },
   "src/components/uploader/useB2Upload.js": {
@@ -445,8 +445,8 @@
     "semantic_hash": ""
   },
   "src/layouts/AdminLayout.vue": {
-    "mtime": 1785957373.4891925,
-    "ast_hash": "1ce4a7c673b10c2a751a30270d29c3ce",
+    "mtime": 1785961355.3076525,
+    "ast_hash": "ef8e3451646050ac6e5e79d0fc34dcb9",
     "semantic_hash": ""
   },
   "src/main.js": {
@@ -455,8 +455,8 @@
     "semantic_hash": ""
   },
   "src/router/index.js": {
-    "mtime": 1785945611.2722466,
-    "ast_hash": "0bc5ab96317b3b5cabc8c0978c2dfbec",
+    "mtime": 1785958588.743705,
+    "ast_hash": "f85f089d96b1ce57ff46fe55e2db639a",
     "semantic_hash": ""
   },
   "src/services/pdfGenerator.js": {
@@ -495,8 +495,8 @@
     "semantic_hash": ""
   },
   "src/views/FichaView.vue": {
-    "mtime": 1782850007.022679,
-    "ast_hash": "372b96c99db299257fd605148d562bbf",
+    "mtime": 1785961774.1625333,
+    "ast_hash": "6d2736780b7a2b268c785833c4d95fec",
     "semantic_hash": ""
   },
   "src/views/IncidenciasView.vue": {
@@ -515,8 +515,8 @@
     "semantic_hash": ""
   },
   "src/views/LoginView.vue": {
-    "mtime": 1785945622.671702,
-    "ast_hash": "c73b97ab013311f4aff4f8d47388f029",
+    "mtime": 1785958581.5565803,
+    "ast_hash": "271bd8fd3735f5eac229226b19131f97",
     "semantic_hash": ""
   },
   "src/views/NotificationsView.vue": {
@@ -1340,8 +1340,8 @@
     "semantic_hash": ""
   },
   "src/views/admin/ResumenOperativoView.vue": {
-    "mtime": 1785523395.3523567,
-    "ast_hash": "49029e58e9221f71947678ac983e85fd",
+    "mtime": 1785961360.137273,
+    "ast_hash": "4987a99cc60182f3e4b1fe01b6783276",
     "semantic_hash": ""
   },
   "src/views/logistica/LogisticaDetalleInformeView.vue": {

@@ -1,17 +1,29 @@
-<!-- src/layouts/AdminLayout.vue (Navbar Adaptable a Móvil y Monitores de 19 pulgadas) -->
+
+<!-- src/layouts/AdminLayout.vue (Con Botón de Menú Hamburguesa Móvil y Layout Responsive) -->
 <template>
   <div class="flex h-screen bg-slate-50 dark:bg-slate-900 font-sans">
-    <div class="flex-shrink-0">
-      <Sidebar />
-    </div>
+    
+    <!-- Sidebar con Control de Visibilidad en Móvil -->
+    <Sidebar :is-open="isSidebarOpen" @toggle-sidebar="toggleSidebar" />
 
     <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
       
       <!-- Navbar / Header Principal Adaptable (Mobile-First + 19" Desktop) -->
-      <header class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800 h-14 sm:h-16 flex items-center justify-between px-3 sm:px-6 lg:px-8 z-30 transition-all">
+      <header class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800 h-14 sm:h-16 flex items-center justify-between px-3 sm:px-6 lg:px-8 z-20 transition-all">
         
-        <!-- Izquierda: Breadcrumb e Identificador de Vista -->
+        <!-- Izquierda: Botón Menú Móvil + Breadcrumb e Identificador de Vista -->
         <div class="flex items-center gap-2 sm:gap-3 min-w-0">
+          
+          <!-- Botón de Menú Hamburguesa para Móvil (md:hidden) -->
+          <button 
+            @click="toggleSidebar" 
+            class="p-2 -ml-1 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 md:hidden focus:outline-none transition-all active:scale-90 cursor-pointer flex items-center justify-center shrink-0"
+            title="Abrir menú de navegación"
+            aria-label="Abrir menú"
+          >
+            <Bars3Icon class="w-5 h-5 text-slate-700 dark:text-slate-200" />
+          </button>
+
           <div class="hidden md:flex items-center gap-1.5 text-xs text-slate-400 dark:text-slate-500 font-bold">
             <span class="text-blue-600 dark:text-blue-400">Gestión IQ</span>
             <span class="text-slate-300 dark:text-slate-700">/</span>
@@ -23,18 +35,18 @@
         </div>
 
         <!-- Derecha: Botones de Acción Dinámicos y Notificaciones -->
-        <div class="flex items-center gap-2 sm:gap-3">
+        <div class="flex items-center gap-1.5 sm:gap-3">
           
           <component 
             v-for="(button, index) in (headerConfig?.buttons || [])" 
             :key="index" 
             :is="'button'" 
             @click="button.action" 
-            class="px-3 sm:px-4 py-1.5 sm:py-2 bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs rounded-xl shadow-xs transition-all active:scale-95 cursor-pointer flex items-center gap-1.5"
+            class="px-2.5 sm:px-4 py-1.5 sm:py-2 bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs rounded-xl shadow-xs transition-all active:scale-95 cursor-pointer flex items-center gap-1.5"
           >
-            <component v-if="button.icon" :is="button.icon" class="w-4 h-4" />
+            <component v-if="button.icon" :is="button.icon" class="w-4 h-4 shrink-0" />
             <span class="hidden sm:inline">{{ button.text }}</span>
-            <span class="sm:hidden">{{ button.text }}</span>
+            <span class="sm:hidden text-[11px]">{{ button.text }}</span>
           </component>
           
           <!-- Botón de Notificaciones con Balanceo y Badge -->
@@ -67,7 +79,7 @@
         </div>
       </header>
 
-      <main class="flex-1 overflow-x-hidden overflow-y-auto">
+      <main class="flex-1 overflow-x-hidden overflow-y-auto p-3 sm:p-6 lg:p-8">
         <router-view />
       </main>
     </div>
@@ -90,11 +102,16 @@ import { onClickOutside } from '@vueuse/core';
 import Sidebar from '../components/Sidebar.vue';
 import ReportDrawer from '../components/ReportDrawer.vue';
 import NotificationDropdown from '../components/NotificationDropdown.vue';
-import { BellIcon } from '@heroicons/vue/24/outline';
+import { BellIcon, Bars3Icon } from '@heroicons/vue/24/outline';
 
 const router = useRouter();
 const toast = useToast();
 const isRinging = ref(false);
+
+const isSidebarOpen = ref(false);
+const toggleSidebar = () => {
+  isSidebarOpen.value = !isSidebarOpen.value;
+};
 
 const headerConfig = ref({
   title: 'Panel de Control',

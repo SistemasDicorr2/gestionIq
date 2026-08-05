@@ -1,40 +1,59 @@
-<!-- src/components/FichaForm.vue (Modificado) -->
+<!-- src/components/FichaForm.vue (Sin Desfase Inferior + UX/UI Mejorada) -->
 <template>
   <div class="w-full">
-    <!-- Contenedor Principal para la Interfaz Superior -->
-    <div class="max-w-4xl mx-auto px-4">
-      <div class="bg-white dark:bg-slate-900 rounded-2xl ring-1 ring-slate-200/70 dark:ring-slate-700/60 p-4 pt-6">
-        <!-- 1) Header -->
-        <header class="flex items-center justify-between gap-3 relative mb-4 px-0">
+    <!-- Contenedor Principal Integrado -->
+    <div class="max-w-3xl mx-auto px-3 sm:px-6">
+      
+      <!-- 1) Tarjeta de Encabezado, Stepper e Información -->
+      <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 p-4 sm:p-6 shadow-xl transition-all">
+        
+        <header class="flex items-center justify-between gap-3 mb-5">
           <div class="flex items-center gap-3">
-            <img src="/1.svg" class="h-8 opacity-90 dark:opacity-100" alt="Districorr" />
-            <h1 class="text-xl font-bold text-slate-800 dark:text-slate-200 hidden sm:block">Ficha Post Cirugía</h1>
+            <img src="/1.svg" class="h-8 sm:h-9 opacity-90 dark:opacity-100" alt="Districorr" />
+            <h1 class="text-base sm:text-xl font-black text-slate-900 dark:text-white tracking-tight">Ficha Post Cirugía</h1>
           </div>
-          <button class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800" @click="toggleDark()">
-            <SunIcon v-if="isDark" class="h-6 w-6 text-amber-400" />
-            <MoonIcon v-else class="h-6 w-6 text-slate-500" />
+          
+          <button 
+            type="button"
+            class="p-2 sm:p-2.5 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all cursor-pointer" 
+            @click="toggleDark()"
+            title="Cambiar Modo Claro / Oscuro"
+          >
+            <SunIcon v-if="isDark" class="h-5 w-5 text-amber-400" />
+            <MoonIcon v-else class="h-5 w-5 text-slate-600" />
           </button>
         </header>
 
-        <!-- 2) Stepper -->
+        <!-- Stepper Responsive -->
         <nav class="mx-auto mt-2">
-          <ol class="grid grid-cols-3 text-sm font-medium text-slate-500">
-            <li v-for="(step, index) in steps" :key="step.label" class="relative text-center" :class="{'text-blue-600 dark:text-blue-400': index === currentStep}">
+          <ol class="grid grid-cols-3 text-xs sm:text-sm font-extrabold text-slate-400 dark:text-slate-500">
+            <li 
+              v-for="(step, index) in steps" 
+              :key="step.label" 
+              class="relative text-center" 
+              :class="{'text-blue-600 dark:text-blue-400': index === currentStep}"
+            >
               <div class="absolute inset-0 flex items-center" aria-hidden="true" v-if="index > 0">
-                <div class="h-0.5 w-full" :class="index <= currentStep ? 'bg-blue-600' : 'bg-slate-200 dark:bg-slate-700'"></div>
+                <div class="h-0.5 w-full" :class="index <= currentStep ? 'bg-blue-600 dark:bg-blue-500' : 'bg-slate-200 dark:bg-slate-800'"></div>
               </div>
-              <div @click="currentStep = index" class="relative w-8 h-8 mx-auto flex items-center justify-center rounded-full cursor-pointer" :class="index < currentStep ? 'bg-blue-600 hover:bg-blue-700' : (index === currentStep ? 'border-2 border-blue-600 bg-white dark:bg-slate-900' : 'border-2 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900')">
-                <span v-if="index < currentStep" class="text-white">✓</span>
-                <span v-else :class="index === currentStep ? 'text-blue-600 dark:text-blue-400' : 'text-slate-500'">{{ index + 1 }}</span>
+              
+              <div 
+                @click="currentStep = index" 
+                class="relative w-8 h-8 sm:w-9 sm:h-9 mx-auto flex items-center justify-center rounded-full cursor-pointer transition-all shadow-2xs" 
+                :class="index < currentStep ? 'bg-blue-600 text-white dark:bg-blue-500' : (index === currentStep ? 'border-2 border-blue-600 bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400' : 'border-2 border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-400')"
+              >
+                <span v-if="index < currentStep" class="text-white font-black text-xs">✓</span>
+                <span v-else class="font-extrabold text-xs sm:text-sm">{{ index + 1 }}</span>
               </div>
-              <p class="mt-2 hidden sm:block">{{ step.label }}</p>
+
+              <p class="mt-2 text-[11px] sm:text-xs font-extrabold tracking-tight truncate">{{ step.label }}</p>
             </li>
           </ol>
         </nav>
 
-        <!-- 3) Info-bar -->
-        <section class="mt-6">
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <!-- Tarjetas de Información del Caso -->
+        <section class="mt-5">
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
             <InfoCard label="Paciente" :value="reporte.paciente" :icon="UserIcon" />
             <InfoCard label="Médico" :value="reporte.medico" :icon="ClipboardDocumentCheckIcon" />
             <InfoCard label="Fecha" :value="formatDate(reporte.fecha_cirugia)" :icon="CalendarIcon" />
@@ -42,37 +61,76 @@
           </div>
         </section>
       </div>
+
+      <!-- 2) Contenedor del Paso Activo con Navegación Unificada Integrada -->
+      <main class="mt-4 sm:mt-6 pb-24 md:pb-6">
+        <div class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 p-4 sm:p-8 shadow-xl transition-all">
+          
+          <Transition name="fade-slide" mode="out-in">
+            <component 
+              :is="steps[currentStep].component"
+              v-bind="currentStepProps"
+              @update:form-data="updateFormData"
+              @set-footer-action="setFooterAction"
+              @open-signature-modal="openSignatureModal"
+              @clear-signature="handleSignatureClear"
+            />
+          </Transition>
+
+          <!-- Acciones de Navegación integradas en Escritorio (Evita el desfase inferior) -->
+          <div class="hidden md:flex justify-between items-center pt-6 mt-8 border-t border-slate-100 dark:border-slate-800">
+            <button 
+              type="button" 
+              @click="prevStep" 
+              class="px-5 py-2.5 rounded-2xl border border-slate-200 dark:border-slate-700 font-extrabold text-xs text-slate-700 dark:text-slate-200 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 transition-all cursor-pointer" 
+              :class="currentStep > 0 ? 'opacity-100' : 'opacity-0 pointer-events-none'"
+            >
+              ← Atrás
+            </button>
+            
+            <button 
+              type="button" 
+              v-if="footerAction" 
+              @click="footerAction.action" 
+              :disabled="isSubmitting" 
+              :class="footerAction.class" 
+              class="px-7 py-3 rounded-2xl font-black text-xs transition-all flex items-center justify-center cursor-pointer shadow-sm active:scale-98"
+            >
+              <svg v-if="isSubmitting" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+              <span>{{ isSubmitting ? 'Enviando...' : footerAction.text }}</span>
+            </button>
+          </div>
+
+        </div>
+      </main>
+
     </div>
 
-    <!-- 4) Contenedor de paso -->
-    <main class="max-w-4xl mx-auto mt-6 px-4 pb-28 md:pb-6">
-      <div class="rounded-2xl bg-white dark:bg-slate-900 ring-1 ring-slate-200/70 dark:ring-slate-700/60 p-4 md:p-8">
-        <Transition name="fade-slide" mode="out-in">
-          <component 
-            :is="steps[currentStep].component"
-            v-bind="currentStepProps"
-            @update:form-data="updateFormData"
-            @set-footer-action="setFooterAction"
-            @open-signature-modal="openSignatureModal"
-            @clear-signature="handleSignatureClear"
-          />
-        </Transition>
-      </div>
-    </main>
-
-    <!-- 5) Footer Sticky redondeado -->
-    <footer class="md:mt-8 fixed md:static bottom-0 left-0 right-0 bg-slate-100/80 dark:bg-slate-950/80 backdrop-blur-sm p-3 border-t border-slate-200/60 dark:border-slate-800 shadow-up md:rounded-b-2xl rounded-t-2xl">
-      <div class="max-w-4xl mx-auto flex justify-between items-center px-2">
-        <button type="button" @click="prevStep" class="px-4 h-11 min-w-[44px] rounded-xl ring-1 ring-slate-300/70 dark:ring-slate-700 font-semibold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors" :class="currentStep > 0 ? 'opacity-100' : 'opacity-0 pointer-events-none'">
-          Atrás
+    <!-- 3) Barra Flotante Táctil Fija EXCLUSIVA para Móviles (< 768px) -->
+    <nav class="md:hidden fixed bottom-0 left-0 right-0 z-30 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md p-3 border-t border-slate-200/80 dark:border-slate-800 shadow-2xl">
+      <div class="max-w-md mx-auto flex justify-between items-center px-1">
+        <button 
+          type="button" 
+          @click="prevStep" 
+          class="px-4 py-2.5 rounded-2xl border border-slate-200 dark:border-slate-700 font-extrabold text-xs text-slate-700 dark:text-slate-200 bg-slate-50 dark:bg-slate-800 active:scale-95 transition-all cursor-pointer" 
+          :class="currentStep > 0 ? 'opacity-100' : 'opacity-0 pointer-events-none'"
+        >
+          ← Atrás
         </button>
         
-        <button type="button" v-if="footerAction" @click="footerAction.action" :disabled="isSubmitting" :class="footerAction.class" class="px-6 h-11 rounded-xl font-semibold transition-colors flex items-center justify-center">
-          <svg v-if="isSubmitting" class="animate-spin -ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+        <button 
+          type="button" 
+          v-if="footerAction" 
+          @click="footerAction.action" 
+          :disabled="isSubmitting" 
+          :class="footerAction.class" 
+          class="px-6 py-2.5 rounded-2xl font-black text-xs transition-all flex items-center justify-center cursor-pointer shadow-sm active:scale-95"
+        >
+          <svg v-if="isSubmitting" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
           <span>{{ isSubmitting ? 'Enviando...' : footerAction.text }}</span>
         </button>
       </div>
-    </footer>
+    </nav>
 
     <SignatureModal 
       :show="isSignatureModalVisible" 
@@ -82,7 +140,6 @@
     />
   </div>
 </template>
-
 
 <script setup>
 import { ref, reactive, computed, onUnmounted, markRaw, watchEffect, defineComponent, h } from 'vue';
@@ -221,10 +278,7 @@ const handleSubmit = async () => {
     const { error: updateError } = await supabase.from('reportes').update(updates).eq('id', props.reporte.id);
     if (updateError) throw updateError;
     
-    // ***** INICIO DE LA MODIFICACIÓN *****
-    // Ahora, al emitir el evento, pasamos el ID del reporte como payload.
     emit('submit-success', props.reporte.id);
-    // ***** FIN DE LA MODIFICACIÓN *****
 
   } catch (error) {
     console.error('Submission failed with error:', error);
@@ -275,9 +329,9 @@ const setFooterAction = (action) => {
     footerAction.value = action;
   } else {
     if (currentStep.value < steps.value.length - 1) {
-      footerAction.value = { text: 'Siguiente', action: nextStep, class: 'bg-blue-600 text-white hover:bg-blue-700' };
+      footerAction.value = { text: 'Siguiente →', action: nextStep, class: 'bg-blue-600 hover:bg-blue-700 text-white' };
     } else {
-      footerAction.value = { text: 'Enviar Ficha', action: handleSubmit, class: 'bg-emerald-500 text-white hover:bg-emerald-600 disabled:bg-slate-400' };
+      footerAction.value = { text: 'Enviar Ficha ✅', action: handleSubmit, class: 'bg-emerald-600 hover:bg-emerald-700 text-white disabled:bg-slate-400' };
     }
   }
 };
@@ -286,21 +340,21 @@ watchEffect(() => setFooterAction(null));
 const InfoCard = defineComponent({
   props: { label: String, value: String, icon: [Object, Function] },
   setup(props) {
-    const iconComponent = props.icon ? h(props.icon, { class: 'h-5 w-5 text-slate-400 dark:text-slate-500 flex-shrink-0' }) : null;
-    return () => h('div', { class: 'card-info flex items-start gap-3' }, [
+    const iconComponent = props.icon ? h(props.icon, { class: 'h-4 w-4 text-slate-400 dark:text-slate-500 shrink-0 mt-0.5' }) : null;
+    return () => h('div', { class: 'card-info flex items-start gap-2 sm:gap-2.5' }, [
       iconComponent,
-      h('div', [
-        h('span', { class: 'block text-xs text-slate-500 dark:text-slate-400' }, props.label),
-        h('strong', { class: 'text-slate-800 text-base dark:text-slate-200' }, props.value)
+      h('div', { class: 'min-w-0 flex-1' }, [
+        h('span', { class: 'block text-[10px] sm:text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider' }, props.label),
+        h('strong', { class: 'text-xs sm:text-sm font-black text-slate-900 dark:text-slate-100 truncate block leading-tight mt-0.5' }, props.value || '—')
       ])
     ]);
   }
 });
 </script>
 
-<style>
+<style scoped>
 .card-info { 
-  @apply rounded-xl bg-white dark:bg-slate-800/50 ring-1 ring-slate-200/70 dark:ring-slate-700/60 px-4 py-3; 
+  @apply rounded-2xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200/80 dark:border-slate-800 p-2.5 sm:p-3; 
 }
 .fade-slide-enter-active, .fade-slide-leave-active { 
   transition: all .2s ease; 
@@ -312,11 +366,5 @@ const InfoCard = defineComponent({
 .fade-slide-leave-to { 
   opacity: 0; 
   transform: translateY(-6px); 
-}
-.shadow-up {
-  box-shadow: 0 -4px 6px -1px rgb(0 0 0 / 0.05), 0 -2px 4px -2px rgb(0 0 0 / 0.05);
-}
-.dark .shadow-up {
-  box-shadow: 0 -4px 10px -1px rgb(0 0 0 / 0.2), 0 -2px 6px -2px rgb(0 0 0 / 0.2);
 }
 </style>
