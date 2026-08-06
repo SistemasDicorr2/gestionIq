@@ -114,8 +114,10 @@ const fetchHistorial = async () => {
       .select('*')
       .order('fecha', { ascending: false });
 
-    // Si el usuario no es admin, filtra por sus propios informes
-    if (session.user.app_metadata?.role !== 'admin') {
+    const role = session.user.app_metadata?.role || session.user.user_metadata?.role || 'admin';
+
+    // Si el usuario es operador ('logistica'), filtra sus propios informes; los administradores ven todos los operadores
+    if (role === 'logistica') {
       query = query.eq('responsable_user_id', session.user.id);
     }
 
