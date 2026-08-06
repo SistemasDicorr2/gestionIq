@@ -1,6 +1,6 @@
 <!-- src/views/logistica/LogisticaNuevoInformeView.vue -->
 <template>
-  <div class="max-w-xl mx-auto space-y-5 pb-32 text-slate-800 dark:text-slate-100 font-sans px-3 sm:px-0">
+  <div class="max-w-xl mx-auto space-y-5 pb-44 md:pb-24 text-slate-800 dark:text-slate-100 font-sans px-3 sm:px-0">
     
     <!-- Header Mobile-First -->
     <div class="flex items-center justify-between pt-1 border-b border-slate-200/80 dark:border-slate-800 pb-3">
@@ -12,9 +12,12 @@
           <h1 class="text-base font-extrabold tracking-tight text-slate-900 dark:text-white">
             {{ informe.id ? 'Editar Informe Diario' : 'Nuevo Informe Diario' }}
           </h1>
+          <span v-if="autoSaveStatus === 'saved'" class="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+            <span>✓</span> {{ autoSaveMessage }}
+          </span>
         </div>
         <p class="text-[11px] text-slate-500 dark:text-slate-400">
-          Carga fácil de entregas, retiros, bultos y novedades.
+          Carga fácil de entregas, retiros, bultos y novedades con autoguardado.
         </p>
       </div>
 
@@ -277,7 +280,7 @@
 
                 <div>
                   <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Cliente / Obra Social / Prepaga</label>
-                  <input v-model="manualForm.cliente" type="text" placeholder="Ej: OSDE / Subsidio Salud" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:outline-none dark:text-white" />
+                  <input v-model="manualForm.cliente" type="text" placeholder="Ej: OSDE / Subsidio Salud" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:outline-none dark:text-white" />
                 </div>
               </div>
             </div>
@@ -336,7 +339,7 @@
           <button 
             type="button" 
             @click="addMovementToList" 
-            class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-1.5 active:scale-98"
+            class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-1.5 active:scale-98 cursor-pointer"
           >
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
             <span>Añadir Movimiento al Informe</span>
@@ -424,42 +427,50 @@
       </div>
     </template>
 
-    <!-- FLOATING STICKY BOTTOM ACTION BAR -->
-    <div class="fixed bottom-0 left-0 right-0 z-20 p-3 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-200/80 dark:border-slate-800 shadow-xl">
+    <!-- FLOATING STICKY BOTTOM ACTION BAR (Posicionada por encima de la barra mobile-nav bottom-[57px] en móviles) -->
+    <div class="fixed bottom-[57px] md:bottom-0 left-0 right-0 z-30 p-2.5 sm:p-3 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-200/80 dark:border-slate-800 shadow-2xl">
       <div class="max-w-xl mx-auto flex items-center justify-between gap-2">
         
-        <div class="flex items-center gap-3 text-xs font-semibold">
-          <div class="flex items-center gap-1.5">
-            <span class="w-2 h-2 rounded-full bg-blue-500"></span>
-            <span class="text-slate-900 dark:text-white font-extrabold font-mono text-sm">{{ summaryStats.totalMovimientos }}</span>
-            <span class="text-slate-500 text-[11px]">Movs</span>
+        <!-- Estado de Autoguardado & Stats -->
+        <div class="flex items-center gap-2">
+          <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-slate-100 dark:bg-slate-800/90 border border-slate-200/60 dark:border-slate-700/80">
+            <span v-if="autoSaveStatus === 'saving'" class="w-2 h-2 rounded-full bg-amber-500 animate-ping"></span>
+            <span v-else-if="autoSaveStatus === 'saved'" class="w-2 h-2 rounded-full bg-emerald-500"></span>
+            <span v-else class="w-2 h-2 rounded-full bg-slate-400"></span>
+
+            <span class="text-[10px] font-extrabold text-slate-700 dark:text-slate-300 truncate max-w-[110px] sm:max-w-none">
+              {{ autoSaveMessage }}
+            </span>
           </div>
 
-          <div class="flex items-center gap-1.5">
+          <div class="hidden sm:flex items-center gap-1.5 text-xs">
             <span class="text-slate-300 dark:text-slate-700">|</span>
-            <span class="text-slate-700 dark:text-slate-300 font-bold font-mono">{{ summaryStats.totalCajas }}</span>
-            <span class="text-slate-500 text-[11px]">Cajas</span>
+            <span class="text-slate-900 dark:text-white font-extrabold font-mono text-xs">{{ summaryStats.totalMovimientos }}</span>
+            <span class="text-slate-500 text-[10px]">Movs</span>
           </div>
         </div>
 
+        <!-- Acciones Directas Mobile-First -->
         <div class="flex items-center gap-2">
           <button 
             type="button" 
-            @click="saveDraft" 
-            :disabled="isSaving"
-            class="px-3 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold text-xs rounded-xl transition-all disabled:opacity-50"
+            @click="saveDraftManual" 
+            :disabled="isSaving || isSending"
+            class="px-3 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold text-xs rounded-xl transition-all disabled:opacity-50 flex items-center gap-1 cursor-pointer active:scale-95 shadow-2xs"
+            title="Guardar borrador manualmente"
           >
-            {{ isSaving ? '...' : 'Guardar Borrador' }}
+            <span>💾</span>
+            <span>{{ isSaving ? '...' : 'Borrador' }}</span>
           </button>
 
           <button 
             type="button" 
             @click="openResumenModal" 
-            :disabled="movimientos.length === 0"
-            class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs rounded-xl shadow-xs transition-all disabled:opacity-50 flex items-center gap-1 active:scale-98"
+            :disabled="movimientos.length === 0 || isSending"
+            class="px-3.5 sm:px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs rounded-xl shadow-md transition-all disabled:opacity-50 flex items-center gap-1.5 cursor-pointer active:scale-95"
           >
-            <span>Revisar y Enviar</span>
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+            <span>🚀</span>
+            <span>Guardar y Enviar</span>
           </button>
         </div>
       </div>
@@ -478,7 +489,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue';
+import { ref, reactive, computed, watch, onMounted, onUnmounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { supabase } from '../../services/supabase';
 import { useToast } from 'vue-toastification';
@@ -493,6 +504,16 @@ const isSaving = ref(false);
 const isSending = ref(false);
 const showResumenModal = ref(false);
 
+const autoSaveStatus = ref('idle'); // 'idle' | 'saving' | 'saved' | 'error'
+const lastSaveTime = ref('');
+
+const autoSaveMessage = computed(() => {
+  if (autoSaveStatus.value === 'saving') return 'Guardando borrador...';
+  if (autoSaveStatus.value === 'saved') return lastSaveTime.value ? `Autoguardado ${lastSaveTime.value}` : 'Autoguardado';
+  if (autoSaveStatus.value === 'error') return 'Error al autoguardar';
+  return 'Borrador activo';
+});
+
 const todayISO = new Date().toISOString().split('T')[0];
 
 const informe = reactive({
@@ -506,6 +527,27 @@ const informe = reactive({
 });
 
 const movimientos = ref([]);
+
+let autoSaveTimer = null;
+const scheduleAutoSave = () => {
+  if (loading.value || isSending.value || informe.estado === 'enviado' || !informe.responsable_user_id) return;
+  autoSaveStatus.value = 'saving';
+  clearTimeout(autoSaveTimer);
+  autoSaveTimer = setTimeout(async () => {
+    await saveDraftInternal(true);
+  }, 1400);
+};
+
+// Autoguardado automático ante cambios en datos principales
+watch(
+  () => [informe.fecha, informe.zona, informe.observacion_general],
+  () => {
+    if (!loading.value) {
+      scheduleAutoSave();
+    }
+  },
+  { deep: true }
+);
 
 const tipoChips = [
   { icon: '🧰', label: 'Entrega Cajas', value: 'Entrega de cajas' },
@@ -698,10 +740,12 @@ const addMovementToList = () => {
   builder.detalle_pendiente = '';
 
   toast.success(`Añadido: ${newMov.tipo_movimiento}`);
+  scheduleAutoSave();
 };
 
 const deleteMovimiento = (index) => {
   movimientos.value.splice(index, 1);
+  scheduleAutoSave();
 };
 
 const summaryStats = computed(() => ({
@@ -743,6 +787,7 @@ onMounted(async () => {
           .order('orden', { ascending: true });
 
         if (movs) movimientos.value = movs.map(m => ({ ...m, tempId: m.id }));
+        autoSaveStatus.value = 'saved';
       }
     } else {
       // Buscar borrador de hoy
@@ -768,6 +813,7 @@ onMounted(async () => {
           .order('orden', { ascending: true });
 
         if (movs) movimientos.value = movs.map(m => ({ ...m, tempId: m.id }));
+        autoSaveStatus.value = 'saved';
       }
     }
   } catch (err) {
@@ -777,9 +823,15 @@ onMounted(async () => {
   }
 });
 
-const saveDraft = async () => {
+onUnmounted(() => {
+  clearTimeout(autoSaveTimer);
+});
+
+const saveDraftInternal = async (isSilent = false) => {
+  if (!informe.responsable_user_id) return false;
   try {
     isSaving.value = true;
+    autoSaveStatus.value = 'saving';
 
     if (informe.id) {
       const { error } = await supabase
@@ -841,22 +893,36 @@ const saveDraft = async () => {
       }
     }
 
-    toast.success('Cambios guardados exitosamente.');
+    if (!isSilent) {
+      toast.success('Borrador guardado exitosamente.');
+    }
+    autoSaveStatus.value = 'saved';
+    const now = new Date();
+    lastSaveTime.value = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
     return true;
   } catch (err) {
-    toast.error('Error al guardar: ' + err.message);
+    if (!isSilent) {
+      toast.error('Error al guardar borrador: ' + err.message);
+    }
+    autoSaveStatus.value = 'error';
     return false;
   } finally {
     isSaving.value = false;
   }
 };
 
+const saveDraftManual = async () => {
+  clearTimeout(autoSaveTimer);
+  await saveDraftInternal(false);
+};
+
 const openResumenModal = async () => {
   if (movimientos.value.length === 0) {
-    toast.error('Cargue al menos un movimiento antes de enviar el informe.');
+    toast.error('Cargue al menos un movimiento antes de guardar y enviar el informe.');
     return;
   }
-  const saved = await saveDraft();
+  clearTimeout(autoSaveTimer);
+  const saved = await saveDraftInternal(true);
   if (saved) {
     showResumenModal.value = true;
   }
