@@ -22,18 +22,18 @@
 
         <button 
           type="button" 
-          @click="showEmailModal = true"
-          class="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs rounded-xl shadow-xs flex items-center gap-1.5 transition-all active:scale-98"
-          title="Ver tabla HTML formateada de 660px y copiar para Outlook/Gmail"
+          @click="copyDirectToEmailClipboard"
+          class="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs rounded-xl shadow-xs flex items-center gap-1.5 transition-all active:scale-98 cursor-pointer"
+          title="Copiar directamente la tabla formateada para pegar en Outlook o Gmail"
         >
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
-          <span>📧 Tabla para Email</span>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" /></svg>
+          <span>📋 Copiar Tabla a Correo</span>
         </button>
 
         <button 
           type="button" 
           @click="printReport"
-          class="px-3.5 py-2 bg-slate-800 dark:bg-slate-700 hover:bg-slate-900 text-white font-bold text-xs rounded-xl shadow-xs flex items-center gap-1.5 transition-colors"
+          class="px-3.5 py-2 bg-slate-800 dark:bg-slate-700 hover:bg-slate-900 text-white font-bold text-xs rounded-xl shadow-xs flex items-center gap-1.5 transition-colors cursor-pointer"
         >
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
           <span>🖨️ Imprimir / Guardar PDF</span>
@@ -195,159 +195,6 @@
         Documento interno oficial generado por el módulo de Logística de Gestión IQ — Districorr.
       </div>
     </div>
-
-    <!-- MODAL DE TABLA HTML ESCALADA (+15% MÁS GRANDE -> 660px FIJO) PARA OUTLOOK -->
-    <div v-if="showEmailModal" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-xs">
-      <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-3xl overflow-hidden flex flex-col max-h-[92vh] border border-slate-200 dark:border-slate-700">
-        
-        <!-- Header Modal -->
-        <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-900">
-          <div>
-            <h3 class="text-sm font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
-              <span>📧 Tabla HTML Escalada (+15% Ancho y Fuentes)</span>
-            </h3>
-            <p class="text-[11px] text-slate-500">Formato de 660px con tipografías más legibles (11px) y observaciones incorporadas.</p>
-          </div>
-          <button @click="showEmailModal = false" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
-          </button>
-        </div>
-
-        <!-- Renderizado de la plantilla HTML escalada a 660px fija -->
-        <div class="flex-1 overflow-y-auto p-4 bg-slate-100 dark:bg-slate-950 flex justify-center">
-          
-          <div ref="emailHtmlContainer" style="background-color: #ffffff; padding: 14px; border-radius: 8px; border: 1px solid #cbd5e1; font-family: Arial, Helvetica, sans-serif; color: #1e293b; width: 660px; max-width: 660px; margin: 0 auto;">
-            
-            <!-- Encabezado del Correo Escalado -->
-            <table width="636" cellpadding="0" cellspacing="0" border="0" style="width: 636px; margin-bottom: 12px; border-bottom: 2px solid #2563eb; padding-bottom: 8px;">
-              <tr>
-                <td valign="top">
-                  <span style="font-size: 15px; font-weight: bold; color: #2563eb; font-family: Arial, sans-serif;">DISTRICORR — GESTIÓN IQ</span><br/>
-                  <span style="font-size: 13px; font-weight: bold; color: #0f172a; font-family: Arial, sans-serif; display: block; margin-top: 1px;">Informe Diario de Logística</span>
-                  <span style="font-size: 10.5px; color: #64748b; font-family: Arial, sans-serif; display: block; margin-top: 3px;">
-                    Fecha: <strong style="color: #0f172a;">{{ formatDate(informe?.fecha) }}</strong> &nbsp;|&nbsp; Zona: <strong style="color: #0f172a;">{{ informe?.zona || 'Formosa' }}</strong> &nbsp;|&nbsp; Resp: <strong style="color: #0f172a;">{{ informe?.responsable_nombre }}</strong>
-                  </span>
-                </td>
-                <td align="right" valign="top" style="text-align: right;">
-                  <span style="background-color: #dcfce7; color: #166534; font-size: 10px; font-weight: bold; padding: 3px 10px; border-radius: 10px; border: 1px solid #86efac; font-family: Arial, sans-serif;">
-                    ENVIADO
-                  </span>
-                </td>
-              </tr>
-            </table>
-
-            <!-- Tabla Resumen KPI Escalada (636px) -->
-            <table width="636" cellpadding="6" cellspacing="0" border="1" style="width: 636px; margin-bottom: 12px; background-color: #f8fafc; border: 1px solid #cbd5e1; border-collapse: collapse; text-align: center; font-family: Arial, sans-serif; font-size: 10px;">
-              <tr style="background-color: #f1f5f9;">
-                <td width="25%" style="border: 1px solid #cbd5e1; padding: 6px;">
-                  <span style="font-size: 9.5px; color: #475569; font-weight: bold; text-transform: uppercase;">MOVIMIENTOS</span><br/>
-                  <strong style="font-size: 14px; color: #0f172a;">{{ movimientos.length }}</strong>
-                </td>
-                <td width="25%" style="border: 1px solid #cbd5e1; padding: 6px;">
-                  <span style="font-size: 9.5px; color: #475569; font-weight: bold; text-transform: uppercase;">TOTAL CAJAS</span><br/>
-                  <strong style="font-size: 14px; color: #0f172a;">{{ totalCajas }}</strong>
-                </td>
-                <td width="25%" style="border: 1px solid #cbd5e1; padding: 6px;">
-                  <span style="font-size: 9.5px; color: #475569; font-weight: bold; text-transform: uppercase;">TOTAL BULTOS</span><br/>
-                  <strong style="font-size: 14px; color: #0f172a;">{{ totalBultos }}</strong>
-                </td>
-                <td width="25%" style="border: 1px solid #cbd5e1; padding: 6px; background-color: #fef3c7;">
-                  <span style="font-size: 9.5px; color: #92400e; font-weight: bold; text-transform: uppercase;">PENDIENTES</span><br/>
-                  <strong style="font-size: 14px; color: #b45309;">{{ totalPendientes }}</strong>
-                </td>
-              </tr>
-            </table>
-
-            <div v-if="informe?.observacion_general" style="background-color: #eff6ff; padding: 8px 10px; border-radius: 5px; border-left: 4px solid #2563eb; margin-bottom: 12px; font-family: Arial, sans-serif;">
-              <strong style="color: #1e40af; font-size: 10.5px;">Observación General de la Jornada:</strong>
-              <p style="margin: 2px 0 0 0; color: #334155; font-size: 10.5px; font-style: italic;">{{ informe.observacion_general }}</p>
-            </div>
-
-            <!-- Tabla Principal de Movimientos Escalada -->
-            <table width="636" cellpadding="6" cellspacing="0" border="1" style="width: 636px; background-color: #ffffff; border: 1px solid #cbd5e1; font-size: 10.5px; border-collapse: collapse; font-family: Arial, sans-serif; table-layout: fixed;">
-              <thead>
-                <tr style="background-color: #1e293b; color: #ffffff; text-align: left;">
-                  <th width="24" style="border: 1px solid #0f172a; padding: 6px 3px; text-align: center; color: #ffffff; font-size: 10px;">#</th>
-                  <th width="125" style="border: 1px solid #0f172a; padding: 6px; color: #ffffff; font-size: 10px;">Tipo / Cirugía</th>
-                  <th width="140" style="border: 1px solid #0f172a; padding: 6px; color: #ffffff; font-size: 10px;">Paciente / Cliente</th>
-                  <th width="140" style="border: 1px solid #0f172a; padding: 6px; color: #ffffff; font-size: 10px;">Institución / Médico</th>
-                  <th width="135" style="border: 1px solid #0f172a; padding: 6px; color: #ffffff; font-size: 10px;">Observaciones / Novedad</th>
-                  <th width="36" style="border: 1px solid #0f172a; padding: 6px 2px; text-align: center; color: #ffffff; font-size: 9.5px;">Cajas</th>
-                  <th width="36" style="border: 1px solid #0f172a; padding: 6px 2px; text-align: center; color: #ffffff; font-size: 9.5px;">Bultos</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr 
-                  v-for="(mov, idx) in movimientos" 
-                  :key="mov.id" 
-                  :style="{ backgroundColor: idx % 2 === 0 ? '#ffffff' : '#f8fafc' }"
-                >
-                  <td style="border: 1px solid #cbd5e1; padding: 6px 3px; text-align: center; font-weight: bold; color: #475569; font-size: 10px;">
-                    {{ idx + 1 }}
-                  </td>
-                  
-                  <td style="border: 1px solid #cbd5e1; padding: 6px; vertical-align: top; word-break: break-word;">
-                    <strong style="color: #1d4ed8; font-size: 10.5px; display: block;">{{ mov.tipo_movimiento }}</strong>
-                    <span v-if="mov.id_cirugia_snapshot" style="display: inline-block; margin-top: 3px; font-family: monospace; font-size: 9px; background-color: #e2e8f0; color: #1e293b; padding: 2px 4px; border-radius: 3px; font-weight: bold;">
-                      {{ mov.id_cirugia_snapshot }}
-                    </span>
-                  </td>
-
-                  <td style="border: 1px solid #cbd5e1; padding: 6px; vertical-align: top; word-break: break-word;">
-                    <strong style="color: #0f172a; font-size: 10.5px; display: block;">{{ mov.paciente_snapshot || mov.destino || 'Sin especificar' }}</strong>
-                    <span v-if="mov.cliente_snapshot" style="font-size: 9.5px; color: #64748b; display: block; margin-top: 2px;">🏢 {{ mov.cliente_snapshot }}</span>
-                  </td>
-
-                  <td style="border: 1px solid #cbd5e1; padding: 6px; vertical-align: top; color: #334155; word-break: break-word;">
-                    <span v-if="mov.institucion_snapshot" style="display: block; font-weight: bold; color: #0f172a; font-size: 10px;">🏥 {{ mov.institucion_snapshot }}</span>
-                    <span v-if="mov.medico_snapshot" style="display: block; color: #475569; margin-top: 2px; font-size: 9.5px;">👨‍⚕️ {{ mov.medico_snapshot }}</span>
-                  </td>
-
-                  <td style="border: 1px solid #cbd5e1; padding: 6px; vertical-align: top; color: #334155; word-break: break-word;">
-                    <span v-if="mov.observaciones" style="display: block; font-style: italic; color: #475569; font-size: 9.5px;">
-                      💬 {{ mov.observaciones }}
-                    </span>
-                    <span v-else-if="!mov.tiene_pendiente" style="color: #94a3b8; font-style: italic; font-size: 9px;">Sin notas</span>
-                    
-                    <div v-if="mov.tiene_pendiente" style="margin-top: 4px; background-color: #fef3c7; border: 1px solid #fcd34d; color: #92400e; padding: 3px 5px; border-radius: 3px; font-weight: bold; font-size: 9px;">
-                      ⚠️ Pendiente: {{ mov.detalle_pendiente }}
-                    </div>
-                  </td>
-
-                  <td style="border: 1px solid #cbd5e1; padding: 6px 2px; text-align: center; font-weight: bold; font-family: monospace; font-size: 11px; color: #0f172a;">
-                    {{ mov.cantidad_cajas || 0 }}
-                  </td>
-
-                  <td style="border: 1px solid #cbd5e1; padding: 6px 2px; text-align: center; font-weight: bold; font-family: monospace; font-size: 11px; color: #0f172a;">
-                    {{ mov.cantidad_bultos || 0 }}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-
-            <!-- Footer Compacto -->
-            <p style="font-size: 9px; color: #94a3b8; margin-top: 12px; text-align: center; font-family: Arial, sans-serif;">
-              Documento interno oficial generado por el módulo de Logística de Gestión IQ — Districorr.
-            </p>
-          </div>
-        </div>
-
-        <!-- Footer Modal con Botón Copiar -->
-        <div class="px-5 py-3 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 flex flex-col sm:flex-row items-center justify-between gap-2">
-          <button type="button" @click="showEmailModal = false" class="px-4 py-2 text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-xl transition-colors w-full sm:w-auto">
-            Cerrar
-          </button>
-          
-          <button 
-            type="button" 
-            @click="copyRichHtml"
-            class="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs rounded-xl shadow-md transition-all w-full sm:w-auto flex items-center justify-center gap-2 active:scale-98"
-          >
-            <span>Copiar Tabla HTML (+15%) para Outlook</span>
-          </button>
-        </div>
-      </div>
-    </div>
   </div>
 </template>
 
@@ -363,8 +210,6 @@ const loading = ref(true);
 
 const informe = ref(null);
 const movimientos = ref([]);
-const showEmailModal = ref(false);
-const emailHtmlContainer = ref(null);
 
 const totalCajas = computed(() => movimientos.value.reduce((sum, m) => sum + (m.cantidad_cajas || 0), 0));
 const totalBultos = computed(() => movimientos.value.reduce((sum, m) => sum + (m.cantidad_bultos || 0), 0));
@@ -405,26 +250,6 @@ const printReport = () => {
   window.print();
 };
 
-const copyRichHtml = async () => {
-  try {
-    if (!emailHtmlContainer.value) return;
-
-    const htmlContent = emailHtmlContainer.value.innerHTML;
-    const plainText = emailHtmlContainer.value.innerText;
-
-    const htmlBlob = new Blob([htmlContent], { type: 'text/html' });
-    const textBlob = new Blob([plainText], { type: 'text/plain' });
-
-    const data = [new ClipboardItem({ 'text/html': htmlBlob, 'text/plain': textBlob })];
-    await navigator.clipboard.write(data);
-
-    toast.success('¡Tabla HTML (+15%) copiada al portapapeles! Lista para pegar en Outlook.');
-  } catch (err) {
-    navigator.clipboard.writeText(emailHtmlContainer.value?.innerText || '');
-    toast.info('Copiado al portapapeles.');
-  }
-};
-
 const formatDate = (dateStr) => {
   if (!dateStr) return '';
   const [y, m, d] = dateStr.split('-');
@@ -435,5 +260,151 @@ const formatDateTime = (dateTimeStr) => {
   if (!dateTimeStr) return '';
   const date = new Date(dateTimeStr);
   return date.toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' }) + ' ' + date.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' });
+};
+
+const generateEmailTableHtml = (inf, movsList) => {
+  const cajas = movsList.reduce((sum, m) => sum + (m.cantidad_cajas || 0), 0);
+  const bultos = movsList.reduce((sum, m) => sum + (m.cantidad_bultos || 0), 0);
+  const pendientes = movsList.filter(m => m.tiene_pendiente).length;
+
+  const rows = movsList.map((mov, idx) => {
+    const bg = idx % 2 === 0 ? '#ffffff' : '#f8fafc';
+    const idCirugiaBadge = mov.id_cirugia_snapshot 
+      ? `<span style="display: inline-block; margin-top: 3px; font-family: monospace; font-size: 9px; background-color: #e2e8f0; color: #1e293b; padding: 2px 4px; border-radius: 3px; font-weight: bold;">${mov.id_cirugia_snapshot}</span>` 
+      : '';
+    const clienteSpan = mov.cliente_snapshot ? `<span style="font-size: 9.5px; color: #64748b; display: block; margin-top: 2px;">🏢 ${mov.cliente_snapshot}</span>` : '';
+    const instSpan = mov.institucion_snapshot ? `<span style="display: block; font-weight: bold; color: #0f172a; font-size: 10px;">🏥 ${mov.institucion_snapshot}</span>` : '';
+    const medSpan = mov.medico_snapshot ? `<span style="display: block; color: #475569; margin-top: 2px; font-size: 9.5px;">👨‍⚕️ ${mov.medico_snapshot}</span>` : '';
+    
+    let obsHtml = mov.observaciones 
+      ? `<span style="display: block; font-style: italic; color: #475569; font-size: 9.5px;">💬 ${mov.observaciones}</span>` 
+      : (!mov.tiene_pendiente ? `<span style="color: #94a3b8; font-style: italic; font-size: 9px;">Sin notas</span>` : '');
+    
+    if (mov.tiene_pendiente) {
+      obsHtml += `<div style="margin-top: 4px; background-color: #fef3c7; border: 1px solid #fcd34d; color: #92400e; padding: 3px 5px; border-radius: 3px; font-weight: bold; font-size: 9px;">⚠️ Pendiente: ${mov.detalle_pendiente || ''}</div>`;
+    }
+
+    return `
+      <tr style="background-color: ${bg};">
+        <td style="border: 1px solid #cbd5e1; padding: 6px 3px; text-align: center; font-weight: bold; color: #475569; font-size: 10px;">${idx + 1}</td>
+        <td style="border: 1px solid #cbd5e1; padding: 6px; vertical-align: top; word-break: break-word;">
+          <strong style="color: #1d4ed8; font-size: 10.5px; display: block;">${mov.tipo_movimiento || ''}</strong>
+          ${idCirugiaBadge}
+        </td>
+        <td style="border: 1px solid #cbd5e1; padding: 6px; vertical-align: top; word-break: break-word;">
+          <strong style="color: #0f172a; font-size: 10.5px; display: block;">${mov.paciente_snapshot || mov.destino || 'Sin especificar'}</strong>
+          ${clienteSpan}
+        </td>
+        <td style="border: 1px solid #cbd5e1; padding: 6px; vertical-align: top; color: #334155; word-break: break-word;">
+          ${instSpan}
+          ${medSpan}
+        </td>
+        <td style="border: 1px solid #cbd5e1; padding: 6px; vertical-align: top; color: #334155; word-break: break-word;">
+          ${obsHtml}
+        </td>
+        <td style="border: 1px solid #cbd5e1; padding: 6px 2px; text-align: center; font-weight: bold; font-family: monospace; font-size: 11px; color: #0f172a;">${mov.cantidad_cajas || 0}</td>
+        <td style="border: 1px solid #cbd5e1; padding: 6px 2px; text-align: center; font-weight: bold; font-family: monospace; font-size: 11px; color: #0f172a;">${mov.cantidad_bultos || 0}</td>
+      </tr>
+    `;
+  }).join('');
+
+  const obsGenHtml = inf?.observacion_general 
+    ? `<div style="background-color: #eff6ff; padding: 8px 10px; border-radius: 5px; border-left: 4px solid #2563eb; margin-bottom: 12px; font-family: Arial, sans-serif;">
+        <strong style="color: #1e40af; font-size: 10.5px;">Observación General de la Jornada:</strong>
+        <p style="margin: 2px 0 0 0; color: #334155; font-size: 10.5px; font-style: italic;">${inf.observacion_general}</p>
+       </div>`
+    : '';
+
+  return `
+    <div style="background-color: #ffffff; padding: 14px; border-radius: 8px; border: 1px solid #cbd5e1; font-family: Arial, Helvetica, sans-serif; color: #1e293b; width: 660px; max-width: 660px; margin: 0 auto;">
+      <table width="636" cellpadding="0" cellspacing="0" border="0" style="width: 636px; margin-bottom: 12px; border-bottom: 2px solid #2563eb; padding-bottom: 8px;">
+        <tr>
+          <td valign="top">
+            <span style="font-size: 15px; font-weight: bold; color: #2563eb; font-family: Arial, sans-serif;">DISTRICORR — GESTIÓN IQ</span><br/>
+            <span style="font-size: 13px; font-weight: bold; color: #0f172a; font-family: Arial, sans-serif; display: block; margin-top: 1px;">Informe Diario de Logística</span>
+            <span style="font-size: 10.5px; color: #64748b; font-family: Arial, sans-serif; display: block; margin-top: 3px;">
+              Fecha: <strong style="color: #0f172a;">${formatDate(inf?.fecha)}</strong> &nbsp;|&nbsp; Zona: <strong style="color: #0f172a;">${inf?.zona || 'Formosa'}</strong> &nbsp;|&nbsp; Resp: <strong style="color: #0f172a;">${inf?.responsable_nombre || ''}</strong>
+            </span>
+          </td>
+          <td align="right" valign="top" style="text-align: right;">
+            <span style="background-color: #dcfce7; color: #166534; font-size: 10px; font-weight: bold; padding: 3px 10px; border-radius: 10px; border: 1px solid #86efac; font-family: Arial, sans-serif;">
+              ENVIADO
+            </span>
+          </td>
+        </tr>
+      </table>
+
+      <table width="636" cellpadding="6" cellspacing="0" border="1" style="width: 636px; margin-bottom: 12px; background-color: #f8fafc; border: 1px solid #cbd5e1; border-collapse: collapse; text-align: center; font-family: Arial, sans-serif; font-size: 10px;">
+        <tr style="background-color: #f1f5f9;">
+          <td width="25%" style="border: 1px solid #cbd5e1; padding: 6px;">
+            <span style="font-size: 9.5px; color: #475569; font-weight: bold; text-transform: uppercase;">MOVIMIENTOS</span><br/>
+            <strong style="font-size: 14px; color: #0f172a;">${movsList.length}</strong>
+          </td>
+          <td width="25%" style="border: 1px solid #cbd5e1; padding: 6px;">
+            <span style="font-size: 9.5px; color: #475569; font-weight: bold; text-transform: uppercase;">TOTAL CAJAS</span><br/>
+            <strong style="font-size: 14px; color: #0f172a;">${cajas}</strong>
+          </td>
+          <td width="25%" style="border: 1px solid #cbd5e1; padding: 6px;">
+            <span style="font-size: 9.5px; color: #475569; font-weight: bold; text-transform: uppercase;">TOTAL BULTOS</span><br/>
+            <strong style="font-size: 14px; color: #0f172a;">${bultos}</strong>
+          </td>
+          <td width="25%" style="border: 1px solid #cbd5e1; padding: 6px; background-color: #fef3c7;">
+            <span style="font-size: 9.5px; color: #92400e; font-weight: bold; text-transform: uppercase;">PENDIENTES</span><br/>
+            <strong style="font-size: 14px; color: #b45309;">${pendientes}</strong>
+          </td>
+        </tr>
+      </table>
+
+      ${obsGenHtml}
+
+      <table width="636" cellpadding="6" cellspacing="0" border="1" style="width: 636px; background-color: #ffffff; border: 1px solid #cbd5e1; font-size: 10.5px; border-collapse: collapse; font-family: Arial, sans-serif; table-layout: fixed;">
+        <thead>
+          <tr style="background-color: #1e293b; color: #ffffff; text-align: left;">
+            <th width="24" style="border: 1px solid #0f172a; padding: 6px 3px; text-align: center; color: #ffffff; font-size: 10px;">#</th>
+            <th width="125" style="border: 1px solid #0f172a; padding: 6px; color: #ffffff; font-size: 10px;">Tipo / Cirugía</th>
+            <th width="140" style="border: 1px solid #0f172a; padding: 6px; color: #ffffff; font-size: 10px;">Paciente / Cliente</th>
+            <th width="140" style="border: 1px solid #0f172a; padding: 6px; color: #ffffff; font-size: 10px;">Institución / Médico</th>
+            <th width="135" style="border: 1px solid #0f172a; padding: 6px; color: #ffffff; font-size: 10px;">Observaciones / Novedad</th>
+            <th width="36" style="border: 1px solid #0f172a; padding: 6px 2px; text-align: center; color: #ffffff; font-size: 9.5px;">Cajas</th>
+            <th width="36" style="border: 1px solid #0f172a; padding: 6px 2px; text-align: center; color: #ffffff; font-size: 9.5px;">Bultos</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows}
+        </tbody>
+      </table>
+
+      <p style="font-size: 9px; color: #94a3b8; margin-top: 12px; text-align: center; font-family: Arial, sans-serif;">
+        Documento interno oficial generado por el módulo de Logística de Gestión IQ — Districorr.
+      </p>
+    </div>
+  `;
+};
+
+const copyDirectToEmailClipboard = async () => {
+  try {
+    if (!informe.value) return;
+
+    const htmlString = generateEmailTableHtml(informe.value, movimientos.value);
+    
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = htmlString;
+    const plainText = tempDiv.innerText || tempDiv.textContent || '';
+
+    const htmlBlob = new Blob([htmlString], { type: 'text/html' });
+    const textBlob = new Blob([plainText], { type: 'text/plain' });
+
+    const item = new ClipboardItem({
+      'text/html': htmlBlob,
+      'text/plain': textBlob
+    });
+
+    await navigator.clipboard.write([item]);
+
+    toast.success('📋 ¡Tabla copiada al portapapeles! Lista para pegar directamente en Outlook o Gmail.');
+  } catch (err) {
+    console.error(err);
+    toast.error('No se pudo copiar la tabla: ' + err.message);
+  }
 };
 </script>
