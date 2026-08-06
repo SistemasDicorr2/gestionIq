@@ -86,32 +86,46 @@
       </div>
 
       <div v-else-if="todayInforme.estado === 'borrador'" class="p-3.5 bg-amber-50/50 dark:bg-amber-950/20 rounded-xl border border-amber-100 dark:border-amber-900/40 text-xs text-amber-900 dark:text-amber-300 flex items-center justify-between">
-        <span class="font-medium">⚠️ Tienes un borrador en curso con {{ todayMovimientosCount }} movimientos.</span>
+        <span class="font-medium">⚠️ Tienes un borrador en curso del día con {{ todayMovimientosCount }} movimientos.</span>
+        <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-300 border border-amber-300">
+          📝 Borrador
+        </span>
       </div>
 
       <div v-else-if="todayInforme.estado === 'enviado'" class="p-3.5 bg-emerald-50/50 dark:bg-emerald-950/20 rounded-xl border border-emerald-100 dark:border-emerald-900/40 text-xs text-emerald-900 dark:text-emerald-300 flex items-center gap-2">
         <span>✓</span>
-        <span class="font-bold">El informe de hoy fue enviado a las {{ formatTime(todayInforme.enviado_at) }}.</span>
+        <span class="font-bold">El informe previo de hoy fue enviado a las {{ formatTime(todayInforme.enviado_at) }}. Puedes crear otro si lo necesitas.</span>
       </div>
 
       <!-- Main Action Callout -->
-      <div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
         <router-link 
-          v-if="!todayInforme || todayInforme.estado === 'borrador'"
-          :to="{ name: 'LogisticaNuevoInforme' }"
-          class="w-full py-3.5 px-5 bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs rounded-xl shadow-xs flex items-center justify-center gap-2 transition-all active:scale-98"
+          v-if="todayInforme && todayInforme.estado === 'borrador'"
+          :to="{ name: 'LogisticaNuevoInforme', query: { id: todayInforme.id } }"
+          class="py-3 px-4 bg-amber-500 hover:bg-amber-600 text-white font-extrabold text-xs rounded-xl shadow-xs flex items-center justify-center gap-2 transition-all active:scale-98"
         >
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
-          <span>{{ todayInforme ? 'Continuar Cargando Informe' : 'Crear Informe Diario de Hoy' }}</span>
+          <span>✏️</span>
+          <span>Continuar Editando Borrador</span>
         </router-link>
 
         <router-link 
-          v-else
+          v-else-if="todayInforme && todayInforme.estado === 'enviado'"
           :to="{ name: 'LogisticaDetalleInforme', params: { id: todayInforme.id } }"
-          class="w-full py-3.5 px-5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-white font-extrabold text-xs rounded-xl flex items-center justify-center gap-2 transition-all"
+          class="py-3 px-4 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-white font-extrabold text-xs rounded-xl flex items-center justify-center gap-2 transition-all"
         >
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-          <span>Ver Resumen e Imprimir Informe Enviado</span>
+          <span>👁️</span>
+          <span>Ver Informe Enviado de Hoy</span>
+        </router-link>
+
+        <router-link 
+          :to="{ name: 'LogisticaNuevoInforme', query: { mode: 'new' } }"
+          :class="[
+            'py-3 px-4 font-extrabold text-xs rounded-xl shadow-xs flex items-center justify-center gap-2 transition-all active:scale-98',
+            (!todayInforme || todayInforme.estado === 'enviado') ? 'bg-blue-600 hover:bg-blue-700 text-white sm:col-span-2' : 'bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700'
+          ]"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+          <span>Crear Informe Diario Nuevo</span>
         </router-link>
       </div>
     </div>

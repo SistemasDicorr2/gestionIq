@@ -37,6 +37,24 @@
     </div>
 
     <template v-else>
+      <!-- Banner informativo si se está editando un borrador existente -->
+      <div v-if="informe.id && informe.estado === 'borrador'" class="p-3 bg-amber-50/90 dark:bg-amber-950/40 rounded-2xl border border-amber-200 dark:border-amber-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs animate-fadeIn">
+        <div class="flex items-center gap-2 text-amber-900 dark:text-amber-200">
+          <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-amber-200 dark:bg-amber-900 text-amber-900 dark:text-amber-100">
+            📝 Borrador
+          </span>
+          <span class="font-semibold">Estás editando un borrador guardado del {{ informe.fecha }}</span>
+        </div>
+
+        <button 
+          type="button" 
+          @click="startNewCleanReport" 
+          class="px-3 py-1 bg-amber-200 hover:bg-amber-300 dark:bg-amber-900 dark:hover:bg-amber-800 text-amber-950 dark:text-amber-100 rounded-xl font-extrabold text-[11px] transition-all shadow-2xs self-end sm:self-auto cursor-pointer"
+        >
+          + Iniciar Informe Nuevo
+        </button>
+      </div>
+
       <!-- Datos de la Jornada -->
       <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-4 shadow-xs space-y-3">
         <div class="flex items-center justify-between">
@@ -755,6 +773,17 @@ const summaryStats = computed(() => ({
   totalPendientes: movimientos.value.filter(m => m.tiene_pendiente).length
 }));
 
+const startNewCleanReport = () => {
+  clearTimeout(autoSaveTimer);
+  informe.id = null;
+  informe.fecha = todayISO;
+  informe.observacion_general = '';
+  informe.estado = 'borrador';
+  movimientos.value = [];
+  autoSaveStatus.value = 'idle';
+  toast.info('Se inició un nuevo informe diario.');
+};
+
 onMounted(async () => {
   try {
     loading.value = true;
@@ -767,8 +796,9 @@ onMounted(async () => {
       || session.user.email?.split('@')[0] 
       || 'Usuario Logística';
 
-    // SOPORTE PARA EDICIÓN DE UN INFORME EXISTENTE
+    // SOPORTE PARA EDICIÓN DE UN INFORME EXISTENTE O CREACIÓN LIMPIA
     const targetInformeId = route.params.id || route.query.id;
+    const isExplicitNew = route.query.mode === 'new';
 
     if (targetInformeId) {
       const { data: existing, error: extErr } = await supabase
@@ -789,21 +819,19 @@ onMounted(async () => {
         if (movs) movimientos.value = movs.map(m => ({ ...m, tempId: m.id }));
         autoSaveStatus.value = 'saved';
       }
-    } else {
-      // Buscar borrador de hoy
+    } else if (!isExplicitNew) {
+      // Cargar solo el borrador activo más reciente de hoy si existe y no se solicitó un informe limpio
       const { data: existing } = await supabase
         .from('logistica_informes_diarios')
         .select('*')
         .eq('responsable_user_id', session.user.id)
         .eq('fecha', todayISO)
+        .eq('estado', 'borrador')
+        .order('created_at', { ascending: false })
+        .limit(1)
         .maybeSingle();
 
       if (existing) {
-        if (existing.estado === 'enviado') {
-          toast.info('El informe de hoy ya fue enviado.');
-          router.replace({ name: 'LogisticaDetalleInforme', params: { id: existing.id } });
-          return;
-        }
         Object.assign(informe, existing);
 
         const { data: movs } = await supabase

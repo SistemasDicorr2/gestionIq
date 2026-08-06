@@ -12,7 +12,7 @@
         </p>
       </div>
 
-      <router-link :to="{ name: 'LogisticaNuevoInforme' }" class="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-xs flex items-center gap-1.5 transition-colors self-start sm:self-auto">
+      <router-link :to="{ name: 'LogisticaNuevoInforme', query: { mode: 'new' } }" class="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-xs flex items-center gap-1.5 transition-colors self-start sm:self-auto">
         <span>+ Nuevo Informe</span>
       </router-link>
     </div>
@@ -56,7 +56,7 @@
         <router-link 
           v-for="inf in filteredInformes" 
           :key="inf.id"
-          :to="inf.estado === 'borrador' ? { name: 'LogisticaNuevoInforme' } : { name: 'LogisticaDetalleInforme', params: { id: inf.id } }"
+          :to="inf.estado === 'borrador' ? { name: 'LogisticaNuevoInforme', query: { id: inf.id } } : { name: 'LogisticaDetalleInforme', params: { id: inf.id } }"
           class="p-4 bg-slate-50/70 dark:bg-slate-900/40 hover:bg-slate-100 dark:hover:bg-slate-700/50 rounded-xl border border-slate-200 dark:border-slate-700 block transition-colors space-y-2"
         >
           <div class="flex items-center justify-between">
@@ -68,14 +68,14 @@
             </div>
 
             <span 
-              class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase"
+              class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase border shadow-2xs"
               :class="[
-                inf.estado === 'borrador' ? 'bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300' :
-                inf.estado === 'enviado' ? 'bg-green-100 dark:bg-green-950/60 text-green-800 dark:text-green-300' :
-                'bg-blue-100 text-blue-800'
+                inf.estado === 'borrador' ? 'bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border-amber-300 dark:border-amber-800' :
+                inf.estado === 'enviado' ? 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800' :
+                'bg-blue-100 text-blue-800 border-blue-300'
               ]"
             >
-              {{ inf.estado }}
+              {{ inf.estado === 'borrador' ? '📝 Borrador' : inf.estado === 'enviado' ? '✓ Enviado' : inf.estado }}
             </span>
           </div>
 
