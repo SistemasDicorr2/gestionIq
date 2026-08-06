@@ -127,6 +127,23 @@
             />
           </div>
 
+          <!-- TOGGLE RÁPIDO SI SE SELECCIONA RETIRO DE CAJAS (RETIRO + TRASLADO A CENTRAL EN 1 PASO) -->
+          <div 
+            v-if="builder.tipo_movimiento === 'Retiro de cajas'" 
+            class="p-3 bg-blue-50/90 dark:bg-blue-950/40 rounded-xl border border-blue-200 dark:border-blue-900/60 flex items-center justify-between animate-fadeIn"
+          >
+            <div class="space-y-0.5">
+              <span class="text-xs font-bold text-blue-900 dark:text-blue-200 flex items-center gap-1.5">
+                <span>🏢</span> ¿Trasladado / enviado a Central en el día?
+              </span>
+              <p class="text-[10px] text-blue-700 dark:text-blue-300">Registra el retiro del sanatorio y envío a central en 1 solo paso.</p>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input type="checkbox" v-model="builder.trasladado_a_central" class="sr-only peer" />
+              <div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:after:border-slate-600 peer-checked:bg-blue-600"></div>
+            </label>
+          </div>
+
           <!-- PASO 2: BÚSQUEDA PACIENTE CON AUTOCOMPLETADO O SUGERENCIA SI NO EXISTE -->
           <div class="space-y-2 relative">
             <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300">
@@ -493,11 +510,10 @@ const movimientos = ref([]);
 const tipoChips = [
   { icon: '🧰', label: 'Entrega Cajas', value: 'Entrega de cajas' },
   { icon: '🔄', label: 'Retiro Cajas', value: 'Retiro de cajas' },
-  { icon: '📦', label: 'Devolución', value: 'Devolución de implantes' },
-  { icon: '⚠️', label: 'Incidencia', value: 'Incidencia' },
+  { icon: '🏢', label: 'Traslado a Central', value: 'Traslado a Central' },
+  { icon: '📄', label: 'Documentación', value: 'Documentación' },
   { icon: '⚙️', label: 'Otra Gestión', value: 'Otra gestión' },
-  { icon: '📄', label: 'Documentación', value: 'Entrega o retiro de documentación' },
-  { icon: '🚚', label: 'Traslado Interno', value: 'Traslado interno' }
+  { icon: '⚠️', label: 'Incidencia', value: 'Incidencia' }
 ];
 
 const searchQuery = ref('');
@@ -518,6 +534,7 @@ const manualForm = reactive({
 const builder = reactive({
   tipo_movimiento: 'Entrega de cajas',
   detalle_incidencia_o_gestion: '',
+  trasladado_a_central: false,
   cantidad_cajas: 1,
   cantidad_bultos: 1,
   observaciones: '',
@@ -637,6 +654,11 @@ const addMovementToList = () => {
   }
 
   let finalObs = builder.observaciones.trim();
+  if (builder.tipo_movimiento === 'Retiro de cajas' && builder.trasladado_a_central) {
+    finalObs = finalObs 
+      ? `[Trasladado a Central en el día] ${finalObs}`
+      : `[Trasladado a Central en el día]`;
+  }
   if (builder.detalle_incidencia_o_gestion.trim()) {
     finalObs = finalObs 
       ? `[${builder.tipo_movimiento}: ${builder.detalle_incidencia_o_gestion.trim()}] ${finalObs}`
@@ -653,7 +675,7 @@ const addMovementToList = () => {
     medico_snapshot: medicoVal || null,
     institucion_snapshot: institucionVal || null,
     fecha_cirugia_snapshot: fechaCirugiaVal || null,
-    destino: pacienteVal,
+    destino: (builder.tipo_movimiento === 'Retiro de cajas' && builder.trasladado_a_central) ? 'Central' : pacienteVal,
     cantidad_cajas: builder.cantidad_cajas || 0,
     cantidad_bultos: builder.cantidad_bultos || 0,
     observaciones: finalObs || null,
@@ -671,6 +693,7 @@ const addMovementToList = () => {
   builder.cantidad_bultos = 1;
   builder.observaciones = '';
   builder.detalle_incidencia_o_gestion = '';
+  builder.trasladado_a_central = false;
   builder.tiene_pendiente = false;
   builder.detalle_pendiente = '';
 

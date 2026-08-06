@@ -205,9 +205,8 @@ const showCirugiaSearch = ref(false);
 const tiposMovimiento = [
   'Entrega de cajas',
   'Retiro de cajas',
-  'Devolución de implantes',
-  'Entrega o retiro de documentación',
-  'Traslado interno',
+  'Traslado a Central',
+  'Documentación',
   'Otra gestión',
   'Incidencia'
 ];
