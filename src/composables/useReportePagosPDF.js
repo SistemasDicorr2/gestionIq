@@ -59,11 +59,22 @@ export function useReportePagosPDF() {
 
     yPos += 27;
 
-    // 3. KPIs del Reporte (Métricas en Tarjetas)
+    // 3. Métricas / KPIs del Reporte (Métricas en Tarjetas)
     const totalPagos = liquidaciones.length;
     const totalCirugias = liquidaciones.reduce((sum, l) => sum + (l.cirugias?.length || l.pacientes?.length || 1), 0);
-    const totalMonto = liquidaciones.reduce((sum, l) => sum + (l.monto_total || 0), 0);
-    const tieneMontos = liquidaciones.some(l => l.has_monto || l.monto_total > 0);
+
+    // Calcular el monto total sumando las órdenes e ítems
+    const totalMontoCalculado = liquidaciones.reduce((sum, l) => {
+      let lSum = parseFloat(l.monto_total || 0);
+      if (isNaN(lSum) || lSum === 0) {
+        const items = l.cirugias || [];
+        lSum = items.reduce((acc, c) => {
+          const val = parseFloat(c.monto || c.monto_liquidado || c.honorarios || c.monto_a_pagar);
+          return acc + (!isNaN(val) ? val : 0);
+        }, 0);
+      }
+      return sum + lSum;
+    }, 0);
 
     const cardKpiWidth = (contentWidth - 8) / 3;
 
@@ -98,7 +109,7 @@ export function useReportePagosPDF() {
     doc.text('MONTO TOTAL LIQUIDADO', marginX + (cardKpiWidth + 4) * 2 + 4, yPos + 5);
     doc.setFontSize(10.5);
     doc.setTextColor(...colorPrimary);
-    doc.text(tieneMontos ? `$ ${totalMonto.toLocaleString('es-AR')}` : 'Procesado', marginX + (cardKpiWidth + 4) * 2 + 4, yPos + 11.5);
+    doc.text(totalMontoCalculado > 0 ? `$ ${totalMontoCalculado.toLocaleString('es-AR')}` : 'Procesado', marginX + (cardKpiWidth + 4) * 2 + 4, yPos + 11.5);
 
     yPos += 22;
 
@@ -118,20 +129,26 @@ export function useReportePagosPDF() {
         ? `Orden de pago #${liq.orden_de_pago_id}` 
         : `Pago #${index + 1}`;
 
-      // Monto total de la orden
-      const montoTotalStr = (liq.monto_total && liq.monto_total > 0)
-        ? `$ ${liq.monto_total.toLocaleString('es-AR')}`
-        : null;
-
       // Obtener lista de cirugías/pacientes
       const itemsCirugias = (liq.cirugias && liq.cirugias.length > 0)
         ? liq.cirugias
         : (liq.pacientes || []).map(p => ({ paciente: p }));
 
+      // Calcular la suma total de esta orden
+      let ordenTotal = parseFloat(liq.monto_total || 0);
+      if (isNaN(ordenTotal) || ordenTotal === 0) {
+        ordenTotal = itemsCirugias.reduce((sum, c) => {
+          const val = parseFloat(c.monto || c.monto_liquidado || c.honorarios || c.monto_a_pagar);
+          return sum + (!isNaN(val) ? val : 0);
+        }, 0);
+      }
+
+      const montoTotalStr = ordenTotal > 0 ? `$ ${ordenTotal.toLocaleString('es-AR')}` : 'Abonado';
+
       // Calcular altura requerida para la tarjeta
       const headerHeight = 9;
       const rowHeight = 5.5;
-      const footerHeight = montoTotalStr ? 7 : 4;
+      const footerHeight = 8; // Siempre mostrar footer con Total de la Orden
       const cardHeight = headerHeight + (itemsCirugias.length * rowHeight) + footerHeight;
 
       // Verificar si cabe en la página actual o crear nueva página
@@ -201,21 +218,40 @@ export function useReportePagosPDF() {
         itemY += rowHeight;
       });
 
-      // Footer de la Tarjeta: Monto Total si aplica
-      if (montoTotalStr) {
-        doc.setDrawColor(241, 245, 249);
-        doc.line(marginX + 4, yPos + cardHeight - footerHeight, marginX + contentWidth - 4, yPos + cardHeight - footerHeight);
+      // Footer de la Tarjeta: Total de la Orden
+      doc.setDrawColor(...colorBorder);
+      doc.line(marginX + 4, yPos + cardHeight - footerHeight, marginX + contentWidth - 4, yPos + cardHeight - footerHeight);
 
-        doc.setFontSize(8.5);
-        doc.setFont('helvetica', 'bold');
-        doc.setTextColor(...colorAccent);
-        doc.text(`Monto Total Orden: ${montoTotalStr}`, pageWidth - marginX - 6, yPos + cardHeight - 2.5, { align: 'right' });
-      }
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(...colorAccent);
+      doc.text(`Total Orden: ${montoTotalStr}`, pageWidth - marginX - 6, yPos + cardHeight - 2.5, { align: 'right' });
 
       yPos += cardHeight + 4; // Espaciado entre tarjetas
     });
 
-    // 5. Pie de Página Formal en todas las páginas
+    // 5. Franja de Gran Total del Período
+    if (totalMontoCalculado > 0) {
+      if (yPos + 16 > pageHeight - 20) {
+        doc.addPage();
+        drawPageHeader();
+        yPos = 32;
+      }
+
+      doc.setFillColor(...colorPrimary);
+      doc.roundedRect(marginX, yPos, contentWidth, 14, 3, 3, 'F');
+
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(9.5);
+      doc.setFont('helvetica', 'bold');
+      doc.text('TOTAL GENERAL DEL PERÍODO', marginX + 6, yPos + 9);
+
+      doc.text(`$ ${totalMontoCalculado.toLocaleString('es-AR')}`, pageWidth - marginX - 6, yPos + 9, { align: 'right' });
+
+      yPos += 18;
+    }
+
+    // 6. Pie de Página Formal en todas las páginas
     const pageCount = doc.internal.getNumberOfPages();
     for (let i = 1; i <= pageCount; i++) {
       doc.setPage(i);
@@ -233,7 +269,7 @@ export function useReportePagosPDF() {
       doc.text(`Página ${i} de ${pageCount}`, pageWidth - marginX, pageHeight - 8, { align: 'right' });
     }
 
-    // 6. Descargar PDF
+    // 7. Descargar PDF
     const cleanNombre = nombre.replace(/[^a-zA-Z0-9]/g, '_');
     const filename = `Reporte_Pagos_${cleanNombre}.pdf`;
     doc.save(filename);
