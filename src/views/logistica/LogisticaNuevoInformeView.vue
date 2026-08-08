@@ -1105,7 +1105,7 @@ onUnmounted(() => {
   clearTimeout(autoSaveTimer);
 });
 
-// Guardado seguro con bloqueo mutex
+// Guardado seguro con bloqueo mutex y resolución de duplicados por fecha
 const saveDraftInternal = async (isSilent = false) => {
   if (!informe.responsable_user_id) return false;
   if (isSavingInternal) return true;
@@ -1127,21 +1127,43 @@ const saveDraftInternal = async (isSilent = false) => {
 
       if (error) throw error;
     } else {
-      const { data, error } = await supabase
+      // Prevenir violación de constraint único (fecha, responsable_user_id)
+      const { data: existingForDate } = await supabase
         .from('logistica_informes_diarios')
-        .insert({
-          fecha: informe.fecha,
-          responsable_user_id: informe.responsable_user_id,
-          responsable_nombre: informe.responsable_nombre,
-          zona: informe.zona,
-          observacion_general: informe.observacion_general,
-          estado: 'borrador'
-        })
-        .select()
-        .single();
+        .select('id, estado')
+        .eq('responsable_user_id', informe.responsable_user_id)
+        .eq('fecha', informe.fecha)
+        .maybeSingle();
 
-      if (error) throw error;
-      informe.id = data.id;
+      if (existingForDate && existingForDate.estado === 'borrador') {
+        informe.id = existingForDate.id;
+        const { error: updateErr } = await supabase
+          .from('logistica_informes_diarios')
+          .update({
+            fecha: informe.fecha,
+            zona: informe.zona,
+            observacion_general: informe.observacion_general
+          })
+          .eq('id', informe.id);
+
+        if (updateErr) throw updateErr;
+      } else {
+        const { data, error } = await supabase
+          .from('logistica_informes_diarios')
+          .insert({
+            fecha: informe.fecha,
+            responsable_user_id: informe.responsable_user_id,
+            responsable_nombre: informe.responsable_nombre,
+            zona: informe.zona,
+            observacion_general: informe.observacion_general,
+            estado: 'borrador'
+          })
+          .select()
+          .single();
+
+        if (error) throw error;
+        informe.id = data.id;
+      }
     }
 
     if (informe.id) {
@@ -1151,21 +1173,21 @@ const saveDraftInternal = async (isSilent = false) => {
       if (movimientos.value.length > 0) {
         const payload = movimientos.value.map((m, idx) => ({
           informe_id: informe.id,
-          reporte_id: m.reporte_id || null,
-          id_cirugia_snapshot: m.id_cirugia_snapshot || null,
-          cliente_snapshot: m.cliente_snapshot || null,
+          reporte_id: (m.reporte_id && String(m.reporte_id).trim() !== '') ? m.reporte_id : null,
+          id_cirugia_snapshot: (m.id_cirugia_snapshot && String(m.id_cirugia_snapshot).trim() !== '') ? m.id_cirugia_snapshot : null,
+          cliente_snapshot: (m.cliente_snapshot && String(m.cliente_snapshot).trim() !== '') ? m.cliente_snapshot : null,
           tipo_movimiento: m.tipo_movimiento,
           paciente_snapshot: m.paciente_snapshot || null,
-          medico_snapshot: m.medico_snapshot || null,
-          institucion_snapshot: m.institucion_snapshot || null,
-          fecha_cirugia_snapshot: m.fecha_cirugia_snapshot || null,
-          destino: m.destino || null,
-          cantidad_cajas: m.cantidad_cajas || 0,
-          cantidad_bultos: m.cantidad_bultos || 0,
+          medico_snapshot: (m.medico_snapshot && String(m.medico_snapshot).trim() !== '') ? m.medico_snapshot : null,
+          institucion_snapshot: (m.institucion_snapshot && String(m.institucion_snapshot).trim() !== '') ? m.institucion_snapshot : null,
+          fecha_cirugia_snapshot: (m.fecha_cirugia_snapshot && String(m.fecha_cirugia_snapshot).trim() !== '') ? m.fecha_cirugia_snapshot : null,
+          destino: m.destino || m.paciente_snapshot || 'Central',
+          cantidad_cajas: Number(m.cantidad_cajas) || 0,
+          cantidad_bultos: Number(m.cantidad_bultos) || 0,
           resultado: m.resultado || null,
-          tiene_pendiente: m.tiene_pendiente || false,
-          cantidad_pendiente: m.cantidad_pendiente || 0,
-          detalle_pendiente: m.detalle_pendiente || null,
+          tiene_pendiente: !!m.tiene_pendiente,
+          cantidad_pendiente: m.tiene_pendiente ? 1 : 0,
+          detalle_pendiente: m.tiene_pendiente ? (m.detalle_pendiente || null) : null,
           motivo_pendiente: m.motivo_pendiente || null,
           observaciones: m.observaciones || null,
           orden: idx
@@ -1187,7 +1209,7 @@ const saveDraftInternal = async (isSilent = false) => {
     return true;
   } catch (err) {
     if (!isSilent) {
-      toast.error('Error al guardar borrador: ' + err.message);
+      toast.error('Error al guardar borrador: ' + (err.message || 'Error inesperado'));
     }
     autoSaveStatus.value = 'error';
     return false;
@@ -1216,7 +1238,15 @@ const openResumenModal = async () => {
 
 const submitInformeFinal = async () => {
   try {
+    clearTimeout(autoSaveTimer);
     isSending.value = true;
+
+    // Asegurar que la versión más reciente quede guardada
+    const saved = await saveDraftInternal(true);
+    if (!saved || !informe.id) {
+      throw new Error('No se pudo verificar el borrador en la base de datos antes de enviar.');
+    }
+
     const { error } = await supabase.rpc('enviar_informe_logistica', {
       p_informe_id: informe.id
     });
@@ -1227,7 +1257,7 @@ const submitInformeFinal = async () => {
     showResumenModal.value = false;
     router.replace({ name: 'LogisticaDetalleInforme', params: { id: informe.id } });
   } catch (err) {
-    toast.error('Error al enviar el informe: ' + err.message);
+    toast.error('Error al enviar el informe: ' + (err.message || err.details || 'Compruebe los movimientos'));
   } finally {
     isSending.value = false;
   }
