@@ -101,7 +101,7 @@
           class="w-full py-2.5 px-3 bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs rounded-xl shadow-xs transition-all disabled:opacity-50 flex items-center justify-center gap-1.5 cursor-pointer active:scale-98 min-h-[38px]"
         >
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-          <span>🚀 Abrir App de Correo ({{ selectedEmailsCount }})</span>
+          <span>🚀 Abrir Outlook o Gmail ({{ selectedEmailsCount }})</span>
         </button>
 
         <!-- Secondary Action Buttons Grid -->
@@ -152,7 +152,9 @@ const emailList = ref([
   { label: 'Depósito Central', email: 'deposito@districorr.com.ar', selected: true },
   { label: 'Logística Formosa', email: 'logistica@districorr.com.ar', selected: true },
   { label: 'Logística Corrientes', email: 'log.corrientes@districorr.com.ar', selected: true },
-  { label: 'Control de Calidad', email: 'controldecalidad@districorr.com.ar', selected: true }
+  { label: 'Control de Calidad', email: 'controldecalidad@districorr.com.ar', selected: true },
+  { label: 'F. Simonetto', email: 'fsimonetto@districorr.com.ar', selected: true },
+  { label: 'Contable', email: 'contable@districorr.com.ar', selected: true }
 ]);
 
 const selectedEmails = computed(() => {
