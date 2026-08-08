@@ -5,35 +5,68 @@
 
       <!-- ESTADO 1: PANTALLA DE AUTENTICACIÓN -->
       <div v-if="!isAuthenticated" class="max-w-md px-4 pt-16 mx-auto">
-        <div class="p-8 text-center bg-white border shadow-md border-slate-200 dark:bg-slate-900 rounded-2xl dark:border-slate-800">
-          <img src="/2.svg" alt="Districorr" class="h-10 mx-auto mb-6 opacity-80">
-          <h1 class="text-2xl font-bold text-slate-900 dark:text-slate-50">Resumen de Actividad</h1>
-          <p class="mt-2 mb-6 text-slate-600 dark:text-slate-400">Por favor, ingresá tu DNI para acceder a tu información.</p>
+        <div class="p-8 text-center bg-white border shadow-md border-slate-200 dark:bg-slate-900 rounded-3xl dark:border-slate-800">
+          <img src="/2.svg" alt="Districorr" class="h-10 mx-auto mb-6 opacity-90">
+          <h1 class="text-2xl font-extrabold text-slate-950 dark:text-slate-50 tracking-tight">Resumen de Actividad</h1>
+          <p class="mt-2 mb-6 text-sm text-slate-600 dark:text-slate-400">Por favor, ingresá tu DNI para acceder a tu información oficial con <a href="https://www.districorr.com.ar" target="_blank" rel="noopener noreferrer" class="font-bold text-blue-600 dark:text-blue-400 hover:underline">Districorr</a>.</p>
           <form @submit.prevent="authenticate">
             <input v-model="dni" type="text" placeholder="Ingresá tu DNI (con o sin puntos)" class="transition-shadow form-input focus:ring-2 focus:ring-blue-500 focus:outline-none" required />
             <p v-if="error" class="error-message">{{ error }}</p>
             <button type="submit" :disabled="isLoading" class="w-full mt-4 btn-primary focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 dark:focus:ring-offset-slate-900">{{ isLoading ? 'Verificando...' : 'Continuar' }}</button>
           </form>
+          
+          <div class="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800 text-center">
+            <a href="https://www.districorr.com.ar" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-blue-600 dark:text-slate-400 dark:hover:text-blue-400 transition-colors">
+              <span>www.districorr.com.ar</span>
+              <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" /></svg>
+            </a>
+          </div>
         </div>
       </div>
 
       <!-- ESTADO 2: VISTA DE DATOS -->
       <div v-else class="max-w-6xl px-4 mx-auto sm:px-6 lg:px-8">
-        <header class="flex items-start justify-between gap-4 mb-8">
+        <header class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
           <div>
-            <h1 class="text-2xl font-bold sm:text-3xl text-slate-950 dark:text-white">Tu Resumen de Actividad</h1>
-            <p class="mt-2 text-sm sm:text-base text-slate-600 dark:text-slate-400">Gestioná tus cirugías, comprobantes y estados de ficha.</p>
+            <div class="flex items-center gap-3">
+              <h1 class="text-2xl font-extrabold sm:text-3xl text-slate-950 dark:text-white tracking-tight">Tu Resumen de Actividad</h1>
+              <a 
+                href="https://www.districorr.com.ar" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200/60 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-800/50 hover:bg-blue-100 dark:hover:bg-blue-900/60 transition-all hover:-translate-y-0.5"
+                title="Visitar sitio web oficial de Districorr"
+              >
+                <span>www.districorr.com.ar</span>
+                <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" /></svg>
+              </a>
+            </div>
+            <p class="mt-1.5 text-sm sm:text-base text-slate-600 dark:text-slate-400">
+              Gestioná tus cirugías, comprobantes y estados de ficha en coordinación con <a href="https://www.districorr.com.ar" target="_blank" rel="noopener noreferrer" class="font-bold text-blue-600 dark:text-blue-400 hover:underline">Districorr</a>.
+            </p>
           </div>
-          <!-- Toggle Modo Oscuro -->
-          <button @click="isDarkMode = !isDarkMode" class="shrink-0 p-2.5 text-slate-500 bg-white border border-slate-200 shadow-sm hover:bg-slate-50 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700 dark:hover:bg-slate-700 rounded-full transition-all duration-200 hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-slate-300" :title="isDarkMode ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'">
-            <svg v-if="!isDarkMode" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
-            <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
-          </button>
+          
+          <div class="flex items-center gap-3 shrink-0">
+            <a 
+              href="https://www.districorr.com.ar" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              class="sm:hidden inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-blue-50 text-blue-700 border border-blue-200 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-800"
+            >
+              <span>districorr.com.ar</span>
+              <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" /></svg>
+            </a>
+            <!-- Toggle Modo Oscuro -->
+            <button @click="isDarkMode = !isDarkMode" class="shrink-0 p-2.5 text-slate-500 bg-white border border-slate-200 shadow-xs hover:bg-slate-50 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700 dark:hover:bg-slate-700 rounded-full transition-all duration-200 hover:-translate-y-0.5 focus:outline-none" :title="isDarkMode ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'">
+              <svg v-if="!isDarkMode" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+              <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+            </button>
+          </div>
         </header>
 
         <!-- Tabs -->
         <div class="px-4 pb-2 mb-8 -mx-4 overflow-x-auto sm:mx-0 sm:px-0 hide-scrollbar">
-          <div class="inline-flex items-center gap-1.5 p-1.5 bg-white border shadow-sm border-slate-200 dark:bg-slate-900 dark:border-slate-800 rounded-2xl">
+          <div class="inline-flex items-center gap-1.5 p-1.5 bg-white border shadow-2xs border-slate-200 dark:bg-slate-900 dark:border-slate-800 rounded-2xl">
             <button class="tab-btn" :class="{ 'tab-btn--active': activeTab === 'resumen' }" @click="activeTab = 'resumen'">Resumen</button>
             <button class="tab-btn" :class="{ 'tab-btn--active': activeTab === 'pagos' }" @click="activeTab = 'pagos'">Pagos y Comprobantes</button>
             <button class="tab-btn" :class="{ 'tab-btn--active': activeTab === 'datos' }" @click="activeTab = 'datos'">Mi Perfil</button>
@@ -45,14 +78,14 @@
         <div v-if="activeTab === 'resumen'">
           
           <!-- KPIs -->
-          <div class="grid grid-cols-2 gap-4 mb-8 sm:gap-6 lg:mb-10">
-            <div class="p-5 bg-white border shadow-sm border-slate-200 sm:p-6 dark:bg-slate-900 rounded-2xl dark:border-slate-800 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
-              <h3 class="text-xs font-bold tracking-wider uppercase text-slate-500 dark:text-slate-400">Cirugías pendientes</h3>
-              <p class="mt-2 text-3xl font-bold sm:text-4xl text-slate-950 dark:text-white">{{ cirugiasPendientesCount }}</p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8 sm:gap-6 lg:mb-10">
+            <div class="p-5 sm:p-6 bg-white border shadow-2xs border-slate-200/80 dark:bg-slate-900 rounded-2xl dark:border-slate-800 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
+              <h3 class="text-xs font-extrabold tracking-wider uppercase text-slate-400 dark:text-slate-400">Cirugías pendientes de pago por Districorr</h3>
+              <p class="mt-2.5 text-3xl font-extrabold sm:text-4xl text-slate-950 dark:text-white">{{ cirugiasPendientesCount }}</p>
             </div>
-            <div class="p-5 bg-white border shadow-sm border-slate-200 sm:p-6 dark:bg-slate-900 rounded-2xl dark:border-slate-800 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
-              <h3 class="text-xs font-bold tracking-wider uppercase text-slate-500 dark:text-slate-400">Pagos de este mes</h3>
-              <p class="mt-2 text-3xl font-bold sm:text-4xl text-slate-950 dark:text-white">{{ cirugiasCobradasMesCount }}</p>
+            <div class="p-5 sm:p-6 bg-white border shadow-2xs border-slate-200/80 dark:bg-slate-900 rounded-2xl dark:border-slate-800 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
+              <h3 class="text-xs font-extrabold tracking-wider uppercase text-slate-400 dark:text-slate-400">Pagos realizados en el mes en curso</h3>
+              <p class="mt-2.5 text-3xl font-extrabold sm:text-4xl text-slate-950 dark:text-white">{{ cirugiasCobradasMesCount }}</p>
             </div>
           </div>
 
@@ -60,13 +93,13 @@
             
             <!-- MAIN BLOCK: Pendientes -->
             <div class="lg:col-span-7">
-              <h2 class="mb-5 text-xl font-bold text-slate-950 dark:text-white">Pendientes de liquidación</h2>
+              <h2 class="mb-5 text-xl font-extrabold text-slate-950 dark:text-white">Pendientes de liquidación</h2>
               
               <div v-if="pendientes.length > 0" class="space-y-4 sm:space-y-5">
-                <div v-for="report in pendientes" :key="report.id" class="p-5 bg-white border shadow-sm border-slate-200 sm:p-6 dark:bg-slate-900 rounded-2xl dark:border-slate-800 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
+                <div v-for="report in pendientes" :key="report.id" class="p-5 bg-white border shadow-2xs border-slate-200/80 sm:p-6 dark:bg-slate-900 rounded-2xl dark:border-slate-800 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
                   <div class="flex items-start justify-between gap-4 mb-3">
                     <div>
-                      <p class="font-bold text-slate-950 dark:text-white">{{ report.paciente || 'No especificado' }}</p>
+                      <p class="font-extrabold text-slate-950 dark:text-white">{{ report.paciente || 'No especificado' }}</p>
                       <p class="text-sm text-slate-600 dark:text-slate-400 mt-0.5">{{ report.fecha_cirugia ? formatDate(report.fecha_cirugia) : 'Fecha no disponible' }}</p>
                     </div>
                     <span class="inline-flex items-center px-3 py-1 text-xs font-bold border rounded-full shrink-0 bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-800/50">
@@ -74,57 +107,57 @@
                       Pendiente
                     </span>
                   </div>
-                  <div class="flex items-start gap-3 p-3.5 mt-4 mb-5 text-sm border rounded-xl bg-sky-50 text-sky-800 dark:bg-sky-950/40 dark:text-sky-200 border-sky-200 dark:border-sky-800">
-                    <svg class="w-5 h-5 shrink-0 text-sky-500 dark:text-sky-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" /></svg>
-                    <p>Esta cirugía será incluida en una próxima orden de pago cuando se genere la liquidación correspondiente.</p>
+                  <div class="flex items-start gap-3 p-3.5 mt-4 mb-5 text-sm border rounded-xl bg-sky-50/80 text-sky-900 dark:bg-sky-950/40 dark:text-sky-200 border-sky-200/80 dark:border-sky-800">
+                    <svg class="w-5 h-5 shrink-0 text-sky-600 dark:text-sky-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" /></svg>
+                    <p class="leading-relaxed text-xs sm:text-sm">Esta cirugía será incluida en una próxima orden de pago cuando se genere la liquidación correspondiente.</p>
                   </div>
-                  <button @click="openDetailModal(report, false)" class="inline-flex items-center justify-center px-4 py-2 text-sm font-medium transition-all duration-200 rounded-lg text-slate-700 bg-slate-100 hover:bg-slate-200 focus:ring-2 focus:ring-slate-300 focus:outline-none dark:text-slate-200 dark:bg-slate-800 dark:border dark:border-slate-700 dark:hover:bg-slate-700 hover:-translate-y-0.5">
+                  <button @click="openDetailModal(report, false)" class="inline-flex items-center justify-center px-4 py-2 text-xs font-extrabold transition-all duration-200 rounded-xl text-slate-700 bg-slate-100 hover:bg-slate-200 focus:outline-none dark:text-slate-200 dark:bg-slate-800 dark:border dark:border-slate-700 dark:hover:bg-slate-700 hover:-translate-y-0.5 cursor-pointer">
                     Ver detalle
                   </button>
                 </div>
               </div>
               
-              <div v-else class="px-6 py-10 text-center bg-white border shadow-sm border-slate-200 dark:bg-slate-900 rounded-2xl dark:border-slate-800 text-slate-500">
+              <div v-else class="px-6 py-10 text-center bg-white border shadow-2xs border-slate-200/80 dark:bg-slate-900 rounded-2xl dark:border-slate-800 text-slate-500">
                 No tenés cirugías pendientes de liquidación.
               </div>
             </div>
             
             <!-- SECONDARY BLOCK: Comprobantes -->
             <div class="lg:col-span-5">
-              <h2 class="mb-5 text-xl font-bold text-slate-950 dark:text-white">Últimos comprobantes cargados</h2>
+              <h2 class="mb-5 text-xl font-extrabold text-slate-950 dark:text-white">Últimos comprobantes cargados</h2>
               
               <div v-if="visibleComprobantes.length > 0" class="space-y-4 sm:space-y-5">
-                <div v-for="comp in visibleComprobantes" :key="comp.key" class="p-5 bg-white border shadow-sm border-slate-200 sm:p-6 dark:bg-slate-900 rounded-2xl dark:border-slate-800 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
+                <div v-for="comp in visibleComprobantes" :key="comp.key" class="p-5 bg-white border shadow-2xs border-slate-200/80 sm:p-6 dark:bg-slate-900 rounded-2xl dark:border-slate-800 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
                   <p class="mb-4 text-sm text-slate-600 dark:text-slate-400">
                     Comprobante de pago cargado el: <span class="font-bold text-slate-950 dark:text-slate-100">{{ comp.fecha_pago ? formatDate(comp.fecha_pago) : 'Fecha no disponible' }}</span>
                   </p>
                   
                   <div class="p-4 mb-5 border rounded-xl bg-slate-50 border-slate-100 dark:border-slate-800 dark:bg-slate-950/50">
-                    <p class="mb-2.5 text-xs font-bold tracking-wider uppercase text-slate-500 dark:text-slate-400">Pacientes incluidos</p>
+                    <p class="mb-2.5 text-xs font-extrabold tracking-wider uppercase text-slate-400 dark:text-slate-500">Pacientes incluidos</p>
                     <ul class="space-y-1.5 text-sm text-slate-700 dark:text-slate-300 font-medium">
                       <li v-for="(paciente, index) in comp.pacientes.slice(0, 3)" :key="index" class="flex items-center gap-2">
-                        <span class="w-1.5 h-1.5 rounded-full bg-slate-300 dark:bg-slate-600"></span>
+                        <span class="w-1.5 h-1.5 rounded-full bg-slate-400 dark:bg-slate-600"></span>
                         {{ paciente }}
                       </li>
                     </ul>
-                    <p v-if="comp.pacientes.length > 3" class="mt-3 text-xs font-semibold text-slate-500 dark:text-slate-400">
+                    <p v-if="comp.pacientes.length > 3" class="mt-3 text-xs font-bold text-slate-500 dark:text-slate-400">
                       + {{ comp.pacientes.length - 3 }} más
                     </p>
                   </div>
                   
-                  <a :href="getComprobanteUrl(comp.comprobante_object_key)" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center w-full px-4 py-2.5 text-sm font-semibold text-blue-700 transition-all duration-200 border border-blue-200 rounded-xl bg-blue-50 hover:bg-blue-100 focus:ring-2 focus:ring-blue-400 focus:outline-none dark:bg-blue-900/30 dark:border-blue-800/50 dark:text-blue-300 dark:hover:bg-blue-900/50 hover:-translate-y-0.5">
+                  <a :href="getComprobanteUrl(comp.comprobante_object_key)" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center w-full px-4 py-2.5 text-xs font-extrabold text-blue-700 transition-all duration-200 border border-blue-200 rounded-xl bg-blue-50 hover:bg-blue-100 focus:outline-none dark:bg-blue-950/40 dark:border-blue-800/60 dark:text-blue-300 dark:hover:bg-blue-900/50 hover:-translate-y-0.5">
                     Ver comprobante
                   </a>
                 </div>
                 
                 <div v-if="comprobantesRecientes.length > 3" class="flex flex-col items-center pt-2 pb-4 text-center">
-                  <button @click="activeTab = 'pagos'" class="px-5 py-2.5 text-sm font-bold text-blue-700 transition-all duration-200 bg-blue-50 border border-blue-200 rounded-xl dark:bg-blue-900/30 dark:border-blue-800/50 dark:text-blue-400 hover:bg-blue-100 hover:text-blue-800 dark:hover:bg-blue-900/50 dark:hover:text-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-400 hover:-translate-y-0.5 shadow-sm">
+                  <button @click="activeTab = 'pagos'" class="px-5 py-2.5 text-xs font-extrabold text-blue-700 transition-all duration-200 bg-blue-50 border border-blue-200 rounded-xl dark:bg-blue-950/40 dark:border-blue-800/60 dark:text-blue-300 hover:bg-blue-100 hover:-translate-y-0.5 shadow-2xs cursor-pointer">
                     Ir a pagos y comprobantes
                   </button>
                 </div>
               </div>
               
-              <div v-else class="px-6 py-10 text-center bg-white border shadow-sm border-slate-200 dark:bg-slate-900 rounded-2xl dark:border-slate-800 text-slate-500">
+              <div v-else class="px-6 py-10 text-center bg-white border shadow-2xs border-slate-200/80 dark:bg-slate-900 rounded-2xl dark:border-slate-800 text-slate-500">
                 Todavía no hay comprobantes cargados.
               </div>
             </div>
@@ -134,22 +167,32 @@
 
         <!-- TAB 2: PAGOS Y COMPROBANTES -->
         <div v-else-if="activeTab === 'pagos'" class="space-y-10">
-          <!-- HEADER -->
-          <div class="mb-6 lg:mb-8">
-            <h2 class="text-2xl font-bold text-slate-950 dark:text-white">Liquidaciones y comprobantes</h2>
-            <p class="max-w-3xl mt-2 text-slate-600 dark:text-slate-400">
-              Cada liquidación puede incluir una o más cirugías. Acá podés controlar qué pacientes fueron abonados, qué comprobante se cargó y ver el detalle de montos.
-            </p>
+          <!-- HEADER CON BOTÓN OBTENER REPORTE -->
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 lg:mb-8 bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-2xs">
+            <div>
+              <h2 class="text-2xl font-extrabold text-slate-950 dark:text-white">Liquidaciones y comprobantes</h2>
+              <p class="max-w-2xl mt-1.5 text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                Cada liquidación puede incluir una o más cirugías. Acá podés controlar qué pacientes fueron abonados, qué comprobante se cargó y descargar tu reporte en PDF por período.
+              </p>
+            </div>
+
+            <button 
+              @click="isReportModalOpen = true"
+              class="shrink-0 inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-indigo-900 to-blue-900 hover:from-indigo-800 hover:to-blue-800 text-white font-extrabold text-xs shadow-md transition-all cursor-pointer hover:-translate-y-0.5"
+            >
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" /></svg>
+              <span>Obtener Reporte de Pagos</span>
+            </button>
           </div>
 
           <!-- BLOQUE: PENDIENTES DE LIQUIDACIÓN -->
           <section>
-            <h3 class="mb-5 text-xl font-bold text-slate-950 dark:text-white">Pendientes de liquidación</h3>
+            <h3 class="mb-5 text-xl font-extrabold text-slate-950 dark:text-white">Pendientes de liquidación</h3>
             <div v-if="pendientes.length > 0" class="space-y-4">
-              <div v-for="report in pendientes" :key="report.id" class="p-5 bg-white border shadow-sm border-slate-200 sm:p-6 dark:bg-slate-900 rounded-2xl dark:border-slate-800 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
+              <div v-for="report in pendientes" :key="report.id" class="p-5 bg-white border shadow-2xs border-slate-200/80 sm:p-6 dark:bg-slate-900 rounded-2xl dark:border-slate-800 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
                 <div class="flex items-start justify-between gap-4 mb-3">
                   <div>
-                    <p class="font-bold text-slate-950 dark:text-white">{{ report.paciente || 'No especificado' }}</p>
+                    <p class="font-extrabold text-slate-950 dark:text-white">{{ report.paciente || 'No especificado' }}</p>
                     <p class="text-sm text-slate-600 dark:text-slate-400 mt-0.5">Cirugía realizada el <span class="font-bold text-slate-800 dark:text-slate-200">{{ report.fecha_cirugia ? formatDate(report.fecha_cirugia) : 'Fecha no disponible' }}</span></p>
                   </div>
                   <span class="inline-flex items-center px-3 py-1 text-xs font-bold border rounded-full shrink-0 bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-800/50">
@@ -157,24 +200,24 @@
                     Pendiente
                   </span>
                 </div>
-                <div class="flex items-start gap-3 p-3.5 mt-4 mb-2 text-sm border rounded-xl bg-sky-50 text-sky-800 dark:bg-sky-950/40 dark:text-sky-200 border-sky-200 dark:border-sky-800">
-                  <svg class="w-5 h-5 shrink-0 text-sky-500 dark:text-sky-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" /></svg>
-                  <p>Esta cirugía será incluida en una próxima orden de pago cuando se genere la liquidación correspondiente.</p>
+                <div class="flex items-start gap-3 p-3.5 mt-4 mb-2 text-sm border rounded-xl bg-sky-50/80 text-sky-900 dark:bg-sky-950/40 dark:text-sky-200 border-sky-200/80 dark:border-sky-800">
+                  <svg class="w-5 h-5 shrink-0 text-sky-600 dark:text-sky-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" /></svg>
+                  <p class="leading-relaxed text-xs sm:text-sm">Esta cirugía será incluida en una próxima orden de pago cuando se genere la liquidación correspondiente.</p>
                 </div>
               </div>
             </div>
-            <div v-else class="px-6 py-10 text-center bg-white border shadow-sm border-slate-200 dark:bg-slate-900 rounded-2xl dark:border-slate-800 text-slate-500">
+            <div v-else class="px-6 py-10 text-center bg-white border shadow-2xs border-slate-200/80 dark:bg-slate-900 rounded-2xl dark:border-slate-800 text-slate-500">
               No tenés cirugías pendientes de liquidación.
             </div>
           </section>
 
           <!-- BLOQUE: HISTORIAL DE LIQUIDACIONES -->
           <section>
-            <h3 class="mb-5 text-xl font-bold text-slate-950 dark:text-white">Historial de liquidaciones</h3>
+            <h3 class="mb-5 text-xl font-extrabold text-slate-950 dark:text-white">Historial de liquidaciones</h3>
             <div v-if="historialLiquidaciones.length > 0" class="space-y-8">
               <div v-for="(liquidaciones, mes) in liquidacionesAgrupadasPorMes" :key="mes" class="space-y-5">
                 <h4 class="pb-2 text-lg font-bold border-b text-slate-800 dark:text-slate-200 border-slate-200 dark:border-slate-700/50">{{ mes }}</h4>
-                <div v-for="liq in liquidaciones" :key="liq.id" class="p-5 bg-white border shadow-sm border-slate-200 sm:p-6 dark:bg-slate-900 rounded-2xl dark:border-slate-800 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
+                <div v-for="liq in liquidaciones" :key="liq.id" class="p-5 bg-white border shadow-2xs border-slate-200/80 sm:p-6 dark:bg-slate-900 rounded-2xl dark:border-slate-800 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
                 
                 <div class="flex flex-wrap items-start justify-between gap-4 mb-5">
                   <div>
@@ -214,11 +257,11 @@
                 </div>
 
                 <div class="flex flex-wrap items-center gap-3">
-                  <button v-if="liq.cirugias.length > 0" @click="openDetailModal(liq, true)" class="inline-flex items-center justify-center px-5 py-2.5 text-sm font-medium transition-all duration-200 rounded-lg text-slate-700 bg-slate-100 hover:bg-slate-200 focus:ring-2 focus:ring-slate-300 focus:outline-none dark:text-slate-200 dark:bg-slate-800 dark:border dark:border-slate-700 dark:hover:bg-slate-700 hover:-translate-y-0.5">
+                  <button v-if="liq.cirugias.length > 0" @click="openDetailModal(liq, true)" class="inline-flex items-center justify-center px-4 py-2.5 text-xs font-extrabold transition-all duration-200 rounded-xl text-slate-700 bg-slate-100 hover:bg-slate-200 focus:outline-none dark:text-slate-200 dark:bg-slate-800 dark:border dark:border-slate-700 dark:hover:bg-slate-700 hover:-translate-y-0.5 cursor-pointer">
                     Abrir detalle
                   </button>
-                  <a v-if="liq.comprobante_object_key" :href="getComprobanteUrl(liq.comprobante_object_key)" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center px-5 py-2.5 text-sm font-semibold text-blue-700 transition-all duration-200 border border-blue-200 rounded-lg bg-blue-50 hover:bg-blue-100 focus:ring-2 focus:ring-blue-400 focus:outline-none dark:bg-blue-900/30 dark:border-blue-800/50 dark:text-blue-300 dark:hover:bg-blue-900/50 hover:-translate-y-0.5">
-                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                  <a v-if="liq.comprobante_object_key" :href="getComprobanteUrl(liq.comprobante_object_key)" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center px-4 py-2.5 text-xs font-extrabold text-blue-700 transition-all duration-200 border border-blue-200 rounded-xl bg-blue-50 hover:bg-blue-100 focus:outline-none dark:bg-blue-950/40 dark:border-blue-800/60 dark:text-blue-300 dark:hover:bg-blue-900/50 hover:-translate-y-0.5">
+                    <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                     Ver comprobante
                   </a>
                 </div>
@@ -227,15 +270,15 @@
               
               <!-- Cargar Más -->
               <div v-if="hasMoreLiquidaciones" class="flex justify-center pt-2">
-                <button @click="cargarMasLiquidaciones" class="px-6 py-2.5 text-sm font-semibold text-slate-700 bg-white border border-slate-300 rounded-lg shadow-sm hover:bg-slate-50 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700 dark:hover:bg-slate-700 transition-all duration-200 hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-slate-400">
+                <button @click="cargarMasLiquidaciones" class="px-6 py-2.5 text-xs font-extrabold text-slate-700 bg-white border border-slate-300 rounded-xl shadow-2xs hover:bg-slate-50 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700 dark:hover:bg-slate-700 transition-all duration-200 hover:-translate-y-0.5 cursor-pointer">
                   Cargar más liquidaciones
                 </button>
               </div>
-              <div v-else class="py-4 text-sm font-medium text-center text-slate-500 dark:text-slate-400">
+              <div v-else class="py-4 text-xs font-semibold text-center text-slate-400 dark:text-slate-500">
                 No hay más liquidaciones para mostrar.
               </div>
             </div>
-            <div v-else class="px-6 py-10 text-center bg-white border shadow-sm border-slate-200 dark:bg-slate-900 rounded-2xl dark:border-slate-800 text-slate-500">
+            <div v-else class="px-6 py-10 text-center bg-white border shadow-2xs border-slate-200/80 dark:bg-slate-900 rounded-2xl dark:border-slate-800 text-slate-500">
               Todavía no hay liquidaciones registradas.
             </div>
           </section>
@@ -251,6 +294,14 @@
 
       <!-- Modal de Detalle de liquidación -->
       <PaymentDetailModal :show="isDetailModalOpen" :liquidacion="selectedLiquidacion" @close="isDetailModalOpen = false" />
+
+      <!-- Modal de Reporte de Pagos PDF -->
+      <ReportePagosModal 
+        :show="isReportModalOpen" 
+        :instrumentador="instrumentadorInfo" 
+        :liquidaciones="historialLiquidaciones" 
+        @close="isReportModalOpen = false" 
+      />
     </div>
   </div>
 </template>
@@ -263,6 +314,7 @@ import { useToast } from 'vue-toastification';
 import FaqSection from '../components/FaqSection.vue';
 import PaymentDetailModal from '../components/PaymentDetailModal.vue';
 import MyDataSection from '../components/MyDataSection.vue';
+import ReportePagosModal from '../components/ReportePagosModal.vue';
 
 const isAuthenticated = ref(false);
 const isLoading = ref(false);
@@ -272,6 +324,7 @@ const allActivityData = ref([]);
 const instrumentadorInfo = ref(null);
 const activeTab = ref('resumen');
 const isDetailModalOpen = ref(false);
+const isReportModalOpen = ref(false);
 const selectedLiquidacion = ref(null);
 const isDarkMode = ref(false);
 

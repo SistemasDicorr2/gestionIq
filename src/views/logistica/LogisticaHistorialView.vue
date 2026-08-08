@@ -19,7 +19,15 @@
 
     <!-- Barra de Filtros -->
     <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-xs space-y-3">
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+      <div :class="['grid gap-3 text-xs', isAdmin ? 'grid-cols-1 sm:grid-cols-4' : 'grid-cols-1 sm:grid-cols-3']">
+        <div v-if="isAdmin">
+          <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Alcance de Informes</label>
+          <select v-model="filterScope" @change="fetchHistorial" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none dark:text-white font-bold cursor-pointer">
+            <option value="all">🌐 Todos los Operarios</option>
+            <option value="mine">👤 Solo mis Informes</option>
+          </select>
+        </div>
+
         <div>
           <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Filtrar por Estado</label>
           <select v-model="filterEstado" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none dark:text-white">
@@ -102,6 +110,10 @@ const informes = ref([]);
 const filterEstado = ref('');
 const filterFechaDesde = ref('');
 const filterFechaHasta = ref('');
+const filterScope = ref('all'); // 'all' | 'mine'
+const userRole = ref('logistica');
+
+const isAdmin = computed(() => userRole.value === 'admin');
 
 const fetchHistorial = async () => {
   try {
@@ -109,15 +121,15 @@ const fetchHistorial = async () => {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session?.user) return;
 
+    userRole.value = session.user.app_metadata?.role || session.user.user_metadata?.role || 'logistica';
+
     let query = supabase
       .from('logistica_informes_diarios')
       .select('*')
       .order('fecha', { ascending: false });
 
-    const role = session.user.app_metadata?.role || session.user.user_metadata?.role || 'admin';
-
-    // Si el usuario es operador ('logistica'), filtra sus propios informes; los administradores ven todos los operadores
-    if (role === 'logistica') {
+    // Si no es admin o si seleccionó "Solo mis informes", filtra por el usuario logueado
+    if (!isAdmin.value || filterScope.value === 'mine') {
       query = query.eq('responsable_user_id', session.user.id);
     }
 

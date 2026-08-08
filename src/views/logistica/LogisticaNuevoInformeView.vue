@@ -1080,6 +1080,10 @@ onMounted(async () => {
       || session.user.email?.split('@')[0] 
       || 'Usuario Logística';
 
+    if (session.user.user_metadata?.zona) {
+      informe.zona = session.user.user_metadata.zona;
+    }
+
     await fetchUserDrafts(session.user.id);
 
     const targetInformeId = route.params.id || route.query.id;

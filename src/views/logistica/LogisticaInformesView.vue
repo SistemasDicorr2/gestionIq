@@ -14,26 +14,34 @@
       </div>
 
       <div class="self-start sm:self-auto flex items-center gap-2">
-        <span 
-          v-if="isAdmin"
-          class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-purple-50 dark:bg-purple-950/60 text-purple-800 dark:text-purple-300 border border-purple-200/80 dark:border-purple-900/60 shadow-2xs"
-        >
-          <span class="h-2 w-2 rounded-full bg-purple-500 animate-pulse"></span>
-          Supervisión Administrador
-        </span>
+        <div v-if="isAdmin" class="flex items-center gap-2">
+          <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-purple-50 dark:bg-purple-950/60 text-purple-800 dark:text-purple-300 border border-purple-200/80 dark:border-purple-900/60 shadow-2xs">
+            <span class="h-2 w-2 rounded-full bg-purple-500 animate-pulse"></span>
+            Supervisión Admin
+          </span>
+
+          <select 
+            v-model="adminScope" 
+            @change="fetchDashboardData" 
+            class="px-2.5 py-1 text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 rounded-xl border border-slate-200 dark:border-slate-700 focus:outline-none cursor-pointer"
+          >
+            <option value="all">🌐 Todos los Operarios</option>
+            <option value="mine">👤 Solo mis Informes</option>
+          </select>
+        </div>
 
         <span 
           v-else
           class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-blue-50 dark:bg-blue-950/60 text-blue-800 dark:text-blue-300 border border-blue-200/80 dark:border-blue-900/60 shadow-2xs"
         >
           <span class="h-2 w-2 rounded-full bg-blue-500 animate-pulse"></span>
-          Zona Formosa
+          Mis Informes | 📍 {{ userZona }}
         </span>
       </div>
     </div>
 
-    <!-- MODO OPERADOR LOGÍSTICA (SUPERFICIE PRINCIPAL OPERATIVA) -->
-    <template v-if="!isAdmin">
+    <!-- MODO OPERADOR LOGÍSTICA / VISTA PERSONAL (SUPERFICIE PRINCIPAL OPERATIVA) -->
+    <template v-if="!isAdmin || adminScope === 'mine'">
       
       <!-- CARDS DE BORRADORES ACTIVOS PENDIENTES DEL OPERADOR -->
       <div v-if="activeOperatorDrafts.length > 0" class="bg-amber-50/70 dark:bg-amber-950/30 rounded-2xl border border-amber-300/80 dark:border-amber-800/80 p-4 sm:p-5 shadow-xs space-y-3.5 animate-fadeIn">
@@ -297,7 +305,7 @@
     <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-4 sm:p-5 shadow-xs space-y-3">
       <div class="flex items-center justify-between">
         <h3 class="text-xs font-black uppercase tracking-wider text-slate-400">
-          {{ isAdmin ? 'Últimos Informes Enviados' : 'Historial Reciente de Envíos' }}
+          {{ (isAdmin && adminScope === 'all') ? 'Últimos Informes Enviados (Todos)' : 'Historial Reciente de Mis Envíos' }}
         </h3>
         <router-link :to="{ name: 'LogisticaHistorial' }" class="text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1">
           <span>Historial Completo</span>
@@ -322,7 +330,7 @@
         >
           <div class="space-y-0.5">
             <span class="text-xs font-extrabold text-slate-900 dark:text-white block group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-              Informe del {{ formatDate(inf.fecha) }} <span v-if="isAdmin" class="text-slate-500 font-normal">({{ inf.responsable_nombre }})</span>
+              Informe del {{ formatDate(inf.fecha) }} <span v-if="isAdmin && adminScope === 'all'" class="text-slate-500 font-normal">({{ inf.responsable_nombre }})</span>
             </span>
             <span class="text-[11px] text-slate-500 dark:text-slate-400">
               Enviado el {{ formatDateTime(inf.enviado_at) }} <span v-if="inf.zona">| 📍 {{ inf.zona }}</span>
@@ -349,11 +357,13 @@ import { useToast } from 'vue-toastification';
 const toast = useToast();
 const userName = ref('Usuario Logística');
 const userRole = ref('logistica');
+const userZona = ref('Formosa');
+const adminScope = ref('all'); // 'all' | 'mine'
 const loading = ref(true);
 
 const todayISO = new Date().toISOString().split('T')[0];
 
-const isAdmin = computed(() => userRole.value === 'admin' || userRole.value !== 'logistica');
+const isAdmin = computed(() => userRole.value === 'admin');
 
 const formattedToday = computed(() => {
   return new Date().toLocaleDateString('es-AR', {
@@ -385,9 +395,11 @@ const fetchDashboardData = async () => {
       || session.user.email?.split('@')[0] 
       || 'Usuario Logística';
 
-    userRole.value = session.user.app_metadata?.role || session.user.user_metadata?.role || 'admin';
+    userZona.value = session.user.user_metadata?.zona || 'Formosa';
 
-    if (isAdmin.value) {
+    userRole.value = session.user.app_metadata?.role || session.user.user_metadata?.role || 'logistica';
+
+    if (isAdmin.value && adminScope.value === 'all') {
       // MODO ADMIN: ver informes de hoy de todos los operadores
       const { data: infsToday } = await supabase
         .from('logistica_informes_diarios')
@@ -419,7 +431,7 @@ const fetchDashboardData = async () => {
 
       recentInformes.value = recents || [];
     } else {
-      // MODO OPERADOR LOGÍSTICA
+      // MODO OPERADOR LOGÍSTICA / SOLO MIS INFORMES
       // 1. Obtener todos los borradores activos del usuario
       const { data: drafts } = await supabase
         .from('logistica_informes_diarios')
@@ -430,7 +442,7 @@ const fetchDashboardData = async () => {
 
       activeOperatorDrafts.value = drafts || [];
 
-      // 2. Obtener informe de hoy
+      // 2. Obtener informe de hoy del usuario logueado
       const { data: infToday } = await supabase
         .from('logistica_informes_diarios')
         .select('*')

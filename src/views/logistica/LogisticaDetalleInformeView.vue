@@ -22,12 +22,22 @@
 
         <button 
           type="button" 
-          @click="copyDirectToEmailClipboard"
+          @click="showEmailModal = true"
           class="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs rounded-xl shadow-xs flex items-center gap-1.5 transition-all active:scale-98 cursor-pointer"
+          title="Enviar por correo con destinatarios oficiales de Districorr o copiar emails/tabla"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+          <span>📧 Enviar por Correo</span>
+        </button>
+
+        <button 
+          type="button" 
+          @click="copyDirectToEmailClipboard"
+          class="px-3 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold text-xs rounded-xl shadow-xs flex items-center gap-1.5 transition-all cursor-pointer"
           title="Copiar directamente la tabla formateada para pegar en Outlook o Gmail"
         >
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" /></svg>
-          <span>📋 Copiar Tabla a Correo</span>
+          <span>📋 Copiar Tabla</span>
         </button>
 
         <button 
@@ -36,7 +46,7 @@
           class="px-3.5 py-2 bg-slate-800 dark:bg-slate-700 hover:bg-slate-900 text-white font-bold text-xs rounded-xl shadow-xs flex items-center gap-1.5 transition-colors cursor-pointer"
         >
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
-          <span>🖨️ Imprimir / Guardar PDF</span>
+          <span>🖨️ Imprimir / PDF</span>
         </button>
       </div>
     </div>
@@ -195,6 +205,17 @@
         Documento interno oficial generado por el módulo de Logística de Gestión IQ — Districorr.
       </div>
     </div>
+
+    <!-- Modal de Envió por Correo / Copiar Emails Oficiales -->
+    <EmailReporteModal 
+      :show="showEmailModal"
+      :informe="informe"
+      :stats="detailStats"
+      :movimientos="movimientos"
+      :htmlTableProvider="copyDirectToEmailClipboard"
+      @close="showEmailModal = false"
+      @copy-table="copyDirectToEmailClipboard"
+    />
   </div>
 </template>
 
@@ -203,10 +224,12 @@ import { ref, computed, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { supabase } from '../../services/supabase';
 import { useToast } from 'vue-toastification';
+import EmailReporteModal from '../../components/logistica/EmailReporteModal.vue';
 
 const route = useRoute();
 const toast = useToast();
 const loading = ref(true);
+const showEmailModal = ref(false);
 
 const informe = ref(null);
 const movimientos = ref([]);
@@ -214,6 +237,13 @@ const movimientos = ref([]);
 const totalCajas = computed(() => movimientos.value.reduce((sum, m) => sum + (m.cantidad_cajas || 0), 0));
 const totalBultos = computed(() => movimientos.value.reduce((sum, m) => sum + (m.cantidad_bultos || 0), 0));
 const totalPendientes = computed(() => movimientos.value.filter(m => m.tiene_pendiente).length);
+
+const detailStats = computed(() => ({
+  totalMovimientos: movimientos.value.length,
+  totalCajas: totalCajas.value,
+  totalBultos: totalBultos.value,
+  totalPendientes: totalPendientes.value
+}));
 
 const fetchInformeDetalle = async () => {
   try {

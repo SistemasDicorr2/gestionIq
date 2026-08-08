@@ -1,61 +1,69 @@
 <!-- src/views/admin/PagosDashboardView.vue -->
 <template>
   <div class="p-4 sm:p-6 lg:p-8 bg-slate-50/30 dark:bg-slate-950/10 min-h-screen">
-    <header class="mb-8">
-      <h1 class="text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-100">Estación de Pagos Rápidos</h1>
-      <p class="text-slate-500 dark:text-slate-400 mt-1.5 text-sm sm:text-base">
-        Filtrá, ajustá y seleccioná cirugías para generar un lote de pago en una sola operación ágil.
-      </p>
-    </header>
-
-    <section v-if="!isLoading && !error" class="mb-8 space-y-4">
-      <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div v-if="activeKpiFilter" class="flex flex-wrap items-center gap-2">
-          <span class="inline-flex items-center gap-1.5 rounded-full border border-indigo-100 bg-indigo-50/50 px-3 py-1 text-xs font-semibold text-indigo-700 dark:border-indigo-900/40 dark:bg-indigo-950/30 dark:text-indigo-300">
-            <span class="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse"></span>
-            Filtro activo: {{ activeKpiLabel }}
-          </span>
-          <button type="button" @click="clearKpiFilter" class="rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-bold text-slate-700 shadow-sm hover:bg-slate-50 dark:border-slate-750 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700/80 active:scale-95 transition-all duration-150 cursor-pointer">
-            Limpiar filtro
-          </button>
-        </div>
-        <div v-else class="hidden sm:block"></div>
-
-        <label class="flex flex-col gap-1.5 sm:w-56">
-          <span class="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Período de Análisis</span>
-          <div class="relative rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden bg-white dark:bg-slate-900 focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-500/10 transition-all duration-200">
-            <select v-model="selectedKpiPeriod" class="w-full px-3 py-2 bg-transparent border-none text-slate-800 dark:text-slate-100 text-sm focus:outline-none focus:ring-0">
-              <option v-for="option in kpiPeriodOptions" :key="option.value" :value="option.value">
-                {{ option.label }}
-              </option>
-            </select>
-          </div>
-        </label>
+    <!-- Header compacto con selector en línea -->
+    <header class="mb-5 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+      <div>
+        <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-slate-100">Estación de Pagos Rápidos</h1>
+        <p class="text-slate-500 dark:text-slate-400 mt-1 text-xs sm:text-sm">
+          Filtrá, ajustá y seleccioná cirugías para generar un lote de pago en una sola operación ágil.
+        </p>
       </div>
 
-      <!-- Cuadrícula de KPIs Modernizados -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
+      <div v-if="!isLoading && !error" class="flex items-center gap-3 shrink-0 self-start md:self-auto">
+        <div v-if="activeKpiFilter" class="flex items-center gap-2">
+          <span class="inline-flex items-center gap-1.5 rounded-full border border-indigo-200 bg-indigo-50 px-2.5 py-1 text-[11px] font-bold text-indigo-700 dark:border-indigo-900/40 dark:bg-indigo-950/40 dark:text-indigo-300">
+            <span class="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse"></span>
+            {{ activeKpiLabel }}
+          </span>
+          <button type="button" @click="clearKpiFilter" class="rounded-lg border border-slate-200 bg-white px-2 py-1 text-[11px] font-bold text-slate-600 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300 cursor-pointer">
+            Limpiar
+          </button>
+        </div>
+
+        <div class="flex items-center gap-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800/80 rounded-xl px-3 py-1.5 shadow-2xs">
+          <span class="text-[11px] font-extrabold uppercase tracking-wider text-slate-400 dark:text-slate-500 shrink-0">Período:</span>
+          <select v-model="selectedKpiPeriod" class="bg-transparent border-none text-slate-800 dark:text-slate-100 text-xs font-semibold focus:outline-none focus:ring-0 cursor-pointer pr-1">
+            <option v-for="option in kpiPeriodOptions" :key="option.value" :value="option.value">
+              {{ option.label }}
+            </option>
+          </select>
+        </div>
+      </div>
+    </header>
+
+    <!-- Cuadrícula de KPIs Compactos y Elegantes -->
+    <section v-if="!isLoading && !error" class="mb-5">
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <button
           v-for="stat in paymentKpis"
           :key="stat.label"
           type="button"
           @click="applyKpiFilter(stat.filter)"
-          class="rounded-2xl border p-5 text-left shadow-sm transition-all duration-205 focus:outline-none cursor-pointer flex items-start justify-between gap-4"
-          :class="[stat.cardClass, stat.isActive ? stat.activeClass : 'hover:-translate-y-0.5 hover:shadow-md border-slate-200/60 dark:border-slate-800/80 bg-white dark:bg-slate-900/90']"
+          class="rounded-xl border p-3.5 text-left shadow-2xs transition-all duration-150 focus:outline-none cursor-pointer flex flex-col justify-between"
+          :class="[stat.cardClass, stat.isActive ? stat.activeClass : 'hover:-translate-y-0.5 hover:shadow-xs border-slate-200/70 dark:border-slate-800/80 bg-white dark:bg-slate-900']"
         >
-          <div class="min-w-0 flex-1">
-            <p class="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">{{ stat.label }}</p>
-            <p class="mt-2.5 break-words text-2xl font-bold leading-tight text-slate-900 dark:text-white">{{ stat.value }}</p>
-            <p v-if="stat.subtitle" class="mt-1 text-xs leading-snug text-slate-400 dark:text-slate-500">{{ stat.subtitle }}</p>
-            <span v-if="stat.isActive" class="inline-flex items-center gap-1 mt-3.5 text-[10px] font-extrabold uppercase tracking-widest text-indigo-600 dark:text-indigo-400">
-              <span class="w-1 h-1 rounded-full bg-indigo-500"></span>
-              Filtro Activo
-            </span>
+          <div class="flex items-center justify-between gap-2">
+            <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 dark:text-slate-500 truncate">{{ stat.label }}</span>
+            <div class="rounded-lg p-1.5 shrink-0" :class="stat.iconClass">
+              <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path :d="stat.iconPath" />
+              </svg>
+            </div>
           </div>
-          <div class="rounded-xl p-3 shrink-0" :class="stat.iconClass">
-            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path :d="stat.iconPath" />
-            </svg>
+
+          <div class="mt-1.5">
+            <p class="text-base sm:text-lg font-extrabold leading-tight text-slate-900 dark:text-white truncate" :title="String(stat.value)">
+              {{ stat.value }}
+            </p>
+          </div>
+
+          <div class="flex items-center justify-between mt-1 pt-1 border-t border-slate-100 dark:border-slate-800/40 text-[10px] text-slate-400 dark:text-slate-500">
+            <span class="truncate">{{ stat.subtitle }}</span>
+            <span v-if="stat.isActive" class="font-extrabold text-indigo-600 dark:text-indigo-400 flex items-center gap-1 shrink-0 ml-1">
+              <span class="w-1 h-1 rounded-full bg-indigo-500"></span>
+              Activo
+            </span>
           </div>
         </button>
       </div>
@@ -68,9 +76,9 @@
       {{ error }}
     </div>
     
-    <div v-else class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <div v-else class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
       <!-- Columna Principal: Tabla de Cirugías -->
-      <div class="lg:col-span-2">
+      <div class="lg:col-span-7 xl:col-span-8">
         <!-- Panel de Filtros Modernizado -->
         <div class="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/80 p-5 rounded-2xl shadow-sm space-y-4">
           <!-- Filtros Principales (Siempre Visibles) -->
@@ -206,9 +214,9 @@
         </div>
       </div>
 
-      <div class="lg:col-span-1">
-        <div class="sticky top-8">
-          <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800/80 shadow-md p-6 space-y-6">
+      <div class="lg:col-span-5 xl:col-span-4">
+        <div class="sticky top-6">
+          <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800/80 shadow-md p-5 sm:p-6 space-y-5 max-h-[calc(100vh-3.5rem)] overflow-y-auto scrollbar-thin">
             <h2 class="text-lg font-bold text-slate-900 dark:text-slate-100">Resumen de Pago</h2>
             
             <div v-if="selectedSurgeryIds.length === 0" class="rounded-2xl border border-dashed border-slate-300 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/20 px-5 py-12 text-center text-slate-500 dark:text-slate-400 transition-all">
@@ -222,10 +230,10 @@
               <p class="text-xs text-slate-400 dark:text-slate-500 mt-1.5 leading-relaxed">Seleccioná una o más cirugías del listado para generar una orden de pago en lote.</p>
             </div>
             
-            <div v-else class="space-y-6">
+            <div v-else class="space-y-5">
               <!-- Desglose por instrumentador en mini-cards -->
-              <div class="space-y-3 max-h-[30vh] overflow-y-auto pr-1">
-                <div v-for="inst in paymentSummary.instrumentadores" :key="inst.dni" class="p-3.5 bg-slate-50/50 dark:bg-slate-950/20 rounded-xl border border-slate-200/50 dark:border-slate-800/60 flex items-center justify-between gap-3 hover:border-slate-300 dark:hover:border-slate-700 transition-colors duration-150">
+              <div class="space-y-2.5 max-h-44 overflow-y-auto pr-1 scrollbar-thin">
+                <div v-for="inst in paymentSummary.instrumentadores" :key="inst.dni" class="p-3 bg-slate-50/50 dark:bg-slate-950/20 rounded-xl border border-slate-200/50 dark:border-slate-800/60 flex items-center justify-between gap-3 hover:border-slate-300 dark:hover:border-slate-700 transition-colors duration-150">
                   <div class="min-w-0">
                     <p class="text-xs font-bold text-slate-800 dark:text-slate-200 truncate">{{ inst.nombre }}</p>
                     <p class="text-[10px] font-bold text-slate-400 dark:text-slate-500 tracking-wider uppercase mt-0.5">{{ inst.cirugias_count }} cirugía(s)</p>
@@ -237,7 +245,7 @@
               </div>
 
               <!-- Total consolidado -->
-              <div class="border-t border-slate-100 dark:border-slate-800/60 pt-4">
+              <div class="border-t border-slate-100 dark:border-slate-800/60 pt-3">
                 <div class="flex justify-between items-center text-slate-900 dark:text-slate-100">
                   <span class="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Total General</span>
                   <span class="text-xl font-extrabold">{{ formatCurrency(paymentSummary.monto_total_general) }}</span>
@@ -245,21 +253,41 @@
               </div>
 
               <!-- Campos de Carga y Uploader -->
-              <div class="space-y-4">
+              <div class="space-y-3.5">
                 <div class="space-y-1.5">
                   <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Notas del Lote (Opcional)</label>
                   <div class="relative rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden bg-slate-50/50 dark:bg-slate-950/20 focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-500/10 transition-all duration-150">
-                    <textarea v-model="paymentNotes" placeholder="Notas adicionales sobre este lote..." class="w-full p-3 bg-transparent border-none text-slate-700 dark:text-slate-200 text-sm focus:outline-none focus:ring-0 h-20 resize-none"></textarea>
+                    <textarea v-model="paymentNotes" placeholder="Notas adicionales sobre este lote..." class="w-full p-3 bg-transparent border-none text-slate-700 dark:text-slate-200 text-sm focus:outline-none focus:ring-0 h-16 resize-none"></textarea>
                   </div>
                 </div>
                 
-                <div class="space-y-1.5">
-                  <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Comprobante de Transferencia</label>
-                  <FileUpload 
-                    v-if="showFileUploader"
-                    ref="fileUploader" 
-                    :owner-id="Date.now().toString()" 
-                  />
+                <div class="space-y-2">
+                  <div class="flex items-center gap-2 rounded-xl bg-slate-50 dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800 p-3">
+                    <input 
+                      type="checkbox" 
+                      id="cargarSinComprobanteCheck" 
+                      v-model="cargarSinComprobante" 
+                      class="h-4 w-4 rounded text-indigo-600 focus:ring-indigo-500/20 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 cursor-pointer"
+                    />
+                    <label for="cargarSinComprobanteCheck" class="text-xs font-bold text-slate-700 dark:text-slate-300 cursor-pointer select-none">
+                      Cargar pago sin comprobante
+                    </label>
+                  </div>
+
+                  <div v-if="cargarSinComprobante" class="p-3 rounded-xl bg-amber-50/80 dark:bg-amber-950/30 border border-amber-200/80 dark:border-amber-900/50 text-amber-800 dark:text-amber-300 text-xs leading-relaxed flex items-start gap-2.5">
+                    <span class="text-amber-500 shrink-0 text-base">ℹ️</span>
+                    <span>Se registrará la orden de pago sin adjuntar archivo de comprobante de transferencia.</span>
+                  </div>
+
+                  <div v-else class="space-y-1.5">
+                    <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Comprobante de Transferencia (Foto o PDF)</label>
+                    <FileUpload 
+                      v-if="showFileUploader"
+                      ref="fileUploader" 
+                      :owner-id="Date.now().toString()" 
+                      accepted-file-types="image/*,application/pdf,.pdf"
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -267,13 +295,15 @@
               <div class="pt-2">
                 <button 
                   @click="registrarPago" 
-                  :disabled="isSubmitting || !fileUploader?.hasFiles"
+                  :disabled="isSubmitting || (!cargarSinComprobante && !fileUploader?.hasFiles)"
                   class="btn-primary-styled w-full"
                 >
                   <span v-if="isSubmitting">Registrando Pago...</span>
                   <span v-else>Registrar Orden de Pago</span>
                 </button>
-                <p v-if="!fileUploader?.hasFiles" class="text-center mt-2.5 text-[11px] font-bold text-red-500 dark:text-red-400 tracking-wide uppercase">Se requiere un comprobante para registrar</p>
+                <p v-if="!cargarSinComprobante && !fileUploader?.hasFiles" class="text-center mt-2.5 text-[11px] font-bold text-amber-600 dark:text-amber-400 tracking-wide uppercase">
+                  Adjuntá un comprobante o activá "Cargar pago sin comprobante"
+                </p>
               </div>
             </div>
           </div>
@@ -308,6 +338,7 @@ const isSubmitting = ref(false);
 const isPostPagoModalVisible = ref(false);
 const lastPaymentData = ref(null);
 const showFileUploader = ref(true);
+const cargarSinComprobante = ref(false);
 const justPaidSurgeryIds = ref(new Set());
 const selectedKpiPeriod = ref('current-month');
 const activeKpiFilter = ref(null);
@@ -671,25 +702,30 @@ const paymentSummary = computed(() => {
 });
 
 const registrarPago = async () => {
-  if (isSubmitting.value || !fileUploader.value?.hasFiles) return;
+  if (isSubmitting.value) return;
+  if (!cargarSinComprobante.value && !fileUploader.value?.hasFiles) return;
 
   isSubmitting.value = true;
-  const toastId = showLoadingToast("Subiendo comprobante...");
+  let objectKey = null;
+
+  const toastId = showLoadingToast(
+    cargarSinComprobante.value 
+      ? "Registrando orden de pago sin comprobante..." 
+      : "Subiendo comprobante..."
+  );
 
   try {
-    const uploadResult = await fileUploader.value.startUpload('comprobantes-pago');
-    
-    // --- INICIO DE LA MODIFICACIÓN ---
-    // Se corrige la extracción de la clave del objeto para que coincida con la estructura real.
-    if (!uploadResult || !Array.isArray(uploadResult) || uploadResult.length === 0 || !uploadResult[0].object_key) {
-      console.error('[DEBUG] Estructura de uploadResult inesperada:', uploadResult);
-      throw new Error("La subida del archivo no devolvió la clave del objeto esperada.");
+    if (!cargarSinComprobante.value) {
+      const uploadResult = await fileUploader.value.startUpload('comprobantes-pago');
+      
+      if (!uploadResult || !Array.isArray(uploadResult) || uploadResult.length === 0 || !uploadResult[0].object_key) {
+        console.error('[DEBUG] Estructura de uploadResult inesperada:', uploadResult);
+        throw new Error("La subida del archivo no devolvió la clave del objeto esperada.");
+      }
+      
+      objectKey = uploadResult[0].object_key;
+      updateToast(toastId, "Comprobante subido. Registrando orden de pago...", 'info');
     }
-    
-    const objectKey = uploadResult[0].object_key; // Se usa object_key con guion bajo.
-    // --- FIN DE LA MODIFICACIÓN ---
-
-    updateToast(toastId, "Comprobante subido. Registrando orden de pago...", 'info');
 
     const ordenDePago = {
       monto_total_general: paymentSummary.value.monto_total_general,
@@ -719,6 +755,7 @@ const registrarPago = async () => {
 
     selectedSurgeryIds.value = [];
     paymentNotes.value = '';
+    cargarSinComprobante.value = false;
     
     showFileUploader.value = false;
     await nextTick();

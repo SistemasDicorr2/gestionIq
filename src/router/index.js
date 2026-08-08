@@ -155,8 +155,8 @@ router.beforeEach(async (to, from, next) => {
   const { data: { session } } = await supabase.auth.getSession();
   const user = session?.user;
   
-  // LECTURA CON FALLBACK: app_metadata.role -> user_metadata.role -> 'admin'
-  const userRole = user ? (user.app_metadata?.role || user.user_metadata?.role || 'admin') : null;
+  // LECTURA CON FALLBACK SEGURO: app_metadata.role -> user_metadata.role -> 'logistica'
+  const userRole = user ? (user.app_metadata?.role || user.user_metadata?.role || 'logistica') : null;
 
   const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
   

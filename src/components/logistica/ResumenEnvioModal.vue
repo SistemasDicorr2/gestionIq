@@ -60,6 +60,17 @@
           <span class="font-extrabold text-slate-700 dark:text-slate-300 block text-[11px]">Observación General:</span>
           <p class="text-slate-600 dark:text-slate-300 italic text-[11px]">{{ observacion }}</p>
         </div>
+
+        <div class="p-3 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700 space-y-1">
+          <span class="font-extrabold text-slate-700 dark:text-slate-300 block text-[11px]">📧 Correos Destinatarios Oficiales:</span>
+          <div class="text-slate-500 dark:text-slate-400 text-[10px] font-mono leading-relaxed flex flex-wrap gap-1">
+            <span class="px-1.5 py-0.5 bg-slate-200 dark:bg-slate-700 rounded text-slate-800 dark:text-slate-200">comprasimplantes@districorr.com.ar</span>
+            <span class="px-1.5 py-0.5 bg-slate-200 dark:bg-slate-700 rounded text-slate-800 dark:text-slate-200">deposito@districorr.com.ar</span>
+            <span class="px-1.5 py-0.5 bg-slate-200 dark:bg-slate-700 rounded text-slate-800 dark:text-slate-200">logistica@districorr.com.ar</span>
+            <span class="px-1.5 py-0.5 bg-slate-200 dark:bg-slate-700 rounded text-slate-800 dark:text-slate-200">log.corrientes@districorr.com.ar</span>
+            <span class="px-1.5 py-0.5 bg-slate-200 dark:bg-slate-700 rounded text-slate-800 dark:text-slate-200">controldecalidad@districorr.com.ar</span>
+          </div>
+        </div>
       </div>
 
       <!-- Footer -->
