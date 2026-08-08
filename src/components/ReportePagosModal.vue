@@ -2,7 +2,7 @@
 <template>
   <Transition name="modal">
     <div v-if="show" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
-      <div class="w-full max-w-lg bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden transform transition-all">
+      <div class="w-full max-w-md bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden transform transition-all">
         
         <!-- Header del Modal -->
         <div class="px-6 py-5 bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white flex items-center justify-between">
@@ -12,7 +12,7 @@
             </div>
             <div>
               <h3 class="text-lg font-extrabold tracking-tight">Descargar Reporte de Pagos</h3>
-              <p class="text-xs text-slate-300">Generá tu informe en PDF seleccionando el período deseado</p>
+              <p class="text-xs text-slate-300">Generá tu informe en PDF por período</p>
             </div>
           </div>
           <button 
@@ -25,20 +25,17 @@
         </div>
 
         <!-- Cuerpo del Formulario -->
-        <div class="p-6 space-y-5">
-          <!-- Selección de Período -->
-          <div class="space-y-2">
+        <div class="p-6 space-y-4">
+          <!-- Selección de Período Simplificada: Mes Actual o Personalizado -->
+          <div class="space-y-1.5">
             <label class="block text-xs font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400">
               Seleccionar Período
             </label>
             <select 
               v-model="selectedPeriod"
-              class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-semibold text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 cursor-pointer"
+              class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-bold text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 cursor-pointer"
             >
               <option value="mes-actual">Mes Actual</option>
-              <option value="ultimos-3-meses">Últimos 3 Meses</option>
-              <option value="anio-actual">Año en Curso</option>
-              <option value="todo">Todo mi Historial</option>
               <option value="custom">Rango Personalizado</option>
             </select>
           </div>
@@ -61,19 +58,6 @@
                 class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-xs text-slate-800 dark:text-slate-100 focus:outline-none"
               />
             </div>
-          </div>
-
-          <!-- Opción de comprobantes -->
-          <div class="flex items-center gap-3 p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800">
-            <input 
-              type="checkbox" 
-              id="incluirComprobantesCheck"
-              v-model="incluirComprobantes"
-              class="h-4 w-4 rounded text-indigo-600 focus:ring-indigo-500/20 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 cursor-pointer"
-            />
-            <label for="incluirComprobantesCheck" class="text-xs font-bold text-slate-700 dark:text-slate-300 cursor-pointer select-none">
-              Incluir detalle y referencias de comprobantes
-            </label>
           </div>
 
           <!-- Resumen de items incluidos -->
@@ -126,7 +110,6 @@ const { generarReportePagos } = useReportePagosPDF();
 const selectedPeriod = ref('mes-actual');
 const startDate = ref('');
 const endDate = ref('');
-const incluirComprobantes = ref(false);
 
 const filteredLiquidaciones = computed(() => {
   if (!props.liquidaciones) return [];
@@ -142,23 +125,6 @@ const filteredLiquidaciones = computed(() => {
     });
   }
 
-  if (selectedPeriod.value === 'ultimos-3-meses') {
-    const threeMonthsAgo = new Date();
-    threeMonthsAgo.setMonth(now.getMonth() - 3);
-    return props.liquidaciones.filter(l => {
-      if (!l.fecha_pago) return false;
-      return new Date(l.fecha_pago) >= threeMonthsAgo;
-    });
-  }
-
-  if (selectedPeriod.value === 'anio-actual') {
-    const currentYear = now.getUTCFullYear();
-    return props.liquidaciones.filter(l => {
-      if (!l.fecha_pago) return false;
-      return new Date(l.fecha_pago).getUTCFullYear() === currentYear;
-    });
-  }
-
   if (selectedPeriod.value === 'custom') {
     return props.liquidaciones.filter(l => {
       if (!l.fecha_pago) return false;
@@ -169,24 +135,20 @@ const filteredLiquidaciones = computed(() => {
     });
   }
 
-  // 'todo'
   return props.liquidaciones;
 });
 
 const periodoLabel = computed(() => {
   if (selectedPeriod.value === 'mes-actual') return 'Mes actual';
-  if (selectedPeriod.value === 'ultimos-3-meses') return 'Últimos 3 meses';
-  if (selectedPeriod.value === 'anio-actual') return 'Año en curso';
-  if (selectedPeriod.value === 'custom') return `Período ${startDate.value || 'inicio'} a ${endDate.value || 'actualidad'}`;
-  return 'Todo el historial';
+  if (selectedPeriod.value === 'custom') return `Período personalizado (${startDate.value || 'inicio'} a ${endDate.value || 'actualidad'})`;
+  return 'Mes actual';
 });
 
 const handleGenerar = () => {
   generarReportePagos({
     instrumentador: props.instrumentador,
     liquidaciones: filteredLiquidaciones.value,
-    periodoLabel: periodoLabel.value,
-    incluirComprobantes: incluirComprobantes.value
+    periodoLabel: periodoLabel.value
   });
   emit('close');
 };

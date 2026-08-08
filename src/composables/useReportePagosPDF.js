@@ -1,103 +1,110 @@
 // src/composables/useReportePagosPDF.js
 import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable';
 
 export function useReportePagosPDF() {
-  const generarReportePagos = ({ instrumentador, liquidaciones, periodoLabel, incluirComprobantes = false }) => {
+  const generarReportePagos = ({ instrumentador, liquidaciones, periodoLabel }) => {
     // 1. Crear documento PDF A4 vertical
     const doc = new jsPDF('p', 'mm', 'a4');
-    const pageWidth = doc.internal.pageSize.getWidth();
-    const pageHeight = doc.internal.pageSize.getHeight();
+    const pageWidth = doc.internal.pageSize.getWidth();   // 210 mm
+    const pageHeight = doc.internal.pageSize.getHeight(); // 297 mm
+    const marginX = 14;
+    const contentWidth = pageWidth - (marginX * 2);        // 182 mm
 
     // Paleta de colores ejecutiva Districorr
-    const colorPrimary = [15, 23, 42];    // Slate 900 (Deep Navy)
-    const colorAccent = [30, 58, 138];    // Blue 900 (Corporate Accent)
+    const colorPrimary = [15, 23, 42];    // Slate 900 (Navy)
+    const colorAccent = [30, 58, 138];    // Blue 900 (Corporate Blue)
     const colorSubtle = [100, 116, 139];  // Slate 500
-    const colorLightBg = [248, 250, 252]; // Slate 50
+    const colorCardBg = [248, 250, 252];  // Slate 50
+    const colorBorder = [226, 232, 240];  // Slate 200
 
-    // 2. Encabezado Ejecutivo
-    doc.setFillColor(...colorPrimary);
-    doc.rect(0, 0, pageWidth, 28, 'F');
+    // Función auxiliar para dibujar encabezado de página
+    const drawPageHeader = () => {
+      doc.setFillColor(...colorPrimary);
+      doc.rect(0, 0, pageWidth, 26, 'F');
 
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(15);
-    doc.setFont('helvetica', 'bold');
-    doc.text('DISTRICORR — GESTIÓN IQ', 14, 13);
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(14);
+      doc.setFont('helvetica', 'bold');
+      doc.text('DISTRICORR — GESTIÓN IQ', marginX, 12);
 
-    doc.setFontSize(9);
-    doc.setFont('helvetica', 'normal');
-    doc.text('REPORTE HISTÓRICO DE PAGOS Y CIRUGÍAS', 14, 20);
-    doc.text('www.districorr.com.ar', pageWidth - 14, 20, { align: 'right' });
+      doc.setFontSize(8.5);
+      doc.setFont('helvetica', 'normal');
+      doc.text('REPORTE OFICIAL DE PAGOS Y CIRUGÍAS', marginX, 19);
+      doc.text('www.districorr.com.ar', pageWidth - marginX, 19, { align: 'right' });
+    };
 
-    // 3. Ficha de Datos del Instrumentador
-    let yPos = 35;
+    // Dibujar encabezado en primera página
+    drawPageHeader();
 
-    doc.setFillColor(...colorLightBg);
-    doc.roundedRect(14, yPos, pageWidth - 28, 24, 3, 3, 'F');
-    doc.setDrawColor(226, 232, 240);
-    doc.roundedRect(14, yPos, pageWidth - 28, 24, 3, 3, 'D');
+    // 2. Ficha del Instrumentador
+    let yPos = 32;
+
+    doc.setFillColor(...colorCardBg);
+    doc.roundedRect(marginX, yPos, contentWidth, 22, 3, 3, 'F');
+    doc.setDrawColor(...colorBorder);
+    doc.roundedRect(marginX, yPos, contentWidth, 22, 3, 3, 'D');
 
     doc.setTextColor(...colorPrimary);
-    doc.setFontSize(11);
+    doc.setFontSize(10.5);
     doc.setFont('helvetica', 'bold');
     const nombre = instrumentador?.nombre_completo || instrumentador?.nombre || 'Instrumentador Quirúrgico';
-    doc.text(`Instrumentador: ${nombre}`, 18, yPos + 8);
+    doc.text(`Instrumentador: ${nombre}`, marginX + 4, yPos + 7);
 
-    doc.setFontSize(9);
+    doc.setFontSize(8.5);
     doc.setFont('helvetica', 'normal');
     doc.setTextColor(...colorSubtle);
-    doc.text(`DNI: ${instrumentador?.dni || 'No especificado'}`, 18, yPos + 16);
-    doc.text(`Período consultado: ${periodoLabel}`, pageWidth / 2, yPos + 8);
-    doc.text(`Fecha de emisión: ${new Date().toLocaleDateString('es-AR')}`, pageWidth / 2, yPos + 16);
+    doc.text(`DNI: ${instrumentador?.dni || 'No especificado'}`, marginX + 4, yPos + 15);
+    doc.text(`Período consultado: ${periodoLabel}`, pageWidth / 2, yPos + 7);
+    doc.text(`Fecha de emisión: ${new Date().toLocaleDateString('es-AR')}`, pageWidth / 2, yPos + 15);
 
-    yPos += 30;
+    yPos += 27;
 
-    // 4. Métricas / KPIs del Reporte
+    // 3. KPIs del Reporte (Métricas en Tarjetas)
     const totalPagos = liquidaciones.length;
     const totalCirugias = liquidaciones.reduce((sum, l) => sum + (l.cirugias?.length || l.pacientes?.length || 1), 0);
     const totalMonto = liquidaciones.reduce((sum, l) => sum + (l.monto_total || 0), 0);
     const tieneMontos = liquidaciones.some(l => l.has_monto || l.monto_total > 0);
 
-    const cardWidth = (pageWidth - 28 - 8) / 3;
+    const cardKpiWidth = (contentWidth - 8) / 3;
 
-    // Card 1: Total Pagos
+    // KPI 1: Órdenes de pago
     doc.setFillColor(241, 245, 249);
-    doc.roundedRect(14, yPos, cardWidth, 16, 2, 2, 'F');
-    doc.setFontSize(7.5);
+    doc.roundedRect(marginX, yPos, cardKpiWidth, 15, 2, 2, 'F');
+    doc.setFontSize(7);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(...colorSubtle);
-    doc.text('TOTAL ÓRDENES / PAGOS', 18, yPos + 5);
-    doc.setFontSize(11);
+    doc.text('TOTAL ÓRDENES / PAGOS', marginX + 4, yPos + 5);
+    doc.setFontSize(10.5);
     doc.setTextColor(...colorPrimary);
-    doc.text(String(totalPagos), 18, yPos + 12);
+    doc.text(String(totalPagos), marginX + 4, yPos + 11.5);
 
-    // Card 2: Total Cirugías
+    // KPI 2: Cirugías
     doc.setFillColor(241, 245, 249);
-    doc.roundedRect(14 + cardWidth + 4, yPos, cardWidth, 16, 2, 2, 'F');
-    doc.setFontSize(7.5);
+    doc.roundedRect(marginX + cardKpiWidth + 4, yPos, cardKpiWidth, 15, 2, 2, 'F');
+    doc.setFontSize(7);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(...colorSubtle);
-    doc.text('CIRUGÍAS ABONADAS', 18 + cardWidth + 4, yPos + 5);
-    doc.setFontSize(11);
+    doc.text('CIRUGÍAS ABONADAS', marginX + cardKpiWidth + 8, yPos + 5);
+    doc.setFontSize(10.5);
     doc.setTextColor(...colorPrimary);
-    doc.text(String(totalCirugias), 18 + cardWidth + 4, yPos + 12);
+    doc.text(String(totalCirugias), marginX + cardKpiWidth + 8, yPos + 11.5);
 
-    // Card 3: Monto Total
+    // KPI 3: Monto Total
     doc.setFillColor(241, 245, 249);
-    doc.roundedRect(14 + (cardWidth + 4) * 2, yPos, cardWidth, 16, 2, 2, 'F');
-    doc.setFontSize(7.5);
+    doc.roundedRect(marginX + (cardKpiWidth + 4) * 2, yPos, cardKpiWidth, 15, 2, 2, 'F');
+    doc.setFontSize(7);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(...colorSubtle);
-    doc.text('MONTO TOTAL LIQUIDADO', 18 + (cardWidth + 4) * 2, yPos + 5);
-    doc.setFontSize(11);
+    doc.text('MONTO TOTAL LIQUIDADO', marginX + (cardKpiWidth + 4) * 2 + 4, yPos + 5);
+    doc.setFontSize(10.5);
     doc.setTextColor(...colorPrimary);
-    doc.text(tieneMontos ? `$ ${totalMonto.toLocaleString('es-AR')}` : 'Procesado', 18 + (cardWidth + 4) * 2, yPos + 12);
+    doc.text(tieneMontos ? `$ ${totalMonto.toLocaleString('es-AR')}` : 'Procesado', marginX + (cardKpiWidth + 4) * 2 + 4, yPos + 11.5);
 
     yPos += 22;
 
-    // 5. Formatear las filas del reporte de forma limpia y legible
-    const tableBody = liquidaciones.map(liq => {
-      // Fecha de pago/emisión
+    // 4. Renderizado en Tarjetas (Cards por Orden de Pago)
+    liquidaciones.forEach((liq, index) => {
+      // Formatear Fecha de Pago
       let fechaStr = 'No disponible';
       if (liq.fecha_pago) {
         const d = new Date(liq.fecha_pago);
@@ -106,93 +113,127 @@ export function useReportePagosPDF() {
         }
       }
 
-      // Orden / Referencia
-      const ordenRef = liq.orden_de_pago_id 
+      // Título de la Orden
+      const ordenTitle = liq.orden_de_pago_id 
         ? `Orden de pago #${liq.orden_de_pago_id}` 
-        : 'Pago de honorarios';
+        : `Pago #${index + 1}`;
 
-      // Lista limpia de pacientes referidos con sus montos individuales
-      let pacientesDetalle = '';
-      if (liq.cirugias && liq.cirugias.length > 0) {
-        pacientesDetalle = liq.cirugias.map(c => {
-          const pNombre = c.paciente || 'Paciente no especificado';
-          const pMonto = parseFloat(c.monto || c.monto_liquidado || c.honorarios || c.monto_a_pagar);
-          const montoStr = (!isNaN(pMonto) && pMonto > 0) ? ` — $ ${pMonto.toLocaleString('es-AR')}` : '';
-          return `• ${pNombre}${montoStr}`;
-        }).join('\n');
-      } else if (liq.pacientes && liq.pacientes.length > 0) {
-        pacientesDetalle = liq.pacientes.map(p => `• ${p}`).join('\n');
-      } else {
-        pacientesDetalle = '• Cirugía autorizada';
+      // Monto total de la orden
+      const montoTotalStr = (liq.monto_total && liq.monto_total > 0)
+        ? `$ ${liq.monto_total.toLocaleString('es-AR')}`
+        : null;
+
+      // Obtener lista de cirugías/pacientes
+      const itemsCirugias = (liq.cirugias && liq.cirugias.length > 0)
+        ? liq.cirugias
+        : (liq.pacientes || []).map(p => ({ paciente: p }));
+
+      // Calcular altura requerida para la tarjeta
+      const headerHeight = 9;
+      const rowHeight = 5.5;
+      const footerHeight = montoTotalStr ? 7 : 4;
+      const cardHeight = headerHeight + (itemsCirugias.length * rowHeight) + footerHeight;
+
+      // Verificar si cabe en la página actual o crear nueva página
+      if (yPos + cardHeight > pageHeight - 20) {
+        doc.addPage();
+        drawPageHeader();
+        yPos = 32;
       }
 
-      // Estado sin hashes UUID ni strings técnicos
-      const estadoComp = liq.comprobante_object_key ? 'Comprobante cargado' : 'Pago verificado';
+      // Dibujar Tarjeta (Card Box)
+      doc.setFillColor(255, 255, 255);
+      doc.roundedRect(marginX, yPos, contentWidth, cardHeight, 3, 3, 'F');
+      doc.setDrawColor(...colorBorder);
+      doc.roundedRect(marginX, yPos, contentWidth, cardHeight, 3, 3, 'D');
 
-      // Monto total acumulado de la orden
-      const montoStr = (liq.monto_total && liq.monto_total > 0) 
-        ? `$ ${liq.monto_total.toLocaleString('es-AR')}` 
-        : '-';
+      // Header de la Tarjeta (Franja de Título)
+      doc.setFillColor(241, 245, 249);
+      doc.roundedRect(marginX, yPos, contentWidth, headerHeight, 3, 3, 'F');
+      // Rectángulo plano para cubrir esquinas inferiores del header
+      doc.rect(marginX, yPos + headerHeight - 2, contentWidth, 2, 'F');
 
-      return [
-        fechaStr,
-        ordenRef,
-        pacientesDetalle,
-        estadoComp,
-        montoStr
-      ];
+      doc.setTextColor(...colorAccent);
+      doc.setFontSize(9.5);
+      doc.setFont('helvetica', 'bold');
+      doc.text(ordenTitle, marginX + 4, yPos + 6);
+
+      doc.setTextColor(...colorSubtle);
+      doc.setFontSize(8);
+      doc.setFont('helvetica', 'normal');
+      doc.text(`Fecha: ${fechaStr}`, pageWidth - marginX - 4, yPos + 6, { align: 'right' });
+
+      // Línea divisoria bajo el header
+      doc.setDrawColor(...colorBorder);
+      doc.line(marginX, yPos + headerHeight, marginX + contentWidth, yPos + headerHeight);
+
+      // Cuerpo de la Tarjeta: Listado de Pacientes y Cirugías
+      let itemY = yPos + headerHeight + 4.5;
+
+      itemsCirugias.forEach((c) => {
+        doc.setFontSize(8.5);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(...colorPrimary);
+
+        const pacienteNombre = c.paciente || 'Paciente no especificado';
+        doc.text(`• ${pacienteNombre}`, marginX + 6, itemY);
+
+        // Fecha de cirugía si está disponible
+        if (c.fecha_cirugia) {
+          const dCir = new Date(c.fecha_cirugia);
+          if (!isNaN(dCir.getTime())) {
+            doc.setFontSize(7.5);
+            doc.setFont('helvetica', 'normal');
+            doc.setTextColor(...colorSubtle);
+            doc.text(`(Cirugía: ${dCir.toLocaleDateString('es-AR', { timeZone: 'UTC' })})`, marginX + 75, itemY);
+          }
+        }
+
+        // Monto individual si está disponible
+        const pMonto = parseFloat(c.monto || c.monto_liquidado || c.honorarios || c.monto_a_pagar);
+        if (!isNaN(pMonto) && pMonto > 0) {
+          doc.setFontSize(8.5);
+          doc.setFont('helvetica', 'bold');
+          doc.setTextColor(...colorPrimary);
+          doc.text(`$ ${pMonto.toLocaleString('es-AR')}`, pageWidth - marginX - 6, itemY, { align: 'right' });
+        }
+
+        itemY += rowHeight;
+      });
+
+      // Footer de la Tarjeta: Monto Total si aplica
+      if (montoTotalStr) {
+        doc.setDrawColor(241, 245, 249);
+        doc.line(marginX + 4, yPos + cardHeight - footerHeight, marginX + contentWidth - 4, yPos + cardHeight - footerHeight);
+
+        doc.setFontSize(8.5);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(...colorAccent);
+        doc.text(`Monto Total Orden: ${montoTotalStr}`, pageWidth - marginX - 6, yPos + cardHeight - 2.5, { align: 'right' });
+      }
+
+      yPos += cardHeight + 4; // Espaciado entre tarjetas
     });
 
-    // 6. Generar Tabla con AutoTable
-    autoTable(doc, {
-      startY: yPos,
-      head: [['Fecha', 'Referencia', 'Pacientes / Cirugías Abonadas', 'Comprobante', 'Monto Total']],
-      body: tableBody,
-      theme: 'grid',
-      headStyles: {
-        fillColor: colorAccent,
-        textColor: [255, 255, 255],
-        fontStyle: 'bold',
-        fontSize: 8.5,
-        halign: 'left',
-      },
-      bodyStyles: {
-        fontSize: 8,
-        textColor: [30, 41, 59],
-        cellPadding: 4,
-      },
-      alternateRowStyles: {
-        fillColor: [248, 250, 252],
-      },
-      columnStyles: {
-        0: { cellWidth: 24 },
-        1: { cellWidth: 35 },
-        2: { cellWidth: 'auto' },
-        3: { cellWidth: 34 },
-        4: { cellWidth: 26, halign: 'right', fontStyle: 'bold' },
-      },
-      margin: { left: 14, right: 14 },
-    });
-
-    // 7. Pie de Página Formal
+    // 5. Pie de Página Formal en todas las páginas
     const pageCount = doc.internal.getNumberOfPages();
     for (let i = 1; i <= pageCount; i++) {
       doc.setPage(i);
-      doc.setDrawColor(226, 232, 240);
-      doc.line(14, pageHeight - 14, pageWidth - 14, pageHeight - 14);
+      doc.setDrawColor(...colorBorder);
+      doc.line(marginX, pageHeight - 14, pageWidth - marginX, pageHeight - 14);
 
       doc.setFontSize(7.5);
       doc.setTextColor(...colorSubtle);
       doc.setFont('helvetica', 'normal');
       doc.text(
-        'Este documento resume la actividad y pagos registrados en el sistema Gestión IQ para Districorr. No reemplaza comprobantes fiscales oficiales.',
-        14,
+        'Este documento resume los pagos registrados en el sistema Gestión IQ para Districorr.',
+        marginX,
         pageHeight - 8
       );
-      doc.text(`Página ${i} de ${pageCount}`, pageWidth - 14, pageHeight - 8, { align: 'right' });
+      doc.text(`Página ${i} de ${pageCount}`, pageWidth - marginX, pageHeight - 8, { align: 'right' });
     }
 
-    // 8. Descargar PDF
+    // 6. Descargar PDF
     const cleanNombre = nombre.replace(/[^a-zA-Z0-9]/g, '_');
     const filename = `Reporte_Pagos_${cleanNombre}.pdf`;
     doc.save(filename);
