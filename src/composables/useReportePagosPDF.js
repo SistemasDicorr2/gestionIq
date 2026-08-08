@@ -82,7 +82,7 @@ export function useReportePagosPDF() {
     doc.setTextColor(...colorPrimary);
     doc.text(String(totalCirugias), 18 + cardWidth + 4, yPos + 12);
 
-    // Card 3: Monto Total / Estimado
+    // Card 3: Monto Total
     doc.setFillColor(241, 245, 249);
     doc.roundedRect(14 + (cardWidth + 4) * 2, yPos, cardWidth, 16, 2, 2, 'F');
     doc.setFontSize(7.5);
@@ -95,9 +95,9 @@ export function useReportePagosPDF() {
 
     yPos += 22;
 
-    // 5. Formatear la tabla con comprobantes legibles y referencias limpias
+    // 5. Formatear las filas del reporte de forma limpia y legible
     const tableBody = liquidaciones.map(liq => {
-      // Fecha formateada
+      // Fecha de pago/emisión
       let fechaStr = 'No disponible';
       if (liq.fecha_pago) {
         const d = new Date(liq.fecha_pago);
@@ -111,29 +111,25 @@ export function useReportePagosPDF() {
         ? `Orden de pago #${liq.orden_de_pago_id}` 
         : 'Pago de honorarios';
 
-      // Pacientes abonados y cirugías
-      const listaPacientes = (liq.pacientes && liq.pacientes.length > 0) 
-        ? liq.pacientes.join(', ') 
-        : 'Cirugía autorizada';
-      const cantCirugias = `${liq.cirugias?.length || 1} cirugía(s)`;
-      const detallePacientes = `${listaPacientes}\n(${cantCirugias})`;
-
-      // Estado y Referencia de Comprobante limpia
-      let estadoComp = 'Abonado';
-      if (liq.comprobante_object_key) {
-        if (incluirComprobantes) {
-          // Extraer nombre o referencia limpia sin mostrar paths técnicos ni hashes de bucket
-          const rawName = String(liq.comprobante_object_key).split('/').pop() || 'Comprobante';
-          const cleanRef = rawName.length > 25 ? `${rawName.substring(0, 22)}...` : rawName;
-          estadoComp = `Comprobante cargado\nRef: ${cleanRef}`;
-        } else {
-          estadoComp = 'Comprobante cargado';
-        }
+      // Lista limpia de pacientes referidos con sus montos individuales
+      let pacientesDetalle = '';
+      if (liq.cirugias && liq.cirugias.length > 0) {
+        pacientesDetalle = liq.cirugias.map(c => {
+          const pNombre = c.paciente || 'Paciente no especificado';
+          const pMonto = parseFloat(c.monto || c.monto_liquidado || c.honorarios || c.monto_a_pagar);
+          const montoStr = (!isNaN(pMonto) && pMonto > 0) ? ` — $ ${pMonto.toLocaleString('es-AR')}` : '';
+          return `• ${pNombre}${montoStr}`;
+        }).join('\n');
+      } else if (liq.pacientes && liq.pacientes.length > 0) {
+        pacientesDetalle = liq.pacientes.map(p => `• ${p}`).join('\n');
       } else {
-        estadoComp = 'Pago verificado';
+        pacientesDetalle = '• Cirugía autorizada';
       }
 
-      // Monto
+      // Estado sin hashes UUID ni strings técnicos
+      const estadoComp = liq.comprobante_object_key ? 'Comprobante cargado' : 'Pago verificado';
+
+      // Monto total acumulado de la orden
       const montoStr = (liq.monto_total && liq.monto_total > 0) 
         ? `$ ${liq.monto_total.toLocaleString('es-AR')}` 
         : '-';
@@ -141,7 +137,7 @@ export function useReportePagosPDF() {
       return [
         fechaStr,
         ordenRef,
-        detallePacientes,
+        pacientesDetalle,
         estadoComp,
         montoStr
       ];
@@ -150,7 +146,7 @@ export function useReportePagosPDF() {
     // 6. Generar Tabla con AutoTable
     autoTable(doc, {
       startY: yPos,
-      head: [['Fecha', 'Referencia', 'Pacientes / Cirugías', 'Estado / Comprobante', 'Monto']],
+      head: [['Fecha', 'Referencia', 'Pacientes / Cirugías Abonadas', 'Comprobante', 'Monto Total']],
       body: tableBody,
       theme: 'grid',
       headStyles: {
@@ -163,7 +159,7 @@ export function useReportePagosPDF() {
       bodyStyles: {
         fontSize: 8,
         textColor: [30, 41, 59],
-        cellPadding: 3.5,
+        cellPadding: 4,
       },
       alternateRowStyles: {
         fillColor: [248, 250, 252],
@@ -172,7 +168,7 @@ export function useReportePagosPDF() {
         0: { cellWidth: 24 },
         1: { cellWidth: 35 },
         2: { cellWidth: 'auto' },
-        3: { cellWidth: 42 },
+        3: { cellWidth: 34 },
         4: { cellWidth: 26, halign: 'right', fontStyle: 'bold' },
       },
       margin: { left: 14, right: 14 },
