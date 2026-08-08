@@ -170,9 +170,9 @@
           <!-- HEADER CON BOTÓN OBTENER REPORTE -->
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 lg:mb-8 bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-2xs">
             <div>
-              <h2 class="text-2xl font-extrabold text-slate-950 dark:text-white">Liquidaciones y comprobantes</h2>
+              <h2 class="text-2xl font-extrabold text-slate-950 dark:text-white">Pagos y comprobantes</h2>
               <p class="max-w-2xl mt-1.5 text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-                Cada liquidación puede incluir una o más cirugías. Acá podés controlar qué pacientes fueron abonados, qué comprobante se cargó y descargar tu reporte en PDF por período.
+                Acá podés controlar los pagos realizados por tus cirugías acompañadas, ver los comprobantes cargados y descargar tu reporte en PDF por período.
               </p>
             </div>
 
@@ -181,13 +181,13 @@
               class="shrink-0 inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-indigo-900 to-blue-900 hover:from-indigo-800 hover:to-blue-800 text-white font-extrabold text-xs shadow-md transition-all cursor-pointer hover:-translate-y-0.5"
             >
               <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" /></svg>
-              <span>Obtener Reporte de Pagos</span>
+              <span>Descargar Reporte de Pagos</span>
             </button>
           </div>
 
-          <!-- BLOQUE: PENDIENTES DE LIQUIDACIÓN -->
+          <!-- BLOQUE: CIRUGÍAS PENDIENTES DE PAGO -->
           <section>
-            <h3 class="mb-5 text-xl font-extrabold text-slate-950 dark:text-white">Pendientes de liquidación</h3>
+            <h3 class="mb-5 text-xl font-extrabold text-slate-950 dark:text-white">Cirugías pendientes de pago</h3>
             <div v-if="pendientes.length > 0" class="space-y-4">
               <div v-for="report in pendientes" :key="report.id" class="p-5 bg-white border shadow-2xs border-slate-200/80 sm:p-6 dark:bg-slate-900 rounded-2xl dark:border-slate-800 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
                 <div class="flex items-start justify-between gap-4 mb-3">
@@ -197,23 +197,23 @@
                   </div>
                   <span class="inline-flex items-center px-3 py-1 text-xs font-bold border rounded-full shrink-0 bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-800/50">
                     <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
-                    Pendiente
+                    Pendiente de pago
                   </span>
                 </div>
                 <div class="flex items-start gap-3 p-3.5 mt-4 mb-2 text-sm border rounded-xl bg-sky-50/80 text-sky-900 dark:bg-sky-950/40 dark:text-sky-200 border-sky-200/80 dark:border-sky-800">
                   <svg class="w-5 h-5 shrink-0 text-sky-600 dark:text-sky-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" /></svg>
-                  <p class="leading-relaxed text-xs sm:text-sm">Esta cirugía será incluida en una próxima orden de pago cuando se genere la liquidación correspondiente.</p>
+                  <p class="leading-relaxed text-xs sm:text-sm">Esta cirugía será incluida en una próxima orden de pago cuando se procese la liquidación correspondiente.</p>
                 </div>
               </div>
             </div>
             <div v-else class="px-6 py-10 text-center bg-white border shadow-2xs border-slate-200/80 dark:bg-slate-900 rounded-2xl dark:border-slate-800 text-slate-500">
-              No tenés cirugías pendientes de liquidación.
+              No tenés cirugías pendientes de cobro.
             </div>
           </section>
 
-          <!-- BLOQUE: HISTORIAL DE LIQUIDACIONES -->
+          <!-- BLOQUE: HISTORIAL DE PAGOS -->
           <section>
-            <h3 class="mb-5 text-xl font-extrabold text-slate-950 dark:text-white">Historial de liquidaciones</h3>
+            <h3 class="mb-5 text-xl font-extrabold text-slate-950 dark:text-white">Historial de pagos</h3>
             <div v-if="historialLiquidaciones.length > 0" class="space-y-8">
               <div v-for="(liquidaciones, mes) in liquidacionesAgrupadasPorMes" :key="mes" class="space-y-5">
                 <h4 class="pb-2 text-lg font-bold border-b text-slate-800 dark:text-slate-200 border-slate-200 dark:border-slate-700/50">{{ mes }}</h4>
@@ -223,10 +223,10 @@
                   <div>
                     <h4 class="flex items-center gap-2.5 text-lg font-bold text-slate-950 dark:text-white">
                       <svg class="w-5 h-5 text-slate-400 dark:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V8.25ZM6.75 12h.008v.008H6.75V12Zm0 3h.008v.008H6.75V15Zm0 3h.008v.008H6.75V18Z" /></svg>
-                      {{ liq.orden_de_pago_id ? 'Orden de pago #' + liq.orden_de_pago_id : 'Liquidación registrada' }}
+                      {{ liq.orden_de_pago_id ? 'Orden de pago #' + liq.orden_de_pago_id : 'Pago registrado' }}
                     </h4>
                     <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                      {{ liq.comprobante_object_key ? 'Comprobante subido el:' : 'Emitida el' }} 
+                      {{ liq.comprobante_object_key ? 'Comprobante subido el:' : 'Emitido el' }} 
                       <span class="font-bold text-slate-800 dark:text-slate-200">{{ liq.fecha_pago ? formatDate(liq.fecha_pago) : 'Fecha no disponible' }}</span>
                     </p>
                   </div>
@@ -242,7 +242,7 @@
 
                 <div class="p-4 mb-5 border rounded-xl bg-slate-50 border-slate-100 dark:bg-slate-950/50 dark:border-slate-800">
                   <p class="text-sm text-slate-700 dark:text-slate-300">
-                    <span class="font-bold text-slate-900 dark:text-slate-200">Pacientes incluidos:</span> 
+                    <span class="font-bold text-slate-900 dark:text-slate-200">Pacientes abonados:</span> 
                     <span class="ml-1 font-medium">{{ liq.pacientes.slice(0, 3).join(', ') }}</span>
                     <span v-if="liq.pacientes.length > 3" class="ml-1 text-xs font-semibold text-slate-500 dark:text-slate-400">+ {{ liq.pacientes.length - 3 }} más</span>
                   </p>
@@ -271,15 +271,15 @@
               <!-- Cargar Más -->
               <div v-if="hasMoreLiquidaciones" class="flex justify-center pt-2">
                 <button @click="cargarMasLiquidaciones" class="px-6 py-2.5 text-xs font-extrabold text-slate-700 bg-white border border-slate-300 rounded-xl shadow-2xs hover:bg-slate-50 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700 dark:hover:bg-slate-700 transition-all duration-200 hover:-translate-y-0.5 cursor-pointer">
-                  Cargar más liquidaciones
+                  Cargar más pagos
                 </button>
               </div>
               <div v-else class="py-4 text-xs font-semibold text-center text-slate-400 dark:text-slate-500">
-                No hay más liquidaciones para mostrar.
+                No hay más pagos para mostrar.
               </div>
             </div>
             <div v-else class="px-6 py-10 text-center bg-white border shadow-2xs border-slate-200/80 dark:bg-slate-900 rounded-2xl dark:border-slate-800 text-slate-500">
-              Todavía no hay liquidaciones registradas.
+              Todavía no hay pagos registrados.
             </div>
           </section>
         </div>

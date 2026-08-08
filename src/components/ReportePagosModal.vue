@@ -11,8 +11,8 @@
               📄
             </div>
             <div>
-              <h3 class="text-lg font-extrabold tracking-tight">Obtener Reporte de Pagos</h3>
-              <p class="text-xs text-slate-300">Generá un informe PDF de tu histórico de liquidaciones</p>
+              <h3 class="text-lg font-extrabold tracking-tight">Descargar Reporte de Pagos</h3>
+              <p class="text-xs text-slate-300">Generá tu informe en PDF seleccionando el período deseado</p>
             </div>
           </div>
           <button 
@@ -38,7 +38,7 @@
               <option value="mes-actual">Mes Actual</option>
               <option value="ultimos-3-meses">Últimos 3 Meses</option>
               <option value="anio-actual">Año en Curso</option>
-              <option value="todo">Todo el Histórico</option>
+              <option value="todo">Todo mi Historial</option>
               <option value="custom">Rango Personalizado</option>
             </select>
           </div>
@@ -72,13 +72,13 @@
               class="h-4 w-4 rounded text-indigo-600 focus:ring-indigo-500/20 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 cursor-pointer"
             />
             <label for="incluirComprobantesCheck" class="text-xs font-bold text-slate-700 dark:text-slate-300 cursor-pointer select-none">
-              Incluir referencia de comprobantes cargados
+              Incluir detalle y referencias de comprobantes
             </label>
           </div>
 
           <!-- Resumen de items incluidos -->
           <div class="p-3.5 rounded-2xl bg-indigo-50/70 dark:bg-indigo-950/30 border border-indigo-100 dark:border-indigo-900/40 text-xs text-indigo-900 dark:text-indigo-200 flex items-center justify-between">
-            <span class="font-medium">Liquidaciones incluidas:</span>
+            <span class="font-medium">Pagos incluidos en el reporte:</span>
             <span class="font-extrabold px-2.5 py-0.5 rounded-full bg-indigo-200/80 dark:bg-indigo-900/60 text-indigo-900 dark:text-indigo-100">
               {{ filteredLiquidaciones.length }}
             </span>
@@ -100,7 +100,7 @@
             :disabled="filteredLiquidaciones.length === 0"
             class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-xs font-extrabold shadow-sm transition-all cursor-pointer flex items-center gap-2"
           >
-            <span>Generar Reporte PDF</span>
+            <span>Descargar PDF</span>
           </button>
         </div>
 
