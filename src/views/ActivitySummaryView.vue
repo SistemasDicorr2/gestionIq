@@ -59,57 +59,65 @@
           </div>
         </header>
 
-        <!-- Tabs de Navegación Responsivas para Celular -->
-        <div class="px-1 pb-2 mb-6 sm:mb-8 overflow-x-auto hide-scrollbar">
-          <div class="inline-flex items-center gap-1.5 p-1.5 bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl shadow-2xs min-w-full sm:min-w-0">
+        <!-- Tabs de Navegación Nativas Adaptables (Grid Celular / Flex Desktop) -->
+        <div class="mb-6 sm:mb-8">
+          <nav class="grid grid-cols-4 gap-1 p-1.5 bg-white/95 dark:bg-slate-900/95 border border-slate-200/90 dark:border-slate-800 rounded-2xl shadow-2xs sm:flex sm:items-center sm:gap-2 sm:w-fit">
             <button 
               @click="activeTab = 'resumen'"
               :class="[
-                'px-4 py-2.5 rounded-xl text-xs sm:text-sm font-black transition-all duration-200 whitespace-nowrap cursor-pointer flex items-center gap-1.5',
+                'flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 sm:py-2.5 rounded-xl text-[11px] sm:text-sm font-black transition-all duration-200 cursor-pointer select-none',
                 activeTab === 'resumen' 
                   ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30 ring-2 ring-blue-500/20' 
-                  : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white'
+                  : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 hover:text-slate-900 dark:hover:text-white'
               ]"
             >
-              <span>📊 Resumen</span>
+              <span class="text-base sm:text-sm">📊</span>
+              <span class="hidden sm:inline">Resumen</span>
+              <span class="sm:hidden text-[10px] sm:text-xs">Resumen</span>
             </button>
 
             <button 
               @click="activeTab = 'pagos'"
               :class="[
-                'px-4 py-2.5 rounded-xl text-xs sm:text-sm font-black transition-all duration-200 whitespace-nowrap cursor-pointer flex items-center gap-1.5',
+                'flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 sm:py-2.5 rounded-xl text-[11px] sm:text-sm font-black transition-all duration-200 cursor-pointer select-none',
                 activeTab === 'pagos' 
                   ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30 ring-2 ring-blue-500/20' 
-                  : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white'
+                  : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 hover:text-slate-900 dark:hover:text-white'
               ]"
             >
-              <span>💳 Pagos y Comprobantes</span>
+              <span class="text-base sm:text-sm">💳</span>
+              <span class="hidden sm:inline">Pagos y Comprobantes</span>
+              <span class="sm:hidden text-[10px] sm:text-xs">Pagos</span>
             </button>
 
             <button 
               @click="activeTab = 'datos'"
               :class="[
-                'px-4 py-2.5 rounded-xl text-xs sm:text-sm font-black transition-all duration-200 whitespace-nowrap cursor-pointer flex items-center gap-1.5',
+                'flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 sm:py-2.5 rounded-xl text-[11px] sm:text-sm font-black transition-all duration-200 cursor-pointer select-none',
                 activeTab === 'datos' 
                   ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30 ring-2 ring-blue-500/20' 
-                  : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white'
+                  : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 hover:text-slate-900 dark:hover:text-white'
               ]"
             >
-              <span>👤 Mi Perfil</span>
+              <span class="text-base sm:text-sm">👤</span>
+              <span class="hidden sm:inline">Mi Perfil</span>
+              <span class="sm:hidden text-[10px] sm:text-xs">Perfil</span>
             </button>
 
             <button 
               @click="activeTab = 'faq'"
               :class="[
-                'px-4 py-2.5 rounded-xl text-xs sm:text-sm font-black transition-all duration-200 whitespace-nowrap cursor-pointer flex items-center gap-1.5',
+                'flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 sm:py-2.5 rounded-xl text-[11px] sm:text-sm font-black transition-all duration-200 cursor-pointer select-none',
                 activeTab === 'faq' 
                   ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30 ring-2 ring-blue-500/20' 
-                  : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white'
+                  : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 hover:text-slate-900 dark:hover:text-white'
               ]"
             >
-              <span>❓ Preguntas Frecuentes</span>
+              <span class="text-base sm:text-sm">❓</span>
+              <span class="hidden sm:inline">Preguntas Frecuentes</span>
+              <span class="sm:hidden text-[10px] sm:text-xs">Ayuda</span>
             </button>
-          </div>
+          </nav>
         </div>
 
         <!-- TAB 1: RESUMEN DE PAGOS -->
