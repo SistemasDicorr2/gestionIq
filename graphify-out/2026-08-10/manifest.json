@@ -1360,8 +1360,8 @@
     "semantic_hash": ""
   },
   "src/views/logistica/LogisticaNuevoInformeView.vue": {
-    "mtime": 1786373777.5304475,
-    "ast_hash": "9319f90d13a6edf564f1c74b2e2efaac",
+    "mtime": 1786370329.0783696,
+    "ast_hash": "554e2c4dec540306edd475927a5f63de",
     "semantic_hash": ""
   },
   "supabase/migrations/20260805_logistica_informes_diarios.sql": {

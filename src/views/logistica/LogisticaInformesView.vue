@@ -485,13 +485,20 @@ const fetchDashboardData = async () => {
 const deleteDraft = async (draftId) => {
   try {
     await supabase.from('logistica_informe_movimientos').delete().eq('informe_id', draftId);
-    const { error } = await supabase.from('logistica_informes_diarios').delete().eq('id', draftId);
-    if (error) throw error;
+    const { error: deleteErr } = await supabase.from('logistica_informes_diarios').delete().eq('id', draftId);
+    if (deleteErr) {
+      console.warn('DELETE no permitido por RLS/Grant, aplicando fallback a estado descartado:', deleteErr);
+      const { error: updateErr } = await supabase
+        .from('logistica_informes_diarios')
+        .update({ estado: 'descartado' })
+        .eq('id', draftId);
+      if (updateErr) throw updateErr;
+    }
 
-    toast.success('Borrador eliminado.');
+    toast.success('Borrador eliminado correctamente.');
     await fetchDashboardData();
   } catch (err) {
-    toast.error('Error al eliminar borrador: ' + err.message);
+    toast.error('Error al eliminar borrador: ' + (err.message || 'Error inesperado'));
   }
 };
 

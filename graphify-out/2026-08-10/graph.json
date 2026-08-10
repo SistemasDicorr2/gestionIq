@@ -1931,7 +1931,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_incidencedrawer",
-      "community": 235,
+      "community": 55,
       "norm_label": "incidencedrawer.vue"
     },
     {
@@ -1941,7 +1941,7 @@
       "source_location": "L102",
       "_origin": "ast",
       "id": "src_components_incidencedrawer_props",
-      "community": 235,
+      "community": 55,
       "norm_label": "props"
     },
     {
@@ -1951,7 +1951,7 @@
       "source_location": "L112",
       "_origin": "ast",
       "id": "src_components_incidencedrawer_emit",
-      "community": 235,
+      "community": 55,
       "norm_label": "emit"
     },
     {
@@ -1961,7 +1961,7 @@
       "source_location": "L114",
       "_origin": "ast",
       "id": "src_components_incidencedrawer_toast",
-      "community": 235,
+      "community": 55,
       "norm_label": "toast"
     },
     {
@@ -1971,7 +1971,7 @@
       "source_location": "L116",
       "_origin": "ast",
       "id": "src_components_incidencedrawer_isupdating",
-      "community": 235,
+      "community": 55,
       "norm_label": "isupdating"
     },
     {
@@ -1981,7 +1981,7 @@
       "source_location": "L119",
       "_origin": "ast",
       "id": "src_components_incidencedrawer_markasresolved",
-      "community": 235,
+      "community": 55,
       "norm_label": "markasresolved()"
     },
     {
@@ -1991,7 +1991,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_incidencefilterbar",
-      "community": 238,
+      "community": 4,
       "norm_label": "incidencefilterbar.vue"
     },
     {
@@ -2001,7 +2001,7 @@
       "source_location": "L109",
       "_origin": "ast",
       "id": "src_components_incidencefilterbar_emit",
-      "community": 238,
+      "community": 4,
       "norm_label": "emit"
     },
     {
@@ -2011,7 +2011,7 @@
       "source_location": "L111",
       "_origin": "ast",
       "id": "src_components_incidencefilterbar_initialfilters",
-      "community": 238,
+      "community": 4,
       "norm_label": "initialfilters"
     },
     {
@@ -2021,7 +2021,7 @@
       "source_location": "L118",
       "_origin": "ast",
       "id": "src_components_incidencefilterbar_filters",
-      "community": 238,
+      "community": 4,
       "norm_label": "filters"
     },
     {
@@ -2031,7 +2031,7 @@
       "source_location": "L120",
       "_origin": "ast",
       "id": "src_components_incidencefilterbar_apply",
-      "community": 238,
+      "community": 4,
       "norm_label": "apply()"
     },
     {
@@ -2041,7 +2041,7 @@
       "source_location": "L124",
       "_origin": "ast",
       "id": "src_components_incidencefilterbar_clear",
-      "community": 238,
+      "community": 4,
       "norm_label": "clear()"
     },
     {
@@ -2091,7 +2091,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_instrumentadoresranking",
-      "community": 163,
+      "community": 4,
       "norm_label": "instrumentadoresranking.vue"
     },
     {
@@ -2101,7 +2101,7 @@
       "source_location": "L65",
       "_origin": "ast",
       "id": "src_components_instrumentadoresranking_toast",
-      "community": 163,
+      "community": 4,
       "norm_label": "toast"
     },
     {
@@ -2111,7 +2111,7 @@
       "source_location": "L66",
       "_origin": "ast",
       "id": "src_components_instrumentadoresranking_ranking",
-      "community": 163,
+      "community": 4,
       "norm_label": "ranking"
     },
     {
@@ -2121,7 +2121,7 @@
       "source_location": "L67",
       "_origin": "ast",
       "id": "src_components_instrumentadoresranking_loading",
-      "community": 163,
+      "community": 4,
       "norm_label": "loading"
     },
     {
@@ -2131,7 +2131,7 @@
       "source_location": "L68",
       "_origin": "ast",
       "id": "src_components_instrumentadoresranking_error",
-      "community": 163,
+      "community": 4,
       "norm_label": "error"
     },
     {
@@ -2141,7 +2141,7 @@
       "source_location": "L70",
       "_origin": "ast",
       "id": "src_components_instrumentadoresranking_fetchranking",
-      "community": 163,
+      "community": 4,
       "norm_label": "fetchranking()"
     },
     {
@@ -2151,7 +2151,7 @@
       "source_location": "L90",
       "_origin": "ast",
       "id": "src_components_instrumentadoresranking_getposicioncolor",
-      "community": 163,
+      "community": 4,
       "norm_label": "getposicioncolor()"
     },
     {
@@ -2161,7 +2161,7 @@
       "source_location": "L99",
       "_origin": "ast",
       "id": "src_components_instrumentadoresranking_getivocolor",
-      "community": 163,
+      "community": 4,
       "norm_label": "getivocolor()"
     },
     {
@@ -2911,7 +2911,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_paginationcontrols",
-      "community": 227,
+      "community": 4,
       "norm_label": "paginationcontrols.vue"
     },
     {
@@ -2921,7 +2921,7 @@
       "source_location": "L57",
       "_origin": "ast",
       "id": "src_components_paginationcontrols_props",
-      "community": 227,
+      "community": 4,
       "norm_label": "props"
     },
     {
@@ -2931,7 +2931,7 @@
       "source_location": "L64",
       "_origin": "ast",
       "id": "src_components_paginationcontrols_emit",
-      "community": 227,
+      "community": 4,
       "norm_label": "emit"
     },
     {
@@ -2941,7 +2941,7 @@
       "source_location": "L67",
       "_origin": "ast",
       "id": "src_components_paginationcontrols_totalpages",
-      "community": 227,
+      "community": 4,
       "norm_label": "totalpages"
     },
     {
@@ -2951,7 +2951,7 @@
       "source_location": "L70",
       "_origin": "ast",
       "id": "src_components_paginationcontrols_startitem",
-      "community": 227,
+      "community": 4,
       "norm_label": "startitem"
     },
     {
@@ -2961,7 +2961,7 @@
       "source_location": "L73",
       "_origin": "ast",
       "id": "src_components_paginationcontrols_enditem",
-      "community": 227,
+      "community": 4,
       "norm_label": "enditem"
     },
     {
@@ -2971,7 +2971,7 @@
       "source_location": "L76",
       "_origin": "ast",
       "id": "src_components_paginationcontrols_changepage",
-      "community": 227,
+      "community": 4,
       "norm_label": "changepage()"
     },
     {
@@ -3061,7 +3061,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_postpagomodal",
-      "community": 50,
+      "community": 48,
       "norm_label": "postpagomodal.vue"
     },
     {
@@ -3071,7 +3071,7 @@
       "source_location": "L82",
       "_origin": "ast",
       "id": "src_components_postpagomodal_props",
-      "community": 50,
+      "community": 48,
       "norm_label": "props"
     },
     {
@@ -3081,7 +3081,7 @@
       "source_location": "L92",
       "_origin": "ast",
       "id": "src_components_postpagomodal_showsuccesstoast_showerrortoast",
-      "community": 50,
+      "community": 48,
       "norm_label": "{ showsuccesstoast, showerrortoast }"
     },
     {
@@ -3091,7 +3091,7 @@
       "source_location": "L94",
       "_origin": "ast",
       "id": "src_components_postpagomodal_generalsummarytext",
-      "community": 50,
+      "community": 48,
       "norm_label": "generalsummarytext"
     },
     {
@@ -3101,7 +3101,7 @@
       "source_location": "L109",
       "_origin": "ast",
       "id": "src_components_postpagomodal_generatewhatsappmessage",
-      "community": 50,
+      "community": 48,
       "norm_label": "generatewhatsappmessage()"
     },
     {
@@ -3111,7 +3111,7 @@
       "source_location": "L119",
       "_origin": "ast",
       "id": "src_components_postpagomodal_copytoclipboard",
-      "community": 50,
+      "community": 48,
       "norm_label": "copytoclipboard()"
     },
     {
@@ -3121,7 +3121,7 @@
       "source_location": "L128",
       "_origin": "ast",
       "id": "src_components_postpagomodal_formatcurrency",
-      "community": 50,
+      "community": 48,
       "norm_label": "formatcurrency()"
     },
     {
@@ -4713,7 +4713,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_skeletonloader",
-      "community": 163,
+      "community": 4,
       "norm_label": "skeletonloader.vue"
     },
     {
@@ -5283,7 +5283,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_admin_gestionpagomodal",
-      "community": 48,
+      "community": 22,
       "norm_label": "gestionpagomodal.vue"
     },
     {
@@ -5293,7 +5293,7 @@
       "source_location": "L53",
       "_origin": "ast",
       "id": "src_components_admin_gestionpagomodal_props",
-      "community": 48,
+      "community": 22,
       "norm_label": "props"
     },
     {
@@ -5303,7 +5303,7 @@
       "source_location": "L58",
       "_origin": "ast",
       "id": "src_components_admin_gestionpagomodal_emit",
-      "community": 48,
+      "community": 22,
       "norm_label": "emit"
     },
     {
@@ -5313,7 +5313,7 @@
       "source_location": "L60",
       "_origin": "ast",
       "id": "src_components_admin_gestionpagomodal_toast",
-      "community": 48,
+      "community": 22,
       "norm_label": "toast"
     },
     {
@@ -5323,7 +5323,7 @@
       "source_location": "L61",
       "_origin": "ast",
       "id": "src_components_admin_gestionpagomodal_fileuploaderref",
-      "community": 48,
+      "community": 22,
       "norm_label": "fileuploaderref"
     },
     {
@@ -5333,7 +5333,7 @@
       "source_location": "L62",
       "_origin": "ast",
       "id": "src_components_admin_gestionpagomodal_issaving",
-      "community": 48,
+      "community": 22,
       "norm_label": "issaving"
     },
     {
@@ -5343,7 +5343,7 @@
       "source_location": "L64",
       "_origin": "ast",
       "id": "src_components_admin_gestionpagomodal_form",
-      "community": 48,
+      "community": 22,
       "norm_label": "form"
     },
     {
@@ -5353,7 +5353,7 @@
       "source_location": "L71",
       "_origin": "ast",
       "id": "src_components_admin_gestionpagomodal_isformvalid",
-      "community": 48,
+      "community": 22,
       "norm_label": "isformvalid"
     },
     {
@@ -5363,7 +5363,7 @@
       "source_location": "L84",
       "_origin": "ast",
       "id": "src_components_admin_gestionpagomodal_close",
-      "community": 48,
+      "community": 22,
       "norm_label": "close()"
     },
     {
@@ -5373,7 +5373,7 @@
       "source_location": "L88",
       "_origin": "ast",
       "id": "src_components_admin_gestionpagomodal_handlesave",
-      "community": 48,
+      "community": 22,
       "norm_label": "handlesave()"
     },
     {
@@ -5923,7 +5923,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_admin_corrections_toolcambiarcomprobante",
-      "community": 225,
+      "community": 50,
       "norm_label": "toolcambiarcomprobante.vue"
     },
     {
@@ -5933,7 +5933,7 @@
       "source_location": "L44",
       "_origin": "ast",
       "id": "src_components_admin_corrections_toolcambiarcomprobante_props",
-      "community": 225,
+      "community": 50,
       "norm_label": "props"
     },
     {
@@ -5943,7 +5943,7 @@
       "source_location": "L51",
       "_origin": "ast",
       "id": "src_components_admin_corrections_toolcambiarcomprobante_emit",
-      "community": 225,
+      "community": 50,
       "norm_label": "emit"
     },
     {
@@ -5953,7 +5953,7 @@
       "source_location": "L54",
       "_origin": "ast",
       "id": "src_components_admin_corrections_toolcambiarcomprobante_showloadingtoast_updatetoast_showerrortoast",
-      "community": 225,
+      "community": 50,
       "norm_label": "{ showloadingtoast, updatetoast, showerrortoast }"
     },
     {
@@ -5963,7 +5963,7 @@
       "source_location": "L55",
       "_origin": "ast",
       "id": "src_components_admin_corrections_toolcambiarcomprobante_fileuploader",
-      "community": 225,
+      "community": 50,
       "norm_label": "fileuploader"
     },
     {
@@ -5973,7 +5973,7 @@
       "source_location": "L56",
       "_origin": "ast",
       "id": "src_components_admin_corrections_toolcambiarcomprobante_issubmitting",
-      "community": 225,
+      "community": 50,
       "norm_label": "issubmitting"
     },
     {
@@ -5983,7 +5983,7 @@
       "source_location": "L58",
       "_origin": "ast",
       "id": "src_components_admin_corrections_toolcambiarcomprobante_isformvalid",
-      "community": 225,
+      "community": 50,
       "norm_label": "isformvalid"
     },
     {
@@ -5993,7 +5993,7 @@
       "source_location": "L62",
       "_origin": "ast",
       "id": "src_components_admin_corrections_toolcambiarcomprobante_handleupdate",
-      "community": 225,
+      "community": 50,
       "norm_label": "handleupdate()"
     },
     {
@@ -8183,7 +8183,7 @@
       "source_location": "L227",
       "_origin": "ast",
       "id": "src_components_uploader_fileupload_startupload",
-      "community": 240,
+      "community": 22,
       "norm_label": "startupload()"
     },
     {
@@ -8883,7 +8883,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_services_useimageresizer",
-      "community": 240,
+      "community": 22,
       "norm_label": "useimageresizer.js"
     },
     {
@@ -8893,7 +8893,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_services_useimageresizer_resizeimage",
-      "community": 240,
+      "community": 22,
       "norm_label": "resizeimage()"
     },
     {
@@ -8903,7 +8903,7 @@
       "source_location": "L60",
       "_origin": "ast",
       "id": "src_services_useimageresizer_optimizeimageforupload",
-      "community": 240,
+      "community": 22,
       "norm_label": "optimizeimageforupload()"
     },
     {
@@ -12983,7 +12983,7 @@
       "source_location": "L371",
       "_origin": "ast",
       "id": "src_views_admin_pagosdashboardview_getsurgerydate",
-      "community": 11,
+      "community": 225,
       "norm_label": "getsurgerydate()"
     },
     {
@@ -12993,7 +12993,7 @@
       "source_location": "L380",
       "_origin": "ast",
       "id": "src_views_admin_pagosdashboardview_iscurrentmonthsurgery",
-      "community": 11,
+      "community": 225,
       "norm_label": "iscurrentmonthsurgery()"
     },
     {
@@ -13003,7 +13003,7 @@
       "source_location": "L388",
       "_origin": "ast",
       "id": "src_views_admin_pagosdashboardview_ispreviousmonthsurgery",
-      "community": 11,
+      "community": 225,
       "norm_label": "ispreviousmonthsurgery()"
     },
     {
@@ -13013,7 +13013,7 @@
       "source_location": "L397",
       "_origin": "ast",
       "id": "src_views_admin_pagosdashboardview_islast30dayssurgery",
-      "community": 11,
+      "community": 225,
       "norm_label": "islast30dayssurgery()"
     },
     {
@@ -13023,7 +13023,7 @@
       "source_location": "L410",
       "_origin": "ast",
       "id": "src_views_admin_pagosdashboardview_isinselectedkpiperiod",
-      "community": 11,
+      "community": 225,
       "norm_label": "isinselectedkpiperiod()"
     },
     {
@@ -14620,7 +14620,7 @@
       "label": "router",
       "file_type": "code",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L756",
+      "source_location": "L672",
       "_origin": "ast",
       "id": "src_views_logistica_logisticanuevoinformeview_router",
       "community": 1,
@@ -14630,7 +14630,7 @@
       "label": "route",
       "file_type": "code",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L757",
+      "source_location": "L673",
       "_origin": "ast",
       "id": "src_views_logistica_logisticanuevoinformeview_route",
       "community": 1,
@@ -14640,7 +14640,7 @@
       "label": "toast",
       "file_type": "code",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L758",
+      "source_location": "L674",
       "_origin": "ast",
       "id": "src_views_logistica_logisticanuevoinformeview_toast",
       "community": 1,
@@ -14650,7 +14650,7 @@
       "label": "loading",
       "file_type": "code",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L760",
+      "source_location": "L676",
       "_origin": "ast",
       "id": "src_views_logistica_logisticanuevoinformeview_loading",
       "community": 1,
@@ -14660,7 +14660,7 @@
       "label": "isSaving",
       "file_type": "code",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L761",
+      "source_location": "L677",
       "_origin": "ast",
       "id": "src_views_logistica_logisticanuevoinformeview_issaving",
       "community": 1,
@@ -14670,7 +14670,7 @@
       "label": "isSending",
       "file_type": "code",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L762",
+      "source_location": "L678",
       "_origin": "ast",
       "id": "src_views_logistica_logisticanuevoinformeview_issending",
       "community": 1,
@@ -14680,7 +14680,7 @@
       "label": "isDeletingDraft",
       "file_type": "code",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L763",
+      "source_location": "L679",
       "_origin": "ast",
       "id": "src_views_logistica_logisticanuevoinformeview_isdeletingdraft",
       "community": 1,
@@ -14690,7 +14690,7 @@
       "label": "showResumenModal",
       "file_type": "code",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L764",
+      "source_location": "L680",
       "_origin": "ast",
       "id": "src_views_logistica_logisticanuevoinformeview_showresumenmodal",
       "community": 1,
@@ -14700,7 +14700,7 @@
       "label": "showDeleteDraftModal",
       "file_type": "code",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L765",
+      "source_location": "L681",
       "_origin": "ast",
       "id": "src_views_logistica_logisticanuevoinformeview_showdeletedraftmodal",
       "community": 1,
@@ -14710,47 +14710,27 @@
       "label": "showDraftOptionsModal",
       "file_type": "code",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L766",
+      "source_location": "L682",
       "_origin": "ast",
       "id": "src_views_logistica_logisticanuevoinformeview_showdraftoptionsmodal",
       "community": 1,
       "norm_label": "showdraftoptionsmodal"
     },
     {
-      "label": "enviadoExistente",
-      "file_type": "code",
-      "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L768",
-      "_origin": "ast",
-      "id": "src_views_logistica_logisticanuevoinformeview_enviadoexistente",
-      "community": 1,
-      "norm_label": "enviadoexistente"
-    },
-    {
-      "label": "movimientoFilter",
-      "file_type": "code",
-      "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L769",
-      "_origin": "ast",
-      "id": "src_views_logistica_logisticanuevoinformeview_movimientofilter",
-      "community": 1,
-      "norm_label": "movimientofilter"
-    },
-    {
       "label": "handleNewReportClick()",
       "file_type": "code",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L771",
+      "source_location": "L684",
       "_origin": "ast",
       "id": "src_views_logistica_logisticanuevoinformeview_handlenewreportclick",
-      "community": 237,
+      "community": 94,
       "norm_label": "handlenewreportclick()"
     },
     {
       "label": "autoSaveStatus",
       "file_type": "code",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L779",
+      "source_location": "L692",
       "_origin": "ast",
       "id": "src_views_logistica_logisticanuevoinformeview_autosavestatus",
       "community": 1,
@@ -14760,7 +14740,7 @@
       "label": "lastSaveTime",
       "file_type": "code",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L780",
+      "source_location": "L693",
       "_origin": "ast",
       "id": "src_views_logistica_logisticanuevoinformeview_lastsavetime",
       "community": 1,
@@ -14770,7 +14750,7 @@
       "label": "autoSaveMessage",
       "file_type": "code",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L782",
+      "source_location": "L695",
       "_origin": "ast",
       "id": "src_views_logistica_logisticanuevoinformeview_autosavemessage",
       "community": 1,
@@ -14780,7 +14760,7 @@
       "label": "informe",
       "file_type": "code",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L791",
+      "source_location": "L704",
       "_origin": "ast",
       "id": "src_views_logistica_logisticanuevoinformeview_informe",
       "community": 1,
@@ -14790,7 +14770,7 @@
       "label": "movimientos",
       "file_type": "code",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L801",
+      "source_location": "L714",
       "_origin": "ast",
       "id": "src_views_logistica_logisticanuevoinformeview_movimientos",
       "community": 1,
@@ -14800,7 +14780,7 @@
       "label": "userDrafts",
       "file_type": "code",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L802",
+      "source_location": "L715",
       "_origin": "ast",
       "id": "src_views_logistica_logisticanuevoinformeview_userdrafts",
       "community": 1,
@@ -14810,7 +14790,7 @@
       "label": "showDraftSelector",
       "file_type": "code",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L803",
+      "source_location": "L716",
       "_origin": "ast",
       "id": "src_views_logistica_logisticanuevoinformeview_showdraftselector",
       "community": 1,
@@ -14820,67 +14800,17 @@
       "label": "editingIndex",
       "file_type": "code",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L804",
+      "source_location": "L717",
       "_origin": "ast",
       "id": "src_views_logistica_logisticanuevoinformeview_editingindex",
       "community": 1,
       "norm_label": "editingindex"
     },
     {
-      "label": "checkEnviadoForDate()",
-      "file_type": "code",
-      "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L806",
-      "_origin": "ast",
-      "id": "src_views_logistica_logisticanuevoinformeview_checkenviadofordate",
-      "community": 1,
-      "norm_label": "checkenviadofordate()"
-    },
-    {
-      "label": "moveMovementUp()",
-      "file_type": "code",
-      "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L826",
-      "_origin": "ast",
-      "id": "src_views_logistica_logisticanuevoinformeview_movemovementup",
-      "community": 237,
-      "norm_label": "movemovementup()"
-    },
-    {
-      "label": "moveMovementDown()",
-      "file_type": "code",
-      "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L836",
-      "_origin": "ast",
-      "id": "src_views_logistica_logisticanuevoinformeview_movemovementdown",
-      "community": 237,
-      "norm_label": "movemovementdown()"
-    },
-    {
-      "label": "filteredMovimientos",
-      "file_type": "code",
-      "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L846",
-      "_origin": "ast",
-      "id": "src_views_logistica_logisticanuevoinformeview_filteredmovimientos",
-      "community": 1,
-      "norm_label": "filteredmovimientos"
-    },
-    {
-      "label": "filterCounts",
-      "file_type": "code",
-      "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L855",
-      "_origin": "ast",
-      "id": "src_views_logistica_logisticanuevoinformeview_filtercounts",
-      "community": 1,
-      "norm_label": "filtercounts"
-    },
-    {
       "label": "scheduleAutoSave()",
       "file_type": "code",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L885",
+      "source_location": "L723",
       "_origin": "ast",
       "id": "src_views_logistica_logisticanuevoinformeview_scheduleautosave",
       "community": 237,
@@ -14890,7 +14820,7 @@
       "label": "tipoChips",
       "file_type": "code",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L910",
+      "source_location": "L745",
       "_origin": "ast",
       "id": "src_views_logistica_logisticanuevoinformeview_tipochips",
       "community": 1,
@@ -14900,7 +14830,7 @@
       "label": "searchQuery",
       "file_type": "code",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L919",
+      "source_location": "L754",
       "_origin": "ast",
       "id": "src_views_logistica_logisticanuevoinformeview_searchquery",
       "community": 1,
@@ -14910,7 +14840,7 @@
       "label": "searchResults",
       "file_type": "code",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L920",
+      "source_location": "L755",
       "_origin": "ast",
       "id": "src_views_logistica_logisticanuevoinformeview_searchresults",
       "community": 1,
@@ -14920,7 +14850,7 @@
       "label": "isSearching",
       "file_type": "code",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L921",
+      "source_location": "L756",
       "_origin": "ast",
       "id": "src_views_logistica_logisticanuevoinformeview_issearching",
       "community": 1,
@@ -14930,7 +14860,7 @@
       "label": "showDropdown",
       "file_type": "code",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L922",
+      "source_location": "L757",
       "_origin": "ast",
       "id": "src_views_logistica_logisticanuevoinformeview_showdropdown",
       "community": 1,
@@ -14940,7 +14870,7 @@
       "label": "selectedCirugia",
       "file_type": "code",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L923",
+      "source_location": "L758",
       "_origin": "ast",
       "id": "src_views_logistica_logisticanuevoinformeview_selectedcirugia",
       "community": 1,
@@ -14950,7 +14880,7 @@
       "label": "showManualForm",
       "file_type": "code",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L925",
+      "source_location": "L760",
       "_origin": "ast",
       "id": "src_views_logistica_logisticanuevoinformeview_showmanualform",
       "community": 1,
@@ -14960,7 +14890,7 @@
       "label": "manualForm",
       "file_type": "code",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L926",
+      "source_location": "L761",
       "_origin": "ast",
       "id": "src_views_logistica_logisticanuevoinformeview_manualform",
       "community": 1,
@@ -14970,7 +14900,7 @@
       "label": "builder",
       "file_type": "code",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L934",
+      "source_location": "L769",
       "_origin": "ast",
       "id": "src_views_logistica_logisticanuevoinformeview_builder",
       "community": 1,
@@ -14980,7 +14910,7 @@
       "label": "selectTipoMovimiento()",
       "file_type": "code",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L945",
+      "source_location": "L780",
       "_origin": "ast",
       "id": "src_views_logistica_logisticanuevoinformeview_selecttipomovimiento",
       "community": 1,
@@ -14990,7 +14920,7 @@
       "label": "onSearchInput()",
       "file_type": "code",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L951",
+      "source_location": "L786",
       "_origin": "ast",
       "id": "src_views_logistica_logisticanuevoinformeview_onsearchinput",
       "community": 1,
@@ -15000,7 +14930,7 @@
       "label": "selectCirugia()",
       "file_type": "code",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L993",
+      "source_location": "L828",
       "_origin": "ast",
       "id": "src_views_logistica_logisticanuevoinformeview_selectcirugia",
       "community": 1,
@@ -15010,7 +14940,7 @@
       "label": "clearSelectedCirugia()",
       "file_type": "code",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L1000",
+      "source_location": "L835",
       "_origin": "ast",
       "id": "src_views_logistica_logisticanuevoinformeview_clearselectedcirugia",
       "community": 237,
@@ -15020,7 +14950,7 @@
       "label": "openManualForm()",
       "file_type": "code",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L1005",
+      "source_location": "L840",
       "_origin": "ast",
       "id": "src_views_logistica_logisticanuevoinformeview_openmanualform",
       "community": 1,
@@ -15030,7 +14960,7 @@
       "label": "closeManualForm()",
       "file_type": "code",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L1012",
+      "source_location": "L847",
       "_origin": "ast",
       "id": "src_views_logistica_logisticanuevoinformeview_closemanualform",
       "community": 1,
@@ -15040,7 +14970,7 @@
       "label": "addMovementToList()",
       "file_type": "code",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L1016",
+      "source_location": "L851",
       "_origin": "ast",
       "id": "src_views_logistica_logisticanuevoinformeview_addmovementtolist",
       "community": 237,
@@ -15050,7 +14980,7 @@
       "label": "editMovement()",
       "file_type": "code",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L1110",
+      "source_location": "L945",
       "_origin": "ast",
       "id": "src_views_logistica_logisticanuevoinformeview_editmovement",
       "community": 1,
@@ -15060,7 +14990,7 @@
       "label": "cancelEditMovement()",
       "file_type": "code",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L1138",
+      "source_location": "L973",
       "_origin": "ast",
       "id": "src_views_logistica_logisticanuevoinformeview_canceleditmovement",
       "community": 237,
@@ -15070,7 +15000,7 @@
       "label": "deleteMovimiento()",
       "file_type": "code",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L1149",
+      "source_location": "L984",
       "_origin": "ast",
       "id": "src_views_logistica_logisticanuevoinformeview_deletemovimiento",
       "community": 237,
@@ -15080,7 +15010,7 @@
       "label": "summaryStats",
       "file_type": "code",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L1157",
+      "source_location": "L992",
       "_origin": "ast",
       "id": "src_views_logistica_logisticanuevoinformeview_summarystats",
       "community": 1,
@@ -15090,7 +15020,7 @@
       "label": "toggleShowDraftSelector()",
       "file_type": "code",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L1164",
+      "source_location": "L999",
       "_origin": "ast",
       "id": "src_views_logistica_logisticanuevoinformeview_toggleshowdraftselector",
       "community": 1,
@@ -15100,7 +15030,7 @@
       "label": "fetchUserDrafts()",
       "file_type": "code",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L1168",
+      "source_location": "L1003",
       "_origin": "ast",
       "id": "src_views_logistica_logisticanuevoinformeview_fetchuserdrafts",
       "community": 94,
@@ -15110,7 +15040,7 @@
       "label": "loadDraftData()",
       "file_type": "code",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L1184",
+      "source_location": "L1019",
       "_origin": "ast",
       "id": "src_views_logistica_logisticanuevoinformeview_loaddraftdata",
       "community": 94,
@@ -15120,7 +15050,7 @@
       "label": "switchDraft()",
       "file_type": "code",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L1206",
+      "source_location": "L1041",
       "_origin": "ast",
       "id": "src_views_logistica_logisticanuevoinformeview_switchdraft",
       "community": 94,
@@ -15130,17 +15060,17 @@
       "label": "startNewCleanReport()",
       "file_type": "code",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L1221",
+      "source_location": "L1056",
       "_origin": "ast",
       "id": "src_views_logistica_logisticanuevoinformeview_startnewcleanreport",
-      "community": 237,
+      "community": 94,
       "norm_label": "startnewcleanreport()"
     },
     {
       "label": "deleteCurrentDraft()",
       "file_type": "code",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L1239",
+      "source_location": "L1074",
       "_origin": "ast",
       "id": "src_views_logistica_logisticanuevoinformeview_deletecurrentdraft",
       "community": 94,
@@ -15150,47 +15080,47 @@
       "label": "saveDraftInternal()",
       "file_type": "code",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L1319",
+      "source_location": "L1152",
       "_origin": "ast",
       "id": "src_views_logistica_logisticanuevoinformeview_savedraftinternal",
-      "community": 94,
+      "community": 238,
       "norm_label": "savedraftinternal()"
     },
     {
       "label": "saveDraftManual()",
       "file_type": "code",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L1432",
+      "source_location": "L1265",
       "_origin": "ast",
       "id": "src_views_logistica_logisticanuevoinformeview_savedraftmanual",
-      "community": 94,
+      "community": 238,
       "norm_label": "savedraftmanual()"
     },
     {
       "label": "openResumenModal()",
       "file_type": "code",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L1437",
+      "source_location": "L1270",
       "_origin": "ast",
       "id": "src_views_logistica_logisticanuevoinformeview_openresumenmodal",
-      "community": 94,
+      "community": 238,
       "norm_label": "openresumenmodal()"
     },
     {
       "label": "submitInformeFinal()",
       "file_type": "code",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L1449",
+      "source_location": "L1282",
       "_origin": "ast",
       "id": "src_views_logistica_logisticanuevoinformeview_submitinformefinal",
-      "community": 94,
+      "community": 238,
       "norm_label": "submitinformefinal()"
     },
     {
       "label": "formatDate()",
       "file_type": "code",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L1476",
+      "source_location": "L1309",
       "_origin": "ast",
       "id": "src_views_logistica_logisticanuevoinformeview_formatdate",
       "community": 1,
@@ -15200,7 +15130,7 @@
       "label": "formatTime()",
       "file_type": "code",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L1482",
+      "source_location": "L1315",
       "_origin": "ast",
       "id": "src_views_logistica_logisticanuevoinformeview_formattime",
       "community": 1,
@@ -18773,7 +18703,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "agents_skills_vite_skill",
-      "community": 127,
+      "community": 235,
       "norm_label": "skill.md"
     },
     {
@@ -18953,7 +18883,7 @@
       "source_location": "L103",
       "_origin": "ast",
       "id": "agents_skills_vite_references_build_and_ssr_javascript_api",
-      "community": 123,
+      "community": 227,
       "norm_label": "javascript api"
     },
     {
@@ -18963,7 +18893,7 @@
       "source_location": "L105",
       "_origin": "ast",
       "id": "agents_skills_vite_references_build_and_ssr_createserver",
-      "community": 123,
+      "community": 227,
       "norm_label": "createserver"
     },
     {
@@ -18973,7 +18903,7 @@
       "source_location": "L120",
       "_origin": "ast",
       "id": "agents_skills_vite_references_build_and_ssr_build",
-      "community": 123,
+      "community": 227,
       "norm_label": "build"
     },
     {
@@ -18983,7 +18913,7 @@
       "source_location": "L131",
       "_origin": "ast",
       "id": "agents_skills_vite_references_build_and_ssr_preview",
-      "community": 123,
+      "community": 227,
       "norm_label": "preview"
     },
     {
@@ -18993,7 +18923,7 @@
       "source_location": "L142",
       "_origin": "ast",
       "id": "agents_skills_vite_references_build_and_ssr_resolveconfig",
-      "community": 123,
+      "community": 227,
       "norm_label": "resolveconfig"
     },
     {
@@ -19003,7 +18933,7 @@
       "source_location": "L150",
       "_origin": "ast",
       "id": "agents_skills_vite_references_build_and_ssr_loadenv",
-      "community": 123,
+      "community": 227,
       "norm_label": "loadenv"
     },
     {
@@ -19073,7 +19003,7 @@
       "source_location": "L69",
       "_origin": "ast",
       "id": "agents_skills_vite_references_core_config_key_config_options",
-      "community": 126,
+      "community": 232,
       "norm_label": "key config options"
     },
     {
@@ -19083,7 +19013,7 @@
       "source_location": "L71",
       "_origin": "ast",
       "id": "agents_skills_vite_references_core_config_resolve_alias",
-      "community": 126,
+      "community": 232,
       "norm_label": "resolve.alias"
     },
     {
@@ -19093,7 +19023,7 @@
       "source_location": "L84",
       "_origin": "ast",
       "id": "agents_skills_vite_references_core_config_define_global_constants",
-      "community": 126,
+      "community": 232,
       "norm_label": "define (global constants)"
     },
     {
@@ -19103,7 +19033,7 @@
       "source_location": "L97",
       "_origin": "ast",
       "id": "agents_skills_vite_references_core_config_plugins",
-      "community": 126,
+      "community": 232,
       "norm_label": "plugins"
     },
     {
@@ -19113,7 +19043,7 @@
       "source_location": "L109",
       "_origin": "ast",
       "id": "agents_skills_vite_references_core_config_server_proxy",
-      "community": 126,
+      "community": 232,
       "norm_label": "server.proxy"
     },
     {
@@ -19123,7 +19053,7 @@
       "source_location": "L125",
       "_origin": "ast",
       "id": "agents_skills_vite_references_core_config_build_target",
-      "community": 126,
+      "community": 232,
       "norm_label": "build.target"
     },
     {
@@ -19163,7 +19093,7 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "agents_skills_vite_references_core_features_glob_import",
-      "community": 234,
+      "community": 133,
       "norm_label": "glob import"
     },
     {
@@ -19173,7 +19103,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "agents_skills_vite_references_core_features_eager_loading",
-      "community": 234,
+      "community": 133,
       "norm_label": "eager loading"
     },
     {
@@ -19183,7 +19113,7 @@
       "source_location": "L30",
       "_origin": "ast",
       "id": "agents_skills_vite_references_core_features_named_imports",
-      "community": 234,
+      "community": 133,
       "norm_label": "named imports"
     },
     {
@@ -19193,7 +19123,7 @@
       "source_location": "L39",
       "_origin": "ast",
       "id": "agents_skills_vite_references_core_features_multiple_patterns",
-      "community": 234,
+      "community": 133,
       "norm_label": "multiple patterns"
     },
     {
@@ -19203,7 +19133,7 @@
       "source_location": "L45",
       "_origin": "ast",
       "id": "agents_skills_vite_references_core_features_negative_patterns",
-      "community": 234,
+      "community": 133,
       "norm_label": "negative patterns"
     },
     {
@@ -19213,7 +19143,7 @@
       "source_location": "L51",
       "_origin": "ast",
       "id": "agents_skills_vite_references_core_features_custom_queries",
-      "community": 234,
+      "community": 133,
       "norm_label": "custom queries"
     },
     {
@@ -19283,7 +19213,7 @@
       "source_location": "L104",
       "_origin": "ast",
       "id": "agents_skills_vite_references_core_features_environment_variables",
-      "community": 232,
+      "community": 133,
       "norm_label": "environment variables"
     },
     {
@@ -19293,7 +19223,7 @@
       "source_location": "L106",
       "_origin": "ast",
       "id": "agents_skills_vite_references_core_features_built_in_constants",
-      "community": 232,
+      "community": 133,
       "norm_label": "built-in constants"
     },
     {
@@ -19303,7 +19233,7 @@
       "source_location": "L116",
       "_origin": "ast",
       "id": "agents_skills_vite_references_core_features_custom_variables",
-      "community": 232,
+      "community": 133,
       "norm_label": "custom variables"
     },
     {
@@ -19313,7 +19243,7 @@
       "source_location": "L131",
       "_origin": "ast",
       "id": "agents_skills_vite_references_core_features_mode_specific_files",
-      "community": 232,
+      "community": 133,
       "norm_label": "mode-specific files"
     },
     {
@@ -19323,7 +19253,7 @@
       "source_location": "L140",
       "_origin": "ast",
       "id": "agents_skills_vite_references_core_features_typescript_support",
-      "community": 232,
+      "community": 133,
       "norm_label": "typescript support"
     },
     {
@@ -19333,7 +19263,7 @@
       "source_location": "L153",
       "_origin": "ast",
       "id": "agents_skills_vite_references_core_features_html_replacement",
-      "community": 232,
+      "community": 133,
       "norm_label": "html replacement"
     },
     {
@@ -19373,7 +19303,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "agents_skills_vite_references_core_plugin_api",
-      "community": 127,
+      "community": 235,
       "norm_label": "core-plugin-api.md"
     },
     {
@@ -19403,7 +19333,7 @@
       "source_location": "L21",
       "_origin": "ast",
       "id": "agents_skills_vite_references_core_plugin_api_vite_specific_hooks",
-      "community": 128,
+      "community": 234,
       "norm_label": "vite-specific hooks"
     },
     {
@@ -19413,7 +19343,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "agents_skills_vite_references_core_plugin_api_config",
-      "community": 128,
+      "community": 234,
       "norm_label": "config"
     },
     {
@@ -19423,7 +19353,7 @@
       "source_location": "L38",
       "_origin": "ast",
       "id": "agents_skills_vite_references_core_plugin_api_configresolved",
-      "community": 128,
+      "community": 234,
       "norm_label": "configresolved"
     },
     {
@@ -19433,7 +19363,7 @@
       "source_location": "L57",
       "_origin": "ast",
       "id": "agents_skills_vite_references_core_plugin_api_configureserver",
-      "community": 128,
+      "community": 234,
       "norm_label": "configureserver"
     },
     {
@@ -19443,7 +19373,7 @@
       "source_location": "L85",
       "_origin": "ast",
       "id": "agents_skills_vite_references_core_plugin_api_transformindexhtml",
-      "community": 128,
+      "community": 234,
       "norm_label": "transformindexhtml"
     },
     {
@@ -19453,7 +19383,7 @@
       "source_location": "L108",
       "_origin": "ast",
       "id": "agents_skills_vite_references_core_plugin_api_handlehotupdate",
-      "community": 128,
+      "community": 234,
       "norm_label": "handlehotupdate"
     },
     {
@@ -19513,7 +19443,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "agents_skills_vite_references_environment_api",
-      "community": 127,
+      "community": 235,
       "norm_label": "environment-api.md"
     },
     {
@@ -19613,7 +19543,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "agents_skills_vite_references_rolldown_migration",
-      "community": 127,
+      "community": 235,
       "norm_label": "rolldown-migration.md"
     },
     {
@@ -21493,7 +21423,7 @@
       "source_location": "L147",
       "_origin": "ast",
       "id": "agents_skills_vue_best_practices_references_reactivity_best_practices_for_computed",
-      "community": 82,
+      "community": 163,
       "norm_label": "best practices for `computed`"
     },
     {
@@ -21503,7 +21433,7 @@
       "source_location": "L149",
       "_origin": "ast",
       "id": "agents_skills_vue_best_practices_references_reactivity_prefer_computed_over_watcher_assigned_derived_refs",
-      "community": 82,
+      "community": 163,
       "norm_label": "prefer `computed` over watcher-assigned derived refs"
     },
     {
@@ -21513,7 +21443,7 @@
       "source_location": "L173",
       "_origin": "ast",
       "id": "agents_skills_vue_best_practices_references_reactivity_keep_filtered_sorted_derivations_out_of_templates",
-      "community": 82,
+      "community": 163,
       "norm_label": "keep filtered/sorted derivations out of templates"
     },
     {
@@ -21523,7 +21453,7 @@
       "source_location": "L225",
       "_origin": "ast",
       "id": "agents_skills_vue_best_practices_references_reactivity_use_computed_for_reusable_class_style_logic",
-      "community": 82,
+      "community": 163,
       "norm_label": "use `computed` for reusable class/style logic"
     },
     {
@@ -21533,7 +21463,7 @@
       "source_location": "L261",
       "_origin": "ast",
       "id": "agents_skills_vue_best_practices_references_reactivity_keep_computed_getters_pure_no_side_effects_and_put_side_effects_in_watchers_instead",
-      "community": 82,
+      "community": 163,
       "norm_label": "keep computed getters pure (no side effects) and put side effects in watchers instead"
     },
     {
@@ -32627,7 +32557,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L754",
+      "source_location": "L670",
       "weight": 1.0,
       "source": "src_views_logistica_logisticanuevoinformeview",
       "target": "src_components_logistica_draftoptionsmodal",
@@ -32902,7 +32832,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L753",
+      "source_location": "L669",
       "weight": 1.0,
       "source": "src_views_logistica_logisticanuevoinformeview",
       "target": "src_components_logistica_resumenenviomodal",
@@ -36340,7 +36270,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L751",
+      "source_location": "L667",
       "weight": 1.0,
       "source": "src_views_logistica_logisticanuevoinformeview",
       "target": "src_services_supabase",
@@ -36615,7 +36545,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L751",
+      "source_location": "L667",
       "weight": 1.0,
       "source": "src_views_logistica_logisticanuevoinformeview",
       "target": "src_services_supabase_supabase",
@@ -43292,7 +43222,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L1016",
+      "source_location": "L851",
       "weight": 1.0,
       "source": "src_views_logistica_logisticanuevoinformeview",
       "target": "src_views_logistica_logisticanuevoinformeview_addmovementtolist",
@@ -43302,7 +43232,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L782",
+      "source_location": "L695",
       "weight": 1.0,
       "source": "src_views_logistica_logisticanuevoinformeview",
       "target": "src_views_logistica_logisticanuevoinformeview_autosavemessage",
@@ -43312,7 +43242,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L779",
+      "source_location": "L692",
       "weight": 1.0,
       "source": "src_views_logistica_logisticanuevoinformeview",
       "target": "src_views_logistica_logisticanuevoinformeview_autosavestatus",
@@ -43322,7 +43252,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L934",
+      "source_location": "L769",
       "weight": 1.0,
       "source": "src_views_logistica_logisticanuevoinformeview",
       "target": "src_views_logistica_logisticanuevoinformeview_builder",
@@ -43332,7 +43262,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L1138",
+      "source_location": "L973",
       "weight": 1.0,
       "source": "src_views_logistica_logisticanuevoinformeview",
       "target": "src_views_logistica_logisticanuevoinformeview_canceleditmovement",
@@ -43342,17 +43272,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L806",
-      "weight": 1.0,
-      "source": "src_views_logistica_logisticanuevoinformeview",
-      "target": "src_views_logistica_logisticanuevoinformeview_checkenviadofordate",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L1000",
+      "source_location": "L835",
       "weight": 1.0,
       "source": "src_views_logistica_logisticanuevoinformeview",
       "target": "src_views_logistica_logisticanuevoinformeview_clearselectedcirugia",
@@ -43362,7 +43282,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L1012",
+      "source_location": "L847",
       "weight": 1.0,
       "source": "src_views_logistica_logisticanuevoinformeview",
       "target": "src_views_logistica_logisticanuevoinformeview_closemanualform",
@@ -43372,7 +43292,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L1239",
+      "source_location": "L1074",
       "weight": 1.0,
       "source": "src_views_logistica_logisticanuevoinformeview",
       "target": "src_views_logistica_logisticanuevoinformeview_deletecurrentdraft",
@@ -43382,7 +43302,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L1149",
+      "source_location": "L984",
       "weight": 1.0,
       "source": "src_views_logistica_logisticanuevoinformeview",
       "target": "src_views_logistica_logisticanuevoinformeview_deletemovimiento",
@@ -43392,7 +43312,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L804",
+      "source_location": "L717",
       "weight": 1.0,
       "source": "src_views_logistica_logisticanuevoinformeview",
       "target": "src_views_logistica_logisticanuevoinformeview_editingindex",
@@ -43402,7 +43322,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L1110",
+      "source_location": "L945",
       "weight": 1.0,
       "source": "src_views_logistica_logisticanuevoinformeview",
       "target": "src_views_logistica_logisticanuevoinformeview_editmovement",
@@ -43412,17 +43332,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L768",
-      "weight": 1.0,
-      "source": "src_views_logistica_logisticanuevoinformeview",
-      "target": "src_views_logistica_logisticanuevoinformeview_enviadoexistente",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L1168",
+      "source_location": "L1003",
       "weight": 1.0,
       "source": "src_views_logistica_logisticanuevoinformeview",
       "target": "src_views_logistica_logisticanuevoinformeview_fetchuserdrafts",
@@ -43432,27 +43342,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L855",
-      "weight": 1.0,
-      "source": "src_views_logistica_logisticanuevoinformeview",
-      "target": "src_views_logistica_logisticanuevoinformeview_filtercounts",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L846",
-      "weight": 1.0,
-      "source": "src_views_logistica_logisticanuevoinformeview",
-      "target": "src_views_logistica_logisticanuevoinformeview_filteredmovimientos",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L1476",
+      "source_location": "L1309",
       "weight": 1.0,
       "source": "src_views_logistica_logisticanuevoinformeview",
       "target": "src_views_logistica_logisticanuevoinformeview_formatdate",
@@ -43462,7 +43352,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L1482",
+      "source_location": "L1315",
       "weight": 1.0,
       "source": "src_views_logistica_logisticanuevoinformeview",
       "target": "src_views_logistica_logisticanuevoinformeview_formattime",
@@ -43472,7 +43362,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L771",
+      "source_location": "L684",
       "weight": 1.0,
       "source": "src_views_logistica_logisticanuevoinformeview",
       "target": "src_views_logistica_logisticanuevoinformeview_handlenewreportclick",
@@ -43482,7 +43372,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L791",
+      "source_location": "L704",
       "weight": 1.0,
       "source": "src_views_logistica_logisticanuevoinformeview",
       "target": "src_views_logistica_logisticanuevoinformeview_informe",
@@ -43492,7 +43382,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L763",
+      "source_location": "L679",
       "weight": 1.0,
       "source": "src_views_logistica_logisticanuevoinformeview",
       "target": "src_views_logistica_logisticanuevoinformeview_isdeletingdraft",
@@ -43502,7 +43392,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L761",
+      "source_location": "L677",
       "weight": 1.0,
       "source": "src_views_logistica_logisticanuevoinformeview",
       "target": "src_views_logistica_logisticanuevoinformeview_issaving",
@@ -43512,7 +43402,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L921",
+      "source_location": "L756",
       "weight": 1.0,
       "source": "src_views_logistica_logisticanuevoinformeview",
       "target": "src_views_logistica_logisticanuevoinformeview_issearching",
@@ -43522,7 +43412,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L762",
+      "source_location": "L678",
       "weight": 1.0,
       "source": "src_views_logistica_logisticanuevoinformeview",
       "target": "src_views_logistica_logisticanuevoinformeview_issending",
@@ -43532,7 +43422,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L780",
+      "source_location": "L693",
       "weight": 1.0,
       "source": "src_views_logistica_logisticanuevoinformeview",
       "target": "src_views_logistica_logisticanuevoinformeview_lastsavetime",
@@ -43542,7 +43432,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L1184",
+      "source_location": "L1019",
       "weight": 1.0,
       "source": "src_views_logistica_logisticanuevoinformeview",
       "target": "src_views_logistica_logisticanuevoinformeview_loaddraftdata",
@@ -43552,7 +43442,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L760",
+      "source_location": "L676",
       "weight": 1.0,
       "source": "src_views_logistica_logisticanuevoinformeview",
       "target": "src_views_logistica_logisticanuevoinformeview_loading",
@@ -43562,7 +43452,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L926",
+      "source_location": "L761",
       "weight": 1.0,
       "source": "src_views_logistica_logisticanuevoinformeview",
       "target": "src_views_logistica_logisticanuevoinformeview_manualform",
@@ -43572,37 +43462,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L836",
-      "weight": 1.0,
-      "source": "src_views_logistica_logisticanuevoinformeview",
-      "target": "src_views_logistica_logisticanuevoinformeview_movemovementdown",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L826",
-      "weight": 1.0,
-      "source": "src_views_logistica_logisticanuevoinformeview",
-      "target": "src_views_logistica_logisticanuevoinformeview_movemovementup",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L769",
-      "weight": 1.0,
-      "source": "src_views_logistica_logisticanuevoinformeview",
-      "target": "src_views_logistica_logisticanuevoinformeview_movimientofilter",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L801",
+      "source_location": "L714",
       "weight": 1.0,
       "source": "src_views_logistica_logisticanuevoinformeview",
       "target": "src_views_logistica_logisticanuevoinformeview_movimientos",
@@ -43612,7 +43472,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L951",
+      "source_location": "L786",
       "weight": 1.0,
       "source": "src_views_logistica_logisticanuevoinformeview",
       "target": "src_views_logistica_logisticanuevoinformeview_onsearchinput",
@@ -43622,7 +43482,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L1005",
+      "source_location": "L840",
       "weight": 1.0,
       "source": "src_views_logistica_logisticanuevoinformeview",
       "target": "src_views_logistica_logisticanuevoinformeview_openmanualform",
@@ -43632,7 +43492,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L1437",
+      "source_location": "L1270",
       "weight": 1.0,
       "source": "src_views_logistica_logisticanuevoinformeview",
       "target": "src_views_logistica_logisticanuevoinformeview_openresumenmodal",
@@ -43642,7 +43502,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L757",
+      "source_location": "L673",
       "weight": 1.0,
       "source": "src_views_logistica_logisticanuevoinformeview",
       "target": "src_views_logistica_logisticanuevoinformeview_route",
@@ -43652,7 +43512,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L756",
+      "source_location": "L672",
       "weight": 1.0,
       "source": "src_views_logistica_logisticanuevoinformeview",
       "target": "src_views_logistica_logisticanuevoinformeview_router",
@@ -43662,7 +43522,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L1319",
+      "source_location": "L1152",
       "weight": 1.0,
       "source": "src_views_logistica_logisticanuevoinformeview",
       "target": "src_views_logistica_logisticanuevoinformeview_savedraftinternal",
@@ -43672,7 +43532,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L1432",
+      "source_location": "L1265",
       "weight": 1.0,
       "source": "src_views_logistica_logisticanuevoinformeview",
       "target": "src_views_logistica_logisticanuevoinformeview_savedraftmanual",
@@ -43682,7 +43542,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L885",
+      "source_location": "L723",
       "weight": 1.0,
       "source": "src_views_logistica_logisticanuevoinformeview",
       "target": "src_views_logistica_logisticanuevoinformeview_scheduleautosave",
@@ -43692,7 +43552,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L919",
+      "source_location": "L754",
       "weight": 1.0,
       "source": "src_views_logistica_logisticanuevoinformeview",
       "target": "src_views_logistica_logisticanuevoinformeview_searchquery",
@@ -43702,7 +43562,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L920",
+      "source_location": "L755",
       "weight": 1.0,
       "source": "src_views_logistica_logisticanuevoinformeview",
       "target": "src_views_logistica_logisticanuevoinformeview_searchresults",
@@ -43712,7 +43572,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L993",
+      "source_location": "L828",
       "weight": 1.0,
       "source": "src_views_logistica_logisticanuevoinformeview",
       "target": "src_views_logistica_logisticanuevoinformeview_selectcirugia",
@@ -43722,7 +43582,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L923",
+      "source_location": "L758",
       "weight": 1.0,
       "source": "src_views_logistica_logisticanuevoinformeview",
       "target": "src_views_logistica_logisticanuevoinformeview_selectedcirugia",
@@ -43732,7 +43592,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L945",
+      "source_location": "L780",
       "weight": 1.0,
       "source": "src_views_logistica_logisticanuevoinformeview",
       "target": "src_views_logistica_logisticanuevoinformeview_selecttipomovimiento",
@@ -43742,7 +43602,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L765",
+      "source_location": "L681",
       "weight": 1.0,
       "source": "src_views_logistica_logisticanuevoinformeview",
       "target": "src_views_logistica_logisticanuevoinformeview_showdeletedraftmodal",
@@ -43752,7 +43612,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L766",
+      "source_location": "L682",
       "weight": 1.0,
       "source": "src_views_logistica_logisticanuevoinformeview",
       "target": "src_views_logistica_logisticanuevoinformeview_showdraftoptionsmodal",
@@ -43762,7 +43622,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L803",
+      "source_location": "L716",
       "weight": 1.0,
       "source": "src_views_logistica_logisticanuevoinformeview",
       "target": "src_views_logistica_logisticanuevoinformeview_showdraftselector",
@@ -43772,7 +43632,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L922",
+      "source_location": "L757",
       "weight": 1.0,
       "source": "src_views_logistica_logisticanuevoinformeview",
       "target": "src_views_logistica_logisticanuevoinformeview_showdropdown",
@@ -43782,7 +43642,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L925",
+      "source_location": "L760",
       "weight": 1.0,
       "source": "src_views_logistica_logisticanuevoinformeview",
       "target": "src_views_logistica_logisticanuevoinformeview_showmanualform",
@@ -43792,7 +43652,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L764",
+      "source_location": "L680",
       "weight": 1.0,
       "source": "src_views_logistica_logisticanuevoinformeview",
       "target": "src_views_logistica_logisticanuevoinformeview_showresumenmodal",
@@ -43802,7 +43662,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L1221",
+      "source_location": "L1056",
       "weight": 1.0,
       "source": "src_views_logistica_logisticanuevoinformeview",
       "target": "src_views_logistica_logisticanuevoinformeview_startnewcleanreport",
@@ -43812,7 +43672,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L1449",
+      "source_location": "L1282",
       "weight": 1.0,
       "source": "src_views_logistica_logisticanuevoinformeview",
       "target": "src_views_logistica_logisticanuevoinformeview_submitinformefinal",
@@ -43822,7 +43682,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L1157",
+      "source_location": "L992",
       "weight": 1.0,
       "source": "src_views_logistica_logisticanuevoinformeview",
       "target": "src_views_logistica_logisticanuevoinformeview_summarystats",
@@ -43832,7 +43692,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L1206",
+      "source_location": "L1041",
       "weight": 1.0,
       "source": "src_views_logistica_logisticanuevoinformeview",
       "target": "src_views_logistica_logisticanuevoinformeview_switchdraft",
@@ -43842,7 +43702,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L910",
+      "source_location": "L745",
       "weight": 1.0,
       "source": "src_views_logistica_logisticanuevoinformeview",
       "target": "src_views_logistica_logisticanuevoinformeview_tipochips",
@@ -43852,7 +43712,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L758",
+      "source_location": "L674",
       "weight": 1.0,
       "source": "src_views_logistica_logisticanuevoinformeview",
       "target": "src_views_logistica_logisticanuevoinformeview_toast",
@@ -43862,7 +43722,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L1164",
+      "source_location": "L999",
       "weight": 1.0,
       "source": "src_views_logistica_logisticanuevoinformeview",
       "target": "src_views_logistica_logisticanuevoinformeview_toggleshowdraftselector",
@@ -43872,7 +43732,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L802",
+      "source_location": "L715",
       "weight": 1.0,
       "source": "src_views_logistica_logisticanuevoinformeview",
       "target": "src_views_logistica_logisticanuevoinformeview_userdrafts",
@@ -43883,7 +43743,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L775",
+      "source_location": "L688",
       "weight": 1.0,
       "source": "src_views_logistica_logisticanuevoinformeview_handlenewreportclick",
       "target": "src_views_logistica_logisticanuevoinformeview_startnewcleanreport",
@@ -43894,29 +43754,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L833",
-      "weight": 1.0,
-      "source": "src_views_logistica_logisticanuevoinformeview_movemovementup",
-      "target": "src_views_logistica_logisticanuevoinformeview_scheduleautosave",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L843",
-      "weight": 1.0,
-      "source": "src_views_logistica_logisticanuevoinformeview_movemovementdown",
-      "target": "src_views_logistica_logisticanuevoinformeview_scheduleautosave",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L1107",
+      "source_location": "L942",
       "weight": 1.0,
       "source": "src_views_logistica_logisticanuevoinformeview_addmovementtolist",
       "target": "src_views_logistica_logisticanuevoinformeview_scheduleautosave",
@@ -43927,7 +43765,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L1154",
+      "source_location": "L989",
       "weight": 1.0,
       "source": "src_views_logistica_logisticanuevoinformeview_deletemovimiento",
       "target": "src_views_logistica_logisticanuevoinformeview_scheduleautosave",
@@ -43938,7 +43776,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L892",
+      "source_location": "L730",
       "weight": 1.0,
       "source": "src_views_logistica_logisticanuevoinformeview_scheduleautosave",
       "target": "src_views_logistica_logisticanuevoinformeview_savedraftinternal",
@@ -43949,7 +43787,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L1096",
+      "source_location": "L931",
       "weight": 1.0,
       "source": "src_views_logistica_logisticanuevoinformeview_addmovementtolist",
       "target": "src_views_logistica_logisticanuevoinformeview_clearselectedcirugia",
@@ -43960,7 +43798,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L1140",
+      "source_location": "L975",
       "weight": 1.0,
       "source": "src_views_logistica_logisticanuevoinformeview_canceleditmovement",
       "target": "src_views_logistica_logisticanuevoinformeview_clearselectedcirugia",
@@ -43971,7 +43809,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L1233",
+      "source_location": "L1068",
       "weight": 1.0,
       "source": "src_views_logistica_logisticanuevoinformeview_startnewcleanreport",
       "target": "src_views_logistica_logisticanuevoinformeview_clearselectedcirugia",
@@ -43982,7 +43820,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L1151",
+      "source_location": "L986",
       "weight": 1.0,
       "source": "src_views_logistica_logisticanuevoinformeview_deletemovimiento",
       "target": "src_views_logistica_logisticanuevoinformeview_canceleditmovement",
@@ -43993,7 +43831,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L1264",
+      "source_location": "L1099",
       "weight": 1.0,
       "source": "src_views_logistica_logisticanuevoinformeview_deletecurrentdraft",
       "target": "src_views_logistica_logisticanuevoinformeview_fetchuserdrafts",
@@ -44004,7 +43842,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L1411",
+      "source_location": "L1244",
       "weight": 1.0,
       "source": "src_views_logistica_logisticanuevoinformeview_savedraftinternal",
       "target": "src_views_logistica_logisticanuevoinformeview_fetchuserdrafts",
@@ -44015,7 +43853,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L1268",
+      "source_location": "L1103",
       "weight": 1.0,
       "source": "src_views_logistica_logisticanuevoinformeview_deletecurrentdraft",
       "target": "src_views_logistica_logisticanuevoinformeview_loaddraftdata",
@@ -44026,7 +43864,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L1211",
+      "source_location": "L1046",
       "weight": 1.0,
       "source": "src_views_logistica_logisticanuevoinformeview_switchdraft",
       "target": "src_views_logistica_logisticanuevoinformeview_loaddraftdata",
@@ -44037,7 +43875,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L1270",
+      "source_location": "L1105",
       "weight": 1.0,
       "source": "src_views_logistica_logisticanuevoinformeview_deletecurrentdraft",
       "target": "src_views_logistica_logisticanuevoinformeview_startnewcleanreport",
@@ -44048,7 +43886,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L1443",
+      "source_location": "L1276",
       "weight": 1.0,
       "source": "src_views_logistica_logisticanuevoinformeview_openresumenmodal",
       "target": "src_views_logistica_logisticanuevoinformeview_savedraftinternal",
@@ -44059,7 +43897,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L1434",
+      "source_location": "L1267",
       "weight": 1.0,
       "source": "src_views_logistica_logisticanuevoinformeview_savedraftmanual",
       "target": "src_views_logistica_logisticanuevoinformeview_savedraftinternal",
@@ -44070,7 +43908,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/views/logistica/LogisticaNuevoInformeView.vue",
-      "source_location": "L1455",
+      "source_location": "L1288",
       "weight": 1.0,
       "source": "src_views_logistica_logisticanuevoinformeview_submitinformefinal",
       "target": "src_views_logistica_logisticanuevoinformeview_savedraftinternal",

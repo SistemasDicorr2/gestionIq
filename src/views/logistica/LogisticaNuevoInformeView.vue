@@ -85,7 +85,7 @@
 
             <button 
               type="button" 
-              @click="startNewCleanReport" 
+              @click="handleNewReportClick" 
               class="px-3.5 py-2 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-100 font-bold text-xs rounded-xl border border-amber-300 dark:border-amber-800 transition-all shadow-2xs cursor-pointer min-h-[40px]"
             >
               + Nuevo
@@ -163,6 +163,17 @@
               placeholder="Ej: Formosa Capital / Sanatorios" 
               class="w-full px-3.5 py-3 sm:py-2.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl font-medium focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:outline-none dark:text-white transition-all text-xs min-h-[44px]"
             />
+          </div>
+
+          <!-- BANNER ADVERTENCIA JORNADA YA ENVIADA -->
+          <div v-if="enviadoExistente" class="col-span-1 sm:col-span-2 p-3 bg-amber-50 dark:bg-amber-950/60 border border-amber-300 dark:border-amber-800 rounded-xl text-xs text-amber-900 dark:text-amber-200 flex items-start gap-2 animate-fadeIn mt-1">
+            <svg class="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+            <div class="space-y-0.5">
+              <span class="font-extrabold block text-xs">⚠️ Atención: Jornada ya enviada</span>
+              <p class="text-[11px] leading-relaxed opacity-90">
+                Ya existe un informe formal enviado para la fecha {{ formatDate(enviadoExistente.fecha) }}. Este borrador se guardará como un informe diario adicional.
+              </p>
+            </div>
           </div>
         </div>
       </div>
@@ -467,12 +478,55 @@
           </button>
         </div>
 
-        <!-- LISTA DE MOVIMIENTOS CARGADOS CON SOPORTE DE EDICIÓN -->
+        <!-- LISTA DE MOVIMIENTOS CARGADOS CON FILTROS Y REORDENAMIENTO -->
         <div class="space-y-3 pt-3">
-          <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2">
-            <h4 class="text-xs font-black uppercase tracking-wider text-slate-500 dark:text-slate-400">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-800 pb-2">
+            <h4 class="text-xs font-black uppercase tracking-wider text-slate-800 dark:text-slate-200">
               Movimientos Registrados ({{ movimientos.length }})
             </h4>
+
+            <!-- CHIPS DE FILTRO DE MOVIMIENTOS -->
+            <div v-if="movimientos.length > 0" class="flex items-center gap-1 flex-wrap text-[11px]">
+              <button 
+                type="button"
+                @click="movimientoFilter = 'todos'"
+                :class="['px-2.5 py-1 rounded-lg font-bold transition-all cursor-pointer min-h-[30px]', movimientoFilter === 'todos' ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200']"
+              >
+                Todos ({{ filterCounts.total }})
+              </button>
+              <button 
+                v-if="filterCounts.entregas > 0"
+                type="button"
+                @click="movimientoFilter = 'entrega'"
+                :class="['px-2.5 py-1 rounded-lg font-bold transition-all cursor-pointer min-h-[30px]', movimientoFilter === 'entrega' ? 'bg-blue-600 text-white' : 'bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 hover:bg-blue-100']"
+              >
+                Entregas ({{ filterCounts.entregas }})
+              </button>
+              <button 
+                v-if="filterCounts.retiros > 0"
+                type="button"
+                @click="movimientoFilter = 'retiro'"
+                :class="['px-2.5 py-1 rounded-lg font-bold transition-all cursor-pointer min-h-[30px]', movimientoFilter === 'retiro' ? 'bg-emerald-600 text-white' : 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100']"
+              >
+                Retiros ({{ filterCounts.retiros }})
+              </button>
+              <button 
+                v-if="filterCounts.incidencias > 0"
+                type="button"
+                @click="movimientoFilter = 'incidencia'"
+                :class="['px-2.5 py-1 rounded-lg font-bold transition-all cursor-pointer min-h-[30px]', movimientoFilter === 'incidencia' ? 'bg-rose-600 text-white' : 'bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 hover:bg-rose-100']"
+              >
+                Incidencias ({{ filterCounts.incidencias }})
+              </button>
+              <button 
+                v-if="filterCounts.otros > 0"
+                type="button"
+                @click="movimientoFilter = 'otros'"
+                :class="['px-2.5 py-1 rounded-lg font-bold transition-all cursor-pointer min-h-[30px]', movimientoFilter === 'otros' ? 'bg-purple-600 text-white' : 'bg-purple-50 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 hover:bg-purple-100']"
+              >
+                Otros ({{ filterCounts.otros }})
+              </button>
+            </div>
           </div>
 
           <!-- Empty State -->
@@ -481,15 +535,19 @@
             <p class="text-[11px] text-slate-400">Completa los pasos arriba y presiona "Añadir Movimiento al Informe".</p>
           </div>
 
-          <!-- Lista de Ítems -->
+          <div v-else-if="filteredMovimientos.length === 0" class="py-6 text-center text-xs text-slate-400">
+            No hay movimientos registrados para el filtro seleccionado.
+          </div>
+
+          <!-- Lista de Ítems Filtrados -->
           <div v-else class="space-y-2.5">
             <TransitionGroup name="list">
               <div 
-                v-for="(mov, index) in movimientos" 
+                v-for="(mov, index) in filteredMovimientos" 
                 :key="mov.tempId || index"
                 :class="[
                   'p-3.5 sm:p-4 rounded-xl border transition-all flex items-start justify-between gap-3 shadow-2xs',
-                  editingIndex === index 
+                  editingIndex === movimientos.indexOf(mov) 
                     ? 'bg-amber-50/90 dark:bg-amber-950/60 border-amber-400 dark:border-amber-600 ring-2 ring-amber-500/20' 
                     : 'bg-slate-50/70 dark:bg-slate-800/50 hover:bg-slate-100/90 dark:hover:bg-slate-800 border-slate-200/80 dark:border-slate-700'
                 ]"
@@ -529,11 +587,34 @@
                   </div>
                 </div>
 
-                <!-- ACCIONES EDICIÓN / BORRADO (TÁCTILES MOBILE) -->
+                <!-- ACCIONES REORDENAR / EDICIÓN / BORRADO (TÁCTILES MOBILE) -->
                 <div class="flex items-center gap-1 self-center">
+                  <!-- Botones de Reordenamiento Subir/Bajar -->
+                  <div class="flex flex-col gap-0.5 mr-1 border-r border-slate-200 dark:border-slate-700 pr-1.5">
+                    <button 
+                      type="button" 
+                      @click="moveMovementUp(movimientos.indexOf(mov))" 
+                      :disabled="movimientos.indexOf(mov) === 0"
+                      class="p-1 text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 disabled:opacity-20 cursor-pointer disabled:cursor-not-allowed transition-all active:scale-95"
+                      title="Subir posición"
+                    >
+                      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg>
+                    </button>
+
+                    <button 
+                      type="button" 
+                      @click="moveMovementDown(movimientos.indexOf(mov))" 
+                      :disabled="movimientos.indexOf(mov) === movimientos.length - 1"
+                      class="p-1 text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 disabled:opacity-20 cursor-pointer disabled:cursor-not-allowed transition-all active:scale-95"
+                      title="Bajar posición"
+                    >
+                      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
+                    </button>
+                  </div>
+
                   <button 
                     type="button" 
-                    @click="editMovement(index)" 
+                    @click="editMovement(movimientos.indexOf(mov))" 
                     class="p-2 rounded-lg text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-950/50 transition-all cursor-pointer min-h-[38px] min-w-[38px] flex items-center justify-center"
                     title="Editar ítem"
                   >
@@ -542,7 +623,7 @@
 
                   <button 
                     type="button" 
-                    @click="deleteMovimiento(index)" 
+                    @click="deleteMovimiento(movimientos.indexOf(mov))" 
                     class="p-2 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/50 transition-all cursor-pointer min-h-[38px] min-w-[38px] flex items-center justify-center"
                     title="Eliminar de la lista"
                   >
@@ -573,15 +654,18 @@
     <div class="fixed bottom-[57px] md:bottom-0 left-0 right-0 z-30 p-2.5 sm:p-3 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-200/80 dark:border-slate-800 shadow-2xl">
       <div class="max-w-2xl mx-auto flex items-center justify-between gap-2">
         
-        <!-- Indicador de Autoguardado -->
+        <!-- Indicador de Autoguardado Sincronizado -->
         <div class="flex items-center gap-1.5">
           <div class="flex items-center gap-2 px-2.5 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
-            <span v-if="autoSaveStatus === 'saving'" class="w-2.5 h-2.5 rounded-full bg-amber-500 animate-ping"></span>
-            <span v-else-if="autoSaveStatus === 'saved'" class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
-            <span v-else-if="autoSaveStatus === 'error'" class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
+            <span v-if="autoSaveStatus === 'saving'" class="relative flex h-2.5 w-2.5">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-blue-500"></span>
+            </span>
+            <svg v-else-if="autoSaveStatus === 'saved'" class="w-3.5 h-3.5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
+            <svg v-else-if="autoSaveStatus === 'error'" class="w-3.5 h-3.5 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
             <span v-else class="w-2.5 h-2.5 rounded-full bg-slate-400"></span>
 
-            <span class="text-[11px] sm:text-xs font-extrabold text-slate-800 dark:text-slate-200 truncate max-w-[100px] sm:max-w-none">
+            <span class="text-[11px] sm:text-xs font-extrabold text-slate-800 dark:text-slate-200 truncate max-w-[120px] sm:max-w-none">
               {{ autoSaveMessage }}
             </span>
           </div>
@@ -648,15 +732,26 @@
       @close="showResumenModal = false"
       @confirm="submitInformeFinal"
     />
+
+    <!-- Modal Opciones de Borrador Activo -->
+    <DraftOptionsModal 
+      :show="showDraftOptionsModal"
+      :draft="informe"
+      :movimientos-count="movimientos.length"
+      @close="showDraftOptionsModal = false"
+      @continue="showDraftOptionsModal = false"
+      @start-new="startNewCleanReport"
+    />
   </div>
 </template>
 
 <script setup>
 import { ref, reactive, computed, watch, onMounted, onUnmounted } from 'vue';
-import { useRouter, useRoute } from 'vue-router';
+import { useRouter, useRoute, onBeforeRouteLeave } from 'vue-router';
 import { supabase } from '../../services/supabase';
 import { useToast } from 'vue-toastification';
 import ResumenEnvioModal from '../../components/logistica/ResumenEnvioModal.vue';
+import DraftOptionsModal from '../../components/logistica/DraftOptionsModal.vue';
 
 const router = useRouter();
 const route = useRoute();
@@ -665,17 +760,30 @@ const toast = useToast();
 const loading = ref(true);
 const isSaving = ref(false);
 const isSending = ref(false);
+const isDeletingDraft = ref(false);
 const showResumenModal = ref(false);
 const showDeleteDraftModal = ref(false);
+const showDraftOptionsModal = ref(false);
+
+const enviadoExistente = ref(null);
+const movimientoFilter = ref('todos');
+
+const handleNewReportClick = () => {
+  if (userDrafts.value.length > 0 || informe.id || movimientos.value.length > 0) {
+    showDraftOptionsModal.value = true;
+  } else {
+    startNewCleanReport();
+  }
+};
 
 const autoSaveStatus = ref('idle'); // 'idle' | 'saving' | 'saved' | 'error'
 const lastSaveTime = ref('');
 
 const autoSaveMessage = computed(() => {
-  if (autoSaveStatus.value === 'saving') return 'Guardando...';
-  if (autoSaveStatus.value === 'saved') return lastSaveTime.value ? `Autoguardado ${lastSaveTime.value}` : 'Autoguardado';
-  if (autoSaveStatus.value === 'error') return 'Error guardado';
-  return 'Borrador activo';
+  if (autoSaveStatus.value === 'saving') return 'Sincronizando borrador...';
+  if (autoSaveStatus.value === 'saved') return lastSaveTime.value ? `Autoguardado ${lastSaveTime.value}` : 'Autoguardado OK';
+  if (autoSaveStatus.value === 'error') return 'Error de autoguardado';
+  return 'Borrador sin cambios';
 });
 
 const todayISO = new Date().toISOString().split('T')[0];
@@ -695,12 +803,89 @@ const userDrafts = ref([]);
 const showDraftSelector = ref(false);
 const editingIndex = ref(null);
 
+const checkEnviadoForDate = async (fecha) => {
+  if (!informe.responsable_user_id || !fecha) {
+    enviadoExistente.value = null;
+    return;
+  }
+  try {
+    const { data } = await supabase
+      .from('logistica_informes_diarios')
+      .select('id, fecha, enviado_at, hora_envio')
+      .eq('responsable_user_id', informe.responsable_user_id)
+      .eq('fecha', fecha)
+      .eq('estado', 'enviado')
+      .maybeSingle();
+
+    enviadoExistente.value = data || null;
+  } catch (err) {
+    console.error('Error al verificar informe enviado en la fecha:', err);
+  }
+};
+
+const moveMovementUp = (idx) => {
+  if (idx <= 0) return;
+  const temp = movimientos.value[idx];
+  movimientos.value[idx] = movimientos.value[idx - 1];
+  movimientos.value[idx - 1] = temp;
+  if (editingIndex.value === idx) editingIndex.value = idx - 1;
+  else if (editingIndex.value === idx - 1) editingIndex.value = idx;
+  scheduleAutoSave();
+};
+
+const moveMovementDown = (idx) => {
+  if (idx < 0 || idx >= movimientos.value.length - 1) return;
+  const temp = movimientos.value[idx];
+  movimientos.value[idx] = movimientos.value[idx + 1];
+  movimientos.value[idx + 1] = temp;
+  if (editingIndex.value === idx) editingIndex.value = idx + 1;
+  else if (editingIndex.value === idx + 1) editingIndex.value = idx;
+  scheduleAutoSave();
+};
+
+const filteredMovimientos = computed(() => {
+  if (movimientoFilter.value === 'todos') return movimientos.value;
+  if (movimientoFilter.value === 'entrega') return movimientos.value.filter(m => m.tipo_movimiento === 'Entrega de cajas');
+  if (movimientoFilter.value === 'retiro') return movimientos.value.filter(m => m.tipo_movimiento === 'Retiro de cajas');
+  if (movimientoFilter.value === 'incidencia') return movimientos.value.filter(m => m.tipo_movimiento === 'Incidencia');
+  if (movimientoFilter.value === 'otros') return movimientos.value.filter(m => !['Entrega de cajas', 'Retiro de cajas', 'Incidencia'].includes(m.tipo_movimiento));
+  return movimientos.value;
+});
+
+const filterCounts = computed(() => {
+  const total = movimientos.value.length;
+  const entregas = movimientos.value.filter(m => m.tipo_movimiento === 'Entrega de cajas').length;
+  const retiros = movimientos.value.filter(m => m.tipo_movimiento === 'Retiro de cajas').length;
+  const incidencias = movimientos.value.filter(m => m.tipo_movimiento === 'Incidencia').length;
+  const otros = total - entregas - retiros - incidencias;
+  return { total, entregas, retiros, incidencias, otros };
+});
+
+onBeforeRouteLeave((to, from, next) => {
+  if (informe.estado === 'enviado' || isSending.value || isDeletingDraft.value) {
+    next();
+    return;
+  }
+  if (movimientos.value.length > 0 || informe.observacion_general.trim()) {
+    const confirmLeave = window.confirm('Tienes movimientos o datos cargados en borrador. ¿Estás seguro de que deseas salir sin enviar el informe diario?');
+    if (confirmLeave) {
+      next();
+    } else {
+      next(false);
+    }
+  } else {
+    next();
+  }
+});
+
 // Mutex Lock contra concurrencia de autoguardado
 let isSavingInternal = false;
 let autoSaveTimer = null;
 
 const scheduleAutoSave = () => {
-  if (loading.value || isSending.value || informe.estado === 'enviado' || !informe.responsable_user_id) return;
+  if (loading.value || isSending.value || isDeletingDraft.value || informe.estado === 'enviado' || !informe.responsable_user_id) return;
+  // No programar autoguardado de un informe nuevo limpio si aún no tiene movimientos ni observaciones
+  if (!informe.id && movimientos.value.length === 0 && !informe.observacion_general.trim()) return;
   autoSaveStatus.value = 'saving';
   clearTimeout(autoSaveTimer);
   autoSaveTimer = setTimeout(async () => {
@@ -711,7 +896,10 @@ const scheduleAutoSave = () => {
 // Watcher para guardar borrador automáticamente ante cambios
 watch(
   () => [informe.fecha, informe.zona, informe.observacion_general],
-  () => {
+  ([newFecha], [oldFecha]) => {
+    if (newFecha !== oldFecha) {
+      checkEnviadoForDate(newFecha);
+    }
     if (!loading.value) {
       scheduleAutoSave();
     }
@@ -1041,30 +1229,50 @@ const startNewCleanReport = () => {
   movimientos.value = [];
   autoSaveStatus.value = 'idle';
   showDraftSelector.value = false;
+  showDraftOptionsModal.value = false;
   clearSelectedCirugia();
   showManualForm.value = false;
+  clearTimeout(autoSaveTimer);
   toast.info('Se inició un nuevo informe diario limpio.');
 };
 
 const deleteCurrentDraft = async () => {
   if (!informe.id) return;
   try {
+    isDeletingDraft.value = true;
+    clearTimeout(autoSaveTimer);
     const draftIdToDelete = informe.id;
-    await supabase.from('logistica_informe_movimientos').delete().eq('informe_id', draftIdToDelete);
-    const { error } = await supabase.from('logistica_informes_diarios').delete().eq('id', draftIdToDelete);
-    if (error) throw error;
 
-    toast.success('Borrador eliminado correctamente.');
+    // 1. Eliminar movimientos asociados
+    await supabase.from('logistica_informe_movimientos').delete().eq('informe_id', draftIdToDelete);
+
+    // 2. Eliminar registro principal del borrador con fallback a estado descartado si la política RLS no lo permite
+    const { error: deleteErr } = await supabase.from('logistica_informes_diarios').delete().eq('id', draftIdToDelete);
+    if (deleteErr) {
+      console.warn('DELETE no permitido por RLS/Grant, aplicando fallback a estado descartado:', deleteErr);
+      const { error: updateErr } = await supabase
+        .from('logistica_informes_diarios')
+        .update({ estado: 'descartado' })
+        .eq('id', draftIdToDelete);
+      if (updateErr) throw updateErr;
+    }
+
+    toast.success('Borrador descartado correctamente.');
     showDeleteDraftModal.value = false;
+    
+    // 3. Actualizar la lista de borradores del usuario
     await fetchUserDrafts(informe.responsable_user_id);
     
+    // 4. Cambiar al siguiente borrador o limpiar estado de manera segura
     if (userDrafts.value.length > 0) {
       await loadDraftData(userDrafts.value[0].id);
     } else {
       startNewCleanReport();
     }
   } catch (err) {
-    toast.error('Error al descartar el borrador: ' + err.message);
+    toast.error('Error al descartar el borrador: ' + (err.message || 'Error inesperado'));
+  } finally {
+    isDeletingDraft.value = false;
   }
 };
 
@@ -1094,6 +1302,8 @@ onMounted(async () => {
     } else if (!isExplicitNew && userDrafts.value.length > 0) {
       await loadDraftData(userDrafts.value[0].id);
     }
+
+    await checkEnviadoForDate(informe.fecha);
   } catch (err) {
     toast.error('Error al inicializar el informe: ' + err.message);
   } finally {
