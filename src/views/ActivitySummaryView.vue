@@ -39,9 +39,9 @@
                 class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-blue-600/10 text-blue-700 border border-blue-300/80 dark:bg-blue-950/60 dark:text-blue-300 dark:border-blue-700/80 hover:bg-blue-600 hover:text-white dark:hover:bg-blue-600 dark:hover:text-white transition-all shadow-2xs hover:-translate-y-0.5 cursor-pointer"
                 title="Visitar sitio web oficial de Districorr"
               >
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m-9 9a9 9 0 019-9"/></svg>
+                <GlobeAltIcon class="w-3.5 h-3.5" />
                 <span>www.districorr.com.ar</span>
-                <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" /></svg>
+                <ArrowTopRightOnSquareIcon class="w-3 h-3" />
               </a>
             </div>
 
@@ -59,7 +59,7 @@
           </div>
         </header>
 
-        <!-- Tabs de Navegación Nativas Adaptables (Grid Celular / Flex Desktop) -->
+        <!-- Tabs de Navegación Nativas Adaptables (Heroicons / Grid Celular / Flex Desktop) -->
         <div class="mb-6 sm:mb-8">
           <nav class="grid grid-cols-4 gap-1 p-1.5 bg-white/95 dark:bg-slate-900/95 border border-slate-200/90 dark:border-slate-800 rounded-2xl shadow-2xs sm:flex sm:items-center sm:gap-2 sm:w-fit">
             <button 
@@ -71,7 +71,7 @@
                   : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 hover:text-slate-900 dark:hover:text-white'
               ]"
             >
-              <span class="text-base sm:text-sm">📊</span>
+              <ChartBarIcon class="w-4 h-4 sm:w-4 sm:h-4 shrink-0" />
               <span class="hidden sm:inline">Resumen</span>
               <span class="sm:hidden text-[10px] sm:text-xs">Resumen</span>
             </button>
@@ -85,7 +85,7 @@
                   : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 hover:text-slate-900 dark:hover:text-white'
               ]"
             >
-              <span class="text-base sm:text-sm">💳</span>
+              <CreditCardIcon class="w-4 h-4 sm:w-4 sm:h-4 shrink-0" />
               <span class="hidden sm:inline">Pagos y Comprobantes</span>
               <span class="sm:hidden text-[10px] sm:text-xs">Pagos</span>
             </button>
@@ -99,7 +99,7 @@
                   : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 hover:text-slate-900 dark:hover:text-white'
               ]"
             >
-              <span class="text-base sm:text-sm">👤</span>
+              <UserIcon class="w-4 h-4 sm:w-4 sm:h-4 shrink-0" />
               <span class="hidden sm:inline">Mi Perfil</span>
               <span class="sm:hidden text-[10px] sm:text-xs">Perfil</span>
             </button>
@@ -113,7 +113,7 @@
                   : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 hover:text-slate-900 dark:hover:text-white'
               ]"
             >
-              <span class="text-base sm:text-sm">❓</span>
+              <QuestionMarkCircleIcon class="w-4 h-4 sm:w-4 sm:h-4 shrink-0" />
               <span class="hidden sm:inline">Preguntas Frecuentes</span>
               <span class="sm:hidden text-[10px] sm:text-xs">Ayuda</span>
             </button>
@@ -387,6 +387,14 @@ import PaymentDetailModal from '../components/PaymentDetailModal.vue';
 import MyDataSection from '../components/MyDataSection.vue';
 import ReportePagosModal from '../components/ReportePagosModal.vue';
 import { useReportePagosPDF } from '../composables/useReportePagosPDF';
+import { 
+  ChartBarIcon, 
+  CreditCardIcon, 
+  UserIcon, 
+  QuestionMarkCircleIcon, 
+  GlobeAltIcon,
+  ArrowTopRightOnSquareIcon
+} from '@heroicons/vue/24/outline';
 
 const isAuthenticated = ref(false);
 const isLoading = ref(false);
