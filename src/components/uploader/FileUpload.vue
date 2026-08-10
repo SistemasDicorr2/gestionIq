@@ -153,7 +153,7 @@ import { ref, onUnmounted, computed } from 'vue';
 import { supabase } from '../../services/supabase';
 import { useB2Upload } from './useB2Upload';
 import { useDeviceDetection } from '../../composables/useDeviceDetection';
-import { resizeImage } from '../../services/useImageResizer.js';
+import { resizeImage, optimizeImageForUpload } from '../../services/useImageResizer.js';
 import WebcamCapture from '../capture/WebcamCapture.vue';
 import { useToast } from 'vue-toastification';
 
@@ -245,16 +245,26 @@ const startUpload = async () => {
     uploadProgress.value.current++;
 
     try {
+      // Optimización inteligente en el cliente (reduce fotos pesadas de 12MB a ~500KB)
+      const uploadFileObj = await optimizeImageForUpload(originalFile);
       const baseName = crypto.randomUUID();
-      const fileExtension = originalFile.name.split('.').pop() || 'tmp';
-      const thumbnailFile = await resizeImage(originalFile);
+      const fileExtension = uploadFileObj.name.split('.').pop() || 'tmp';
+      const thumbnailFile = await resizeImage(uploadFileObj);
+
+      const effectiveContentType = uploadFileObj.type || (
+        /\.(jpe?g)$/i.test(uploadFileObj.name) ? 'image/jpeg' :
+        /\.png$/i.test(uploadFileObj.name) ? 'image/png' :
+        /\.webp$/i.test(uploadFileObj.name) ? 'image/webp' :
+        /\.pdf$/i.test(uploadFileObj.name) ? 'application/pdf' :
+        'application/octet-stream'
+      );
 
       const getPresignedUrl = (file, ext, isThumb = false) => {
         return supabase.functions.invoke('b2-presigned-url', {
           body: {
             area: props.area,
             owner: props.ownerId,
-            contentType: file.type,
+            contentType: isThumb ? 'image/webp' : effectiveContentType,
             extension: ext,
             isThumb: isThumb,
             baseName: baseName
@@ -263,7 +273,7 @@ const startUpload = async () => {
       };
       
       const presignedUrlPromises = [];
-      presignedUrlPromises.push(getPresignedUrl(originalFile, fileExtension, false));
+      presignedUrlPromises.push(getPresignedUrl(uploadFileObj, fileExtension, false));
       if (thumbnailFile) {
         presignedUrlPromises.push(getPresignedUrl(thumbnailFile, 'webp', true));
       }
@@ -278,7 +288,7 @@ const startUpload = async () => {
       const originalPresigned = originalResponse.data;
       
       const uploadPromises = [];
-      uploadPromises.push(uploadFile(originalPresigned.uploadUrl, originalFile, (pct) => {
+      uploadPromises.push(uploadFile(originalPresigned.uploadUrl, uploadFileObj, (pct) => {
         originalFile.progress = pct;
       }));
       if (thumbnailFile && thumbResponse) {
@@ -291,8 +301,8 @@ const startUpload = async () => {
       const fileResultData = {
         object_key: originalPresigned.objectKey,
         area: props.area,
-        content_type: originalFile.type,
-        size_bytes: originalFile.size,
+        content_type: effectiveContentType,
+        size_bytes: uploadFileObj.size,
         file_name: originalFile.name,
       };
 
