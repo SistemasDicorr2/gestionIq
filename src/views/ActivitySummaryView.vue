@@ -4,21 +4,51 @@
     <div class="min-h-screen py-8 transition-colors duration-300 bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900 sm:py-12 text-slate-900 dark:text-slate-100">
 
       <!-- ESTADO 1: PANTALLA DE AUTENTICACIÓN -->
-      <div v-if="!isAuthenticated" class="max-w-md px-4 pt-16 mx-auto">
-        <div class="p-8 text-center bg-white border shadow-md border-slate-200 dark:bg-slate-900 rounded-3xl dark:border-slate-800">
-          <img src="/2.svg" alt="Districorr" class="h-10 mx-auto mb-6 opacity-90">
-          <h1 class="text-2xl font-extrabold text-slate-950 dark:text-slate-50 tracking-tight">Resumen de Actividad</h1>
-          <p class="mt-2 mb-6 text-sm text-slate-600 dark:text-slate-400">Por favor, ingresá tu DNI para acceder a tu información oficial con <a href="https://www.districorr.com.ar" target="_blank" rel="noopener noreferrer" class="font-bold text-blue-600 dark:text-blue-400 hover:underline">Districorr</a>.</p>
-          <form @submit.prevent="authenticate">
-            <input v-model="dni" type="text" placeholder="Ingresá tu DNI (con o sin puntos)" class="transition-shadow form-input focus:ring-2 focus:ring-blue-500 focus:outline-none" required />
-            <p v-if="error" class="error-message">{{ error }}</p>
-            <button type="submit" :disabled="isLoading" class="w-full mt-4 btn-primary focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 dark:focus:ring-offset-slate-900">{{ isLoading ? 'Verificando...' : 'Continuar' }}</button>
+      <div v-if="!isAuthenticated" class="max-w-md px-4 pt-10 sm:pt-16 mx-auto">
+        <div class="p-6 sm:p-8 text-center bg-white/95 dark:bg-slate-900/95 border shadow-xl border-slate-200/90 dark:border-slate-800 rounded-3xl">
+          <div class="flex justify-center mb-5">
+            <img src="/2.svg" alt="Districorr" class="h-9 sm:h-10 opacity-95 dark:invert dark:brightness-200 transition-all">
+          </div>
+
+          <h1 class="text-xl sm:text-2xl font-black text-slate-950 dark:text-white tracking-tight">Acceso al Portal</h1>
+          <p class="mt-1.5 mb-6 text-xs sm:text-sm text-slate-600 dark:text-slate-300 font-medium">
+            Ingresá tu DNI para acceder a tu historial de cirugías y comprobantes.
+          </p>
+
+          <form @submit.prevent="authenticate()">
+            <div class="relative">
+              <input 
+                v-model="dni" 
+                type="text" 
+                inputmode="numeric"
+                pattern="[0-9]*"
+                maxlength="12"
+                autocomplete="username"
+                placeholder="Ingresá tu DNI (sin puntos)" 
+                class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl text-center text-base sm:text-lg font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:bg-white dark:focus:bg-slate-900 focus:outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500 placeholder:font-normal placeholder:text-xs sm:placeholder:text-sm" 
+                required 
+              />
+            </div>
+
+            <div v-if="error" class="flex items-center justify-center gap-1.5 mt-3 text-xs font-bold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/50 py-2 px-3 rounded-lg border border-red-200 dark:border-red-800/60">
+              <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+              <span>{{ error }}</span>
+            </div>
+
+            <button 
+              type="submit" 
+              :disabled="isLoading" 
+              class="w-full mt-5 py-3 px-5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-sm shadow-md transition-all cursor-pointer hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            >
+              <svg v-if="isLoading" class="w-4 h-4 animate-spin text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+              <span>{{ isLoading ? 'Verificando DNI...' : 'Ingresar al Portal' }}</span>
+            </button>
           </form>
           
           <div class="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800 text-center">
-            <a href="https://www.districorr.com.ar" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-blue-600 dark:text-slate-400 dark:hover:text-blue-400 transition-colors">
+            <a href="https://www.districorr.com.ar" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 text-xs font-bold text-slate-400 hover:text-blue-600 dark:text-slate-500 dark:hover:text-blue-400 transition-colors">
               <span>www.districorr.com.ar</span>
-              <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" /></svg>
+              <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" /></svg>
             </a>
           </div>
         </div>
@@ -384,7 +414,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { supabase } from '../services/supabase';
 import { useToast } from 'vue-toastification';
@@ -420,16 +450,24 @@ const descargarPDFOrdenIndividual = (liq) => {
   toast.success('Generando PDF de la orden...');
 };
 
-const authenticate = async () => {
-  if (!dni.value.trim()) {
-    error.value = "El DNI es requerido.";
+const authenticate = async (overrideDni = null) => {
+  const targetDni = (typeof overrideDni === 'string' && overrideDni) ? overrideDni : dni.value;
+  // Limpia cualquier caracter que no sea numero (puntos, espacios, guiones)
+  const cleanDni = String(targetDni || '').replace(/[^0-9]/g, '');
+
+  if (!cleanDni) {
+    error.value = "Por favor, ingresá un número de DNI válido.";
     return;
   }
+  
   isLoading.value = true;
   error.value = null;
+
   try {
-    const cleanDni = dni.value.trim();
-    const { data, error: rpcError } = await supabase.rpc('autenticar_y_obtener_resumen', { p_token: token, p_dni: cleanDni });
+    const { data, error: rpcError } = await supabase.rpc('autenticar_y_obtener_resumen', { 
+      p_token: token, 
+      p_dni: cleanDni 
+    });
     
     if (rpcError) throw rpcError;
 
@@ -437,20 +475,41 @@ const authenticate = async () => {
       instrumentadorInfo.value = data.instrumentador_info;
       allActivityData.value = (data.activity_summary || []).filter(r => r.estado === 'Enviado');
       isAuthenticated.value = true;
+      dni.value = cleanDni;
+
+      // Guardar en sessionStorage para no pedir DNI en refresco de pagina
+      try {
+        sessionStorage.setItem(`gestioniq_auth_${token}`, cleanDni);
+      } catch (e) {
+        console.warn("SessionStorage no disponible:", e);
+      }
+
       toast.success("Acceso concedido.");
     } else {
-      error.value = "Datos incorrectos. Por favor, verificá tu DNI.";
-      dni.value = '';
+      error.value = "Verificá tu DNI. No coincide con la ficha o el enlace expiró.";
       toast.error("Acceso denegado.");
     }
   } catch (err) {
     console.error("Error en la autenticación o procesamiento:", err);
-    error.value = "Ocurrió un error inesperado. Intentá de nuevo.";
-    toast.error("Error de conexión o procesamiento de datos.");
+    error.value = "Ocurrió un error inesperado de conexión. Intentá de nuevo.";
+    toast.error("Error de verificación.");
   } finally {
     isLoading.value = false;
   }
 };
+
+onMounted(() => {
+  // Intentar auto-login transparente si el usuario ya verificó su DNI en esta sesión
+  try {
+    const savedDni = sessionStorage.getItem(`gestioniq_auth_${token}`);
+    if (savedDni) {
+      dni.value = savedDni;
+      authenticate(savedDni);
+    }
+  } catch (e) {
+    // Ignore error
+  }
+});
 
 const pendientes = computed(() => allActivityData.value.filter(r => r.estado_pago === 'Pendiente'));
 
