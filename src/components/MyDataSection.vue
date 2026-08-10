@@ -9,37 +9,22 @@
       </p>
     </div>
 
-    <!-- Alert y Card Principal -->
-    <div class="space-y-4">
-      <div v-if="!datosCompletos" class="flex items-start gap-3 p-4 border shadow-sm rounded-2xl bg-amber-50 text-amber-800 border-amber-200 dark:bg-amber-950/40 dark:border-amber-800/50 dark:text-amber-300">
-        <svg class="shrink-0 w-5 h-5 mt-0.5 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-        <div>
-          <h4 class="font-bold">Faltan datos por completar</h4>
-          <p class="mt-1 text-sm">Para mantener actualizada tu información, solicitá la actualización de tus datos.</p>
-        </div>
-      </div>
-      <div v-else class="flex items-start gap-3 p-4 border shadow-sm rounded-2xl bg-emerald-50 text-emerald-800 border-emerald-200 dark:bg-emerald-950/40 dark:border-emerald-800/50 dark:text-emerald-300">
-        <svg class="shrink-0 w-5 h-5 mt-0.5 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-        <div>
-          <h4 class="font-bold">Datos completos</h4>
-          <p class="mt-1 text-sm">Tus datos principales están registrados.</p>
-        </div>
-      </div>
-
-      <div class="flex flex-col gap-5 p-5 transition-all duration-200 bg-white border shadow-sm border-slate-200 sm:flex-row sm:items-center sm:p-6 rounded-2xl dark:bg-slate-900 dark:border-slate-800 hover:shadow-md">
-        <div class="flex items-center justify-center w-20 h-20 text-2xl font-bold text-blue-700 border-4 border-blue-50 bg-blue-100 rounded-full shadow-inner shrink-0 dark:bg-blue-900/50 dark:text-blue-200 dark:border-blue-950/70">
+    <!-- Card Principal de Perfil -->
+    <div>
+      <div class="flex flex-col gap-5 p-5 transition-all duration-200 bg-white border shadow-2xs border-slate-200/80 sm:flex-row sm:items-center sm:p-6 rounded-2xl dark:bg-slate-900 dark:border-slate-800 hover:shadow-xs">
+        <div class="flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 text-xl sm:text-2xl font-black text-blue-700 border-4 border-blue-50 bg-blue-100 rounded-full shadow-inner shrink-0 dark:bg-blue-900/50 dark:text-blue-200 dark:border-blue-950/70">
           {{ iniciales }}
         </div>
         <div class="flex-1 min-w-0 text-center sm:text-left">
-          <h3 class="text-2xl font-bold leading-tight text-slate-950 dark:text-white">{{ info?.nombre_completo || 'No especificado' }}</h3>
-          <span class="inline-flex items-center gap-1.5 px-3 py-1 mt-2 text-xs font-semibold border rounded-full bg-blue-50 text-blue-700 border-blue-100 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-900/70">
+          <h3 class="text-xl sm:text-2xl font-black leading-tight text-slate-950 dark:text-white">{{ info?.nombre_completo || 'No especificado' }}</h3>
+          <span class="inline-flex items-center gap-1.5 px-3 py-0.5 mt-2 text-xs font-bold border rounded-full bg-blue-50 text-blue-700 border-blue-100 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-900/70">
             <span class="w-1.5 h-1.5 rounded-full bg-blue-500 dark:bg-blue-300"></span>
-            Instrumentador registrado
+            Instrumentador Quirúrgico Registrado
           </span>
         </div>
-        <div class="px-4 py-3 text-center border rounded-xl bg-slate-50 border-slate-100 sm:text-right dark:bg-slate-950/50 dark:border-slate-800">
-          <p class="text-xs font-bold tracking-wider uppercase text-slate-400 dark:text-slate-500">DNI</p>
-          <p class="mt-1 text-lg font-bold tracking-wide text-slate-950 dark:text-slate-100">{{ info?.dni || 'No especificado' }}</p>
+        <div class="px-4 py-2.5 text-center border rounded-xl bg-slate-50 border-slate-100 sm:text-right dark:bg-slate-950/50 dark:border-slate-800">
+          <p class="text-[10px] font-bold tracking-wider uppercase text-slate-400 dark:text-slate-500">DNI</p>
+          <p class="mt-0.5 text-base font-extrabold tracking-wide text-slate-950 dark:text-slate-100">{{ info?.dni || 'No especificado' }}</p>
         </div>
       </div>
     </div>
@@ -294,13 +279,17 @@ const stats = computed(() => {
   const tiposCirugiaCount = {};
 
   act.forEach(r => {
-    const m = r.medico ? r.medico.trim() : null;
+    // Fallbacks robustos para Nombre de Médico devuelto por RPCs Supabase (medico_nombre, medico, doctor, etc)
+    const mRaw = r.medico_nombre || r.medico || r.doctor || r.medico_solicitante;
+    const m = (mRaw && String(mRaw).trim() !== 'N/A' && String(mRaw).trim() !== 'null') ? String(mRaw).trim() : null;
     if (m) {
       medicos.add(m);
       medicosCount[m] = (medicosCount[m] || 0) + 1;
     }
     
-    const inst = r.institucion ? r.institucion.trim() : null;
+    // Fallbacks robustos para Nombre de Institución (cliente_nombre, institucion, sanatorio, hospital)
+    const instRaw = r.cliente_nombre || r.institucion || r.sanatorio || r.hospital;
+    const inst = (instRaw && String(instRaw).trim() !== 'N/A' && String(instRaw).trim() !== 'null') ? String(instRaw).trim() : null;
     if (inst) {
       instituciones.add(inst);
     }
