@@ -26,48 +26,34 @@
 
       <!-- ESTADO 2: VISTA DE DATOS -->
       <div v-else class="max-w-6xl px-4 mx-auto sm:px-6 lg:px-8">
-        <header class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sm:mb-8">
+        <header class="flex items-start justify-between gap-4 mb-4">
           <div>
-            <div class="flex items-center gap-3 flex-wrap">
-              <h1 class="text-2xl font-extrabold sm:text-3xl text-slate-950 dark:text-white tracking-tight">Mi Actividad Profesional</h1>
-              
-              <!-- Badge enlace a Districorr sitio oficial -->
-              <a 
-                href="https://www.districorr.com.ar" 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-blue-600/10 text-blue-700 border border-blue-300/80 dark:bg-blue-950/60 dark:text-blue-300 dark:border-blue-700/80 hover:bg-blue-600 hover:text-white dark:hover:bg-blue-600 dark:hover:text-white transition-all shadow-2xs hover:-translate-y-0.5 cursor-pointer"
-                title="Visitar sitio web oficial de Districorr"
-              >
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 21a9 9 0 100-18 9 9 0 000 18zM2.25 12h19.5m-19.5 0a9 9 0 0113.803-3.7M2.25 12a9 9 0 0013.803 3.7M12 3a9 9 0 010 18M12 3a9 9 0 000 18" /></svg>
-                <span>www.districorr.com.ar</span>
-                <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" /></svg>
-              </a>
-            </div>
-
-            <p class="mt-1 text-sm sm:text-base text-slate-600 dark:text-slate-300 font-medium">
+            <h1 class="text-2xl font-extrabold sm:text-3xl text-slate-950 dark:text-white tracking-tight">Mi Actividad Profesional</h1>
+            <p class="mt-1 text-xs sm:text-sm text-slate-600 dark:text-slate-300 font-medium">
               Consultá tus cirugías registradas, el estado de tus pagos y tus datos personales.
             </p>
           </div>
           
-          <div class="flex items-center gap-3 shrink-0 self-end sm:self-auto">
-            <!-- Toggle Modo Oscuro -->
-            <button @click="isDarkMode = !isDarkMode" class="shrink-0 p-2.5 text-slate-500 bg-white border border-slate-200 shadow-xs hover:bg-slate-50 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700 dark:hover:bg-slate-700 rounded-full transition-all duration-200 hover:-translate-y-0.5 focus:outline-none cursor-pointer" :title="isDarkMode ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'">
-              <svg v-if="!isDarkMode" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
-              <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
-            </button>
-          </div>
+          <!-- Toggle Modo Oscuro alineado de forma limpia arriba a la derecha -->
+          <button 
+            @click="isDarkMode = !isDarkMode" 
+            class="shrink-0 p-2 text-slate-500 bg-white border border-slate-200 shadow-2xs hover:bg-slate-50 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700 dark:hover:bg-slate-700 rounded-full transition-all duration-200 hover:-translate-y-0.5 focus:outline-none cursor-pointer mt-1" 
+            :title="isDarkMode ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'"
+          >
+            <svg v-if="!isDarkMode" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+            <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+          </button>
         </header>
 
-        <!-- Tabs de Navegación Nativas Adaptables (Grid Celular / Flex Desktop) -->
-        <div class="mb-6 sm:mb-8">
-          <nav class="grid grid-cols-4 gap-1 p-1.5 bg-white/95 dark:bg-slate-900/95 border border-slate-200/90 dark:border-slate-800 rounded-2xl shadow-2xs sm:flex sm:items-center sm:gap-2 sm:w-fit">
+        <!-- Tabs de Navegación Nativas Adaptables y Compactas -->
+        <div class="mb-5 sm:mb-6">
+          <nav class="grid grid-cols-4 gap-1 p-1 bg-white/95 dark:bg-slate-900/95 border border-slate-200/90 dark:border-slate-800 rounded-2xl shadow-2xs sm:flex sm:items-center sm:gap-2 sm:w-fit">
             <button 
               @click="activeTab = 'resumen'"
               :class="[
                 'flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 sm:py-2.5 rounded-xl text-[11px] sm:text-sm font-black transition-all duration-200 cursor-pointer select-none',
                 activeTab === 'resumen' 
-                  ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30 ring-2 ring-blue-500/20' 
+                  ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30' 
                   : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 hover:text-slate-900 dark:hover:text-white'
               ]"
             >
@@ -81,7 +67,7 @@
               :class="[
                 'flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 sm:py-2.5 rounded-xl text-[11px] sm:text-sm font-black transition-all duration-200 cursor-pointer select-none',
                 activeTab === 'pagos' 
-                  ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30 ring-2 ring-blue-500/20' 
+                  ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30' 
                   : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 hover:text-slate-900 dark:hover:text-white'
               ]"
             >
@@ -95,7 +81,7 @@
               :class="[
                 'flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 sm:py-2.5 rounded-xl text-[11px] sm:text-sm font-black transition-all duration-200 cursor-pointer select-none',
                 activeTab === 'datos' 
-                  ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30 ring-2 ring-blue-500/20' 
+                  ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30' 
                   : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 hover:text-slate-900 dark:hover:text-white'
               ]"
             >
@@ -109,7 +95,7 @@
               :class="[
                 'flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 sm:py-2.5 rounded-xl text-[11px] sm:text-sm font-black transition-all duration-200 cursor-pointer select-none',
                 activeTab === 'faq' 
-                  ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30 ring-2 ring-blue-500/20' 
+                  ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30' 
                   : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 hover:text-slate-900 dark:hover:text-white'
               ]"
             >
@@ -360,6 +346,22 @@
 
         <!-- TAB 4: FAQ -->
         <FaqSection v-else />
+
+        <!-- PIE DE PÁGINA SIMPLE CON ENLACE OFICIAL A DISTRICORR -->
+        <footer class="mt-10 py-5 border-t border-slate-200/80 dark:border-slate-800/80 text-center">
+          <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">
+            Gestión IQ — Sistema oficial en coordinación con 
+            <a 
+              href="https://www.districorr.com.ar" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              class="font-bold text-blue-600 dark:text-blue-400 hover:underline inline-flex items-center gap-1 ml-1"
+            >
+              <span>www.districorr.com.ar</span>
+              <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" /></svg>
+            </a>
+          </p>
+        </footer>
 
       </div>
 
