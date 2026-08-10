@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=1920, height=1080">
+    <title>Tutorial Gestión IQ - Pagos y Comprobantes</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      * {
+        box-sizing: border-box;
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      }
+      body {
+        margin: 0;
+        padding: 0;
+        background: #0f172a;
+        color: #0f172a;
+        overflow: hidden;
+        width: 1920px;
+        height: 1080px;
+      }
+      #root {
+        position: relative;
+        width: 1920px;
+        height: 1080px;
+        background: #f8fafc;
+        overflow: hidden;
+      }
+      .clip {
+        position: absolute;
+        inset: 0;
+        width: 1920px;
+        height: 1080px;
+      }
+
+      /* Animated SVG Cursor */
+      .custom-cursor {
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 999;
+        pointer-events: none;
+        filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));
+        opacity: 0;
+      }
+      
+      /* Element Focus Highlight Ring */
+      .element-focus-ring {
+        position: absolute;
+        inset: -6px;
+        border-radius: 16px;
+        border: 3.5px solid #2563eb;
+        background: rgba(37, 99, 235, 0.08);
+        box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.2), 0 10px 25px -5px rgba(37, 99, 235, 0.35);
+        pointer-events: none;
+        z-index: 40;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+
+      /* Subtitle Bar at Bottom */
+      .subtitle-banner {
+        position: absolute;
+        bottom: 40px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 100;
+        background: rgba(15, 23, 42, 0.94);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        padding: 16px 36px;
+        border-radius: 9999px;
+        box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        opacity: 0;
+      }
+      .subtitle-text {
+        font-size: 26px;
+        font-weight: 800;
+        color: #ffffff;
+        letter-spacing: -0.01em;
+      }
+      .subtitle-badge {
+        background: #2563eb;
+        color: #ffffff;
+        font-size: 13px;
+        font-weight: 900;
+        padding: 4px 10px;
+        border-radius: 6px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+    </style>
+  </head>
+  <body>
+    <div data-hf-id="hf-mscd" id="root" data-composition-id="main" data-start="0" data-width="1920" data-height="1080" data-duration="30" data-layout-allow-overflow="true" data-accessibility-ignore="true">
+      <section data-hf-id="hf-qc0t" id="viewport-clip" class="clip" data-start="0" data-duration="30" data-track-index="1" data-layout-allow-overflow="true" data-accessibility-ignore="true">
+        
+        <!-- MAIN VUE UI CONTAINER WITH SMOOTH CAMERA ZOOM/PAN -->
+        <div data-hf-id="hf-pnqr" id="camera-viewport" class="w-full h-full transform-gpu origin-center bg-slate-50" data-layout-allow-overflow="true" data-accessibility-ignore="true">
+          
+          <!-- Header Bar real de Gestión IQ -->
+          <header data-hf-id="hf-0aur" class="bg-white border-b border-slate-300 px-12 py-5 flex items-center justify-between shadow-2xs">
+            <div data-hf-id="hf-5w7q" class="flex items-center gap-4">
+              <div data-hf-id="hf-1tmq" class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white font-black text-xl shadow-md shadow-blue-500/30">
+                IQ
+              </div>
+              <div data-hf-id="hf-yeow">
+                <h1 data-hf-id="hf-3rzv" class="text-lg font-black text-slate-950 tracking-tight">Gestión IQ</h1>
+                <p data-hf-id="hf-2837" class="text-xs text-slate-700 font-bold">Portal del Instrumentador Quirúrgico</p>
+              </div>
+            </div>
+            
+            <div data-hf-id="hf-grpd" class="flex items-center gap-3">
+              <div data-hf-id="hf-cp6e" class="px-3.5 py-1.5 rounded-xl bg-slate-100 border border-slate-300 flex items-center gap-2">
+                <span data-hf-id="hf-0pj6" class="w-2.5 h-2.5 rounded-full bg-emerald-600"></span>
+                <span data-hf-id="hf-8biz" class="text-xs font-black text-slate-900">Lic. María Fernández</span>
+              </div>
+            </div>
+          </header>
+
+          <!-- Contenido Principal: Mi Actividad Profesional -->
+          <main data-hf-id="hf-2i59" class="max-w-6xl mx-auto pt-8 pb-32 px-8 space-y-6">
+            
+            <!-- Encabezado de Sección y Tabs -->
+            <div data-hf-id="hf-1jxk" id="section-header" class="space-y-4">
+              <div data-hf-id="hf-r02e" class="flex items-center justify-between">
+                <div data-hf-id="hf-y7yw">
+                  <span data-hf-id="hf-q6xi" class="px-2.5 py-1 rounded-md text-xs font-black uppercase tracking-wider bg-blue-100 text-blue-950 border border-blue-300">
+                    Tu Trayectoria
+                  </span>
+                  <h2 data-hf-id="hf-xdvd" class="text-2xl font-black text-slate-950 tracking-tight mt-1.5">Mi Actividad Profesional</h2>
+                </div>
+              </div>
+
+              <!-- NAV TABS REALES -->
+              <nav data-hf-id="hf-dg3h" class="flex items-center gap-2 p-1.5 bg-slate-200/80 rounded-2xl border border-slate-300 max-w-2xl">
+                <div data-hf-id="hf-joy0" id="tab-resumen" class="flex-1 py-2.5 px-4 rounded-xl text-xs font-black text-slate-700 text-center flex items-center justify-center gap-2">
+                  <svg data-hf-id="hf-9pr7" class="w-4 h-4 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path data-hf-id="hf-oeb9" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
+                  <span data-hf-id="hf-8m5k">Resumen</span>
+                </div>
+
+                <div data-hf-id="hf-jrbs" id="tab-pagos" class="relative flex-1 py-2.5 px-4 rounded-xl text-xs font-black bg-blue-600 text-white shadow-md shadow-blue-600/30 text-center flex items-center justify-center gap-2">
+                  <svg data-hf-id="hf-ma73" class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path data-hf-id="hf-x6ul" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15A2.25 2.25 0 002.25 6.75v10.5A2.25 2.25 0 004.5 19.5z" /></svg>
+                  <span data-hf-id="hf-rq55">Pagos y Comprobantes</span>
+                  <!-- Highlight exacto en Tab Pagos -->
+                  <div data-hf-id="hf-ikn1" id="ring-tab-pagos" class="element-focus-ring"></div>
+                </div>
+
+                <div data-hf-id="hf-dgis" id="tab-datos" class="flex-1 py-2.5 px-4 rounded-xl text-xs font-black text-slate-700 text-center flex items-center justify-center gap-2">
+                  <svg data-hf-id="hf-a8wz" class="w-4 h-4 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path data-hf-id="hf-2gjx" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" /></svg>
+                  <span data-hf-id="hf-6qhf">Mi Perfil</span>
+                </div>
+              </nav>
+            </div>
+
+            <!-- CONTENIDO DE LA PESTAÑA: PAGOS Y COMPROBANTES -->
+            <div data-hf-id="hf-sjog" id="pagos-content" class="space-y-8 pt-2">
+              
+              <!-- Encabezado de la pestaña y Botón PDF -->
+              <div data-hf-id="hf-b4yv" class="flex items-center justify-between pb-3 border-b border-slate-300">
+                <div data-hf-id="hf-x11t">
+                  <h3 data-hf-id="hf-4zuu" class="text-lg font-black text-slate-950">Pagos y Comprobantes</h3>
+                  <p data-hf-id="hf-mlaq" class="text-xs text-slate-700 font-bold">Controlá tus cirugías abonadas y pendientes de cobro.</p>
+                </div>
+
+                <!-- Botón Descargar Reporte PDF (Paso 6) -->
+                <div data-hf-id="hf-mc79" id="btn-reporte-pdf" class="relative inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-600 text-white font-extrabold text-xs shadow-md shadow-blue-500/20">
+                  <svg data-hf-id="hf-ppls" class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path data-hf-id="hf-qb5e" stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" /></svg>
+                  <span data-hf-id="hf-zdx4">Descargar Reporte PDF</span>
+                  <!-- Highlight exacto en Botón PDF -->
+                  <div data-hf-id="hf-7710" id="ring-btn-pdf" class="element-focus-ring"></div>
+                </div>
+              </div>
+
+              <!-- BLOQUE 1: CIRUGÍAS PENDIENTES DE PAGO (Paso 2) -->
+              <section data-hf-id="hf-hq3r" id="section-pendientes" class="space-y-3">
+                <h4 data-hf-id="hf-yr20" class="text-sm font-black text-slate-950 flex items-center gap-2">
+                  <span data-hf-id="hf-y18s" class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
+                  Cirugías pendientes de pago
+                </h4>
+
+                <!-- Card Pendiente 1 -->
+                <div data-hf-id="hf-dy0d" id="card-pendiente-1" class="relative p-4 bg-white border border-slate-300 rounded-2xl shadow-2xs space-y-3">
+                  <!-- Highlight exacto en Card Pendiente -->
+                  <div data-hf-id="hf-mnm2" id="ring-card-pendiente" class="element-focus-ring"></div>
+
+                  <div data-hf-id="hf-ziud" class="flex items-start justify-between gap-3">
+                    <div data-hf-id="hf-xfcu">
+                      <p data-hf-id="hf-ko3e" class="text-sm font-black text-slate-950">GARCÍA, ROBERTO CARLOS</p>
+                      <p data-hf-id="hf-2z1d" class="text-xs text-slate-700 font-bold mt-0.5">Cirugía realizada el <span data-hf-id="hf-k9pg" class="font-black text-slate-950">04/08/2026</span></p>
+                    </div>
+                    <span data-hf-id="hf-57yo" class="inline-flex items-center px-3 py-1 text-xs font-black border rounded-full bg-amber-100 text-amber-900 border-amber-300">
+                      <svg data-hf-id="hf-6ywe" class="w-3.5 h-3.5 mr-1 text-amber-900" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path data-hf-id="hf-697g" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
+                      Pendiente de pago
+                    </span>
+                  </div>
+                  <div data-hf-id="hf-zxhq" class="flex items-center gap-2 p-2.5 text-xs border rounded-xl bg-sky-50 text-sky-950 border-sky-300">
+                    <svg data-hf-id="hf-xhbt" class="w-4 h-4 text-sky-700 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path data-hf-id="hf-0yr4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" /></svg>
+                    <p data-hf-id="hf-vnwj" class="text-xs font-bold">Inclusión en próxima orden de pago al procesar la liquidación.</p>
+                  </div>
+                </div>
+              </section>
+
+              <!-- BLOQUE 2: HISTORIAL DE PAGOS (Pasos 3, 4 y 5) -->
+              <section data-hf-id="hf-0wov" id="section-historial" class="space-y-4 pt-2">
+                <div data-hf-id="hf-pa09" class="flex items-center justify-between gap-4">
+                  <h4 data-hf-id="hf-lvnn" class="text-base font-black text-slate-950">Historial de pagos</h4>
+                  
+                  <!-- BUSCADOR DEL HISTORIAL (Paso 5) -->
+                  <div data-hf-id="hf-jf1d" id="search-box-historial" class="relative w-72">
+                    <!-- Highlight exacto en Buscador -->
+                    <div data-hf-id="hf-zerz" id="ring-search-box" class="element-focus-ring"></div>
+
+                    <input data-hf-id="hf-6jre" type="text" id="search-input-mock" placeholder="Buscar paciente o N° orden..." class="w-full pl-9 pr-4 py-2 bg-white border border-slate-300 rounded-xl text-xs font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500/30 shadow-2xs">
+                    <svg data-hf-id="hf-m748" class="w-4 h-4 text-slate-500 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path data-hf-id="hf-29zt" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                  </div>
+                </div>
+
+                <div data-hf-id="hf-5nbf" class="space-y-4">
+                  <h5 data-hf-id="hf-ppoi" class="pb-1 text-xs font-black border-b text-slate-700 border-slate-300 tracking-wider uppercase">Agosto 2026</h5>
+                  
+                  <!-- CARD DE ORDEN DE PAGO N° 1042 -->
+                  <div data-hf-id="hf-3x37" id="card-orden-1042" class="p-5 bg-white border border-slate-300 rounded-2xl shadow-2xs space-y-4">
+                    
+                    <div data-hf-id="hf-oku1" class="flex items-start justify-between gap-3">
+                      <div data-hf-id="hf-w8fr">
+                        <h4 data-hf-id="hf-ggw0" id="item-numero-orden" class="flex items-center gap-2 text-base font-black text-slate-950">
+                          <svg data-hf-id="hf-9uly" class="w-4 h-4 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path data-hf-id="hf-q8on" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V8.25ZM6.75 12h.008v.008H6.75V12Zm0 3h.008v.008H6.75V15Zm0 3h.008v.008H6.75V18Z" /></svg>
+                          <span data-hf-id="hf-7z6d">Orden de pago #1042</span>
+                        </h4>
+                        <p data-hf-id="hf-lv6g" id="item-fecha-comprobante" class="mt-1 text-xs text-slate-700 font-bold">
+                          Comprobante subido el: <span data-hf-id="hf-rpdu" class="font-black text-slate-950">02/08/2026</span>
+                        </p>
+                      </div>
+                      <span data-hf-id="hf-ycb8" class="inline-flex items-center px-3 py-1 text-xs font-black border rounded-full bg-emerald-100 text-emerald-900 border-emerald-300">
+                        <svg data-hf-id="hf-2uyr" class="w-3.5 h-3.5 mr-1 text-emerald-800" viewBox="0 0 24 24" fill="currentColor"><path data-hf-id="hf-olc4" fill-rule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12Zm13.36-1.814a.75.75 0 1 0-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 0 0-1.06 1.06l2.25 2.25a.75.75 0 0 0 1.14-.094l3.75-5.25Z" clip-rule="evenodd" /></svg>
+                        Comprobante cargado
+                      </span>
+                    </div>
+
+                    <!-- DETALLE PACIENTES Y CANTIDAD DE CIRUGÍAS (Paso 3) -->
+                    <div data-hf-id="hf-73gj" id="item-pacientes-cirugias" class="relative p-4 border rounded-xl bg-slate-100 border-slate-300 space-y-2">
+                      <!-- Highlight exacto en Detalle de Pacientes & Cirugías -->
+                      <div data-hf-id="hf-ar65" id="ring-item-pacientes" class="element-focus-ring"></div>
+
+                      <p data-hf-id="hf-u9hm" class="text-xs text-slate-900 font-bold">
+                        <span data-hf-id="hf-mvvh" class="font-black text-slate-950">Pacientes abonados:</span> 
+                        <span data-hf-id="hf-mdiq" class="ml-1 font-bold text-slate-800">LÓPEZ JUAN CARLOS, PÉREZ MARÍA EUGENIA, GÓMEZ LUIS</span>
+                      </p>
+                      <div data-hf-id="hf-ambk" class="flex items-center gap-6 pt-2 border-t border-slate-300 text-xs text-slate-800 font-bold">
+                        <p data-hf-id="hf-uarw">Cirugías: <span data-hf-id="hf-te26" class="font-black text-slate-950">3 cirugías</span></p>
+                        <p data-hf-id="hf-v92q">Monto liquidado: <span data-hf-id="hf-ybke" class="font-black text-slate-950">$145.000</span></p>
+                      </div>
+                    </div>
+
+                    <!-- BOTONES DE ACCIÓN REALES (Paso 4) -->
+                    <div data-hf-id="hf-3xx5" id="action-buttons-group" class="relative flex flex-wrap items-center gap-3 pt-1">
+                      <!-- Highlight exacto en Grupo de Botones de Acción -->
+                      <div data-hf-id="hf-01wd" id="ring-action-buttons" class="element-focus-ring"></div>
+
+                      <!-- Botón 1: Abrir detalle -->
+                      <button data-hf-id="hf-rmi6" id="btn-abrir-detalle" class="inline-flex items-center px-4 py-2.5 text-xs font-black rounded-xl text-slate-800 bg-slate-200 border border-slate-300 shadow-2xs">
+                        Abrir detalle
+                      </button>
+
+                      <!-- Botón 2: PDF Orden -->
+                      <button data-hf-id="hf-e1nr" id="btn-pdf-orden" class="inline-flex items-center px-4 py-2.5 text-xs font-black text-indigo-900 bg-indigo-100 border border-indigo-300 rounded-xl shadow-2xs">
+                        <svg data-hf-id="hf-pe7i" class="w-4 h-4 mr-1.5 text-indigo-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path data-hf-id="hf-t9kx" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 01-2 2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                        PDF Orden
+                      </button>
+
+                      <!-- Botón 3: Ver comprobante -->
+                      <button data-hf-id="hf-ct2x" id="btn-ver-comprobante" class="inline-flex items-center px-4 py-2.5 text-xs font-black text-blue-900 border border-blue-300 rounded-xl bg-blue-100 shadow-2xs">
+                        <svg data-hf-id="hf-qopg" class="w-4 h-4 mr-1.5 text-blue-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path data-hf-id="hf-3oad" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path data-hf-id="hf-vfv5" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                        Ver comprobante
+                      </button>
+                    </div>
+
+                  </div>
+                </div>
+              </section>
+
+            </div>
+          </main>
+
+        </div>
+
+        <!-- MODAL DE SELECCIÓN DE PERÍODO (Paso 6) -->
+        <div data-hf-id="hf-djy1" id="modal-periodo" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 opacity-0 pointer-events-none" data-layout-allow-occlusion="true">
+          <div data-hf-id="hf-5i6g" class="bg-white rounded-2xl shadow-2xl w-full max-w-md border border-slate-300 overflow-hidden space-y-4 p-6">
+            <div data-hf-id="hf-4fd9" class="flex items-center justify-between border-b border-slate-300 pb-3">
+              <div data-hf-id="hf-wmqs">
+                <span data-hf-id="hf-9ryb" class="px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-blue-100 text-blue-950">Reporte Profesional</span>
+                <h3 data-hf-id="hf-fsxc" class="text-base font-black text-slate-950 mt-0.5">Descargar Reporte PDF</h3>
+              </div>
+              <div data-hf-id="hf-xypu" class="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-600 font-black">✕</div>
+            </div>
+
+            <div data-hf-id="hf-vo71" class="space-y-3 text-xs">
+              <p data-hf-id="hf-9ery" class="text-slate-800 font-bold">Seleccioná el período de cirugías a incluir en tu informe PDF:</p>
+              
+              <div data-hf-id="hf-okyh" class="grid grid-cols-2 gap-3">
+                <div data-hf-id="hf-3ume" class="p-3 rounded-xl border border-blue-600 bg-blue-50 space-y-1">
+                  <span data-hf-id="hf-pdm4" class="text-[10px] font-black uppercase text-blue-950">Mes En Curso</span>
+                  <p data-hf-id="hf-fg25" class="font-black text-slate-950">Agosto 2026</p>
+                </div>
+
+                <div data-hf-id="hf-pc31" class="p-3 rounded-xl border border-slate-300 bg-slate-100 space-y-1">
+                  <span data-hf-id="hf-5xn2" class="text-[10px] font-black uppercase text-slate-700">Últimos 3 Meses</span>
+                  <p data-hf-id="hf-cn4b" class="font-black text-slate-950">Junio - Agosto</p>
+                </div>
+              </div>
+            </div>
+
+            <div data-hf-id="hf-8yo6" class="flex items-center justify-end gap-3 pt-3 border-t border-slate-300">
+              <button data-hf-id="hf-hfvq" class="px-4 py-2 text-xs font-bold text-slate-700">Cancelar</button>
+              <div data-hf-id="hf-u65c" id="modal-btn-wrapper" class="relative">
+                <button data-hf-id="hf-h45i" id="btn-generar-pdf-modal" class="px-5 py-2.5 text-xs font-black text-white bg-blue-600 rounded-xl shadow-md flex items-center gap-2">
+                  <svg data-hf-id="hf-8qsf" class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path data-hf-id="hf-s88z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                  <span data-hf-id="hf-n3uj">Generar PDF</span>
+                </button>
+                <!-- Highlight exacto en Botón Generar PDF del Modal -->
+                <div data-hf-id="hf-isyx" id="ring-modal-btn" class="element-focus-ring"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ANIMATED CURSOR OVERLAY -->
+        <svg data-hf-id="hf-f6g9" id="cursor" class="custom-cursor w-8 h-8" viewBox="0 0 24 24" fill="none">
+          <path data-hf-id="hf-tjqs" d="M3 3L10.07 19.97L12.58 12.58L19.97 10.07L3 3Z" fill="#000000" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+
+        <!-- SUBTITLE CAPTION BANNER -->
+        <div data-hf-id="hf-df6s" id="subtitle-banner" class="subtitle-banner">
+          <span data-hf-id="hf-plgl" class="subtitle-badge">PASO 1</span>
+          <span data-hf-id="hf-fcq1" id="subtitle-text" class="subtitle-text">Ingresá a Pagos y Comprobantes</span>
+        </div>
+
+      </section>
+    </div>
+
+    <!-- GSAP SEEKABLE TIMELINE SCRIPT WITH STRICT SCENE BOUNDARIES & EXACT SEMANTIC HIGHLIGHTS -->
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      const camera = "#camera-viewport";
+      const cursor = "#cursor";
+      const subBanner = "#subtitle-banner";
+      const subBadge = ".subtitle-badge";
+      const subText = "#subtitle-text";
+      const modal = "#modal-periodo";
+
+      // Individual pinned highlight rings (100% Zero Drift guarantee)
+      const rings = {
+        tabPagos: "#ring-tab-pagos",
+        cardPendiente: "#ring-card-pendiente",
+        itemPacientes: "#ring-item-pacientes",
+        actionButtons: "#ring-action-buttons",
+        searchBox: "#ring-search-box",
+        btnPdf: "#ring-btn-pdf",
+        modalBtn: "#ring-modal-btn"
+      };
+
+      // Initial States
+      gsap.set(cursor, { opacity: 0, x: 1400, y: 150 });
+      gsap.set(camera, { scale: 1, x: 0, y: 0 });
+
+      // Helper to turn off all rings
+      function hideAllRings() {
+        Object.values(rings).forEach(r => gsap.set(r, { opacity: 0 }));
+      }
+      hideAllRings();
+
+
+      // =========================================================================
+      // PASO 1 (0.0s - 5.0s): "Ingresá a Pagos y Comprobantes"
+      // ACCIÓN: Click en pestaña "Pagos y Comprobantes"
+      // =========================================================================
+      
+      // 1. Posicionar Viewport & Zoom suave (scale 1.12x)
+      tl.to(camera, { scale: 1.12, x: 120, y: 150, duration: 1.0, ease: "power2.inOut" }, 0.0);
+      
+      // 2. Cursor entra y se desplaza exactamente hacia la pestaña
+      tl.to(cursor, { opacity: 1, duration: 0.2 }, 0.4);
+      tl.to(cursor, { x: 740, y: 228, duration: 1.0, ease: "power2.inOut" }, 0.6);
+      
+      // 3. Click del cursor
+      tl.to(cursor, { scale: 0.85, duration: 0.12, yoyo: true, repeat: 1 }, 1.6);
+
+      // 4. Highlight aparece sobre la pestaña seleccionada
+      tl.to(rings.tabPagos, { opacity: 1, duration: 0.3 }, 1.8);
+
+      // 5. Subtítulo PASO 1 aparece
+      tl.to(subBadge, { textContent: "PASO 1", duration: 0.01 }, 1.9);
+      tl.to(subText, { textContent: "Ingresá a Pagos y Comprobantes", duration: 0.01 }, 1.9);
+      tl.to(subBanner, { opacity: 1, duration: 0.3 }, 1.9);
+
+      // Limpieza de escena 1
+      tl.to(cursor, { opacity: 0, duration: 0.3 }, 4.4);
+      tl.to(rings.tabPagos, { opacity: 0, duration: 0.3 }, 4.5);
+      tl.to(subBanner, { opacity: 0, duration: 0.3 }, 4.5);
+
+
+      // =========================================================================
+      // PASO 2 (5.0s - 10.0s): "Acá ves las cirugías que todavía están pendientes"
+      // ACCIÓN: SIN cursor. Enfoque exclusivo en la tarjeta pendiente.
+      // =========================================================================
+      
+      // 1. Pan y Zoom suave (scale 1.12x) hacia la tarjeta de pendientes
+      tl.to(camera, { scale: 1.12, x: 0, y: 30, duration: 1.0, ease: "power2.inOut" }, 5.0);
+
+      // 2. Highlight sobre la tarjeta pendiente exclusivamente
+      tl.to(rings.cardPendiente, { opacity: 1, duration: 0.3 }, 6.0);
+
+      // 3. Subtítulo PASO 2 aparece
+      tl.to(subBadge, { textContent: "PASO 2", duration: 0.01 }, 6.1);
+      tl.to(subText, { textContent: "Acá ves las cirugías que todavía están pendientes", duration: 0.01 }, 6.1);
+      tl.to(subBanner, { opacity: 1, duration: 0.3 }, 6.1);
+
+      // Limpieza de escena 2
+      tl.to(rings.cardPendiente, { opacity: 0, duration: 0.3 }, 9.5);
+      tl.to(subBanner, { opacity: 0, duration: 0.3 }, 9.5);
+
+
+      // =========================================================================
+      // PASO 3 (10.0s - 15.0s): "Cada orden muestra qué pacientes y cirugías fueron incluidos"
+      // ACCIÓN: SIN cursor. Enfoque exclusivo en pacientes, cirugías y monto liquidado.
+      // =========================================================================
+      
+      // 1. Pan y Zoom suave (scale 1.15x) hacia el bloque de detalle de pacientes/cirugías
+      tl.to(camera, { scale: 1.15, x: 0, y: -220, duration: 1.0, ease: "power2.inOut" }, 10.0);
+
+      // 2. Highlight sobre el bloque de detalle de pacientes y cirugías exclusivamente
+      tl.to(rings.itemPacientes, { opacity: 1, duration: 0.3 }, 11.0);
+
+      // 3. Subtítulo PASO 3 aparece
+      tl.to(subBadge, { textContent: "PASO 3", duration: 0.01 }, 11.1);
+      tl.to(subText, { textContent: "Cada orden muestra qué pacientes y cirugías fueron incluidos", duration: 0.01 }, 11.1);
+      tl.to(subBanner, { opacity: 1, duration: 0.3 }, 11.1);
+
+      // Limpieza de escena 3
+      tl.to(rings.itemPacientes, { opacity: 0, duration: 0.3 }, 14.5);
+      tl.to(subBanner, { opacity: 0, duration: 0.3 }, 14.5);
+
+
+      // =========================================================================
+      // PASO 4 (15.0s - 20.0s): "Podés revisar el detalle y el comprobante"
+      // ACCIÓN: Cursor recorre suavemente los botones de acción para mostrarlos.
+      // =========================================================================
+      
+      // 1. Pan y Zoom suave (scale 1.15x) hacia los botones de acción
+      tl.to(camera, { scale: 1.15, x: 120, y: -340, duration: 1.0, ease: "power2.inOut" }, 15.0);
+
+      // 2. Highlight sobre los botones de acción exclusivamente
+      tl.to(rings.actionButtons, { opacity: 1, duration: 0.3 }, 16.0);
+
+      // 3. Subtítulo PASO 4 aparece
+      tl.to(subBadge, { textContent: "PASO 4", duration: 0.01 }, 16.1);
+      tl.to(subText, { textContent: "Podés revisar el detalle y el comprobante", duration: 0.01 }, 16.1);
+      tl.to(subBanner, { opacity: 1, duration: 0.3 }, 16.1);
+
+      // 4. Cursor se desplaza sobre los botones para señalarlos
+      tl.to(cursor, { opacity: 1, duration: 0.2 }, 16.2);
+      tl.to(cursor, { x: 500, y: 835, duration: 0.6, ease: "power1.inOut" }, 16.4);
+      tl.to(cursor, { x: 620, y: 835, duration: 0.8, ease: "power1.inOut" }, 17.2);
+      tl.to(cursor, { x: 740, y: 835, duration: 0.8, ease: "power1.inOut" }, 18.2);
+
+      // Limpieza de escena 4
+      tl.to(cursor, { opacity: 0, duration: 0.3 }, 19.4);
+      tl.to(rings.actionButtons, { opacity: 0, duration: 0.3 }, 19.5);
+      tl.to(subBanner, { opacity: 0, duration: 0.3 }, 19.5);
+
+
+      // =========================================================================
+      // PASO 5 (20.0s - 25.0s): "Buscá por paciente o número de orden"
+      // ACCIÓN: Cursor apunta al buscador del historial.
+      // =========================================================================
+      
+      // 1. Pan y Zoom suave (scale 1.15x) hacia el buscador
+      tl.to(camera, { scale: 1.15, x: -280, y: -120, duration: 1.0, ease: "power2.inOut" }, 20.0);
+
+      // 2. Cursor se desplaza hacia el input del buscador y hace click
+      tl.to(cursor, { opacity: 1, duration: 0.2 }, 20.4);
+      tl.to(cursor, { x: 1380, y: 555, duration: 0.8, ease: "power2.inOut" }, 20.6);
+      tl.to(cursor, { scale: 0.85, duration: 0.12, yoyo: true, repeat: 1 }, 21.4);
+
+      // 3. Highlight sobre el buscador exclusivamente
+      tl.to(rings.searchBox, { opacity: 1, duration: 0.3 }, 21.5);
+
+      // 4. Subtítulo PASO 5 aparece
+      tl.to(subBadge, { textContent: "PASO 5", duration: 0.01 }, 21.6);
+      tl.to(subText, { textContent: "Buscá por paciente o número de orden", duration: 0.01 }, 21.6);
+      tl.to(subBanner, { opacity: 1, duration: 0.3 }, 21.6);
+
+      // Limpieza de escena 5
+      tl.to(cursor, { opacity: 0, duration: 0.3 }, 24.4);
+      tl.to(rings.searchBox, { opacity: 0, duration: 0.3 }, 24.5);
+      tl.to(subBanner, { opacity: 0, duration: 0.3 }, 24.5);
+
+
+      // =========================================================================
+      // PASO 6 (25.0s - 30.0s): "También podés descargar un reporte por período"
+      // ACCIÓN: Click en "Descargar Reporte PDF" -> Abre Modal -> Highlight en "Generar PDF"
+      // =========================================================================
+      
+      // 1. Pan y Zoom hacia el botón Descargar Reporte PDF
+      tl.to(camera, { scale: 1.12, x: -260, y: 160, duration: 0.8, ease: "power2.inOut" }, 25.0);
+
+      // 2. Cursor se desplaza al botón Descargar Reporte PDF y hace click
+      tl.to(cursor, { opacity: 1, duration: 0.2 }, 25.3);
+      tl.to(cursor, { x: 1430, y: 295, duration: 0.7, ease: "power2.inOut" }, 25.4);
+      tl.to(cursor, { scale: 0.85, duration: 0.12, yoyo: true, repeat: 1 }, 26.1);
+      tl.to(rings.btnPdf, { opacity: 1, duration: 0.2 }, 26.1);
+
+      // 3. Abrir modal y resetear viewport
+      tl.to(rings.btnPdf, { opacity: 0, duration: 0.2 }, 26.6);
+      tl.to(modal, { opacity: 1, pointerEvents: "auto", duration: 0.3, ease: "power2.out" }, 26.7);
+      tl.to(camera, { scale: 1, x: 0, y: 0, duration: 0.5, ease: "power2.out" }, 26.7);
+
+      // 4. Cursor se desplaza hacia el botón "Generar PDF" del Modal
+      tl.to(cursor, { x: 1110, y: 648, duration: 0.6, ease: "power2.out" }, 27.0);
+      tl.to(rings.modalBtn, { opacity: 1, duration: 0.3 }, 27.5);
+
+      // 5. Subtítulo PASO 6 aparece
+      tl.to(subBadge, { textContent: "PASO 6", duration: 0.01 }, 27.6);
+      tl.to(subText, { textContent: "También podés descargar un reporte por período", duration: 0.01 }, 27.6);
+      tl.to(subBanner, { opacity: 1, duration: 0.3 }, 27.6);
+
+      // Mantenimiento final limpio
+      tl.to(cursor, { opacity: 0, duration: 0.4 }, 29.5);
+
+      // Register timeline into HyperFrames
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>
