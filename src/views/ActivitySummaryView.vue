@@ -213,8 +213,22 @@
 
           <!-- BLOQUE: HISTORIAL DE PAGOS -->
           <section>
-            <h3 class="mb-5 text-xl font-extrabold text-slate-950 dark:text-white">Historial de pagos</h3>
-            <div v-if="historialLiquidaciones.length > 0" class="space-y-8">
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-5">
+              <h3 class="text-xl font-extrabold text-slate-950 dark:text-white">Historial de pagos</h3>
+              
+              <!-- Buscador Rápido en Historial de Pagos -->
+              <div class="relative w-full sm:w-72">
+                <input 
+                  v-model="searchPagosQuery"
+                  type="text"
+                  placeholder="Buscar por paciente o N° orden..."
+                  class="w-full pl-9 pr-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                />
+                <svg class="w-4 h-4 text-slate-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+              </div>
+            </div>
+
+            <div v-if="historialLiquidacionesFiltradas.length > 0" class="space-y-8">
               <div v-for="(liquidaciones, mes) in liquidacionesAgrupadasPorMes" :key="mes" class="space-y-5">
                 <h4 class="pb-2 text-lg font-bold border-b text-slate-800 dark:text-slate-200 border-slate-200 dark:border-slate-700/50">{{ mes }}</h4>
                 <div v-for="liq in liquidaciones" :key="liq.id" class="p-5 bg-white border shadow-2xs border-slate-200/80 sm:p-6 dark:bg-slate-900 rounded-2xl dark:border-slate-800 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
@@ -260,6 +274,17 @@
                   <button v-if="liq.cirugias.length > 0" @click="openDetailModal(liq, true)" class="inline-flex items-center justify-center px-4 py-2.5 text-xs font-extrabold transition-all duration-200 rounded-xl text-slate-700 bg-slate-100 hover:bg-slate-200 focus:outline-none dark:text-slate-200 dark:bg-slate-800 dark:border dark:border-slate-700 dark:hover:bg-slate-700 hover:-translate-y-0.5 cursor-pointer">
                     Abrir detalle
                   </button>
+
+                  <!-- Botón Descargar PDF de esta orden -->
+                  <button 
+                    @click="descargarPDFOrdenIndividual(liq)" 
+                    class="inline-flex items-center justify-center px-4 py-2.5 text-xs font-extrabold text-indigo-700 bg-indigo-50 border border-indigo-200 rounded-xl hover:bg-indigo-100 dark:bg-indigo-950/40 dark:border-indigo-800/60 dark:text-indigo-300 dark:hover:bg-indigo-900/50 transition-all duration-200 hover:-translate-y-0.5 cursor-pointer"
+                    title="Descargar PDF individual de esta orden"
+                  >
+                    <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                    PDF Orden
+                  </button>
+
                   <a v-if="liq.comprobante_object_key" :href="getComprobanteUrl(liq.comprobante_object_key)" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center px-4 py-2.5 text-xs font-extrabold text-blue-700 transition-all duration-200 border border-blue-200 rounded-xl bg-blue-50 hover:bg-blue-100 focus:outline-none dark:bg-blue-950/40 dark:border-blue-800/60 dark:text-blue-300 dark:hover:bg-blue-900/50 hover:-translate-y-0.5">
                     <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                     Ver comprobante
@@ -279,7 +304,7 @@
               </div>
             </div>
             <div v-else class="px-6 py-10 text-center bg-white border shadow-2xs border-slate-200/80 dark:bg-slate-900 rounded-2xl dark:border-slate-800 text-slate-500">
-              Todavía no hay pagos registrados.
+              Todavía no hay pagos registrados que coincidan con la búsqueda.
             </div>
           </section>
         </div>
@@ -315,6 +340,7 @@ import FaqSection from '../components/FaqSection.vue';
 import PaymentDetailModal from '../components/PaymentDetailModal.vue';
 import MyDataSection from '../components/MyDataSection.vue';
 import ReportePagosModal from '../components/ReportePagosModal.vue';
+import { useReportePagosPDF } from '../composables/useReportePagosPDF';
 
 const isAuthenticated = ref(false);
 const isLoading = ref(false);
@@ -327,10 +353,20 @@ const isDetailModalOpen = ref(false);
 const isReportModalOpen = ref(false);
 const selectedLiquidacion = ref(null);
 const isDarkMode = ref(false);
+const searchPagosQuery = ref('');
 
 const route = useRoute();
 const toast = useToast();
 const token = route.params.token;
+const { generarReporteOrdenIndividual } = useReportePagosPDF();
+
+const descargarPDFOrdenIndividual = (liq) => {
+  generarReporteOrdenIndividual({
+    instrumentador: instrumentadorInfo.value,
+    liquidacion: liq
+  });
+  toast.success('Generando PDF de la orden...');
+};
 
 const authenticate = async () => {
   if (!dni.value.trim()) {
@@ -426,15 +462,26 @@ const historialLiquidaciones = computed(() => {
   return Object.values(groups).sort((a, b) => new Date(b.fecha_pago || 0) - new Date(a.fecha_pago || 0));
 });
 
+const historialLiquidacionesFiltradas = computed(() => {
+  if (!searchPagosQuery.value.trim()) return historialLiquidaciones.value;
+  const q = searchPagosQuery.value.toLowerCase().trim();
+  return historialLiquidaciones.value.filter(liq => {
+    const matchOrden = liq.orden_de_pago_id && String(liq.orden_de_pago_id).toLowerCase().includes(q);
+    const matchPaciente = liq.pacientes && liq.pacientes.some(p => p.toLowerCase().includes(q));
+    const matchFecha = liq.fecha_pago && String(liq.fecha_pago).includes(q);
+    return matchOrden || matchPaciente || matchFecha;
+  });
+});
+
 const visibleComprobantes = computed(() => {
   return comprobantesRecientes.value.slice(0, 3);
 });
 
 // Paginación y Agrupación del historial (Front-end Only)
-const limitLiquidaciones = ref(6); // Muestra 6 elementos iniciales
+const limitLiquidaciones = ref(6);
 
 const liquidacionesPaginadas = computed(() => {
-  return historialLiquidaciones.value.slice(0, limitLiquidaciones.value);
+  return historialLiquidacionesFiltradas.value.slice(0, limitLiquidaciones.value);
 });
 
 const liquidacionesAgrupadasPorMes = computed(() => {

@@ -148,7 +148,7 @@ export function useReportePagosPDF() {
       // Calcular altura requerida para la tarjeta
       const headerHeight = 9;
       const rowHeight = 5.5;
-      const footerHeight = 8; // Siempre mostrar footer con Total de la Orden
+      const footerHeight = 8;
       const cardHeight = headerHeight + (itemsCirugias.length * rowHeight) + footerHeight;
 
       // Verificar si cabe en la página actual o crear nueva página
@@ -167,7 +167,6 @@ export function useReportePagosPDF() {
       // Header de la Tarjeta (Franja de Título)
       doc.setFillColor(241, 245, 249);
       doc.roundedRect(marginX, yPos, contentWidth, headerHeight, 3, 3, 'F');
-      // Rectángulo plano para cubrir esquinas inferiores del header
       doc.rect(marginX, yPos + headerHeight - 2, contentWidth, 2, 'F');
 
       doc.setTextColor(...colorAccent);
@@ -275,7 +274,18 @@ export function useReportePagosPDF() {
     doc.save(filename);
   };
 
+  const generarReporteOrdenIndividual = ({ instrumentador, liquidacion }) => {
+    if (!liquidacion) return;
+    const refStr = liquidacion.orden_de_pago_id ? `#${liquidacion.orden_de_pago_id}` : 'Individual';
+    generarReportePagos({
+      instrumentador,
+      liquidaciones: [liquidacion],
+      periodoLabel: `Orden de Pago ${refStr}`
+    });
+  };
+
   return {
-    generarReportePagos
+    generarReportePagos,
+    generarReporteOrdenIndividual
   };
 }
