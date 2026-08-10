@@ -198,77 +198,81 @@
         </div>
 
         <!-- TAB 2: PAGOS Y COMPROBANTES -->
-        <div v-else-if="activeTab === 'pagos'" class="space-y-10">
-          <!-- HEADER CON BOTÓN OBTENER REPORTE -->
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 lg:mb-8 bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-2xs">
+        <div v-else-if="activeTab === 'pagos'" class="space-y-6 sm:space-y-8">
+          
+          <!-- ACCIONES RÁPIDAS Y ENCABEZADO COMPACTO DE PAGOS -->
+          <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-200/80 dark:border-slate-800">
             <div>
-              <h2 class="text-2xl font-extrabold text-slate-950 dark:text-white">Pagos y comprobantes</h2>
-              <p class="max-w-2xl mt-1.5 text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-                Acá podés controlar los pagos realizados por tus cirugías acompañadas, ver los comprobantes cargados y descargar tu reporte en PDF por período.
-              </p>
+              <h2 class="text-base sm:text-lg font-black text-slate-950 dark:text-white">Pagos y Comprobantes</h2>
+              <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Controlá tus cirugías abonadas y pendientes de cobro.</p>
             </div>
 
+            <!-- Botón compacto para reporte PDF -->
             <button 
               @click="isReportModalOpen = true"
-              class="shrink-0 inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-indigo-900 to-blue-900 hover:from-indigo-800 hover:to-blue-800 text-white font-extrabold text-xs shadow-md transition-all cursor-pointer hover:-translate-y-0.5"
+              class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs shadow-2xs transition-all cursor-pointer hover:-translate-y-0.5"
             >
-              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" /></svg>
-              <span>Descargar Reporte de Pagos</span>
+              <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" /></svg>
+              <span>Descargar Reporte PDF</span>
             </button>
           </div>
 
           <!-- BLOQUE: CIRUGÍAS PENDIENTES DE PAGO -->
           <section>
-            <h3 class="mb-5 text-xl font-extrabold text-slate-950 dark:text-white">Cirugías pendientes de pago</h3>
-            <div v-if="pendientes.length > 0" class="space-y-4">
-              <div v-for="report in pendientes" :key="report.id" class="p-5 bg-white border shadow-2xs border-slate-200/80 sm:p-6 dark:bg-slate-900 rounded-2xl dark:border-slate-800 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
-                <div class="flex items-start justify-between gap-4 mb-3">
+            <h3 class="mb-3 text-sm sm:text-base font-extrabold text-slate-950 dark:text-white flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+              Cirugías pendientes de pago
+            </h3>
+            
+            <div v-if="pendientes.length > 0" class="space-y-3">
+              <div v-for="report in pendientes" :key="report.id" class="p-3.5 sm:p-4 bg-white border shadow-2xs border-slate-200/80 dark:bg-slate-900 rounded-xl dark:border-slate-800 transition-all duration-200 hover:shadow-xs">
+                <div class="flex items-start justify-between gap-3 mb-2">
                   <div>
-                    <p class="font-extrabold text-slate-950 dark:text-white">{{ report.paciente || 'No especificado' }}</p>
-                    <p class="text-sm text-slate-600 dark:text-slate-400 mt-0.5">Cirugía realizada el <span class="font-bold text-slate-800 dark:text-slate-200">{{ report.fecha_cirugia ? formatDate(report.fecha_cirugia) : 'Fecha no disponible' }}</span></p>
+                    <p class="text-sm font-extrabold text-slate-950 dark:text-white">{{ report.paciente || 'No especificado' }}</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Cirugía realizada el <span class="font-bold text-slate-700 dark:text-slate-300">{{ report.fecha_cirugia ? formatDate(report.fecha_cirugia) : 'Fecha no disponible' }}</span></p>
                   </div>
-                  <span class="inline-flex items-center px-3 py-1 text-xs font-bold border rounded-full shrink-0 bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-800/50">
-                    <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
+                  <span class="inline-flex items-center px-2.5 py-0.5 text-[11px] font-bold border rounded-full shrink-0 bg-amber-50 text-amber-700 border-amber-200/80 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-800/50">
+                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
                     Pendiente de pago
                   </span>
                 </div>
-                <div class="flex items-start gap-3 p-3.5 mt-4 mb-2 text-sm border rounded-xl bg-sky-50/80 text-sky-900 dark:bg-sky-950/40 dark:text-sky-200 border-sky-200/80 dark:border-sky-800">
-                  <svg class="w-5 h-5 shrink-0 text-sky-600 dark:text-sky-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" /></svg>
-                  <p class="leading-relaxed text-xs sm:text-sm">Esta cirugía será incluida en una próxima orden de pago cuando se procese la liquidación correspondiente.</p>
+                <div class="flex items-center gap-2 p-2.5 mt-2 text-xs border rounded-lg bg-sky-50/70 text-sky-900 dark:bg-sky-950/30 dark:text-sky-200 border-sky-200/60 dark:border-sky-800/60">
+                  <svg class="w-4 h-4 shrink-0 text-sky-600 dark:text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" /></svg>
+                  <p class="text-xs">Inclusión en próxima orden de pago al procesar la liquidación.</p>
                 </div>
               </div>
             </div>
-            <div v-else class="px-6 py-10 text-center bg-white border shadow-2xs border-slate-200/80 dark:bg-slate-900 rounded-2xl dark:border-slate-800 text-slate-500">
+            <div v-else class="px-4 py-6 text-xs text-center bg-white border shadow-2xs border-slate-200/80 dark:bg-slate-900 rounded-xl dark:border-slate-800 text-slate-500">
               No tenés cirugías pendientes de cobro.
             </div>
           </section>
 
           <!-- BLOQUE: HISTORIAL DE PAGOS -->
           <section>
-            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-5">
-              <h3 class="text-xl font-extrabold text-slate-950 dark:text-white">Historial de pagos</h3>
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4">
+              <h3 class="text-sm sm:text-base font-extrabold text-slate-950 dark:text-white">Historial de pagos</h3>
               
               <!-- Buscador Rápido en Historial de Pagos -->
-              <div class="relative w-full sm:w-72">
+              <div class="relative w-full sm:w-64">
                 <input 
                   v-model="searchPagosQuery"
                   type="text"
-                  placeholder="Buscar por paciente o N° orden..."
-                  class="w-full pl-9 pr-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                  placeholder="Buscar paciente o N° orden..."
+                  class="w-full pl-8 pr-3 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                 />
-                <svg class="w-4 h-4 text-slate-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                <svg class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
               </div>
             </div>
 
-            <div v-if="historialLiquidacionesFiltradas.length > 0" class="space-y-8">
-              <div v-for="(liquidaciones, mes) in liquidacionesAgrupadasPorMes" :key="mes" class="space-y-5">
-                <h4 class="pb-2 text-lg font-bold border-b text-slate-800 dark:text-slate-200 border-slate-200 dark:border-slate-700/50">{{ mes }}</h4>
-                <div v-for="liq in liquidaciones" :key="liq.id" class="p-5 bg-white border shadow-2xs border-slate-200/80 sm:p-6 dark:bg-slate-900 rounded-2xl dark:border-slate-800 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
+            <div v-if="historialLiquidacionesFiltradas.length > 0" class="space-y-6">
+              <div v-for="(liquidaciones, mes) in liquidacionesAgrupadasPorMes" :key="mes" class="space-y-4">
+                <h4 class="pb-1.5 text-sm font-extrabold border-b text-slate-700 dark:text-slate-300 border-slate-200/80 dark:border-slate-800">{{ mes }}</h4>
+                <div v-for="liq in liquidaciones" :key="liq.id" class="p-4 bg-white border shadow-2xs border-slate-200/80 sm:p-5 dark:bg-slate-900 rounded-xl dark:border-slate-800 transition-all duration-200 hover:shadow-xs">
                 
-                <div class="flex flex-wrap items-start justify-between gap-4 mb-5">
+                <div class="flex flex-wrap items-start justify-between gap-3 mb-3">
                   <div>
-                    <h4 class="flex items-center gap-2.5 text-lg font-bold text-slate-950 dark:text-white">
-                      <svg class="w-5 h-5 text-slate-400 dark:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V8.25ZM6.75 12h.008v.008H6.75V12Zm0 3h.008v.008H6.75V15Zm0 3h.008v.008H6.75V18Z" /></svg>
+                    <h4 class="flex items-center gap-2 text-base font-bold text-slate-950 dark:text-white">
+                      <svg class="w-4 h-4 text-slate-400 dark:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V8.25ZM6.75 12h.008v.008H6.75V12Zm0 3h.008v.008H6.75V15Zm0 3h.008v.008H6.75V18Z" /></svg>
                       {{ liq.orden_de_pago_id ? 'Orden de pago #' + liq.orden_de_pago_id : 'Pago registrado' }}
                     </h4>
                     <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
