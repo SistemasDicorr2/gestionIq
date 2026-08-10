@@ -811,7 +811,7 @@ const checkEnviadoForDate = async (fecha) => {
   try {
     const { data } = await supabase
       .from('logistica_informes_diarios')
-      .select('id, fecha, enviado_at, hora_envio')
+      .select('id, fecha, enviado_at')
       .eq('responsable_user_id', informe.responsable_user_id)
       .eq('fecha', fecha)
       .eq('estado', 'enviado')
@@ -1168,14 +1168,35 @@ const toggleShowDraftSelector = () => {
 const fetchUserDrafts = async (userId) => {
   if (!userId) return;
   try {
-    const { data } = await supabase
+    const { data: rawDrafts } = await supabase
       .from('logistica_informes_diarios')
       .select('id, fecha, zona, observacion_general, created_at, updated_at')
       .eq('responsable_user_id', userId)
       .eq('estado', 'borrador')
       .order('created_at', { ascending: false });
 
-    userDrafts.value = data || [];
+    if (!rawDrafts || rawDrafts.length === 0) {
+      userDrafts.value = [];
+      return;
+    }
+
+    // Filtrar borradores activos que contengan movimientos o que tengan observación no vacía
+    const activeDrafts = [];
+    for (const draft of rawDrafts) {
+      const { count } = await supabase
+        .from('logistica_informe_movimientos')
+        .select('id', { count: 'exact', head: true })
+        .eq('informe_id', draft.id);
+
+      const hasMovs = (count || 0) > 0;
+      const hasObs = draft.observacion_general && draft.observacion_general.trim().length > 0;
+
+      if (hasMovs || hasObs) {
+        activeDrafts.push(draft);
+      }
+    }
+
+    userDrafts.value = activeDrafts;
   } catch (err) {
     console.error('Error al obtener borradores activos:', err);
   }
@@ -1233,7 +1254,6 @@ const startNewCleanReport = () => {
   clearSelectedCirugia();
   showManualForm.value = false;
   clearTimeout(autoSaveTimer);
-  toast.info('Se inició un nuevo informe diario limpio.');
 };
 
 const deleteCurrentDraft = async () => {
@@ -1250,7 +1270,6 @@ const deleteCurrentDraft = async () => {
     const { error: deleteErr } = await supabase.from('logistica_informes_diarios').delete().eq('id', draftIdToDelete);
     if (deleteErr) {
       console.warn('DELETE no permitido por RLS/Grant en logistica_informes_diarios, limpiando borrador:', deleteErr);
-      // Fallback sin violar el CHECK constraint (estado admite: borrador, enviado, corregido)
       const { error: updateErr } = await supabase
         .from('logistica_informes_diarios')
         .update({ observacion_general: null })
@@ -1261,13 +1280,12 @@ const deleteCurrentDraft = async () => {
     toast.success('Borrador descartado correctamente.');
     showDeleteDraftModal.value = false;
     
-    // 3. Actualizar la lista de borradores del usuario
+    // 3. Actualizar la lista de borradores activos del usuario (filtrará el borrador descartado)
     await fetchUserDrafts(informe.responsable_user_id);
     
-    // 4. Cambiar al siguiente borrador o limpiar estado de manera segura
-    const remainingDrafts = userDrafts.value.filter(d => d.id !== draftIdToDelete);
-    if (remainingDrafts.length > 0) {
-      await loadDraftData(remainingDrafts[0].id);
+    // 4. Cambiar al siguiente borrador válido o iniciar un reporte nuevo y limpio
+    if (userDrafts.value.length > 0) {
+      await loadDraftData(userDrafts.value[0].id);
     } else {
       startNewCleanReport();
     }

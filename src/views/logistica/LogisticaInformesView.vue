@@ -431,16 +431,33 @@ const fetchDashboardData = async () => {
 
       recentInformes.value = recents || [];
     } else {
-      // MODO OPERADOR LOGÍSTICA / SOLO MIS INFORMES
       // 1. Obtener todos los borradores activos del usuario
-      const { data: drafts } = await supabase
+      const { data: rawDrafts } = await supabase
         .from('logistica_informes_diarios')
         .select('*')
         .eq('responsable_user_id', session.user.id)
         .eq('estado', 'borrador')
         .order('created_at', { ascending: false });
 
-      activeOperatorDrafts.value = drafts || [];
+      if (rawDrafts && rawDrafts.length > 0) {
+        const activeDrafts = [];
+        for (const draft of rawDrafts) {
+          const { count } = await supabase
+            .from('logistica_informe_movimientos')
+            .select('id', { count: 'exact', head: true })
+            .eq('informe_id', draft.id);
+
+          const hasMovs = (count || 0) > 0;
+          const hasObs = draft.observacion_general && draft.observacion_general.trim().length > 0;
+
+          if (hasMovs || hasObs) {
+            activeDrafts.push(draft);
+          }
+        }
+        activeOperatorDrafts.value = activeDrafts;
+      } else {
+        activeOperatorDrafts.value = [];
+      }
 
       // 2. Obtener informe de hoy del usuario logueado
       const { data: infToday } = await supabase
