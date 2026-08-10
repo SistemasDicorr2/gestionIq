@@ -1,42 +1,108 @@
 <!-- src/components/capture/WebcamCapture.vue -->
 <template>
-  <!-- Usamos <Teleport> para renderizar el modal en el body, evitando problemas de z-index -->
   <Teleport to="body">
-    <!-- El modal solo se muestra si la prop 'show' es verdadera -->
-    <div v-if="show" class="modal-overlay" @click.self="closeModal">
-      <div class="modal-content">
-        <h3 class="modal-title">Capturar Foto desde Webcam</h3>
-
-        <!-- Contenedor del video y mensajes de estado -->
-        <div class="video-container">
-          <div v-if="errorMsg" class="error-state">
-            <p><strong>Error:</strong> {{ errorMsg }}</p>
-            <p>Asegúrate de haber dado permiso al navegador para usar la cámara.</p>
+    <div v-if="show" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4" @click.self="closeModal">
+      <div class="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden w-full max-w-xl shadow-2xl flex flex-col max-h-[92vh]">
+        <!-- Header -->
+        <div class="px-4 py-3 border-b border-slate-800 flex items-center justify-between bg-slate-900/90">
+          <div class="flex items-center gap-2">
+            <span class="text-xl">📷</span>
+            <h3 class="text-sm sm:text-base font-extrabold text-white">Cámara Rápida (Multi-foto)</h3>
           </div>
-          <div v-else-if="isLoading" class="loading-state">Cargando cámara...</div>
-          
-          <!-- El elemento <video> donde se mostrará el stream de la webcam -->
-          <video ref="videoRef" autoplay playsinline class="video-feed"></video>
-          
-          <!-- El <canvas> está oculto, lo usamos para procesar la imagen -->
-          <canvas ref="canvasRef" style="display: none;"></canvas>
-
-          <!-- Feedback visual de foto capturada -->
-          <div v-if="photoCaptured" class="capture-feedback">¡Foto Capturada!</div>
+          <button 
+            type="button"
+            @click="closeModal" 
+            class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-sm flex items-center justify-center transition-all cursor-pointer"
+          >
+            ✕
+          </button>
         </div>
 
-        <!-- Botones de acción -->
-        <div class="modal-actions">
-          <!-- Contador de fotos capturadas -->
-          <span v-if="photosTakenCount > 0" class="photos-counter">
-            {{ photosTakenCount }} foto(s) capturada(s)
-          </span>
-          <!-- El botón de cerrar ahora es el principal para terminar -->
-          <button @click="closeModal" class="btn-secondary">
-            {{ photosTakenCount > 0 ? 'Confirmar y Cerrar' : 'Cancelar' }}
+        <!-- Contenedor principal de video -->
+        <div class="relative bg-black flex-1 min-h-[280px] flex items-center justify-center overflow-hidden">
+          <div v-if="errorMsg" class="p-6 text-center text-rose-400 space-y-2">
+            <p class="font-bold text-sm sm:text-base">⚠️ {{ errorMsg }}</p>
+            <p class="text-xs text-slate-400">Verificá los permisos de cámara en tu navegador.</p>
+          </div>
+          <div v-else-if="isLoading" class="p-8 text-center text-blue-400 animate-pulse font-bold text-sm">
+            Iniciando cámara...
+          </div>
+          
+          <video 
+            ref="videoRef" 
+            autoplay 
+            playsinline 
+            class="w-full h-full object-cover max-h-[55vh]"
+            :class="{ '-scale-x-100': currentFacingMode === 'user' }"
+          ></video>
+          
+          <canvas ref="canvasRef" class="hidden"></canvas>
+
+          <!-- Flash de disparo -->
+          <div v-if="photoCaptured" class="absolute inset-0 bg-white/70 animate-ping pointer-events-none"></div>
+
+          <!-- Botón de cambio de cámara (Frontal/Trasera) -->
+          <button 
+            v-if="!isLoading && !errorMsg"
+            type="button" 
+            @click="toggleCamera"
+            class="absolute top-3 right-3 px-3 py-1.5 rounded-full bg-slate-900/80 hover:bg-slate-900 border border-slate-700 text-white font-bold text-xs shadow-lg backdrop-blur-md flex items-center gap-1.5 transition-all cursor-pointer"
+            title="Cambiar Cámara"
+          >
+            🔄 {{ currentFacingMode === 'environment' ? 'Cámara Frontal' : 'Cámara Trasera' }}
           </button>
-          <button @click="capturePhoto" :disabled="isLoading || !!errorMsg" class="btn-primary">
-            {{ photosTakenCount > 0 ? 'Capturar Otra' : 'Capturar Foto' }}
+        </div>
+
+        <!-- Tira de fotos capturadas en la sesión actual -->
+        <div v-if="capturedPhotos.length > 0" class="px-4 py-2.5 bg-slate-950 border-t border-slate-800">
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="text-[11px] font-black text-slate-400 uppercase tracking-wider">
+              Capturadas en esta sesión ({{ capturedPhotos.length }}):
+            </span>
+          </div>
+          <div class="flex gap-2 overflow-x-auto pb-1 scrollbar-thin">
+            <div v-for="(photo, idx) in capturedPhotos" :key="photo.id" class="relative flex-shrink-0 w-14 h-14 group rounded-xl overflow-hidden border border-slate-700">
+              <img :src="photo.previewUrl" class="w-full h-full object-cover" alt="Captura" />
+              <button 
+                type="button" 
+                @click="removeCapturedPhoto(idx)"
+                class="absolute -top-1 -right-1 w-5 h-5 bg-rose-600 text-white rounded-full text-[10px] font-black flex items-center justify-center shadow-md hover:scale-110 cursor-pointer"
+                title="Quitar esta foto"
+              >
+                ✕
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Acciones del pie -->
+        <div class="p-3 sm:p-4 bg-slate-900 border-t border-slate-800 flex items-center justify-between gap-3">
+          <button 
+            type="button"
+            @click="closeModal" 
+            class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs transition-all cursor-pointer"
+          >
+            {{ capturedPhotos.length > 0 ? 'Cancelar' : 'Cerrar' }}
+          </button>
+
+          <!-- Botón disparador principal estilo cámara -->
+          <button 
+            type="button"
+            @click="capturePhoto" 
+            :disabled="isLoading || !!errorMsg" 
+            class="w-14 h-14 rounded-full bg-rose-600 hover:bg-rose-500 border-4 border-slate-900 outline outline-2 outline-rose-500 flex items-center justify-center text-white shadow-xl hover:scale-105 active:scale-95 transition-all cursor-pointer disabled:opacity-50"
+            title="Tomar Foto"
+          >
+            <div class="w-10 h-10 rounded-full bg-white/20"></div>
+          </button>
+
+          <button 
+            type="button"
+            @click="confirmPhotos" 
+            :disabled="capturedPhotos.length === 0"
+            class="px-4 sm:px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 disabled:bg-slate-800 disabled:text-slate-500 text-white font-extrabold text-xs transition-all cursor-pointer shadow-md flex items-center gap-1.5"
+          >
+            ✓ Confirmar ({{ capturedPhotos.length }})
           </button>
         </div>
       </div>
@@ -51,42 +117,51 @@ const props = defineProps({
   show: { type: Boolean, required: true }
 });
 
-const emit = defineEmits(['close', 'photo-taken']);
+const emit = defineEmits(['close', 'photo-taken', 'photos-confirmed']);
 
 const videoRef = ref(null);
 const canvasRef = ref(null);
 const stream = ref(null);
 const isLoading = ref(false);
 const errorMsg = ref('');
-const photosTakenCount = ref(0);
-const photoCaptured = ref(false); // Para el feedback visual "flash"
+const photoCaptured = ref(false);
+const currentFacingMode = ref('environment'); // Por defecto cámara trasera para evidencias
+const capturedPhotos = ref([]);
 
-/**
- * Inicia la cámara usando la API getUserMedia.
- */
 const startCamera = async () => {
-  if (!props.show || stream.value) return;
+  if (!props.show) return;
 
+  stopCamera();
   isLoading.value = true;
   errorMsg.value = '';
+
   try {
     stream.value = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: 'user' } // Prioriza la cámara frontal
+      video: { 
+        facingMode: { ideal: currentFacingMode.value },
+        width: { ideal: 1920 },
+        height: { ideal: 1080 }
+      }
     });
     if (videoRef.value) {
       videoRef.value.srcObject = stream.value;
     }
   } catch (err) {
-    console.error("Error al acceder a la webcam:", err);
-    errorMsg.value = "No se pudo acceder a la cámara.";
+    console.warn("[WebcamCapture] Fallo con facingMode ideal, intentando modo básico:", err);
+    try {
+      stream.value = await navigator.mediaDevices.getUserMedia({ video: true });
+      if (videoRef.value) {
+        videoRef.value.srcObject = stream.value;
+      }
+    } catch (fallbackErr) {
+      console.error("[WebcamCapture] Error final al acceder a la cámara:", fallbackErr);
+      errorMsg.value = "No se pudo acceder a la cámara. Revisa los permisos.";
+    }
   } finally {
     isLoading.value = false;
   }
 };
 
-/**
- * Detiene todos los tracks de video para apagar la cámara y liberar recursos.
- */
 const stopCamera = () => {
   if (stream.value) {
     stream.value.getTracks().forEach(track => track.stop());
@@ -94,9 +169,11 @@ const stopCamera = () => {
   }
 };
 
-/**
- * Captura un fotograma del video, lo convierte en un archivo y lo emite.
- */
+const toggleCamera = () => {
+  currentFacingMode.value = currentFacingMode.value === 'environment' ? 'user' : 'environment';
+  startCamera();
+};
+
 const capturePhoto = () => {
   if (!videoRef.value || !canvasRef.value) return;
 
@@ -104,58 +181,74 @@ const capturePhoto = () => {
   const canvas = canvasRef.value;
   const context = canvas.getContext('2d');
 
-  canvas.width = video.videoWidth;
-  canvas.height = video.videoHeight;
+  canvas.width = video.videoWidth || 1280;
+  canvas.height = video.videoHeight || 720;
+
+  // Si es cámara frontal, invertimos horizontalmente el canvas para no guardar la imagen en espejo
+  if (currentFacingMode.value === 'user') {
+    context.translate(canvas.width, 0);
+    context.scale(-1, 1);
+  }
 
   context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
   canvas.toBlob((blob) => {
-    const photoFile = new File([blob], `webcam-${Date.now()}.jpg`, { type: 'image/jpeg' });
-    emit('photo-taken', photoFile);
+    if (!blob) return;
+    const photoFile = new File([blob], `camara-${Date.now()}.jpg`, { type: 'image/jpeg' });
+    const previewUrl = URL.createObjectURL(photoFile);
     
-    photosTakenCount.value++; // Incrementamos el contador
-    
-    // Mostramos un feedback visual rápido (efecto flash)
+    capturedPhotos.value.push({
+      id: crypto.randomUUID(),
+      file: photoFile,
+      previewUrl
+    });
+
+    // Feedback visual tipo flash
     photoCaptured.value = true;
-    setTimeout(() => { photoCaptured.value = false; }, 500);
-    
-    // El modal ya no se cierra, permitiendo capturar más fotos.
-  }, 'image/jpeg', 0.9);
+    setTimeout(() => { photoCaptured.value = false; }, 300);
+
+    // Emitir inmediatamente cada foto por separado
+    emit('photo-taken', photoFile);
+
+  }, 'image/jpeg', 0.92);
+};
+
+const removeCapturedPhoto = (idx) => {
+  const item = capturedPhotos.value[idx];
+  if (item?.previewUrl) {
+    URL.revokeObjectURL(item.previewUrl);
+  }
+  capturedPhotos.value.splice(idx, 1);
+};
+
+const clearCapturedPhotos = () => {
+  capturedPhotos.value.forEach(p => {
+    if (p.previewUrl) URL.revokeObjectURL(p.previewUrl);
+  });
+  capturedPhotos.value = [];
+};
+
+const confirmPhotos = () => {
+  emit('photos-confirmed', capturedPhotos.value.map(p => p.file));
+  closeModal();
 };
 
 const closeModal = () => {
   emit('close');
 };
 
-// Observa cambios en la prop 'show' para iniciar/detener la cámara.
 watch(() => props.show, (newValue) => {
   if (newValue) {
-    photosTakenCount.value = 0; // Reseteamos el contador cada vez que se abre el modal
+    clearCapturedPhotos();
     startCamera();
   } else {
     stopCamera();
+    clearCapturedPhotos();
   }
 });
 
-// Asegura que la cámara se apague si el componente se destruye.
 onUnmounted(() => {
   stopCamera();
+  clearCapturedPhotos();
 });
 </script>
-
-<style scoped>
-.modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.6); display: flex; align-items: center; justify-content: center; z-index: 1000; }
-.modal-content { background-color: white; padding: 1.5rem; border-radius: 8px; width: 90%; max-width: 600px; }
-.modal-title { font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; }
-.video-container { position: relative; background-color: #000; border-radius: 4px; overflow: hidden; }
-.video-feed { width: 100%; display: block; }
-.error-state, .loading-state { color: white; text-align: center; padding: 4rem 1rem; }
-.capture-feedback { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(255, 255, 255, 0.8); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: bold; color: #1e293b; opacity: 0; animation: flash 0.5s ease-out; }
-@keyframes flash { 0% { opacity: 1; } 100% { opacity: 0; } }
-.modal-actions { margin-top: 1.5rem; display: flex; justify-content: flex-end; align-items: center; gap: 0.75rem; }
-.photos-counter { margin-right: auto; font-size: 0.875rem; color: #475569; }
-.btn-primary, .btn-secondary { padding: 0.5rem 1rem; border-radius: 4px; border: 1px solid transparent; font-weight: 500; cursor: pointer; }
-.btn-primary { background-color: #3b82f6; color: white; }
-.btn-primary:disabled { background-color: #9ca3af; cursor: not-allowed; }
-.btn-secondary { background-color: #e5e7eb; color: #1f2937; }
-</style>

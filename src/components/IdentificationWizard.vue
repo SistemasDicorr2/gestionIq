@@ -184,8 +184,8 @@ const checkDni = async () => {
   }
   isCheckingDni.value = true;
   try {
-    const { data, error } = await supabase.from('instrumentadores').select('*').eq('dni', cleanDni).single();
-    if (error && error.code !== 'PGRST116') throw error;
+    const { data, error } = await supabase.from('instrumentadores').select('*').eq('dni', cleanDni).maybeSingle();
+    if (error) throw error;
     if (data) {
       instrumentador.value = data;
       instrumentadorFound.value = true;

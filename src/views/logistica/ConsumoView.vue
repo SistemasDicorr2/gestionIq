@@ -305,8 +305,8 @@ const handleSurgerySelection = async (surgery) => {
       .eq('cirugia_id', surgery.id)
       .order('created_at', { ascending: false })
       .limit(1)
-      .single();
-    if (error && error.code !== 'PGRST116') throw error;
+      .maybeSingle();
+    if (error) throw error;
     if (data) {
       existingControlWarning.value = new Date(data.fecha_retiro).toLocaleDateString('es-ES');
     }
