@@ -91,47 +91,81 @@
         </div>
       </div>
 
-      <!-- Compact Footer Actions -->
-      <div class="px-3.5 py-3 border-t border-slate-100 dark:border-slate-800 bg-slate-50/90 dark:bg-slate-900/90 space-y-1.5">
-        <!-- Main Primary Mailto Action -->
-        <button 
-          type="button" 
-          @click="openMailtoApp" 
-          :disabled="selectedEmailsCount === 0"
-          class="w-full py-2.5 px-3 bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs rounded-xl shadow-xs transition-all disabled:opacity-50 flex items-center justify-center gap-1.5 cursor-pointer active:scale-98 min-h-[38px]"
-        >
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-          <span>🚀 Abrir Outlook o Gmail ({{ selectedEmailsCount }})</span>
-        </button>
-
-        <!-- Secondary Action Buttons Grid -->
-        <div class="grid grid-cols-2 gap-1.5">
-          <button 
-            type="button" 
-            @click="copySelectedEmailsText" 
-            :disabled="selectedEmailsCount === 0"
-            class="py-2 px-2.5 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold text-[11px] rounded-xl border border-slate-200 dark:border-slate-700 transition-all flex items-center justify-center gap-1 cursor-pointer min-h-[36px] disabled:opacity-50"
-          >
-            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" /></svg>
-            <span>📋 Copiar Emails</span>
-          </button>
+      <!-- Compact Footer Actions (2 PASOS EXPLÍCITOS) -->
+      <div class="px-3.5 py-3 border-t border-slate-100 dark:border-slate-800 bg-slate-50/90 dark:bg-slate-900/90 space-y-3">
+        
+        <!-- PASO 1: COPIAR TABLA -->
+        <div class="space-y-1.5">
+          <div class="flex items-center justify-between">
+            <span class="text-[10px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400">
+              PASO 1: Copiá la tabla del informe
+            </span>
+            <span v-if="isTableCopied" class="text-[10px] font-black text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+              ✓ Tabla copiada
+            </span>
+          </div>
 
           <button 
             type="button" 
-            @click="$emit('copy-table')" 
-            class="py-2 px-2.5 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold text-[11px] rounded-xl border border-slate-200 dark:border-slate-700 transition-all flex items-center justify-center gap-1 cursor-pointer min-h-[36px]"
+            @click="handleCopyTable" 
+            class="w-full py-2.5 px-3 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-900 dark:text-white font-extrabold text-xs rounded-xl border border-slate-300 dark:border-slate-700 transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs active:scale-98 min-h-[40px]"
           >
-            <svg class="w-3.5 h-3.5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-            <span>📋 Copiar Tabla HTML</span>
+            <svg class="w-4 h-4 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            <span>{{ isTableCopied ? '✓ Tabla Copiada (Volver a copiar)' : '📋 Copiar Tabla HTML' }}</span>
           </button>
         </div>
+
+        <div class="border-t border-slate-200/60 dark:border-slate-800"></div>
+
+        <!-- PASO 2: ABRIR CORREO -->
+        <div class="space-y-1.5">
+          <div class="flex items-center justify-between">
+            <span class="text-[10px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400">
+              PASO 2: Pegala en tu correo
+            </span>
+            <span v-if="!isTableCopied" class="text-[10px] font-extrabold text-amber-600 dark:text-amber-400">
+              🔒 Primero copiá la tabla
+            </span>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2">
+            <button 
+              type="button" 
+              @click="openEmailClient('outlook')" 
+              :disabled="!isTableCopied || selectedEmailsCount === 0"
+              :class="[
+                'py-2.5 px-3 font-extrabold text-xs rounded-xl shadow-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-98 min-h-[40px]',
+                isTableCopied && selectedEmailsCount > 0
+                  ? 'bg-blue-600 hover:bg-blue-700 text-white'
+                  : 'bg-slate-200 dark:bg-slate-800 text-slate-400 dark:text-slate-500 cursor-not-allowed opacity-60'
+              ]"
+            >
+              <span>{{ isTableCopied ? '🚀 Abrir Outlook' : 'Outlook 🔒' }}</span>
+            </button>
+
+            <button 
+              type="button" 
+              @click="openEmailClient('gmail')" 
+              :disabled="!isTableCopied || selectedEmailsCount === 0"
+              :class="[
+                'py-2.5 px-3 font-extrabold text-xs rounded-xl shadow-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-98 min-h-[40px]',
+                isTableCopied && selectedEmailsCount > 0
+                  ? 'bg-rose-600 hover:bg-rose-700 text-white'
+                  : 'bg-slate-200 dark:bg-slate-800 text-slate-400 dark:text-slate-500 cursor-not-allowed opacity-60'
+              ]"
+            >
+              <span>{{ isTableCopied ? '🚀 Abrir Gmail' : 'Gmail 🔒' }}</span>
+            </button>
+          </div>
+        </div>
+
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { useToast } from 'vue-toastification';
 
 const props = defineProps({
@@ -146,6 +180,16 @@ const emit = defineEmits(['close', 'copy-table']);
 const toast = useToast();
 
 const copiedEmail = ref(null);
+const isTableCopied = ref(false);
+
+// Resetear isTableCopied cuando cambie el informe o la cantidad de movimientos
+watch(
+  () => [props.movimientos, props.informe?.id],
+  () => {
+    isTableCopied.value = false;
+  },
+  { deep: true }
+);
 
 const emailList = ref([
   { label: 'Compras Implantes', email: 'comprasimplantes@districorr.com.ar', selected: true },
@@ -189,14 +233,13 @@ const copySingleEmail = async (emailStr) => {
   }
 };
 
-const copySelectedEmailsText = async () => {
-  if (selectedEmails.value.length === 0) return;
+const handleCopyTable = async () => {
   try {
-    const textToCopy = selectedEmails.value.join(', ');
-    await navigator.clipboard.writeText(textToCopy);
-    toast.success(`📋 Copiados ${selectedEmails.value.length} correos al portapapeles.`);
+    emit('copy-table');
+    isTableCopied.value = true;
+    toast.success('📋 Tabla formateada copiada al portapapeles. ¡Ahora podés abrir tu correo!');
   } catch (err) {
-    toast.error('Error al copiar correos: ' + err.message);
+    toast.error('Error al copiar tabla: ' + err.message);
   }
 };
 
@@ -206,41 +249,27 @@ const formatDate = (dateStr) => {
   return `${d}/${m}/${y}`;
 };
 
-const openMailtoApp = async () => {
-  if (!props.informe || selectedEmails.value.length === 0) return;
+const openEmailClient = async (provider = 'outlook') => {
+  if (!props.informe || selectedEmails.value.length === 0 || !isTableCopied.value) return;
 
   try {
-    if (props.htmlTableProvider) {
-      await props.htmlTableProvider();
-    }
-
     const recipients = selectedEmails.value.join(',');
     const subjectStr = `Informe Diario de Logística - ${formatDate(props.informe.fecha)} - ${props.informe.responsable_nombre} (${props.informe.zona || 'Formosa'})`;
     
-    let bodyText = `Hola,\n\nAdjunto el resumen del Informe Diario de Logística Operativa.\n\n`;
-    bodyText += `• Fecha: ${formatDate(props.informe.fecha)}\n`;
-    bodyText += `• Responsable: ${props.informe.responsable_nombre}\n`;
-    bodyText += `• Zona: ${props.informe.zona || 'Formosa'}\n`;
-    bodyText += `• Movimientos: ${props.stats?.totalMovimientos || 0}\n`;
-    bodyText += `• Total Cajas: ${props.stats?.totalCajas || 0}\n`;
-    bodyText += `• Total Bultos: ${props.stats?.totalBultos || 0}\n`;
-    bodyText += `• Pendientes Declarados: ${props.stats?.totalPendientes || 0}\n\n`;
+    // Cuerpo del correo 100% limpio sin texto molesto
+    const bodyText = `Hola,\n\nAdjunto el Informe Diario de Logística correspondiente a la jornada.\n`;
 
-    if (props.informe.observacion_general) {
-      bodyText += `Observación General: ${props.informe.observacion_general}\n\n`;
+    if (provider === 'gmail') {
+      const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(recipients)}&su=${encodeURIComponent(subjectStr)}&body=${encodeURIComponent(bodyText)}`;
+      window.open(gmailUrl, '_blank');
+    } else {
+      const mailtoUrl = `mailto:${recipients}?subject=${encodeURIComponent(subjectStr)}&body=${encodeURIComponent(bodyText)}`;
+      window.open(mailtoUrl, '_blank');
     }
 
-    bodyText += `--------------------------------------------------\n`;
-    bodyText += `Nota: La tabla formateada del informe ha sido copiada automáticamente a tu portapapeles.\n`;
-    bodyText += `Solo presiona PEGAR (Ctrl + V) en el cuerpo del correo para insertar el cuadro detallado.\n\n`;
-    bodyText += `Gestión IQ — Districorr.`;
-
-    const mailtoUrl = `mailto:${recipients}?subject=${encodeURIComponent(subjectStr)}&body=${encodeURIComponent(bodyText)}`;
-
-    window.open(mailtoUrl, '_blank');
     emit('close');
   } catch (err) {
-    toast.error('Error al abrir la aplicación de correo: ' + err.message);
+    toast.error('Error al abrir aplicación de correo: ' + err.message);
   }
 };
 </script>

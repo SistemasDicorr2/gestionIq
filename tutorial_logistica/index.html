@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Tutorial Informe de Logística - Gestión IQ</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#eff6ff',
+              100: '#dbeafe',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
+              900: '#1e3a8a',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      background-color: #0f172a;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      overflow: hidden;
+      font-family: 'Inter', sans-serif;
+    }
+    #root {
+      width: 1920px;
+      height: 1080px;
+      position: relative;
+      background-color: #f8fafc;
+      overflow: hidden;
+    }
+    .element-focus-ring {
+      position: absolute;
+      inset: -4px;
+      border: 2.5px solid #2563eb;
+      border-radius: 14px;
+      box-shadow: 0 0 18px rgba(37, 99, 235, 0.4);
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.25s ease;
+    }
+    .click-ripple {
+      position: absolute;
+      width: 36px;
+      height: 36px;
+      background: rgba(37, 99, 235, 0.4);
+      border-radius: 50%;
+      transform: translate(-50%, -50%) scale(0);
+      pointer-events: none;
+      z-index: 99;
+    }
+  </style>
+</head>
+<body>
+  <div data-hf-id="hf-ku3u" id="root" data-composition-id="main" data-start="0" data-width="1920" data-height="1080" data-frames="900" data-fps="30" data-contrast-allow-low="true">
+    
+    <!-- STAGE / VIEWPORT CONTAINER -->
+    <div data-hf-id="hf-a9qn" id="viewport" data-layout-allow-overflow="true" data-layout-allow-overlap="true" data-layout-allow-occlusion="true" data-contrast-allow-low="true" class="w-full h-full relative origin-top-left">
+      
+      <!-- HEADER NAV GESTIÓN IQ -->
+      <header data-hf-id="hf-k640" class="w-full bg-white border-b border-slate-200 px-12 py-4 flex items-center justify-between shadow-2xs">
+        <div data-hf-id="hf-grpd" class="flex items-center gap-3">
+          <div data-hf-id="hf-8csv" class="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center text-white font-black text-lg shadow-sm">
+            IQ
+          </div>
+          <div data-hf-id="hf-yeow">
+            <h1 data-hf-id="hf-4xnf" class="text-base font-extrabold text-slate-900 leading-tight">Gestión IQ</h1>
+            <p data-hf-id="hf-e0iy" class="text-xs text-slate-500 font-medium">Sistema de Trazabilidad Quirúrgica &amp; Logística</p>
+          </div>
+        </div>
+
+        <div data-hf-id="hf-5w7q" class="flex items-center gap-4">
+          <div data-hf-id="hf-cp8g" class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-100 text-slate-700 text-xs font-bold">
+            <span data-hf-id="hf-xnh5" class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+            <span data-hf-id="hf-czdk">Operador: Carlos Benítez</span>
+          </div>
+          <div data-hf-id="hf-wbof" class="px-3 py-1.5 rounded-xl bg-blue-50 text-blue-700 text-xs font-extrabold border border-blue-200">
+            Zona Formosa
+          </div>
+        </div>
+      </header>
+
+      <!-- MAIN APP CONTAINER -->
+      <main data-hf-id="hf-t0mi" class="max-w-4xl mx-auto py-8 px-6 space-y-6">
+
+        <!-- TOP BAR TITULO -->
+        <div data-hf-id="hf-04a8" class="flex items-center justify-between border-b border-slate-200/80 pb-4">
+          <div data-hf-id="hf-mvlq" class="space-y-1">
+            <div data-hf-id="hf-g01k" class="flex items-center gap-2">
+              <span data-hf-id="hf-lmmp" class="px-2.5 py-0.5 rounded-md text-xs font-extrabold tracking-wider uppercase bg-amber-100 text-amber-900 border border-amber-300">
+                Borrador en Edición
+              </span>
+              <h2 data-hf-id="hf-k60i" class="text-xl font-black text-slate-900">Editar Informe Diario de Logística</h2>
+            </div>
+            <p data-hf-id="hf-snk8" class="text-xs text-slate-500 font-medium">Registro táctil de entregas, retiros, bultos e incidencias operativas.</p>
+          </div>
+
+          <div data-hf-id="hf-jv9s" class="flex items-center gap-2">
+            <button data-hf-id="hf-ygs0" class="px-3.5 py-2 text-xs font-black text-rose-900 bg-rose-100 rounded-xl border border-rose-300">
+              Descartar Borrador
+            </button>
+            <button data-hf-id="hf-bwpd" class="px-3.5 py-2 text-xs font-black text-slate-900 bg-slate-200 rounded-xl">
+              Volver
+            </button>
+          </div>
+        </div>
+
+        <!-- SECCIÓN 1: BARRA DE BORRADORES ACTIVOS -->
+        <div data-hf-id="hf-1n2w" id="target-draft-bar" class="p-4 bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent rounded-2xl border border-amber-300/80 space-y-3 relative">
+          <div data-hf-id="hf-qsh0" id="ring-draft-bar" class="element-focus-ring"></div>
+          <div data-hf-id="hf-r02e" class="flex items-center justify-between">
+            <div data-hf-id="hf-jgh0" class="space-y-0.5">
+              <div data-hf-id="hf-emdl" class="flex items-center gap-2">
+                <span data-hf-id="hf-ue80" class="px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-amber-800 text-white">
+                  Borradores Activos
+                </span>
+                <span data-hf-id="hf-q1u0" class="text-xs font-black text-slate-900">Tienes 1 borrador activo</span>
+              </div>
+              <p data-hf-id="hf-cqbm" class="text-xs text-slate-900 font-semibold">Puedes alternar entre tus borradores o iniciar un informe diario nuevo.</p>
+            </div>
+
+            <div data-hf-id="hf-f0om" class="flex items-center gap-2">
+              <button data-hf-id="hf-kky8" id="btn-borradores-selector" class="px-4 py-2 bg-amber-700 text-white font-black text-xs rounded-xl flex items-center gap-2 shadow-xs">
+                <span data-hf-id="hf-ogp4">Borradores (1)</span>
+                <svg data-hf-id="hf-ym0i" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path data-hf-id="hf-o18f" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+              </button>
+
+              <button data-hf-id="hf-fmfb" class="px-4 py-2 bg-white text-slate-800 font-bold text-xs rounded-xl border border-amber-300 shadow-2xs">
+                + Nuevo
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECCIÓN 2: DATOS DE LA JORNADA -->
+        <div data-hf-id="hf-p5fw" id="target-datos-jornada" class="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-2xs space-y-4 relative">
+          <div data-hf-id="hf-g5xw" id="ring-datos-jornada" class="element-focus-ring"></div>
+          <div data-hf-id="hf-kc2b" class="flex items-center justify-between border-b border-slate-100 pb-3">
+            <div data-hf-id="hf-dtrj" class="flex items-center gap-2">
+              <span data-hf-id="hf-w1wt" data-contrast-allow-low="true" class="w-3 h-3 rounded-full bg-emerald-700 animate-pulse"></span>
+              <h3 data-hf-id="hf-uynu" class="text-xs font-black uppercase tracking-wider text-slate-900">Datos de la Jornada</h3>
+            </div>
+            <span data-hf-id="hf-xdeq" class="text-xs font-mono font-black px-3 py-1 rounded-xl bg-slate-200 text-slate-950">Carlos Benítez</span>
+          </div>
+
+          <div data-hf-id="hf-z7ib" class="grid grid-cols-2 gap-4 text-xs">
+            <div data-hf-id="hf-y7yw">
+              <label data-hf-id="hf-jokj" class="block text-xs font-bold text-slate-900 mb-1.5">Fecha de la Jornada *</label>
+              <input data-hf-id="hf-95e2" type="date" value="2026-08-10" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl font-semibold text-slate-800 focus:outline-none">
+            </div>
+
+            <div data-hf-id="hf-x11t">
+              <label data-hf-id="hf-euwz" class="block text-xs font-bold text-slate-900 mb-1.5">Zona / Sector Operativo</label>
+              <input data-hf-id="hf-76nl" type="text" value="Formosa Capital / Sanatorios" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl font-semibold text-slate-800 focus:outline-none">
+            </div>
+          </div>
+        </div>
+
+        <!-- SECCIÓN 3: CONSTRUCTOR DE MOVIMIENTOS -->
+        <div data-hf-id="hf-t905" id="target-constructor" class="bg-white rounded-2xl border border-slate-200/90 p-6 shadow-2xs space-y-5 relative">
+          
+          <div data-hf-id="hf-5soj" class="flex items-center justify-between border-b border-slate-100 pb-3">
+            <div data-hf-id="hf-e82k" class="flex items-center gap-2">
+              <span data-hf-id="hf-7zl4" class="w-7 h-7 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-sm">+</span>
+              <h3 data-hf-id="hf-zx1u" class="text-xs font-black uppercase tracking-wider text-slate-900">Cargar Nuevo Movimiento</h3>
+            </div>
+            <span data-hf-id="hf-7p0y" class="text-[11px] font-bold text-blue-600 bg-blue-50 px-2.5 py-0.5 rounded-lg">Paso a Paso</span>
+          </div>
+
+          <div data-hf-id="hf-i3yr" class="p-5 rounded-2xl bg-slate-50/80 border border-slate-200/80 space-y-4">
+            
+            <!-- PASO 1: CHIPS TÁCTILES -->
+            <div data-hf-id="hf-gpss" id="target-tipo-chips" class="space-y-2 relative p-2 rounded-xl">
+              <div data-hf-id="hf-qxsn" id="ring-tipo-chips" class="element-focus-ring"></div>
+              <label data-hf-id="hf-fvux" class="block text-xs font-bold text-slate-800">1. Tipo de Gestión *</label>
+
+              <div data-hf-id="hf-koyx" class="flex flex-wrap gap-2.5">
+                <button data-hf-id="hf-zr02" id="chip-entrega" class="px-4 py-2.5 text-xs font-bold rounded-xl border border-blue-600 bg-blue-600 text-white shadow-md flex items-center gap-2">
+                  <span data-hf-id="hf-3z3c">Entrega de Cajas</span>
+                </button>
+                <button data-hf-id="hf-9f6k" id="chip-retiro" class="px-4 py-2.5 text-xs font-bold rounded-xl border border-slate-200 bg-white text-slate-900">
+                  <span data-hf-id="hf-sr0p">Retiro de Cajas</span>
+                </button>
+                <button data-hf-id="hf-u14e" class="px-4 py-2.5 text-xs font-bold rounded-xl border border-slate-200 bg-white text-slate-900">
+                  <span data-hf-id="hf-8jfb">Traslado a Central</span>
+                </button>
+                <button data-hf-id="hf-yhbm" class="px-4 py-2.5 text-xs font-bold rounded-xl border border-slate-200 bg-white text-slate-900">
+                  <span data-hf-id="hf-5k16">Documentación</span>
+                </button>
+                <button data-hf-id="hf-yvmn" class="px-4 py-2.5 text-xs font-bold rounded-xl border border-slate-200 bg-white text-slate-900">
+                  <span data-hf-id="hf-c2ns">Incidencia</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- PASO 2: CIRUGÍA / PACIENTE SELECCIONADO -->
+            <div data-hf-id="hf-etpo" class="p-3.5 bg-blue-50/90 rounded-xl border border-blue-200 text-xs flex items-center justify-between">
+              <div data-hf-id="hf-qi5e" class="space-y-1">
+                <div data-hf-id="hf-d15h" class="flex items-center gap-2">
+                  <span data-hf-id="hf-1m5x" class="font-extrabold text-slate-950 text-sm">Gómez, María Elena</span>
+                  <span data-hf-id="hf-0f6n" class="font-mono text-[10px] px-2 py-0.5 rounded bg-blue-200 text-slate-950 font-black">CX-2026-884</span>
+                </div>
+                <div data-hf-id="hf-xvlf" class="flex gap-3 text-[11px] text-slate-900 font-semibold">
+                  <span data-hf-id="hf-nvig">Médico: <strong data-hf-id="hf-h61m">Dr. Rossi</strong></span>
+                  <span data-hf-id="hf-rsd9">Sanatorio: <strong data-hf-id="hf-bovo">Sanatorio Vinto</strong></span>
+                  <span data-hf-id="hf-f6ud">Cliente: <strong data-hf-id="hf-sv0f">OSDE</strong></span>
+                </div>
+              </div>
+              <button data-hf-id="hf-3jts" class="px-3 py-1.5 text-xs font-black text-rose-950 bg-rose-100 border border-rose-300 rounded-lg">Cambiar</button>
+            </div>
+
+            <!-- PASO 3: GRUPO LÓGICO CAJAS Y BULTOS (RULE 8) -->
+            <div data-hf-id="hf-o2lu" id="target-cajas-bultos" class="grid grid-cols-2 gap-4 pt-1 relative p-2.5 rounded-xl">
+              <div data-hf-id="hf-la71" id="ring-cajas-bultos" class="element-focus-ring"></div>
+              <div data-hf-id="hf-xfcu">
+                <label data-hf-id="hf-9brc" class="block text-xs font-bold text-slate-900 mb-1.5">Cantidad de Cajas</label>
+                <div data-hf-id="hf-m7kd" class="flex items-center gap-1 bg-white p-1 border border-slate-200 rounded-xl shadow-2xs">
+                  <button data-hf-id="hf-lund" class="w-9 h-9 flex items-center justify-center font-black text-slate-900 hover:bg-slate-100 rounded-lg text-base">-</button>
+                  <input data-hf-id="hf-34zh" type="number" value="2" class="w-full text-center font-mono font-bold text-base bg-transparent focus:outline-none">
+                  <button data-hf-id="hf-l21b" class="w-9 h-9 flex items-center justify-center font-black text-slate-900 hover:bg-slate-100 rounded-lg text-base">+</button>
+                </div>
+              </div>
+
+              <div data-hf-id="hf-w8fr">
+                <label data-hf-id="hf-rni5" class="block text-xs font-bold text-slate-900 mb-1.5">Cantidad de Bultos</label>
+                <div data-hf-id="hf-xs01" class="flex items-center gap-1 bg-white p-1 border border-slate-200 rounded-xl shadow-2xs">
+                  <button data-hf-id="hf-4rbx" class="w-9 h-9 flex items-center justify-center font-black text-slate-900 hover:bg-slate-100 rounded-lg text-base">-</button>
+                  <input data-hf-id="hf-6fas" type="number" value="3" class="w-full text-center font-mono font-bold text-base bg-transparent focus:outline-none">
+                  <button data-hf-id="hf-mx7z" class="w-9 h-9 flex items-center justify-center font-black text-slate-900 hover:bg-slate-100 rounded-lg text-base">+</button>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- SECCIÓN 4: LISTA DE MOVIMIENTOS Y REORDENAMIENTO -->
+        <div data-hf-id="hf-yteh" id="target-lista-movimientos" class="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-2xs space-y-4 relative">
+          <div data-hf-id="hf-i47l" id="ring-lista-movimientos" class="element-focus-ring"></div>
+          
+          <div data-hf-id="hf-5edi" class="flex items-center justify-between border-b border-slate-100 pb-3">
+            <div data-hf-id="hf-dfgi" class="flex items-center gap-2">
+              <span data-hf-id="hf-3ur6" class="px-2 py-0.5 rounded text-[10px] font-black uppercase bg-blue-600 text-white">2 Movimientos</span>
+              <h3 data-hf-id="hf-unfr" class="text-xs font-black uppercase tracking-wider text-slate-900">Movimientos de la Jornada</h3>
+            </div>
+            <span data-hf-id="hf-o6s4" class="text-xs font-bold text-slate-500">Total Bultos: 5</span>
+          </div>
+
+          <!-- TARJETAS DE MOVIMIENTO CON BOTONES SUBIR / BAJAR -->
+          <div data-hf-id="hf-2yni" class="space-y-2.5">
+            
+            <!-- TARJETA 1 -->
+            <div data-hf-id="hf-vq2k" id="mov-card-1" class="p-3.5 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-between gap-3 shadow-2xs">
+              <div data-hf-id="hf-vln9" class="flex items-center gap-3">
+                <!-- CONTROLES REORDENAMIENTO -->
+                <div data-hf-id="hf-j1pq" id="target-reorder-controls" class="flex flex-col gap-1 relative p-1 rounded-lg">
+                  <div data-hf-id="hf-eexn" id="ring-reorder-controls" class="element-focus-ring"></div>
+                  <button data-hf-id="hf-reus" id="btn-move-up" class="w-7 h-7 bg-white border border-slate-200 rounded-md flex items-center justify-center text-slate-900 hover:bg-blue-50 hover:border-blue-300 font-bold text-xs shadow-2xs">
+                    ▲
+                  </button>
+                  <button data-hf-id="hf-knzj" id="btn-move-down" class="w-7 h-7 bg-white border border-slate-200 rounded-md flex items-center justify-center text-slate-900 hover:bg-blue-50 hover:border-blue-300 font-bold text-xs shadow-2xs">
+                    ▼
+                  </button>
+                </div>
+
+                <div data-hf-id="hf-wmqs">
+                  <div data-hf-id="hf-c8jf" class="flex items-center gap-2">
+                    <span data-hf-id="hf-dvjv" class="px-2 py-0.5 rounded text-[10px] font-extrabold uppercase bg-blue-100 text-blue-800">1. Entrega de Cajas</span>
+                    <span data-hf-id="hf-alfn" class="font-extrabold text-xs text-slate-900">Gómez, María Elena</span>
+                  </div>
+                  <p data-hf-id="hf-me2c" class="text-xs text-slate-500 mt-0.5">Sanatorio Vinto • 2 Cajas • 3 Bultos</p>
+                </div>
+              </div>
+
+              <div data-hf-id="hf-cmug" class="flex items-center gap-2">
+                <span data-hf-id="hf-1myr" class="text-xs font-mono font-bold text-slate-600 bg-white px-2.5 py-1 rounded-lg border border-slate-200">#1 en Orden</span>
+              </div>
+            </div>
+
+            <!-- TARJETA 2 -->
+            <div data-hf-id="hf-h72n" id="mov-card-2" class="p-3.5 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-between gap-3">
+              <div data-hf-id="hf-wskc" class="flex items-center gap-3">
+                <div data-hf-id="hf-tgo1" class="flex flex-col gap-1">
+                  <button data-hf-id="hf-tu7x" class="w-7 h-7 bg-white border border-slate-200 rounded-md flex items-center justify-center text-slate-700 font-bold text-xs">▲</button>
+                  <button data-hf-id="hf-zeib" class="w-7 h-7 bg-white border border-slate-200 rounded-md flex items-center justify-center text-slate-700 font-bold text-xs">▼</button>
+                </div>
+
+                <div data-hf-id="hf-vftp">
+                  <div data-hf-id="hf-s5ls" class="flex items-center gap-2">
+                    <span data-hf-id="hf-xecc" class="px-2 py-0.5 rounded text-[10px] font-extrabold uppercase bg-amber-100 text-amber-900">2. Retiro de Cajas</span>
+                    <span data-hf-id="hf-uq3v" class="font-extrabold text-xs text-slate-900">Rodríguez, Lucas</span>
+                  </div>
+                  <p data-hf-id="hf-5vxv" class="text-xs text-slate-500 mt-0.5">Clínica Formosa • 1 Caja • 2 Bultos</p>
+                </div>
+              </div>
+
+              <div data-hf-id="hf-rrar" class="flex items-center gap-2">
+                <span data-hf-id="hf-9tvg" class="text-xs font-mono font-bold text-slate-600 bg-white px-2.5 py-1 rounded-lg border border-slate-200">#2 en Orden</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- SECCIÓN 5: BOTÓN ENVIAR INFORME FINAL -->
+        <div data-hf-id="hf-8o7p" id="target-action-bar" class="p-4 bg-white rounded-2xl border border-slate-200 shadow-2xs flex items-center justify-between relative">
+          <div data-hf-id="hf-qgid" id="ring-action-bar" class="element-focus-ring"></div>
+          <div data-hf-id="hf-bncy" class="flex items-center gap-2 text-xs font-bold text-emerald-700">
+            <span data-hf-id="hf-niek" class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span data-hf-id="hf-c650">Autoguardado a las 15:48:20</span>
+          </div>
+
+          <button data-hf-id="hf-30sm" id="btn-enviar-informe" class="px-6 py-3 bg-emerald-800 hover:bg-emerald-900 text-white font-black text-xs rounded-xl shadow-md flex items-center gap-2">
+            <span data-hf-id="hf-ms9o">Enviar Informe Final</span>
+            <svg data-hf-id="hf-hfw6" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path data-hf-id="hf-uqhi" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
+          </button>
+        </div>
+
+      </main>
+    </div>
+
+    <!-- MODAL DE RESUMEN DE ENVÍO -->
+    <div data-hf-id="hf-2trg" id="modal-envio" class="fixed inset-0 z-50 bg-slate-950/60 flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300">
+      <div data-hf-id="hf-lqp8" class="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl space-y-4 border border-slate-200">
+        <div data-hf-id="hf-502h" class="flex items-center justify-between border-b border-slate-100 pb-3">
+          <div data-hf-id="hf-rczq" class="flex items-center gap-2">
+            <span data-hf-id="hf-i9hh" class="w-3 h-3 rounded-full bg-emerald-500"></span>
+            <h3 data-hf-id="hf-3dy0" class="text-sm font-black text-slate-900 uppercase tracking-wider">Confirmar Envío Formal</h3>
+          </div>
+        </div>
+
+        <div data-hf-id="hf-hkt8" class="space-y-2 text-xs text-slate-600">
+          <p data-hf-id="hf-qip2" class="font-bold text-slate-800">Resumen de la Jornada (Formosa):</p>
+          <div data-hf-id="hf-gybr" class="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-1.5">
+            <div data-hf-id="hf-etw5" class="flex justify-between font-semibold"><span data-hf-id="hf-1q5r">Movimientos totales:</span> <strong data-hf-id="hf-d0cl" class="text-slate-900">2</strong></div>
+            <div data-hf-id="hf-tzwp" class="flex justify-between font-semibold"><span data-hf-id="hf-fg6b">Total de Bultos:</span> <strong data-hf-id="hf-fshs" class="text-slate-900">5</strong></div>
+            <div data-hf-id="hf-v6ts" class="flex justify-between font-semibold"><span data-hf-id="hf-94ra">Estado tras envío:</span> <strong data-hf-id="hf-z0op" class="text-emerald-800 font-extrabold uppercase">Inmutable</strong></div>
+          </div>
+          <p data-hf-id="hf-sulf" class="text-[11px] text-slate-500 italic">Una vez enviado, el informe quedará registrado formalmente.</p>
+        </div>
+
+        <div data-hf-id="hf-c339" id="target-modal-confirm" class="flex gap-2 pt-2 relative p-1 rounded-xl">
+          <div data-hf-id="hf-k0s1" id="ring-modal-confirm" class="element-focus-ring"></div>
+          <button data-hf-id="hf-0rwu" class="flex-1 py-2.5 bg-slate-100 text-slate-700 font-bold text-xs rounded-xl">Cancelar</button>
+          <button data-hf-id="hf-qhqu" id="btn-confirmar-modal" class="flex-1 py-2.5 bg-emerald-800 text-white font-black text-xs rounded-xl shadow-md">Confirmar y Enviar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- CURSOR MAC OS SVG -->
+    <div data-hf-id="hf-3io1" id="cursor" class="absolute pointer-events-none z-50 transition-opacity duration-200 opacity-0" style="top: 0px; left: 0px;">
+      <svg data-hf-id="hf-dtqy" width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path data-hf-id="hf-3cx7" d="M5.5 3.5L18.5 11.5L12.5 13.5L9.5 19.5L5.5 3.5Z" fill="#1e293b" stroke="#ffffff" stroke-width="2" stroke-linejoin="round" />
+      </svg>
+      <div data-hf-id="hf-puy6" id="click-ripple" class="click-ripple"></div>
+    </div>
+
+    <!-- SUBTITLE BANNER FIX 100% VISIBLE -->
+    <div data-hf-id="hf-vl4o" id="subtitle-banner" class="absolute bottom-8 left-1/2 -translate-x-1/2 z-50 bg-slate-900/90 backdrop-blur-md border border-slate-700 px-7 py-3.5 rounded-2xl shadow-2xl flex items-center gap-3 transition-all duration-300 opacity-0 transform translate-y-4">
+      <span data-hf-id="hf-jnfv" class="w-2.5 h-2.5 rounded-full bg-blue-500 animate-ping"></span>
+      <p data-hf-id="hf-kijc" id="subtitle-text" class="text-sm font-extrabold text-white tracking-wide"></p>
+    </div>
+
+  </div>
+
+  <!-- GSAP TIMELINE IMPLEMENTATION -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const viewport = document.getElementById('viewport');
+      const cursor = document.getElementById('cursor');
+      const ripple = document.getElementById('click-ripple');
+      const subtitleBanner = document.getElementById('subtitle-banner');
+      const subtitleText = document.getElementById('subtitle-text');
+
+      const tl = gsap.timeline({ paused: true });
+      window.__timelines = window.__timelines || {};
+      window.__timelines["main"] = tl;
+
+      // HELPER FUNCTIONS
+      function showSubtitle(text, duration = 3.2) {
+        tl.to(subtitleBanner, { opacity: 1, y: 0, duration: 0.35, ease: 'power2.out' })
+          .call(() => { subtitleText.textContent = text; })
+          .to({}, { duration: duration })
+          .to(subtitleBanner, { opacity: 0, y: 10, duration: 0.35, ease: 'power2.in' });
+      }
+
+      function moveCursorTo(x, y, duration = 1.0) {
+        tl.to(cursor, { opacity: 1, x: x, y: y, duration: duration, ease: 'power3.out' });
+      }
+
+      function hideCursor() {
+        tl.to(cursor, { opacity: 0, duration: 0.3 });
+      }
+
+      function clickCursor() {
+        tl.to(ripple, { scale: 1.8, opacity: 0.8, duration: 0.15, ease: 'power1.out' })
+          .to(ripple, { scale: 0, opacity: 0, duration: 0.25 });
+      }
+
+      function setFocusRing(ringId, show = true) {
+        const ring = document.getElementById(ringId);
+        if (ring) {
+          tl.to(ring, { opacity: show ? 1 : 0, duration: 0.3 });
+        }
+      }
+
+      function hideAllRings() {
+        const rings = document.querySelectorAll('.element-focus-ring');
+        rings.forEach(r => gsap.set(r, { opacity: 0 }));
+      }
+
+      // ==========================================
+      // TIMELINE CHOREOGRAPHY (30.0 SECONDS TOTAL)
+      // ==========================================
+
+      // INITIAL RESET
+      tl.call(() => {
+        hideAllRings();
+        gsap.set(viewport, { scale: 1, x: 0, y: 0 });
+        gsap.set(cursor, { opacity: 0, x: 1000, y: 800 });
+      });
+
+      // ------------------------------------------
+      // ESCENA 1 (0.0s - 4.5s): Inicio de Jornada / Borradores
+      // ------------------------------------------
+      tl.to(viewport, { scale: 1.05, x: -40, y: -20, duration: 1.2, ease: 'power2.out' });
+      setFocusRing('ring-draft-bar', true);
+      moveCursorTo(1140, 215, 0.9);
+      clickCursor();
+      showSubtitle("Iniciá tu jornada o continuá un borrador guardado", 3.0);
+      tl.to({}, { duration: 0.5 });
+      setFocusRing('ring-draft-bar', false);
+
+      // ------------------------------------------
+      // ESCENA 2 (4.5s - 9.5s): Datos de la Jornada (Rule 4: NO cursor)
+      // ------------------------------------------
+      hideCursor();
+      tl.to(viewport, { scale: 1.08, x: -70, y: -110, duration: 1.2, ease: 'power2.inOut' });
+      setFocusRing('ring-datos-jornada', true);
+      showSubtitle("Seleccioná la fecha de la jornada y la zona operativa", 3.2);
+      tl.to({}, { duration: 0.5 });
+      setFocusRing('ring-datos-jornada', false);
+
+      // ------------------------------------------
+      // ESCENA 3 (9.5s - 14.5s): Tipo de Gestión (Chips)
+      // ------------------------------------------
+      tl.to(viewport, { scale: 1.10, x: -80, y: -240, duration: 1.2, ease: 'power2.inOut' });
+      setFocusRing('ring-tipo-chips', true);
+      moveCursorTo(640, 485, 0.9);
+      clickCursor();
+      showSubtitle("Elegí el tipo de movimiento a registrar en un solo tap", 3.2);
+      tl.to({}, { duration: 0.5 });
+      setFocusRing('ring-tipo-chips', false);
+
+      // ------------------------------------------
+      // ESCENA 4 (14.5s - 19.5s): Cajas y Bultos (Rule 8: Grupo Lógico Contextual)
+      // ------------------------------------------
+      hideCursor();
+      tl.to(viewport, { scale: 1.10, x: -80, y: -380, duration: 1.2, ease: 'power2.inOut' });
+      setFocusRing('ring-cajas-bultos', true);
+      showSubtitle("Registrá la cantidad de cajas y bultos de la entrega", 3.2);
+      tl.to({}, { duration: 0.5 });
+      setFocusRing('ring-cajas-bultos', false);
+
+      // ------------------------------------------
+      // ESCENA 5 (19.5s - 24.5s): Reordenamiento de Movimientos
+      // ------------------------------------------
+      tl.to(viewport, { scale: 1.10, x: -80, y: -520, duration: 1.2, ease: 'power2.inOut' });
+      setFocusRing('ring-reorder-controls', true);
+      moveCursorTo(580, 810, 0.9);
+      clickCursor();
+      showSubtitle("Ordená tus entregas y retiros según tu recorrido real", 3.2);
+      tl.to({}, { duration: 0.5 });
+      setFocusRing('ring-reorder-controls', false);
+
+      // ------------------------------------------
+      // ESCENA 6 (24.5s - 30.0s): Enviar Informe Final
+      // ------------------------------------------
+      tl.to(viewport, { scale: 1.05, x: -40, y: -680, duration: 1.0, ease: 'power2.inOut' });
+      setFocusRing('ring-action-bar', true);
+      moveCursorTo(1240, 995, 0.8);
+      clickCursor();
+
+      // Modal Reveal
+      tl.to('#modal-envio', { opacity: 1, pointerEvents: 'auto', duration: 0.35 })
+        .call(() => { hideAllRings(); })
+        .to(viewport, { scale: 1.0, x: 0, y: 0, duration: 0.5 });
+
+      setFocusRing('ring-modal-confirm', true);
+      moveCursorTo(1060, 610, 0.7);
+      clickCursor();
+      showSubtitle("Revisá el resumen final y enviá tu informe inmutable", 3.4);
+
+      tl.to({}, { duration: 0.8 });
+    });
+  </script>
+</body>
+</html>

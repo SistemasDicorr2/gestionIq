@@ -217,13 +217,34 @@
           ]"
         >
           
-          <!-- PASO 1: CHIPS TÁCTILES MOBILE-FIRST -->
+          <!-- PASO 1: CHIPS TÁCTILES MOBILE-FIRST (COLAPSABLE) -->
           <div class="space-y-2">
             <label class="block text-xs font-bold text-slate-800 dark:text-slate-200">
               1. Tipo de Gestión *
             </label>
 
-            <div class="grid grid-cols-2 sm:flex sm:flex-wrap gap-2">
+            <!-- ESTADO COLAPSADO -->
+            <div 
+              v-if="isTipoCollapsed && builder.tipo_movimiento" 
+              class="p-3 bg-blue-50/90 dark:bg-blue-950/40 rounded-xl border border-blue-200 dark:border-blue-900 flex items-center justify-between animate-fadeIn"
+            >
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-bold text-slate-600 dark:text-slate-400">Tipo:</span>
+                <span class="px-3 py-1 text-xs font-black rounded-lg bg-blue-600 text-white shadow-2xs">
+                  {{ builder.tipo_movimiento }}
+                </span>
+              </div>
+              <button 
+                type="button" 
+                @click="isTipoCollapsed = false" 
+                class="px-3.5 py-1.5 text-xs font-extrabold text-blue-600 dark:text-blue-400 bg-white dark:bg-slate-800 border border-blue-200 dark:border-blue-800 rounded-lg hover:bg-blue-100 transition-all cursor-pointer active:scale-95"
+              >
+                Cambiar
+              </button>
+            </div>
+
+            <!-- ESTADO DESPLEGADO -->
+            <div v-else class="grid grid-cols-2 sm:flex sm:flex-wrap gap-2 animate-fadeIn">
               <button 
                 v-for="chip in tipoChips" 
                 :key="chip.value"
@@ -647,58 +668,53 @@
             class="w-full px-3.5 py-3 sm:py-2.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-medium focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:outline-none dark:text-white min-h-[44px]"
           />
         </div>
+
+        <!-- TARJETA LIMPIA DE CIERRE DE JORNADA AL FINAL DEL CONTENIDO -->
+        <div class="pt-4 mt-6 border-t border-slate-200 dark:border-slate-800 space-y-3">
+          
+          <!-- Banner de Bloqueo si hay Edición Activa -->
+          <div 
+            v-if="editingIndex !== null" 
+            class="p-3 bg-amber-50 dark:bg-amber-950/60 border border-amber-300 dark:border-amber-800 rounded-xl text-xs font-bold text-amber-900 dark:text-amber-200 flex items-center gap-2 animate-fadeIn"
+          >
+            <svg class="w-4 h-4 text-amber-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+            <span>Estás editando el movimiento #{{ editingIndex + 1 }}. Guardá o cancelá los cambios antes de finalizar el informe.</span>
+          </div>
+
+          <div class="p-4 sm:p-5 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="space-y-0.5 text-center sm:text-left">
+              <h4 class="text-sm font-black text-slate-900 dark:text-white">
+                Todo listo para cerrar la jornada
+              </h4>
+              <p class="text-xs text-slate-500 dark:text-slate-400">
+                Revisá el resumen final y enviá el informe formal por correo.
+              </p>
+            </div>
+
+            <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
+              <button 
+                type="button" 
+                @click="saveDraftManual" 
+                :disabled="isSaving || isSending || editingIndex !== null"
+                class="px-4 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-extrabold text-xs rounded-xl transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-1 cursor-pointer min-h-[44px]"
+              >
+                <span>Guardar Borrador</span>
+              </button>
+
+              <button 
+                type="button" 
+                @click="openResumenModal" 
+                :disabled="movimientos.length === 0 || isSending || editingIndex !== null"
+                class="px-5 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs rounded-xl shadow-md transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer active:scale-95 min-h-[44px]"
+              >
+                <span>Finalizar Informe</span>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     </template>
-
-    <!-- FLOATING STICKY ACTION BAR MOBILE-OPTIMIZED (Positioned above bottom nav bottom-[57px]) -->
-    <div class="fixed bottom-[57px] md:bottom-0 left-0 right-0 z-30 p-2.5 sm:p-3 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-200/80 dark:border-slate-800 shadow-2xl">
-      <div class="max-w-2xl mx-auto flex items-center justify-between gap-2">
-        
-        <!-- Indicador de Autoguardado Sincronizado -->
-        <div class="flex items-center gap-1.5">
-          <div class="flex items-center gap-2 px-2.5 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
-            <span v-if="autoSaveStatus === 'saving'" class="relative flex h-2.5 w-2.5">
-              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-              <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-blue-500"></span>
-            </span>
-            <svg v-else-if="autoSaveStatus === 'saved'" class="w-3.5 h-3.5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
-            <svg v-else-if="autoSaveStatus === 'error'" class="w-3.5 h-3.5 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-            <span v-else class="w-2.5 h-2.5 rounded-full bg-slate-400"></span>
-
-            <span class="text-[11px] sm:text-xs font-extrabold text-slate-800 dark:text-slate-200 truncate max-w-[120px] sm:max-w-none">
-              {{ autoSaveMessage }}
-            </span>
-          </div>
-
-          <div class="hidden sm:flex items-center gap-1 text-xs font-bold text-slate-500">
-            <span>|</span>
-            <span class="font-mono text-slate-900 dark:text-white">{{ summaryStats.totalMovimientos }}</span>
-            <span>movs</span>
-          </div>
-        </div>
-
-        <!-- Acciones Directas Mobile -->
-        <div class="flex items-center gap-2">
-          <button 
-            type="button" 
-            @click="saveDraftManual" 
-            :disabled="isSaving || isSending"
-            class="px-3 py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-extrabold text-xs rounded-xl transition-all disabled:opacity-50 flex items-center justify-center gap-1 cursor-pointer active:scale-95 shadow-2xs border border-slate-200 dark:border-slate-700 min-h-[42px]"
-          >
-            <span>Borrador</span>
-          </button>
-
-          <button 
-            type="button" 
-            @click="openResumenModal" 
-            :disabled="movimientos.length === 0 || isSending"
-            class="px-3.5 sm:px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs rounded-xl shadow-md transition-all disabled:opacity-50 flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 min-h-[42px]"
-          >
-            <span>Guardar y Enviar</span>
-          </button>
-        </div>
-      </div>
-    </div>
 
     <!-- Modal Confirmación Eliminar Borrador -->
     <div v-if="showDeleteDraftModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-xs animate-fadeIn">
@@ -907,9 +923,12 @@ watch(
   { deep: true }
 );
 
+const isTipoCollapsed = ref(true);
+
 const tipoChips = [
   { label: 'Entrega de Cajas', value: 'Entrega de cajas' },
   { label: 'Retiro de Cajas', value: 'Retiro de cajas' },
+  { label: 'Esterilización', value: 'Esterilización' },
   { label: 'Traslado a Central', value: 'Traslado a Central' },
   { label: 'Documentación', value: 'Documentación' },
   { label: 'Otra Gestión', value: 'Otra gestión' },
@@ -945,6 +964,7 @@ const builder = reactive({
 const selectTipoMovimiento = (val) => {
   builder.tipo_movimiento = val;
   builder.detalle_incidencia_o_gestion = '';
+  isTipoCollapsed.value = true;
 };
 
 let searchTimeout = null;
@@ -1401,27 +1421,49 @@ const saveDraftInternal = async (isSilent = false) => {
       if (deleteErr) throw deleteErr;
 
       if (movimientos.value.length > 0) {
-        const payload = movimientos.value.map((m, idx) => ({
-          informe_id: informe.id,
-          reporte_id: (m.reporte_id && String(m.reporte_id).trim() !== '') ? m.reporte_id : null,
-          id_cirugia_snapshot: (m.id_cirugia_snapshot && String(m.id_cirugia_snapshot).trim() !== '') ? m.id_cirugia_snapshot : null,
-          cliente_snapshot: (m.cliente_snapshot && String(m.cliente_snapshot).trim() !== '') ? m.cliente_snapshot : null,
-          tipo_movimiento: m.tipo_movimiento,
-          paciente_snapshot: m.paciente_snapshot || null,
-          medico_snapshot: (m.medico_snapshot && String(m.medico_snapshot).trim() !== '') ? m.medico_snapshot : null,
-          institucion_snapshot: (m.institucion_snapshot && String(m.institucion_snapshot).trim() !== '') ? m.institucion_snapshot : null,
-          fecha_cirugia_snapshot: (m.fecha_cirugia_snapshot && String(m.fecha_cirugia_snapshot).trim() !== '') ? m.fecha_cirugia_snapshot : null,
-          destino: m.destino || m.paciente_snapshot || 'Central',
-          cantidad_cajas: Number(m.cantidad_cajas) || 0,
-          cantidad_bultos: Number(m.cantidad_bultos) || 0,
-          resultado: m.resultado || null,
-          tiene_pendiente: !!m.tiene_pendiente,
-          cantidad_pendiente: m.tiene_pendiente ? 1 : 0,
-          detalle_pendiente: m.tiene_pendiente ? (m.detalle_pendiente || null) : null,
-          motivo_pendiente: m.motivo_pendiente || null,
-          observaciones: m.observaciones || null,
-          orden: idx
-        }));
+        const validDbTipos = [
+          'Entrega de cajas',
+          'Retiro de cajas',
+          'Devolución de implantes',
+          'Entrega o retiro de documentación',
+          'Traslado interno',
+          'Otra gestión',
+          'Incidencia'
+        ];
+
+        const payload = movimientos.value.map((m, idx) => {
+          let rawTipo = m.tipo_movimiento || 'Otra gestión';
+          let safeTipo = validDbTipos.includes(rawTipo) ? rawTipo : 'Otra gestión';
+          let safeObs = m.observaciones || '';
+
+          if (!validDbTipos.includes(rawTipo)) {
+            if (!safeObs.includes(`[${rawTipo}]`)) {
+              safeObs = safeObs ? `[${rawTipo}] ${safeObs}` : `[${rawTipo}]`;
+            }
+          }
+
+          return {
+            informe_id: informe.id,
+            reporte_id: (m.reporte_id && String(m.reporte_id).trim() !== '') ? m.reporte_id : null,
+            id_cirugia_snapshot: (m.id_cirugia_snapshot && String(m.id_cirugia_snapshot).trim() !== '') ? m.id_cirugia_snapshot : null,
+            cliente_snapshot: (m.cliente_snapshot && String(m.cliente_snapshot).trim() !== '') ? m.cliente_snapshot : null,
+            tipo_movimiento: safeTipo,
+            paciente_snapshot: m.paciente_snapshot || null,
+            medico_snapshot: (m.medico_snapshot && String(m.medico_snapshot).trim() !== '') ? m.medico_snapshot : null,
+            institucion_snapshot: (m.institucion_snapshot && String(m.institucion_snapshot).trim() !== '') ? m.institucion_snapshot : null,
+            fecha_cirugia_snapshot: (m.fecha_cirugia_snapshot && String(m.fecha_cirugia_snapshot).trim() !== '') ? m.fecha_cirugia_snapshot : null,
+            destino: m.destino || m.paciente_snapshot || 'Central',
+            cantidad_cajas: Number(m.cantidad_cajas) || 0,
+            cantidad_bultos: Number(m.cantidad_bultos) || 0,
+            resultado: m.resultado || null,
+            tiene_pendiente: !!m.tiene_pendiente,
+            cantidad_pendiente: m.tiene_pendiente ? 1 : 0,
+            detalle_pendiente: m.tiene_pendiente ? (m.detalle_pendiente || null) : null,
+            motivo_pendiente: m.motivo_pendiente || null,
+            observaciones: safeObs || null,
+            orden: idx
+          };
+        });
 
         const { error: insertErr } = await supabase.from('logistica_informe_movimientos').insert(payload);
         if (insertErr) throw insertErr;
