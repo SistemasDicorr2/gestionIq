@@ -26,51 +26,89 @@
 
       <!-- ESTADO 2: VISTA DE DATOS -->
       <div v-else class="max-w-6xl px-4 mx-auto sm:px-6 lg:px-8">
-        <header class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+        <header class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sm:mb-8">
           <div>
-            <div class="flex items-center gap-3">
-              <h1 class="text-2xl font-extrabold sm:text-3xl text-slate-950 dark:text-white tracking-tight">Tu Resumen de Actividad</h1>
+            <div class="flex items-center gap-3 flex-wrap">
+              <h1 class="text-2xl font-extrabold sm:text-3xl text-slate-950 dark:text-white tracking-tight">Mi Actividad Profesional</h1>
+              
+              <!-- Badge enlace a Districorr sitio oficial -->
               <a 
                 href="https://www.districorr.com.ar" 
                 target="_blank" 
                 rel="noopener noreferrer" 
-                class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200/60 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-800/50 hover:bg-blue-100 dark:hover:bg-blue-900/60 transition-all hover:-translate-y-0.5"
+                class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-blue-600/10 text-blue-700 border border-blue-300/80 dark:bg-blue-950/60 dark:text-blue-300 dark:border-blue-700/80 hover:bg-blue-600 hover:text-white dark:hover:bg-blue-600 dark:hover:text-white transition-all shadow-2xs hover:-translate-y-0.5 cursor-pointer"
                 title="Visitar sitio web oficial de Districorr"
               >
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m-9 9a9 9 0 019-9"/></svg>
                 <span>www.districorr.com.ar</span>
                 <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" /></svg>
               </a>
             </div>
-            <p class="mt-1.5 text-sm sm:text-base text-slate-600 dark:text-slate-400">
-              Gestioná tus cirugías, comprobantes y estados de ficha en coordinación con <a href="https://www.districorr.com.ar" target="_blank" rel="noopener noreferrer" class="font-bold text-blue-600 dark:text-blue-400 hover:underline">Districorr</a>.
+
+            <p class="mt-1 text-sm sm:text-base text-slate-600 dark:text-slate-300 font-medium">
+              Consultá tus cirugías registradas, el estado de tus pagos y tus datos personales.
             </p>
           </div>
           
-          <div class="flex items-center gap-3 shrink-0">
-            <a 
-              href="https://www.districorr.com.ar" 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              class="sm:hidden inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-blue-50 text-blue-700 border border-blue-200 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-800"
-            >
-              <span>districorr.com.ar</span>
-              <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" /></svg>
-            </a>
+          <div class="flex items-center gap-3 shrink-0 self-end sm:self-auto">
             <!-- Toggle Modo Oscuro -->
-            <button @click="isDarkMode = !isDarkMode" class="shrink-0 p-2.5 text-slate-500 bg-white border border-slate-200 shadow-xs hover:bg-slate-50 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700 dark:hover:bg-slate-700 rounded-full transition-all duration-200 hover:-translate-y-0.5 focus:outline-none" :title="isDarkMode ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'">
+            <button @click="isDarkMode = !isDarkMode" class="shrink-0 p-2.5 text-slate-500 bg-white border border-slate-200 shadow-xs hover:bg-slate-50 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700 dark:hover:bg-slate-700 rounded-full transition-all duration-200 hover:-translate-y-0.5 focus:outline-none cursor-pointer" :title="isDarkMode ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'">
               <svg v-if="!isDarkMode" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
               <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
             </button>
           </div>
         </header>
 
-        <!-- Tabs -->
-        <div class="px-4 pb-2 mb-8 -mx-4 overflow-x-auto sm:mx-0 sm:px-0 hide-scrollbar">
-          <div class="inline-flex items-center gap-1.5 p-1.5 bg-white border shadow-2xs border-slate-200 dark:bg-slate-900 dark:border-slate-800 rounded-2xl">
-            <button class="tab-btn" :class="{ 'tab-btn--active': activeTab === 'resumen' }" @click="activeTab = 'resumen'">Resumen</button>
-            <button class="tab-btn" :class="{ 'tab-btn--active': activeTab === 'pagos' }" @click="activeTab = 'pagos'">Pagos y Comprobantes</button>
-            <button class="tab-btn" :class="{ 'tab-btn--active': activeTab === 'datos' }" @click="activeTab = 'datos'">Mi Perfil</button>
-            <button class="tab-btn" :class="{ 'tab-btn--active': activeTab === 'faq' }" @click="activeTab = 'faq'">Preguntas Frecuentes</button>
+        <!-- Tabs de Navegación Responsivas para Celular -->
+        <div class="px-1 pb-2 mb-6 sm:mb-8 overflow-x-auto hide-scrollbar">
+          <div class="inline-flex items-center gap-1.5 p-1.5 bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl shadow-2xs min-w-full sm:min-w-0">
+            <button 
+              @click="activeTab = 'resumen'"
+              :class="[
+                'px-4 py-2.5 rounded-xl text-xs sm:text-sm font-black transition-all duration-200 whitespace-nowrap cursor-pointer flex items-center gap-1.5',
+                activeTab === 'resumen' 
+                  ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30 ring-2 ring-blue-500/20' 
+                  : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white'
+              ]"
+            >
+              <span>📊 Resumen</span>
+            </button>
+
+            <button 
+              @click="activeTab = 'pagos'"
+              :class="[
+                'px-4 py-2.5 rounded-xl text-xs sm:text-sm font-black transition-all duration-200 whitespace-nowrap cursor-pointer flex items-center gap-1.5',
+                activeTab === 'pagos' 
+                  ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30 ring-2 ring-blue-500/20' 
+                  : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white'
+              ]"
+            >
+              <span>💳 Pagos y Comprobantes</span>
+            </button>
+
+            <button 
+              @click="activeTab = 'datos'"
+              :class="[
+                'px-4 py-2.5 rounded-xl text-xs sm:text-sm font-black transition-all duration-200 whitespace-nowrap cursor-pointer flex items-center gap-1.5',
+                activeTab === 'datos' 
+                  ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30 ring-2 ring-blue-500/20' 
+                  : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white'
+              ]"
+            >
+              <span>👤 Mi Perfil</span>
+            </button>
+
+            <button 
+              @click="activeTab = 'faq'"
+              :class="[
+                'px-4 py-2.5 rounded-xl text-xs sm:text-sm font-black transition-all duration-200 whitespace-nowrap cursor-pointer flex items-center gap-1.5',
+                activeTab === 'faq' 
+                  ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30 ring-2 ring-blue-500/20' 
+                  : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white'
+              ]"
+            >
+              <span>❓ Preguntas Frecuentes</span>
+            </button>
           </div>
         </div>
 
