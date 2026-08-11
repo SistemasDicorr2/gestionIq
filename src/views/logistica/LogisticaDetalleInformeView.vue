@@ -93,12 +93,12 @@
         </div>
 
         <div class="p-3 bg-slate-50 dark:bg-slate-900/60 rounded-xl border border-slate-100 dark:border-slate-700 print:border-none">
-          <span class="text-[10px] text-slate-400 font-bold uppercase block print:text-gray-600">Total Cajas</span>
+          <span class="text-[10px] text-slate-400 font-bold uppercase block print:text-gray-600">Cajas y Equipos</span>
           <span class="text-base font-extrabold text-slate-800 dark:text-slate-100 print:text-black">{{ totalCajas }}</span>
         </div>
 
         <div class="p-3 bg-slate-50 dark:bg-slate-900/60 rounded-xl border border-slate-100 dark:border-slate-700 print:border-none">
-          <span class="text-[10px] text-slate-400 font-bold uppercase block print:text-gray-600">Total Bultos</span>
+          <span class="text-[10px] text-slate-400 font-bold uppercase block print:text-gray-600">Contenedores</span>
           <span class="text-base font-extrabold text-slate-800 dark:text-slate-100 print:text-black">{{ totalBultos }}</span>
         </div>
 

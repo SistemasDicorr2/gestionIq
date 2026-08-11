@@ -65,32 +65,45 @@
           v-for="inf in filteredInformes" 
           :key="inf.id"
           :to="inf.estado === 'borrador' ? { name: 'LogisticaNuevoInforme', query: { id: inf.id } } : { name: 'LogisticaDetalleInforme', params: { id: inf.id } }"
-          class="p-4 bg-slate-50/70 dark:bg-slate-900/40 hover:bg-slate-100 dark:hover:bg-slate-700/50 rounded-xl border border-slate-200 dark:border-slate-700 block transition-colors space-y-2"
+          class="p-4 bg-slate-50/70 dark:bg-slate-900/40 hover:bg-slate-100 dark:hover:bg-slate-700/50 rounded-xl border border-slate-200 dark:border-slate-700 block transition-colors space-y-2.5"
         >
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-2">
               <span class="text-base">📅</span>
-              <span class="text-xs font-bold text-slate-900 dark:text-white">
+              <span class="text-xs font-black text-slate-900 dark:text-white">
                 Informe del {{ formatDate(inf.fecha) }}
               </span>
             </div>
 
             <span 
-              class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase border shadow-2xs"
+              class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase border shadow-2xs"
               :class="[
-                inf.estado === 'borrador' ? 'bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border-amber-300 dark:border-amber-800' :
-                inf.estado === 'enviado' ? 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800' :
+                inf.estado === 'borrador' ? 'bg-amber-100 dark:bg-amber-950/60 text-amber-900 dark:text-amber-300 border-amber-300 dark:border-amber-800' :
+                inf.estado === 'enviado' ? 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-900 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800' :
                 'bg-blue-100 text-blue-800 border-blue-300'
               ]"
             >
-              {{ inf.estado === 'borrador' ? '📝 Borrador' : inf.estado === 'enviado' ? '✓ Enviado' : inf.estado }}
+              {{ inf.estado === 'borrador' ? '📝 Borrador en Edición' : inf.estado === 'enviado' ? '✓ Enviado Formalmente' : inf.estado }}
             </span>
           </div>
 
-          <div class="flex flex-wrap items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 gap-2 pt-1 border-t border-slate-200/60 dark:border-slate-700/50">
-            <span>👤 Responsable: {{ inf.responsable_nombre }}</span>
-            <span>📍 Zona: {{ inf.zona || 'Formosa' }}</span>
-            <span v-if="inf.enviado_at">🕒 Enviado: {{ formatDateTime(inf.enviado_at) }}</span>
+          <!-- Indicadores de Contenido -->
+          <div class="flex items-center gap-2 text-[11px] font-mono font-bold flex-wrap">
+            <span class="px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-950/60 text-blue-900 dark:text-blue-200 border border-blue-200/80 dark:border-blue-900/60">
+              📦 {{ inf.movimientos?.length || 0 }} {{ (inf.movimientos?.length || 0) === 1 ? 'movimiento' : 'movimientos' }}
+            </span>
+            <span class="px-2 py-0.5 rounded-md bg-slate-200/70 dark:bg-slate-800 text-slate-800 dark:text-slate-200">
+              🧰 {{ getCajasTotal(inf) }} cajas/equipos
+            </span>
+            <span class="px-2 py-0.5 rounded-md bg-slate-200/70 dark:bg-slate-800 text-slate-800 dark:text-slate-200">
+              💼 {{ getBultosTotal(inf) }} contenedores
+            </span>
+          </div>
+
+          <div class="flex flex-wrap items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 gap-2 pt-1.5 border-t border-slate-200/60 dark:border-slate-700/50">
+            <span>👤 Responsable: <strong>{{ inf.responsable_nombre }}</strong></span>
+            <span>📍 Zona: <strong>{{ inf.zona || 'Formosa' }}</strong></span>
+            <span v-if="inf.enviado_at">🕒 {{ formatDateTime(inf.enviado_at) }}</span>
           </div>
         </router-link>
       </div>
@@ -125,7 +138,7 @@ const fetchHistorial = async () => {
 
     let query = supabase
       .from('logistica_informes_diarios')
-      .select('*')
+      .select('*, movimientos:logistica_informe_movimientos(id, cantidad_cajas, cantidad_bultos, tiene_pendiente)')
       .order('fecha', { ascending: false });
 
     // Si no es admin o si seleccionó "Solo mis informes", filtra por el usuario logueado
@@ -144,6 +157,16 @@ const fetchHistorial = async () => {
 };
 
 onMounted(fetchHistorial);
+
+const getCajasTotal = (inf) => {
+  if (!inf.movimientos || !Array.isArray(inf.movimientos)) return 0;
+  return inf.movimientos.reduce((sum, m) => sum + (Number(m.cantidad_cajas) || 0), 0);
+};
+
+const getBultosTotal = (inf) => {
+  if (!inf.movimientos || !Array.isArray(inf.movimientos)) return 0;
+  return inf.movimientos.reduce((sum, m) => sum + (Number(m.cantidad_bultos) || 0), 0);
+};
 
 const filteredInformes = computed(() => {
   return informes.value.filter(inf => {

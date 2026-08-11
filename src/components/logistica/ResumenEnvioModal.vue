@@ -1,10 +1,10 @@
 <!-- src/components/logistica/ResumenEnvioModal.vue -->
 <template>
-  <div v-if="show" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-xs animate-fadeIn">
-    <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-md overflow-hidden flex flex-col border border-slate-200 dark:border-slate-800">
+  <div v-if="show" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/70 backdrop-blur-xs animate-fadeIn overflow-y-auto">
+    <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] my-auto flex flex-col overflow-hidden border border-slate-200 dark:border-slate-800">
       
-      <!-- Header -->
-      <div class="px-5 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+      <!-- Header (Fijo) -->
+      <div class="px-5 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between shrink-0">
         <div class="space-y-0.5">
           <span class="px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
             Confirmación Final
@@ -23,8 +23,8 @@
         </button>
       </div>
 
-      <!-- Cuerpo del Resumen -->
-      <div class="p-5 space-y-4 text-xs">
+      <!-- Cuerpo del Resumen (Scrollable Interno) -->
+      <div class="p-4 sm:p-5 space-y-4 text-xs overflow-y-auto flex-1 min-h-0">
         <div class="p-3.5 bg-blue-50/80 dark:bg-blue-950/40 rounded-xl border border-blue-100 dark:border-blue-900/40 space-y-1">
           <p class="font-bold text-blue-950 dark:text-blue-200 text-xs">
             Resumen de la Jornada
@@ -41,12 +41,12 @@
           </div>
 
           <div class="p-3 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700/80">
-            <span class="text-[10px] text-slate-400 font-extrabold uppercase tracking-wider block">Cajas Informadas</span>
+            <span class="text-[10px] text-slate-400 font-extrabold uppercase tracking-wider block">Cajas y Equipos</span>
             <span class="text-lg font-black font-mono text-slate-900 dark:text-white">{{ stats.totalCajas }}</span>
           </div>
 
           <div class="p-3 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700/80">
-            <span class="text-[10px] text-slate-400 font-extrabold uppercase tracking-wider block">Bultos Totales</span>
+            <span class="text-[10px] text-slate-400 font-extrabold uppercase tracking-wider block">Contenedores</span>
             <span class="text-lg font-black font-mono text-slate-900 dark:text-white">{{ stats.totalBultos }}</span>
           </div>
 
@@ -75,8 +75,8 @@
         </div>
       </div>
 
-      <!-- Footer -->
-      <div class="px-5 py-3.5 border-t border-slate-100 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-900/80 flex items-center justify-between gap-2">
+      <!-- Footer (Fijo) -->
+      <div class="px-5 py-3.5 border-t border-slate-100 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-900/80 flex items-center justify-between gap-2 shrink-0">
         <button 
           type="button" 
           @click="$emit('close')" 
@@ -92,7 +92,7 @@
           class="px-4 py-2 text-xs font-black text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl shadow-md transition-all disabled:opacity-50 flex items-center gap-2 cursor-pointer active:scale-95"
         >
           <svg v-if="isSending" class="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-          <span>{{ isSending ? 'Enviando...' : 'Confirmar y Enviar Informe' }}</span>
+          <span>{{ isSending ? 'Procesando...' : 'Continuar a Distribución por Correo →' }}</span>
         </button>
       </div>
     </div>

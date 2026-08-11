@@ -2,8 +2,8 @@
 <template>
   <div class="max-w-2xl mx-auto space-y-5 pb-52 md:pb-28 text-slate-800 dark:text-slate-100 font-sans px-3.5 sm:px-0">
     
-    <!-- Top Header Mobile-First -->
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 pb-3.5 border-b border-slate-200/80 dark:border-slate-800">
+    <!-- Top Header Unificado Mobile-First -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 pb-3 border-b border-slate-200/80 dark:border-slate-800">
       <div class="space-y-1">
         <div class="flex items-center gap-2 flex-wrap">
           <span 
@@ -20,11 +20,34 @@
           </h1>
         </div>
 
-        <p class="text-xs text-slate-500 dark:text-slate-400">
-          Registro táctil de entregas, retiros, bultos e incidencias operativas.
-        </p>
+        <!-- Sublínea Integrada: Selector de Borradores e Iniciar Nuevo -->
+        <div class="flex items-center gap-2 text-xs flex-wrap pt-0.5">
+          <span class="text-slate-500 dark:text-slate-400">
+            {{ userDrafts.length > 0 ? `${userDrafts.length} ${userDrafts.length === 1 ? 'borrador activo' : 'borradores activos'}` : 'Registro táctil de operaciones diarias' }}
+          </span>
+
+          <button 
+            v-if="userDrafts.length > 0"
+            type="button" 
+            @click="toggleShowDraftSelector" 
+            class="text-[11px] font-extrabold text-amber-800 dark:text-amber-300 bg-amber-100/90 dark:bg-amber-950/80 hover:bg-amber-200 dark:hover:bg-amber-900 px-2.5 py-1 rounded-lg border border-amber-300 dark:border-amber-800 transition-all flex items-center gap-1 cursor-pointer active:scale-95 shadow-2xs"
+          >
+            <span>Cambiar Borrador ({{ userDrafts.length }})</span>
+            <svg class="w-3.5 h-3.5 transition-transform" :class="{ 'rotate-180': showDraftSelector }" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </button>
+
+          <button 
+            v-if="informe.id || userDrafts.length > 0"
+            type="button" 
+            @click="handleNewReportClick" 
+            class="text-[11px] font-extrabold text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/70 hover:bg-blue-100 dark:hover:bg-blue-900 px-2.5 py-1 rounded-lg border border-blue-200 dark:border-blue-800 transition-all flex items-center gap-1 cursor-pointer active:scale-95 shadow-2xs"
+          >
+            + Nuevo
+          </button>
+        </div>
       </div>
 
+      <!-- Acciones Principales Header -->
       <div class="flex items-center gap-2 self-stretch sm:self-auto justify-between sm:justify-end">
         <button 
           v-if="informe.id"
@@ -53,54 +76,27 @@
     </div>
 
     <template v-else>
-      <!-- BARRA DE MÚLTIPLES BORRADORES (MOBILE-OPTIMIZED) -->
+      <!-- PANEL DESPLEGABLE DE BORRADORES (SE MUESTRA SOLO AL SOLICITAR CAMBIAR BORRADOR) -->
       <div 
-        v-if="userDrafts.length > 0" 
-        class="p-3.5 sm:p-4 bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent dark:from-amber-950/40 dark:via-amber-950/20 dark:to-transparent rounded-2xl border border-amber-300/70 dark:border-amber-800/70 space-y-3 shadow-xs animate-fadeIn"
+        v-if="showDraftSelector && userDrafts.length > 0" 
+        class="p-3.5 bg-amber-50/90 dark:bg-amber-950/40 border border-amber-300/80 dark:border-amber-800/80 rounded-2xl space-y-2.5 animate-fadeIn shadow-xs"
       >
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
-          <div class="space-y-0.5">
-            <div class="flex items-center gap-2">
-              <span class="px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-amber-500 text-white">
-                Borradores Activos
-              </span>
-              <span class="text-xs font-bold text-amber-950 dark:text-amber-200">
-                Tienes {{ userDrafts.length }} {{ userDrafts.length === 1 ? 'borrador' : 'borradores' }}
-              </span>
-            </div>
-            <p class="text-[11px] text-amber-900/80 dark:text-amber-300/80">
-              Puedes alternar entre tus borradores o iniciar un informe diario nuevo.
-            </p>
-          </div>
-
-          <div class="flex items-center gap-2 self-stretch sm:self-auto">
-            <button 
-              type="button" 
-              @click="toggleShowDraftSelector" 
-              class="flex-1 sm:flex-none px-3.5 py-2 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-xl shadow-2xs transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 min-h-[40px]"
-            >
-              <span>Borradores ({{ userDrafts.length }})</span>
-              <svg class="w-4 h-4 transition-transform" :class="{ 'rotate-180': showDraftSelector }" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-            </button>
-
-            <button 
-              type="button" 
-              @click="handleNewReportClick" 
-              class="px-3.5 py-2 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-100 font-bold text-xs rounded-xl border border-amber-300 dark:border-amber-800 transition-all shadow-2xs cursor-pointer min-h-[40px]"
-            >
-              + Nuevo
-            </button>
-          </div>
+        <div class="flex items-center justify-between">
+          <span class="text-[11px] font-black uppercase tracking-wider text-amber-900 dark:text-amber-300">
+            Borradores Disponibles ({{ userDrafts.length }})
+          </span>
+          <button type="button" @click="showDraftSelector = false" class="text-[10px] font-bold text-amber-700 dark:text-amber-400 hover:underline cursor-pointer">
+            Cerrar
+          </button>
         </div>
 
-        <!-- LISTA DESPLEGABLE DE BORRADORES DISPONIBLES -->
-        <div v-if="showDraftSelector" class="pt-2 border-t border-amber-200/60 dark:border-amber-800/60 grid grid-cols-1 sm:grid-cols-2 gap-2 animate-fadeIn">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
           <div 
             v-for="d in userDrafts" 
             :key="d.id"
             @click="switchDraft(d.id)"
             :class="[
-              'p-3 rounded-xl border transition-all cursor-pointer flex flex-col justify-between gap-1.5 min-h-[64px]',
+              'p-3 rounded-xl border transition-all cursor-pointer flex flex-col justify-between gap-1.5 min-h-[60px]',
               informe.id === d.id 
                 ? 'bg-amber-100 dark:bg-amber-900/60 border-amber-400 dark:border-amber-600 shadow-xs ring-2 ring-amber-500/20' 
                 : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 hover:bg-amber-50 dark:hover:bg-amber-950/40'
@@ -118,10 +114,6 @@
             <div class="flex items-center justify-between text-[11px] text-slate-600 dark:text-slate-400">
               <span>Zona: {{ d.zona || 'Formosa' }}</span>
               <span>Guardado: {{ formatTime(d.updated_at || d.created_at) }}</span>
-            </div>
-
-            <div v-if="d.observacion_general" class="text-[10px] text-slate-600 dark:text-slate-400 italic truncate">
-              "{{ d.observacion_general }}"
             </div>
           </div>
         </div>
@@ -141,32 +133,60 @@
           </span>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-          <div>
-            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-              Fecha de la Jornada *
-            </label>
-            <input 
-              v-model="informe.fecha" 
-              type="date" 
-              class="w-full px-3.5 py-3 sm:py-2.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl font-medium focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:outline-none dark:text-white transition-all text-xs min-h-[44px]"
-            />
+        <!-- ESTADO COLAPSADO DE LA JORNADA -->
+        <div v-if="isJornadaCollapsed && informe.fecha" class="p-3.5 bg-slate-50 dark:bg-slate-800/80 rounded-xl border border-slate-200 dark:border-slate-700 flex items-center justify-between animate-fadeIn gap-3">
+          <div class="flex items-center gap-3 text-xs flex-wrap">
+            <span class="font-extrabold text-slate-900 dark:text-white">📅 Jornada: {{ formatDate(informe.fecha) }}</span>
+            <span class="font-bold text-slate-600 dark:text-slate-300">📍 Zona: {{ informe.zona || 'Formosa' }}</span>
+          </div>
+          <button 
+            type="button" 
+            @click="isJornadaCollapsed = false" 
+            class="px-3.5 py-1.5 text-xs font-extrabold text-blue-600 dark:text-blue-400 bg-white dark:bg-slate-900 border border-blue-200 dark:border-blue-800 rounded-lg hover:bg-blue-50 transition-all cursor-pointer active:scale-95 flex-shrink-0"
+          >
+            Cambiar
+          </button>
+        </div>
+
+        <!-- ESTADO EDICIÓN / DESPLEGADO DE LA JORNADA -->
+        <div v-else class="space-y-3 animate-fadeIn">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+            <div>
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                Fecha de la Jornada *
+              </label>
+              <input 
+                v-model="informe.fecha" 
+                type="date" 
+                class="w-full px-3.5 py-3 sm:py-2.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl font-medium focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:outline-none dark:text-white transition-all text-xs min-h-[44px]"
+              />
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                Zona / Sector Operativo
+              </label>
+              <input 
+                v-model="informe.zona" 
+                type="text" 
+                placeholder="Ej: Formosa Capital / Sanatorios" 
+                class="w-full px-3.5 py-3 sm:py-2.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl font-medium focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:outline-none dark:text-white transition-all text-xs min-h-[44px]"
+              />
+            </div>
           </div>
 
-          <div>
-            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-              Zona / Sector Operativo
-            </label>
-            <input 
-              v-model="informe.zona" 
-              type="text" 
-              placeholder="Ej: Formosa Capital / Sanatorios" 
-              class="w-full px-3.5 py-3 sm:py-2.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl font-medium focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:outline-none dark:text-white transition-all text-xs min-h-[44px]"
-            />
+          <div class="flex justify-end">
+            <button 
+              type="button" 
+              @click="isJornadaCollapsed = true" 
+              class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs rounded-xl transition-all cursor-pointer shadow-2xs active:scale-95"
+            >
+              ✓ Confirmar Jornada
+            </button>
           </div>
 
           <!-- BANNER ADVERTENCIA JORNADA YA ENVIADA -->
-          <div v-if="enviadoExistente" class="col-span-1 sm:col-span-2 p-3 bg-amber-50 dark:bg-amber-950/60 border border-amber-300 dark:border-amber-800 rounded-xl text-xs text-amber-900 dark:text-amber-200 flex items-start gap-2 animate-fadeIn mt-1">
+          <div v-if="enviadoExistente" class="p-3 bg-amber-50 dark:bg-amber-950/60 border border-amber-300 dark:border-amber-800 rounded-xl text-xs text-amber-900 dark:text-amber-200 flex items-start gap-2 animate-fadeIn mt-1">
             <svg class="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
             <div class="space-y-0.5">
               <span class="font-extrabold block text-xs">⚠️ Atención: Jornada ya enviada</span>
@@ -328,8 +348,8 @@
               </button>
             </div>
 
-            <!-- Input de Búsqueda -->
-            <div v-else class="relative">
+            <!-- Input de Búsqueda (Se oculta en Carga Manual) -->
+            <div v-else-if="!showManualForm" class="relative">
               <div class="relative">
                 <input 
                   v-model="searchQuery" 
@@ -393,7 +413,7 @@
               </button>
             </div>
 
-            <!-- FORMULARIO DE CARGA MANUAL -->
+            <!-- FORMULARIO DE CARGA MANUAL CON BOTÓN CONFIRMAR DATOS -->
             <div 
               v-if="showManualForm && !selectedCirugia" 
               class="p-4 bg-white dark:bg-slate-900 rounded-xl border-2 border-blue-400 dark:border-blue-600 space-y-3 animate-fadeIn shadow-md"
@@ -403,7 +423,7 @@
                   Carga Manual de Paciente / Cirugía
                 </h4>
                 <button type="button" @click="closeManualForm" class="text-xs font-bold text-rose-500 hover:underline">
-                  Ocultar
+                  Cancelar
                 </button>
               </div>
 
@@ -433,13 +453,31 @@
                   <input v-model="manualForm.cliente" type="text" placeholder="Ej: OSDE / Swiss Medical" class="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:outline-none dark:text-white" />
                 </div>
               </div>
+
+              <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+                <button 
+                  type="button" 
+                  @click="closeManualForm" 
+                  class="px-3.5 py-2 text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-all cursor-pointer"
+                >
+                  Cancelar
+                </button>
+
+                <button 
+                  type="button" 
+                  @click="confirmManualForm" 
+                  class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs rounded-xl shadow-2xs transition-all cursor-pointer active:scale-95"
+                >
+                  ✓ Confirmar Datos
+                </button>
+              </div>
             </div>
           </div>
 
           <!-- PASO 3: CONTADORES CAJAS Y BULTOS (TOUCH TARGET 48px) -->
           <div class="grid grid-cols-2 gap-3 pt-1">
             <div>
-              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Cantidad de Cajas</label>
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Cantidad de Cajas y/o Equipos</label>
               <div class="flex items-center gap-1 bg-white dark:bg-slate-900 p-1 border border-slate-200 dark:border-slate-700 rounded-xl">
                 <button type="button" @click="builder.cantidad_cajas = Math.max(0, builder.cantidad_cajas - 1)" class="w-10 h-10 flex items-center justify-center font-black text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-lg cursor-pointer active:scale-95">-</button>
                 <input v-model.number="builder.cantidad_cajas" type="number" min="0" class="w-full text-center font-mono font-bold text-base bg-transparent focus:outline-none dark:text-white" />
@@ -448,7 +486,7 @@
             </div>
 
             <div>
-              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Cantidad de Bultos</label>
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Cantidad de Contenedores</label>
               <div class="flex items-center gap-1 bg-white dark:bg-slate-900 p-1 border border-slate-200 dark:border-slate-700 rounded-xl">
                 <button type="button" @click="builder.cantidad_bultos = Math.max(0, builder.cantidad_bultos - 1)" class="w-10 h-10 flex items-center justify-center font-black text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-base cursor-pointer active:scale-95">-</button>
                 <input v-model.number="builder.cantidad_bultos" type="number" min="0" class="w-full text-center font-mono font-bold text-base bg-transparent focus:outline-none dark:text-white" />
@@ -1022,6 +1060,8 @@ const clearSelectedCirugia = () => {
   searchQuery.value = '';
 };
 
+const isJornadaCollapsed = ref(true);
+
 const openManualForm = () => {
   showManualForm.value = true;
   if (searchQuery.value.trim()) {
@@ -1031,6 +1071,23 @@ const openManualForm = () => {
 
 const closeManualForm = () => {
   showManualForm.value = false;
+};
+
+const confirmManualForm = () => {
+  if (!manualForm.paciente.trim()) {
+    toast.error('Por favor ingresa el nombre del paciente.');
+    return;
+  }
+  selectedCirugia.value = {
+    id_cirugia: 'CX-MANUAL',
+    paciente: manualForm.paciente.trim(),
+    medico: manualForm.medico.trim() || null,
+    institucion: manualForm.institucion.trim() || null,
+    cliente: manualForm.cliente.trim() || null,
+    fecha_cirugia: manualForm.fecha_cirugia || null
+  };
+  showManualForm.value = false;
+  toast.success('Cirugía confirmada para el movimiento.');
 };
 
 const addMovementToList = () => {
@@ -1472,7 +1529,9 @@ const saveDraftInternal = async (isSilent = false) => {
 
     await fetchUserDrafts(informe.responsable_user_id);
 
-    if (!isSilent) {
+    if (isSilent) {
+      toast.info('✓ Borrador autoguardado', { timeout: 2000 });
+    } else {
       toast.success('Borrador guardado exitosamente.');
     }
     autoSaveStatus.value = 'saved';
@@ -1497,10 +1556,20 @@ const saveDraftManual = async () => {
 };
 
 const openResumenModal = async () => {
-  if (movimientos.value.length === 0) {
-    toast.error('Cargue al menos un movimiento antes de guardar y enviar el informe.');
+  if (editingIndex.value !== null) {
+    toast.error(`Estás editando el movimiento #${editingIndex.value + 1}. Guardá o cancelá los cambios antes de finalizar.`);
     return;
   }
+  if (movimientos.value.length === 0) {
+    toast.error('Cargá al menos un movimiento antes de finalizar el informe diario.');
+    return;
+  }
+  const movIncompleto = movimientos.value.find(m => m.tiene_pendiente && (!m.detalle_pendiente || !m.detalle_pendiente.trim()));
+  if (movIncompleto) {
+    toast.error(`Ingresá el detalle del pendiente declarado para: ${movIncompleto.paciente_snapshot || movIncompleto.tipo_movimiento}.`);
+    return;
+  }
+
   clearTimeout(autoSaveTimer);
   const saved = await saveDraftInternal(true);
   if (saved && informe.id) {
