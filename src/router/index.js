@@ -32,6 +32,7 @@ import LogisticaInformesView from '../views/logistica/LogisticaInformesView.vue'
 import LogisticaNuevoInformeView from '../views/logistica/LogisticaNuevoInformeView.vue';
 import LogisticaHistorialView from '../views/logistica/LogisticaHistorialView.vue';
 import LogisticaDetalleInformeView from '../views/logistica/LogisticaDetalleInformeView.vue';
+import GuiaEnvioLogisticaView from '../views/logistica/GuiaEnvioLogisticaView.vue';
 
 // --- Definición de Rutas ---
 const routes = [
@@ -121,6 +122,12 @@ const routes = [
         path: 'informes',
         name: 'LogisticaInformes',
         component: LogisticaInformesView,
+        meta: { requiresAuth: true, allowedRoles: ['logistica', 'admin'] }
+      },
+      {
+        path: 'guia-envio',
+        name: 'LogisticaGuiaEnvio',
+        component: GuiaEnvioLogisticaView,
         meta: { requiresAuth: true, allowedRoles: ['logistica', 'admin'] }
       },
       {
