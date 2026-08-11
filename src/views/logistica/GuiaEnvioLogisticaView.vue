@@ -205,7 +205,7 @@
             <div class="w-full h-36 bg-slate-900/5 dark:bg-slate-900 rounded-lg overflow-hidden flex items-center justify-center relative">
               <img :src="img.url" class="max-w-full max-h-full object-contain mx-auto my-auto block" />
               <span class="absolute top-1.5 left-1.5 px-2 py-0.5 rounded bg-slate-900/80 text-white font-mono text-[10px] font-black">
-                Hoja {{ idx + 2 }}
+                Hoja {{ Math.floor(idx / 2) + 2 }} (Foto #{{ idx + 1 }})
               </span>
             </div>
 
@@ -245,25 +245,25 @@
         </div>
       </div>
 
-      <!-- PASO 3: BOTÓN DE IMPRESIÓN Y GUARDADO DE HISTORIAL -->
+      <!-- PASO 3: BOTÓN DE GENERACIÓN DE GUÍA Y APERTURA DE VISTA PREVIA (SIN IMPRESIÓN DIRECTA) -->
       <div class="p-4 sm:p-5 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">
         <div class="space-y-0.5 text-center sm:text-left">
           <h3 class="text-sm font-black text-slate-900 dark:text-white">
-            Generar Guía de Envío Imprimible
+            Generar Guía de Envío y Vista Previa
           </h3>
           <p class="text-xs text-slate-500 dark:text-slate-400">
-            Se generará el reporte A4 esquematizado y se registrará la entrada en el historial de guías.
+            Se registrará la entrada en el historial de guías y se abrirá la vista previa formal del documento A4.
           </p>
         </div>
 
         <button 
           type="button" 
-          @click="generateAndPrintPDF" 
+          @click="generateAndPreviewPDF" 
           :disabled="isGeneratingPDF || !form.cliente.trim() || !form.fecha_envio || !form.numero_guia.trim()"
-          class="px-5 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs rounded-xl shadow-md transition-all disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer active:scale-95 w-full sm:w-auto min-h-[44px]"
+          class="px-5 py-3 bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs rounded-xl shadow-md transition-all disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer active:scale-95 w-full sm:w-auto min-h-[44px]"
         >
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 0_0-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
-          <span>{{ isGeneratingPDF ? 'Procesando Documento...' : '🖨️ Generar y Descargar PDF' }}</span>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+          <span>{{ isGeneratingPDF ? 'Guardando Registro...' : '👁️ Ver Vista Previa del Documento' }}</span>
         </button>
       </div>
 
@@ -294,6 +294,7 @@
                 <th class="py-2 px-3">N° Guía</th>
                 <th class="py-2 px-3">Generado Por</th>
                 <th class="py-2 px-3 text-center">Fotos</th>
+                <th class="py-2 px-3 text-right">Acción</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-100 dark:divide-slate-800 font-medium">
@@ -307,6 +308,15 @@
                 <td class="py-2.5 px-3 font-mono font-bold text-blue-600 dark:text-blue-400">{{ g.numero_guia }}</td>
                 <td class="py-2.5 px-3 text-[11px] text-slate-500">{{ g.created_by_nombre || 'Sistema' }}</td>
                 <td class="py-2.5 px-3 text-center font-mono font-bold">{{ g.cantidad_imagenes || 0 }}</td>
+                <td class="py-2.5 px-3 text-right">
+                  <button 
+                    type="button" 
+                    @click="loadGuideIntoForm(g)" 
+                    class="px-2.5 py-1 text-[11px] font-bold text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/60 rounded-lg transition-colors border border-blue-200 dark:border-blue-800"
+                  >
+                    Cargar Guía
+                  </button>
+                </td>
               </tr>
             </tbody>
           </table>
@@ -315,8 +325,114 @@
 
     </div>
 
-    <!-- DOCUMENTO A4 PARA IMPRESIÓN (SOLO SE MUESTRA EN IMPRESIÓN O EN MODO PREVIA) -->
-    <div :class="['w-full', showPrintView ? 'block' : 'hidden print:block']">
+    <!-- MODAL DE VISTA PREVIA INTERACTIVA DEL DOCUMENTO A4 (ESCALADO Y OPCIONES DE EMAIL) -->
+    <div 
+      v-if="showPreviewModal" 
+      class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex flex-col items-center justify-start overflow-y-auto p-2 sm:p-4 print:p-0 print:bg-white print:static"
+    >
+      <!-- BARRA SUPERIOR DE ACCIONES (OCULTA EN IMPRESIÓN) -->
+      <div class="w-full max-w-5xl bg-slate-900 border border-slate-800 text-white rounded-2xl p-3 sm:p-4 mb-4 flex flex-col md:flex-row items-center justify-between gap-3 shadow-2xl shrink-0 print:hidden">
+        <div class="flex items-center gap-3">
+          <span class="px-2.5 py-1 rounded bg-blue-600 text-white text-[10px] font-black uppercase tracking-wider">
+            REG03-01-01-C
+          </span>
+          <div>
+            <h3 class="text-xs sm:text-sm font-black text-white flex items-center gap-2">
+              <span>Vista Previa de Guía de Envío</span>
+              <span class="text-[10px] font-mono font-normal px-2 py-0.5 rounded bg-slate-800 text-blue-300">Escala: {{ isScaledDown ? '85%' : '100%' }}</span>
+            </h3>
+            <p class="text-[11px] text-slate-400 hidden sm:block">
+              N° Guía: {{ form.numero_guia }} • Cliente: {{ form.cliente }}
+            </p>
+          </div>
+        </div>
+
+        <!-- BOTONES DE ACCIÓN: ZOOM, EMAIL, IMPRIMIR, EDITAR -->
+        <div class="flex items-center gap-2 flex-wrap justify-end w-full md:w-auto">
+          <!-- ZOOM TOGGLE (85% / 100%) -->
+          <button 
+            type="button" 
+            @click="isScaledDown = !isScaledDown" 
+            class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs rounded-xl transition-all cursor-pointer flex items-center gap-1 border border-slate-700"
+            :title="isScaledDown ? 'Cambiar a 100%' : 'Reducir a 85%'"
+          >
+            <span>🔍 Zoom {{ isScaledDown ? '85%' : '100%' }}</span>
+          </button>
+
+          <!-- DROPDOWN ENVIAR POR EMAIL -->
+          <div class="relative group">
+            <button 
+              type="button" 
+              class="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs rounded-xl shadow-sm transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+              <span>📧 Enviar Guía</span>
+              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+            </button>
+
+            <!-- MENÚ DE OPCIONES DE EMAIL -->
+            <div class="absolute right-0 top-full mt-1 hidden group-hover:flex flex-col bg-slate-800 border border-slate-700 rounded-xl shadow-xl overflow-hidden z-20 min-w-[170px]">
+              <button 
+                type="button" 
+                @click="sendViaOutlook" 
+                class="px-3 py-2 text-left text-xs font-bold text-slate-200 hover:bg-slate-700 hover:text-white flex items-center gap-2 cursor-pointer"
+              >
+                <span>📬 Abrir en Outlook</span>
+              </button>
+              <button 
+                type="button" 
+                @click="sendViaGmail" 
+                class="px-3 py-2 text-left text-xs font-bold text-slate-200 hover:bg-slate-700 hover:text-white flex items-center gap-2 cursor-pointer border-t border-slate-700/60"
+              >
+                <span>🌐 Abrir en Gmail Web</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- IMPRIMIR / DESCARGAR PDF -->
+          <button 
+            type="button" 
+            @click="triggerPrint" 
+            class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs rounded-xl shadow-md transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+            <span>🖨️ Imprimir / PDF</span>
+          </button>
+
+          <!-- EDITAR -->
+          <button 
+            type="button" 
+            @click="showPreviewModal = false" 
+            class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs rounded-xl transition-all cursor-pointer border border-slate-700"
+          >
+            ✏️ Editar
+          </button>
+
+          <!-- CERRAR -->
+          <button 
+            type="button" 
+            @click="showPreviewModal = false" 
+            class="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl transition-colors cursor-pointer ml-1"
+            title="Cerrar vista previa"
+          >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- CONTENEDOR DEL DOCUMENTO FORMATO HOJA A4 CON ESCALADO (REDUCIDO UN 15% POR DEFECTO PARA MEJOR PREVISUALIZACIÓN) -->
+      <div class="w-full flex justify-center items-start overflow-x-auto pb-12 print:p-0">
+        <div 
+          class="transition-transform duration-200 origin-top bg-white rounded-2xl shadow-2xl print:shadow-none print:transform-none print:w-full print:max-w-none"
+          :style="{ transform: isScaledDown ? 'scale(0.85)' : 'scale(1)', width: '210mm', maxWidth: '100%' }"
+        >
+          <GuiaEnvioPDF :guia="form" :imagenes="imagenes" />
+        </div>
+      </div>
+    </div>
+
+    <!-- DOCUMENTO OCULTO PARA IMPRESIÓN DIRECTA SI NO ESTÁ EL MODAL -->
+    <div v-else class="hidden print:block w-full">
       <GuiaEnvioPDF :guia="form" :imagenes="imagenes" />
     </div>
 
@@ -340,7 +456,8 @@ const selectedCirugia = ref(null);
 const imagenes = ref([]);
 const isUploadingImages = ref(false);
 const isGeneratingPDF = ref(false);
-const showPrintView = ref(false);
+const showPreviewModal = ref(false);
+const isScaledDown = ref(true); // Reducir escala un 15% por defecto en vista previa
 
 const recentGuides = ref([]);
 const loadingHistory = ref(false);
@@ -401,7 +518,6 @@ const selectCirugia = (cirugia) => {
   searchQuery.value = cirugia.paciente || '';
   showDropdown.value = false;
 
-  // Autocompletar solo valores iniciales del formulario (Read-Only)
   if (cirugia.cliente) form.cliente = cirugia.cliente;
   if (cirugia.medico) form.medico = cirugia.medico;
   if (cirugia.paciente) form.paciente = cirugia.paciente;
@@ -414,7 +530,6 @@ const clearSelectedCirugia = () => {
   searchQuery.value = '';
 };
 
-// Subida de imágenes a R2 temporal mediante b2-presigned-url
 const handleImageUpload = async (e) => {
   const files = Array.from(e.target.files || []);
   if (files.length === 0) return;
@@ -432,6 +547,8 @@ const handleImageUpload = async (e) => {
       const baseName = crypto.randomUUID();
       const localObjectUrl = URL.createObjectURL(file);
 
+      let r2ObjectKey = null;
+
       try {
         const { data: presignedData, error: presignedErr } = await supabase.functions.invoke('b2-presigned-url', {
           body: {
@@ -445,6 +562,7 @@ const handleImageUpload = async (e) => {
         });
 
         if (!presignedErr && presignedData?.uploadUrl) {
+          r2ObjectKey = presignedData.objectKey;
           await fetch(presignedData.uploadUrl, {
             method: 'PUT',
             body: file,
@@ -457,6 +575,7 @@ const handleImageUpload = async (e) => {
 
       imagenes.value.push({
         id: baseName,
+        objectKey: r2ObjectKey,
         url: localObjectUrl,
         file: file
       });
@@ -485,12 +604,31 @@ const moveImageDown = (index) => {
   imagenes.value[index + 1] = temp;
 };
 
-const removeImage = (index) => {
+const removeImage = async (index) => {
   const img = imagenes.value[index];
-  if (img?.url && img.url.startsWith('blob:')) {
+  if (!img) return;
+
+  // 1. Revocar URL local
+  if (img.url && img.url.startsWith('blob:')) {
     URL.revokeObjectURL(img.url);
   }
-  imagenes.value.splice(index, 1);
+
+  // 2. Eliminar del array local en el cliente
+  const [removed] = imagenes.value.splice(index, 1);
+
+  // 3. Petición DELETE en tiempo real a Cloudflare R2
+  if (removed?.objectKey) {
+    try {
+      await supabase.functions.invoke('b2-presigned-url', {
+        body: {
+          action: 'delete',
+          objectKey: removed.objectKey
+        }
+      });
+    } catch (r2DelErr) {
+      console.warn('Advertencia al eliminar objeto de Cloudflare R2:', r2DelErr);
+    }
+  }
 };
 
 const fetchRecentGuides = async () => {
@@ -512,7 +650,22 @@ const fetchRecentGuides = async () => {
   }
 };
 
-const generateAndPrintPDF = async () => {
+const loadGuideIntoForm = (g) => {
+  if (!g) return;
+  form.cliente = g.cliente || '';
+  form.medico = g.medico || '';
+  form.paciente = g.paciente || '';
+  form.lugar_entrega = g.lugar_entrega || '';
+  form.fecha_cx = g.fecha_cx || '';
+  form.fecha_envio = g.fecha_envio || new Date().toISOString().slice(0, 10);
+  form.transporte = g.transporte || 'EMA PACK';
+  form.numero_guia = g.numero_guia || '';
+  form.observaciones = g.observaciones || '';
+  toast.info(`Datos de guía ${g.numero_guia} cargados en el formulario.`);
+};
+
+// Genera la entrada en historial y abre la vista previa interactiva (SIN auto print)
+const generateAndPreviewPDF = async () => {
   if (!form.cliente.trim() || !form.numero_guia.trim() || !form.fecha_envio) {
     toast.error('Por favor completa Cliente, Fecha de Envío y N° de Guía.');
     return;
@@ -521,7 +674,6 @@ const generateAndPrintPDF = async () => {
   try {
     isGeneratingPDF.value = true;
 
-    // Guardar registro liviano en el historial de Supabase (sin afectar cirugías)
     try {
       await supabase.from('logistica_guias_envio').insert({
         created_by_user_id: currentUserId.value,
@@ -544,17 +696,52 @@ const generateAndPrintPDF = async () => {
       console.warn('Advertencia al registrar historial:', dbErr);
     }
 
-    // Ejecutar impresión directa
-    toast.success('Abriendo diálogo de impresión A4...');
-    setTimeout(() => {
-      window.print();
-    }, 200);
+    showPreviewModal.value = true;
+    toast.success('Guía generada. Abriendo vista previa del documento...');
 
   } catch (err) {
-    toast.error('Error al generar PDF: ' + err.message);
+    toast.error('Error al generar vista previa: ' + err.message);
   } finally {
     isGeneratingPDF.value = false;
   }
+};
+
+const triggerPrint = () => {
+  window.print();
+};
+
+const sendViaOutlook = () => {
+  const subject = encodeURIComponent(`Guía de Envío ${form.numero_guia} - ${form.cliente}`);
+  const body = encodeURIComponent(
+    `Estimados,\n\nSe adjuntan los datos correspondientes a la Guía de Envío N° ${form.numero_guia}:\n\n` +
+    `• Cliente: ${form.cliente}\n` +
+    `• Médico: ${form.medico || '-'}\n` +
+    `• Paciente: ${form.paciente || '-'}\n` +
+    `• Lugar de Entrega: ${form.lugar_entrega || '-'}\n` +
+    `• Fecha CX: ${formatDate(form.fecha_cx)}\n` +
+    `• Fecha Envío: ${formatDate(form.fecha_envio)}\n` +
+    `• Transporte: ${form.transporte}\n` +
+    `• Observaciones: ${form.observaciones || '-'}\n\n` +
+    `Saludos cordiales,\nDistricorr Logística Salud`
+  );
+  window.location.href = `mailto:?subject=${subject}&body=${body}`;
+};
+
+const sendViaGmail = () => {
+  const subject = encodeURIComponent(`Guía de Envío ${form.numero_guia} - ${form.cliente}`);
+  const body = encodeURIComponent(
+    `Estimados,\n\nSe adjuntan los datos correspondientes a la Guía de Envío N° ${form.numero_guia}:\n\n` +
+    `• Cliente: ${form.cliente}\n` +
+    `• Médico: ${form.medico || '-'}\n` +
+    `• Paciente: ${form.paciente || '-'}\n` +
+    `• Lugar de Entrega: ${form.lugar_entrega || '-'}\n` +
+    `• Fecha CX: ${formatDate(form.fecha_cx)}\n` +
+    `• Fecha Envío: ${formatDate(form.fecha_envio)}\n` +
+    `• Transporte: ${form.transporte}\n` +
+    `• Observaciones: ${form.observaciones || '-'}\n\n` +
+    `Saludos cordiales,\nDistricorr Logística Salud`
+  );
+  window.open(`https://mail.google.com/mail/?view=cm&fs=1&tf=1&to=&su=${subject}&body=${body}`, '_blank');
 };
 
 const formatDate = (dateStr) => {
