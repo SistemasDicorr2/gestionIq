@@ -6,7 +6,7 @@
   <aside ref="sideRef" :class="['w-56 bg-white dark:bg-slate-800 shadow-md flex flex-col fixed inset-y-0 left-0 z-30 transform transition-transform duration-300 ease-in-out md:relative md:translate-x-0', isOpen ? 'translate-x-0' : '-translate-x-full']" role="navigation" aria-label="Menú principal">
     <!-- Cabecera del Sidebar -->
     <div class="p-4 border-b border-gray-200 dark:border-slate-700 flex justify-between items-center">
-      <div class="flex items-center gap-2">
+      <div class="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity" @click="go('/admin')" title="Ir al Home de Gestión IQ">
         <span class="inline-flex h-8 w-8 items-center justify-center rounded-xl bg-blue-500 text-white font-bold">IQ</span>
         <h1 class="text-xl font-semibold text-gray-900 dark:text-slate-100">Gestión IQ</h1>
       </div>

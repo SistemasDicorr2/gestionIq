@@ -25,7 +25,7 @@
           </button>
 
           <div class="hidden md:flex items-center gap-1.5 text-xs text-slate-400 dark:text-slate-500 font-bold">
-            <span class="text-blue-600 dark:text-blue-400">Gestión IQ</span>
+            <button @click="router.push('/admin')" class="text-blue-600 dark:text-blue-400 hover:underline cursor-pointer focus:outline-none" title="Ir al Home (/admin)">Gestión IQ</button>
             <span class="text-slate-300 dark:text-slate-700">/</span>
           </div>
 
