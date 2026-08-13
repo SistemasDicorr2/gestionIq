@@ -23,7 +23,7 @@
 
         <div class="flex items-center gap-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800/80 rounded-xl px-3 py-1.5 shadow-2xs">
           <span class="text-[11px] font-extrabold uppercase tracking-wider text-slate-400 dark:text-slate-500 shrink-0">Período:</span>
-          <select v-model="selectedKpiPeriod" class="bg-transparent border-none text-slate-800 dark:text-slate-100 text-xs font-semibold focus:outline-none focus:ring-0 cursor-pointer pr-1">
+          <select v-model="filters.period" @change="onPeriodFilterChange" class="bg-transparent border-none text-slate-800 dark:text-slate-100 text-xs font-semibold focus:outline-none focus:ring-0 cursor-pointer pr-1">
             <option v-for="option in kpiPeriodOptions" :key="option.value" :value="option.value">
               {{ option.label }}
             </option>
@@ -82,7 +82,7 @@
         <!-- Panel de Filtros Modernizado -->
         <div class="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/80 p-5 rounded-2xl shadow-sm space-y-4">
           <!-- Filtros Principales (Siempre Visibles) -->
-          <div class="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
+          <div class="grid grid-cols-1 md:grid-cols-6 gap-4 items-end">
             <div class="md:col-span-2 space-y-1.5">
               <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Buscar por Texto</label>
               <div class="relative rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden bg-slate-50/50 dark:bg-slate-950/20 focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-500/10 transition-all duration-150">
@@ -106,6 +106,19 @@
                 </select>
               </div>
             </div>
+
+            <div class="md:col-span-1 space-y-1.5">
+              <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Período</label>
+              <div class="relative rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden bg-slate-50/50 dark:bg-slate-950/20 focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-500/10 transition-all duration-150">
+                <select v-model="filters.period" @change="onPeriodFilterChange" class="form-input-select-styled">
+                  <option value="current-month">Mes actual</option>
+                  <option value="last-30-days">Últimos 30 días</option>
+                  <option value="previous-month">Mes anterior</option>
+                  <option value="all">Todos</option>
+                  <option value="custom">Personalizado</option>
+                </select>
+              </div>
+            </div>
             
             <div class="flex gap-2">
               <button @click="clearFilters" class="btn-clear flex-1" title="Restablecer filtros">
@@ -126,7 +139,7 @@
 
           <!-- Filtros Avanzados Colapsables (Fechas y Montos) -->
           <Transition name="expand">
-            <div v-show="showAdvancedFilters" class="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4 border-t border-slate-100 dark:border-slate-800/80">
+            <div v-show="showAdvancedFilters || filters.period === 'custom'" class="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4 border-t border-slate-100 dark:border-slate-800/80">
               <div class="space-y-1.5">
                 <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Desde</label>
                 <div class="relative rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden bg-slate-50/50 dark:bg-slate-950/20 focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-500/10 transition-all duration-155">
@@ -158,7 +171,46 @@
           </Transition>
         </div>
 
+        <!-- Tabla de Cirugías con Toolbar y Paginación -->
         <div class="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/80 shadow-md rounded-2xl overflow-hidden">
+          
+          <!-- Toolbar superior de la tabla -->
+          <div class="p-3.5 bg-slate-50/90 dark:bg-slate-900/90 border-b border-slate-100 dark:border-slate-800 flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center gap-2">
+              <h3 class="text-xs font-extrabold text-slate-900 dark:text-white uppercase tracking-wider">Cirugías Pendientes</h3>
+              <span class="px-2 py-0.5 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300 border border-indigo-200/50 dark:border-indigo-900/50">
+                {{ filteredSurgeries.length }}
+              </span>
+              <span v-if="selectedSurgeryIds.length > 0" class="text-xs font-semibold text-slate-500 dark:text-slate-400">
+                ({{ selectedSurgeryIds.length }} seleccionada{{ selectedSurgeryIds.length === 1 ? '' : 's' }})
+              </span>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <!-- Acción Oculta/Discreta: Regularizar Históricos sin comprobante -->
+              <button 
+                type="button"
+                @click="openRegularizacionModal"
+                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 hover:bg-amber-100 dark:hover:bg-amber-900/50 border border-amber-200/60 dark:border-amber-900/60 transition-all shadow-2xs active:scale-95 cursor-pointer"
+                title="Regularizar casos antiguos sin comprobante (Confirmación Exclusiva)"
+              >
+                <span>🔒</span>
+                <span>Regularizar Antiguos</span>
+              </button>
+
+              <!-- Selector Registros por Página -->
+              <div class="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 border-l border-slate-200 dark:border-slate-800 pl-2">
+                <span class="hidden sm:inline font-medium">Mostrar:</span>
+                <select v-model="pageSize" @change="currentPage = 1" class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1 text-xs font-semibold text-slate-700 dark:text-slate-200 focus:outline-none cursor-pointer">
+                  <option v-for="size in pageSizeOptions" :key="size" :value="size">
+                    {{ size === 'all' ? 'Todos' : size }}
+                  </option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Contenido de la Tabla -->
           <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-slate-100 dark:divide-slate-800/60">
               <thead class="bg-slate-50/80 dark:bg-slate-900/60 border-b border-slate-100 dark:border-slate-800/60">
@@ -175,7 +227,7 @@
                 <tr v-if="filteredSurgeries.length === 0">
                   <td colspan="4" class="px-6 py-12 text-center text-slate-500 dark:text-slate-400 text-sm font-medium">No se encontraron cirugías para los filtros aplicados.</td>
                 </tr>
-                <tr v-for="surgery in filteredSurgeries" :key="surgery.id" 
+                <tr v-for="surgery in paginatedSurgeries" :key="surgery.id" 
                     class="transition-all duration-150"
                     :class="{
                       'bg-indigo-50/30 dark:bg-indigo-950/10 border-l-2 border-indigo-500': selectedSurgeryIds.includes(surgery.id),
@@ -211,6 +263,36 @@
               </tbody>
             </table>
           </div>
+
+          <!-- Barra de Paginación -->
+          <div v-if="filteredSurgeries.length > 0" class="p-3.5 bg-slate-50/60 dark:bg-slate-900/60 border-t border-slate-100 dark:border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-600 dark:text-slate-400">
+            <div class="font-medium text-center sm:text-left">
+              Mostrando <span class="font-bold text-slate-900 dark:text-white">{{ paginationInfo.start }}</span> a <span class="font-bold text-slate-900 dark:text-white">{{ paginationInfo.end }}</span> de <span class="font-bold text-slate-900 dark:text-white">{{ paginationInfo.total }}</span> cirugías
+            </div>
+
+            <div class="flex items-center gap-1.5">
+              <button 
+                @click="currentPage = Math.max(1, currentPage - 1)"
+                :disabled="currentPage === 1"
+                class="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 font-bold hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-colors shadow-2xs"
+              >
+                ‹ Anterior
+              </button>
+
+              <span class="px-2.5 font-bold text-slate-800 dark:text-slate-200">
+                Página {{ currentPage }} de {{ totalPages }}
+              </span>
+
+              <button 
+                @click="currentPage = Math.min(totalPages, currentPage + 1)"
+                :disabled="currentPage === totalPages || totalPages === 0"
+                class="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 font-bold hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-colors shadow-2xs"
+              >
+                Siguiente ›
+              </button>
+            </div>
+          </div>
+
         </div>
       </div>
 
@@ -316,15 +398,26 @@
       :payment-data="lastPaymentData"
       @close="handleClosePostPagoModal"
     />
+
+    <!-- Modal de Regularización Exclusiva para Casos Antiguos sin Comprobante -->
+    <ModalRegularizacionAntiguos
+      :show="isRegularizacionModalVisible"
+      :count="regularizacionSummary.count"
+      :total-amount="regularizacionSummary.totalAmount"
+      :is-submitting="isSubmittingRegularizacion"
+      @close="isRegularizacionModalVisible = false"
+      @confirm="handleConfirmRegularizacion"
+    />
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, reactive, nextTick } from 'vue';
+import { ref, computed, onMounted, reactive, nextTick, watch } from 'vue';
 import { supabase } from '../../services/supabase';
 import { useToasts } from '../../composables/useToasts';
 import FileUpload from '../../components/uploader/FileUpload.vue';
 import PostPagoModal from '../../components/PostPagoModal.vue';
+import ModalRegularizacionAntiguos from '../../components/admin/ModalRegularizacionAntiguos.vue';
 
 const { showSuccessToast, showErrorToast, showInfoToast, showLoadingToast, updateToast } = useToasts();
 
@@ -343,29 +436,52 @@ const justPaidSurgeryIds = ref(new Set());
 const selectedKpiPeriod = ref('current-month');
 const activeKpiFilter = ref(null);
 
+// Estado de Paginación
+const currentPage = ref(1);
+const pageSize = ref(15);
+const pageSizeOptions = [10, 15, 25, 50, 100, 'all'];
+
+// Estado de Regularización de Casos Antiguos
+const isRegularizacionModalVisible = ref(false);
+const isSubmittingRegularizacion = ref(false);
+
 const kpiPeriodOptions = [
   { value: 'current-month', label: 'Mes actual' },
   { value: 'last-30-days', label: 'Últimos 30 días' },
   { value: 'previous-month', label: 'Mes anterior' },
   { value: 'all', label: 'Todos' },
+  { value: 'custom', label: 'Personalizado' },
 ];
 
 const filters = reactive({
   searchTerm: '',
   selectedInstrumentador: 'todos',
+  period: 'current-month',
   startDate: '',
   endDate: '',
   minAmount: null,
   maxAmount: null,
 });
 
+const onPeriodFilterChange = () => {
+  currentPage.value = 1;
+  if (filters.period === 'custom') {
+    showAdvancedFilters.value = true;
+  } else {
+    selectedKpiPeriod.value = filters.period;
+  }
+};
+
 const clearFilters = () => {
   filters.searchTerm = '';
   filters.selectedInstrumentador = 'todos';
+  filters.period = 'current-month';
+  selectedKpiPeriod.value = 'current-month';
   filters.startDate = '';
   filters.endDate = '';
   filters.minAmount = null;
   filters.maxAmount = null;
+  currentPage.value = 1;
 };
 
 const getSurgeryDate = (surgery) => {
@@ -612,12 +728,20 @@ const filteredSurgeries = computed(() => {
     surgeries = surgeries.filter(surgery => surgery.instrumentador_dni === filters.selectedInstrumentador);
   }
 
-  if (filters.startDate) {
-    surgeries = surgeries.filter(surgery => surgery.fecha_cirugia >= filters.startDate);
-  }
-
-  if (filters.endDate) {
-    surgeries = surgeries.filter(surgery => surgery.fecha_cirugia <= filters.endDate);
+  // Filtrado por Período
+  if (filters.period === 'current-month') {
+    surgeries = surgeries.filter(isCurrentMonthSurgery);
+  } else if (filters.period === 'previous-month') {
+    surgeries = surgeries.filter(isPreviousMonthSurgery);
+  } else if (filters.period === 'last-30-days') {
+    surgeries = surgeries.filter(isLast30DaysSurgery);
+  } else if (filters.period === 'custom') {
+    if (filters.startDate) {
+      surgeries = surgeries.filter(surgery => surgery.fecha_cirugia >= filters.startDate);
+    }
+    if (filters.endDate) {
+      surgeries = surgeries.filter(surgery => surgery.fecha_cirugia <= filters.endDate);
+    }
   }
 
   if (filters.minAmount !== null && filters.minAmount > 0) {
@@ -651,6 +775,86 @@ const filteredSurgeries = computed(() => {
 
   return surgeries;
 });
+
+// Paginación computada
+const paginatedSurgeries = computed(() => {
+  if (pageSize.value === 'all') return filteredSurgeries.value;
+  const limit = Number(pageSize.value) || 15;
+  const start = (currentPage.value - 1) * limit;
+  return filteredSurgeries.value.slice(start, start + limit);
+});
+
+const totalPages = computed(() => {
+  if (pageSize.value === 'all') return 1;
+  const limit = Number(pageSize.value) || 15;
+  return Math.ceil(filteredSurgeries.value.length / limit) || 1;
+});
+
+const paginationInfo = computed(() => {
+  const total = filteredSurgeries.value.length;
+  if (total === 0) return { start: 0, end: 0, total: 0 };
+  if (pageSize.value === 'all') return { start: 1, end: total, total };
+  const limit = Number(pageSize.value) || 15;
+  const start = (currentPage.value - 1) * limit + 1;
+  const end = Math.min(currentPage.value * limit, total);
+  return { start, end, total };
+});
+
+// Regularización de Casos Antiguos sin Comprobante
+const regularizacionSummary = computed(() => {
+  const selected = allPendingSurgeries.value.filter(s => selectedSurgeryIds.value.includes(s.id));
+  const count = selected.length;
+  const totalAmount = selected.reduce((sum, s) => sum + (Number(s.monto_a_pagar) || 0), 0);
+  return { count, totalAmount };
+});
+
+const openRegularizacionModal = () => {
+  if (selectedSurgeryIds.value.length === 0) {
+    showInfoToast("Por favor seleccioná al menos una cirugía en el listado para realizar la regularización.");
+    return;
+  }
+  isRegularizacionModalVisible.value = true;
+};
+
+const handleConfirmRegularizacion = async ({ notes }) => {
+  if (isSubmittingRegularizacion.value) return;
+  isSubmittingRegularizacion.value = true;
+
+  const toastId = showLoadingToast("Procesando regularización de cirugías sin comprobante...");
+
+  try {
+    const ordenDePago = {
+      monto_total_general: paymentSummary.value.monto_total_general,
+      comprobante_object_key: null,
+      notas: `[REGULARIZACIÓN HISTÓRICA] ${notes || 'Cirugías antiguas regularizadas sin comprobante de transferencia'}`,
+      pagos: paymentSummary.value.instrumentadores
+        .filter(inst => inst.dni !== 'sin-asignar')
+        .map(inst => ({
+          instrumentador_dni: inst.dni,
+          monto_total_instrumentador: inst.monto_total,
+          cirugias: inst.cirugias.map(c => ({ id: c.id, monto: c.monto }))
+      }))
+    };
+
+    if (ordenDePago.pagos.length === 0) {
+      throw new Error("No hay pagos válidos para registrar.");
+    }
+
+    const { error: rpcError } = await supabase.rpc('registrar_orden_de_pago', { p_orden: ordenDePago });
+    if (rpcError) throw rpcError;
+
+    updateToast(toastId, "¡Cirugías regularizadas y saldadas con éxito!", 'success');
+
+    selectedSurgeryIds.value.forEach(id => justPaidSurgeryIds.value.add(id));
+    selectedSurgeryIds.value = [];
+    isRegularizacionModalVisible.value = false;
+  } catch (err) {
+    console.error("Error al regularizar:", err);
+    updateToast(toastId, `Error: ${err.message}`, 'error');
+  } finally {
+    isSubmittingRegularizacion.value = false;
+  }
+};
 
 const areAllSelected = computed(() => 
   filteredSurgeries.value.length > 0 && 
