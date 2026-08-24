@@ -641,13 +641,13 @@
       </div>
     </div>
 
-    <!-- MODAL DE VISTA PREVIA INTERACTIVA DEL DOCUMENTO A4 OPTIMIZADO PARA MONITORES Y PANTALLAS CHICAS (17", 19", LAPTOPS) -->
+    <!-- MODAL DE VISTA PREVIA INTERACTIVA DEL DOCUMENTO A4 CON VISUALIZACIÓN CÓMODA Y LECTURA CLARA -->
     <div 
       v-if="showPreviewModal" 
-      class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md flex flex-col items-center justify-start overflow-y-auto p-1.5 sm:p-3 print:p-0 print:bg-white print:static"
+      class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md flex flex-col items-center justify-start overflow-y-auto p-2 sm:p-4 print:p-0 print:bg-white print:static"
     >
-      <!-- BARRA SUPERIOR DE ACCIONES STICKY COMPACTA Y ULTRA-RESPONSIVE -->
-      <div class="w-full max-w-5xl bg-slate-900/95 border border-slate-800 text-white rounded-2xl p-2.5 px-3 sm:px-4 mb-2 flex flex-wrap items-center justify-between gap-2 shadow-2xl shrink-0 print:hidden sticky top-1 z-40 backdrop-blur-md">
+      <!-- BARRA SUPERIOR DE ACCIONES ELEGANTE, STICKY Y COMPACTA -->
+      <div class="w-full max-w-5xl bg-slate-900/95 border border-slate-800 text-white rounded-2xl p-2.5 px-4 mb-3 flex flex-wrap items-center justify-between gap-2.5 shadow-2xl shrink-0 print:hidden sticky top-2 z-40 backdrop-blur-md">
         
         <div class="flex items-center gap-2">
           <span class="px-2 py-0.5 rounded bg-blue-600 text-white text-[9px] font-black uppercase tracking-wider">
@@ -657,32 +657,32 @@
             <h3 class="text-xs font-black text-white flex items-center gap-1.5">
               <span>Vista Previa Guía de Envío</span>
               <span class="text-[10px] font-mono font-bold px-1.5 py-0.2 rounded bg-slate-800 text-blue-300">
-                Zoom: {{ zoomLabel }}
+                Zoom: {{ Math.round(effectiveScale * 100) }}%
               </span>
             </h3>
           </div>
         </div>
 
-        <!-- CONTROL DE ZOOM ULTRA ADAPTABLE A CUALQUIER RESOLUCIÓN -->
+        <!-- CONTROLES DE ZOOM OPTIMIZADOS PARA LECTURA CLARA -->
         <div class="flex items-center gap-1 bg-slate-950/80 p-1 rounded-xl border border-slate-800 text-[11px] font-bold">
-          <span class="text-[10px] text-slate-400 pl-1 hidden sm:inline">🔍 Escala:</span>
+          <span class="text-[10px] text-slate-400 pl-1 hidden sm:inline">🔍 Zoom:</span>
           
           <button 
             type="button"
-            @click="zoomOption = 'fit'"
-            class="px-2 py-1 rounded-lg transition-all cursor-pointer text-[10px]"
-            :class="zoomOption === 'fit' ? 'bg-blue-600 text-white shadow-xs font-black' : 'text-slate-400 hover:text-white'"
-            title="Ajustar automáticamente a la altura de la pantalla (ideal 17&quot; / 19&quot;)"
+            @click="zoomOption = 'fit-width'"
+            class="px-2.5 py-1 rounded-lg transition-all cursor-pointer text-[10px]"
+            :class="zoomOption === 'fit-width' ? 'bg-blue-600 text-white shadow-xs font-black' : 'text-slate-400 hover:text-white'"
+            title="Ajustar ancho para lectura óptima"
           >
-            ⚡ Ajustar Pantalla
+            📐 Ancho Cómodo
           </button>
 
           <button 
-            v-for="z in ['0.65', '0.75', '0.85', '1.0']" 
+            v-for="z in ['0.75', '0.85', '1.0']" 
             :key="z"
             type="button"
             @click="zoomOption = z"
-            class="px-1.5 py-1 rounded-lg transition-all cursor-pointer text-[10px]"
+            class="px-2 py-1 rounded-lg transition-all cursor-pointer text-[10px]"
             :class="zoomOption === z ? 'bg-blue-600 text-white font-black' : 'text-slate-400 hover:text-white'"
           >
             {{ Math.round(parseFloat(z) * 100) }}%
@@ -697,7 +697,7 @@
             type="button" 
             @click="downloadDirectPDF" 
             :disabled="isExportingPDF"
-            class="px-3 py-1.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-extrabold text-xs rounded-xl shadow-md transition-all flex items-center gap-1 cursor-pointer active:scale-95 disabled:opacity-50"
+            class="px-3.5 py-1.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-extrabold text-xs rounded-xl shadow-md transition-all flex items-center gap-1 cursor-pointer active:scale-95 disabled:opacity-50"
           >
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
             <span>{{ isExportingPDF ? 'Procesando...' : '📥 Descargar PDF' }}</span>
@@ -763,8 +763,8 @@
         </div>
       </div>
 
-      <!-- CONTENEDOR DEL DOCUMENTO FORMATO HOJA A4 CON ESCALADO ADAPTABLE Y CENTRADO -->
-      <div class="w-full flex justify-center items-start overflow-x-auto pb-12 pt-1 print:p-0">
+      <!-- CONTENEDOR DEL DOCUMENTO FORMATO HOJA A4 CON ESCALADO LEGIBLE Y NÍTIDO -->
+      <div class="w-full max-w-5xl flex justify-center items-start overflow-x-auto pb-16 pt-1 print:p-0">
         <div 
           class="relative transition-all duration-200 flex justify-center origin-top shrink-0"
           :style="{
@@ -827,8 +827,8 @@ const pdfProgressText = ref('');
 const showPreviewModal = ref(false);
 const isEditableInPreview = ref(true);
 
-// Control Adaptativo de Zoom para Pantallas Pequeñas (17", 19", etc)
-const zoomOption = ref('fit'); // 'fit', '0.65', '0.75', '0.85', '1.0'
+// Control de Zoom con Ancho Cómodo y Lectura Nítida (Piso mínimo 0.75 / 75%)
+const zoomOption = ref('fit-width'); // 'fit-width', '0.75', '0.85', '1.0'
 const windowHeight = ref(window.innerHeight);
 const windowWidth = ref(window.innerWidth);
 
@@ -838,22 +838,13 @@ const updateWindowDimensions = () => {
 };
 
 const effectiveScale = computed(() => {
-  if (zoomOption.value === 'fit') {
-    // Top bar + margins ~ 95px
-    const availableHeight = Math.max(350, windowHeight.value - 95);
-    // A4 sheet height ~ 1050px (280mm)
-    const fitH = availableHeight / 1050;
-    // Fit width as well
-    const availableWidth = Math.min(windowWidth.value - 24, 1100);
-    const fitW = availableWidth / 800; // 210mm ~ 794px
-    const scaleVal = Math.min(fitH, fitW);
-    return Math.max(0.5, Math.min(1, parseFloat(scaleVal.toFixed(2))));
+  if (zoomOption.value === 'fit-width') {
+    // Calculamos un ancho cómodo de lectura según la pantalla (mínimo 75% para garantizar nitidez)
+    const availableW = Math.min(windowWidth.value - 40, 960);
+    const scaleW = availableW / 800; // 210mm es aprox 794px
+    return Math.max(0.75, Math.min(0.85, parseFloat(scaleW.toFixed(2))));
   }
   return parseFloat(zoomOption.value);
-});
-
-const zoomLabel = computed(() => {
-  return `${Math.round(effectiveScale.value * 100)}%${zoomOption.value === 'fit' ? ' (Auto)' : ''}`;
 });
 
 const selectedImageForModal = ref(null);
@@ -1272,11 +1263,7 @@ const generateAndPreviewPDF = async () => {
       console.warn('Advertencia al registrar historial:', dbErr);
     }
 
-    // Auto-ajustar zoom a la pantalla si es un monitor chico
-    if (window.innerHeight < 900 || window.innerWidth < 1400) {
-      zoomOption.value = 'fit';
-    }
-
+    zoomOption.value = 'fit-width';
     showPreviewModal.value = true;
     toast.success('Guía registrada. Vista previa A4 abierta.');
 
