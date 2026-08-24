@@ -41,8 +41,7 @@
             </div>
           </div>
 
-          <div class="bg-slate-100 px-3 py-1.5 flex items-center justify-between border-t border-slate-300 text-[11px] font-bold text-slate-800">
-            <span>SISTEMA DE TRAZABILIDAD Y LOGÍSTICA DE SALUD</span>
+          <div class="bg-slate-100 px-3 py-1.5 flex items-center justify-end border-t border-slate-300 text-[11px] font-bold text-slate-800">
             <div class="font-mono font-black text-slate-950 text-xs flex items-center gap-1">
               <span>N° GUÍA: </span>
               <input 
@@ -344,16 +343,19 @@
             </button>
           </div>
 
-          <div class="w-full h-full flex items-center justify-center pt-4">
+          <div class="w-full h-full flex items-center justify-center pt-4 overflow-hidden">
             <img 
               :src="img.url" 
               :alt="`Fotografía de instrumental ${img.globalIndex}`"
-              class="rounded shadow-2xs block mx-auto my-auto cursor-pointer"
+              class="rounded shadow-2xs block mx-auto my-auto cursor-pointer transition-all duration-200"
               @click="toggleImgSize(img)"
               :title="editable ? 'Haz clic en la foto para cambiar de tamaño (Grande / Compacto)' : ''"
               :style="{
-                maxHeight: img.size === 'compacto' ? '82mm' : '106mm',
-                maxWidth: '100%',
+                transform: `rotate(${img.rotation || 0}deg)`,
+                maxHeight: (img.rotation === 90 || img.rotation === 270) 
+                  ? (img.size === 'compacto' ? '60mm' : '75mm') 
+                  : (img.size === 'compacto' ? '82mm' : '106mm'),
+                maxWidth: (img.rotation === 90 || img.rotation === 270) ? '70%' : '100%',
                 width: 'auto',
                 height: 'auto',
                 objectFit: 'contain'
