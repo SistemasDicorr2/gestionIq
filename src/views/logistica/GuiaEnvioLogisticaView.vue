@@ -21,7 +21,22 @@
         </p>
       </div>
 
-      <div class="flex items-center gap-2 self-start md:self-center shrink-0">
+      <div class="flex items-center gap-2 self-start md:self-center shrink-0 flex-wrap">
+        <router-link 
+          :to="{ name: 'LogisticaConciliacionFletes' }" 
+          class="inline-flex items-center gap-1.5 px-4 py-2.5 text-xs font-black text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl transition-all shadow-md active:scale-95 cursor-pointer"
+        >
+          <span>⚖️ Conciliación Fletes</span>
+        </router-link>
+
+        <button 
+          type="button" 
+          @click="showConsolidadoModal = true" 
+          class="inline-flex items-center gap-1.5 px-4 py-2.5 text-xs font-black text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 rounded-xl transition-all shadow-2xs cursor-pointer"
+        >
+          <span>📦 Reporte Consolidado</span>
+        </button>
+
         <router-link 
           :to="{ name: 'LogisticaInformes' }" 
           class="inline-flex items-center gap-1.5 px-4 py-2.5 text-xs font-bold text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl transition-all shadow-2xs"
@@ -538,7 +553,7 @@
                     <span class="font-extrabold text-slate-900 dark:text-white block">{{ g.paciente || g.cliente }}</span>
                     <span class="text-[10px] text-slate-500 block">{{ g.lugar_entrega || '-' }}</span>
                   </td>
-                  <td class="py-2.5 px-3">{{ g.transporte }}</td>
+                  <td class="py-2.5 px-3 font-bold">{{ normalizeProveedor(g.transporte) }}</td>
                   <td class="py-2.5 px-3 font-mono font-bold text-blue-600 dark:text-blue-400">{{ g.numero_guia }}</td>
                   <td class="py-2.5 px-3 text-[11px] text-slate-500">{{ g.created_by_nombre || 'Sistema' }}</td>
                   <td class="py-2.5 px-3 text-center font-mono font-bold">{{ g.cantidad_imagenes || 0 }}</td>
@@ -797,6 +812,13 @@
       <GuiaEnvioPDF :guia="form" :imagenes="imagenes" :pacientes="pacientes" :notas-paginas="notasPaginas" />
     </div>
 
+    <!-- MODAL DE REPORTE CONSOLIDADO DE LOGÍSTICA (ZONA CONCURRIDA & PROVEEDORES) -->
+    <ReporteConsolidadoModal 
+      :is-open="showConsolidadoModal" 
+      :records="allRecordsForConsolidado" 
+      @close="showConsolidadoModal = false" 
+    />
+
   </div>
 </template>
 
@@ -807,6 +829,8 @@ import { useToast } from 'vue-toastification';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import GuiaEnvioPDF from '../../components/logistica/GuiaEnvioPDF.vue';
+import ReporteConsolidadoModal from '../../components/logistica/ReporteConsolidadoModal.vue';
+import { normalizeProveedor } from '../../utils/logisticaHelpers';
 
 const toast = useToast();
 
@@ -825,7 +849,33 @@ const isGeneratingPDF = ref(false);
 const isExportingPDF = ref(false);
 const pdfProgressText = ref('');
 const showPreviewModal = ref(false);
+const showConsolidadoModal = ref(false);
+const allMovements = ref([]);
 const isEditableInPreview = ref(true);
+
+const fetchAllMovementsForConsolidado = async () => {
+  try {
+    const { data } = await supabase
+      .from('logistica_informe_movimientos')
+      .select('id, proveedor_snapshot, institucion_snapshot, tipo_gestion, bultos')
+      .order('created_at', { ascending: false })
+      .limit(100);
+    if (data) {
+      allMovements.value = data;
+    }
+  } catch (err) {
+    console.warn('Movimientos no disponibles para consolidado:', err);
+  }
+};
+
+const allRecordsForConsolidado = computed(() => {
+  const guidesMapped = recentGuides.value.map(g => ({
+    transporte: g.transporte,
+    lugar_entrega: g.lugar_entrega,
+    cantidad_imagenes: g.cantidad_imagenes
+  }));
+  return [...guidesMapped, ...allMovements.value];
+});
 
 // Control de Zoom con Ancho Cómodo y Lectura Nítida (Piso mínimo 0.75 / 75%)
 const zoomOption = ref('fit-width'); // 'fit-width', '0.75', '0.85', '1.0'
@@ -868,7 +918,7 @@ const form = reactive({
   lugar_entrega: '',
   fecha_cx: '',
   fecha_envio: new Date().toISOString().slice(0, 10),
-  transporte: 'EMA PACK',
+  transporte: 'LOGISTICA CIRUGIA',
   numero_guia: generateRandomGuiaNumber(),
   observaciones: 'ENVIO DE INSTRUMENTAL PARA REPARACION Y ACONDICIONAMIENTO'
 });
@@ -1211,7 +1261,7 @@ const loadGuideIntoForm = (g) => {
   form.lugar_entrega = g.lugar_entrega || '';
   form.fecha_cx = g.fecha_cx || '';
   form.fecha_envio = g.fecha_envio || new Date().toISOString().slice(0, 10);
-  form.transporte = g.transporte || 'EMA PACK';
+  form.transporte = normalizeProveedor(g.transporte);
   form.numero_guia = g.numero_guia || '';
   form.observaciones = g.observaciones || '';
 
@@ -1252,7 +1302,7 @@ const generateAndPreviewPDF = async () => {
         lugar_entrega: form.lugar_entrega.trim() || null,
         fecha_cx: form.fecha_cx || null,
         fecha_envio: form.fecha_envio,
-        transporte: form.transporte.trim() || null,
+        transporte: normalizeProveedor(form.transporte),
         numero_guia: form.numero_guia.trim(),
         observaciones: form.observaciones.trim() || null,
         cantidad_imagenes: imagenes.value.length
@@ -1389,7 +1439,8 @@ onMounted(async () => {
     }
     await Promise.all([
       fetchRecentGuides(),
-      fetchQuickSurgeries()
+      fetchQuickSurgeries(),
+      fetchAllMovementsForConsolidado()
     ]);
   } catch (err) {
     console.error(err);
