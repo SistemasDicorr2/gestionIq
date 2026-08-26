@@ -172,7 +172,7 @@
                     placeholder="Transporte..." 
                     class="w-full bg-blue-50/60 hover:bg-blue-100/60 focus:bg-white border border-dashed border-blue-400 rounded px-2 py-1 font-extrabold focus:outline-none" 
                   />
-                  <span v-else>{{ displayTransporte }}</span>
+                  <span v-else>{{ guia.transporte || '-' }}</span>
                 </div>
               </div>
 
@@ -210,7 +210,7 @@
             <div>
               <span class="text-slate-500 text-[10px] block">TRANSPORTE:</span> 
               <input v-if="editable" v-model="guia.transporte" class="w-full bg-white border border-dashed border-blue-400 rounded px-1 text-xs font-bold" />
-              <span v-else>{{ displayTransporte }}</span>
+              <span v-else>{{ guia.transporte }}</span>
             </div>
             <div>
               <span class="text-slate-500 text-[10px] block">FECHA ENVÍO:</span> 
@@ -395,9 +395,6 @@
 
 <script setup>
 import { computed } from 'vue';
-import { normalizeProveedor } from '../../utils/logisticaHelpers';
-
-const displayTransporte = computed(() => normalizeProveedor(props.guia?.transporte));
 
 const props = defineProps({
   guia: {

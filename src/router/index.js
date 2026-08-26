@@ -33,7 +33,6 @@ import LogisticaNuevoInformeView from '../views/logistica/LogisticaNuevoInformeV
 import LogisticaHistorialView from '../views/logistica/LogisticaHistorialView.vue';
 import LogisticaDetalleInformeView from '../views/logistica/LogisticaDetalleInformeView.vue';
 import GuiaEnvioLogisticaView from '../views/logistica/GuiaEnvioLogisticaView.vue';
-import ConciliacionFletesView from '../views/logistica/ConciliacionFletesView.vue';
 
 // --- Definición de Rutas ---
 const routes = [
@@ -108,18 +107,6 @@ const routes = [
         name: 'Configuracion',
         component: ConfigView,
         meta: { allowedRoles: ['admin'] }
-      },
-      {
-        path: 'movimientos-transporte',
-        name: 'MovimientosTransporte',
-        component: GuiaEnvioLogisticaView,
-        meta: { allowedRoles: ['admin', 'logistica'] }
-      },
-      {
-        path: 'conciliacion-fletes',
-        name: 'AdminConciliacionFletes',
-        component: ConciliacionFletesView,
-        meta: { allowedRoles: ['admin', 'logistica'] }
       }
     ]
   },
@@ -141,12 +128,6 @@ const routes = [
         path: 'guia-envio',
         name: 'LogisticaGuiaEnvio',
         component: GuiaEnvioLogisticaView,
-        meta: { requiresAuth: true, allowedRoles: ['logistica', 'admin'] }
-      },
-      {
-        path: 'conciliacion-fletes',
-        name: 'LogisticaConciliacionFletes',
-        component: ConciliacionFletesView,
         meta: { requiresAuth: true, allowedRoles: ['logistica', 'admin'] }
       },
       {
