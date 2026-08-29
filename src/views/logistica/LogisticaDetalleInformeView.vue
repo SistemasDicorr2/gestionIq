@@ -206,13 +206,14 @@
       </div>
     </div>
 
-    <!-- Modal de Envió por Correo / Copiar Emails Oficiales -->
+    <!-- Modal de Envió por Correo / Copiar Emails Oficiales / Prueba Resend -->
     <EmailReporteModal 
       :show="showEmailModal"
       :informe="informe"
       :stats="detailStats"
       :movimientos="movimientos"
       :htmlTableProvider="copyDirectToEmailClipboard"
+      :getHtmlContent="() => generateEmailTableHtml(informe, movimientos)"
       @close="showEmailModal = false"
       @copy-table="copyDirectToEmailClipboard"
     />
@@ -296,119 +297,507 @@ const generateEmailTableHtml = (inf, movsList) => {
   const cajas = movsList.reduce((sum, m) => sum + (m.cantidad_cajas || 0), 0);
   const bultos = movsList.reduce((sum, m) => sum + (m.cantidad_bultos || 0), 0);
   const pendientes = movsList.filter(m => m.tiene_pendiente).length;
+  const fechaStr = formatDate(inf?.fecha);
+  const zonaStr = inf?.zona || 'Formosa Capital';
+  const responsableStr = inf?.responsable_nombre || 'Logística';
+  const enviadoTimeStr = inf?.enviado_at ? formatDateTime(inf.enviado_at) : formatDateTime(new Date().toISOString());
 
-  const rows = movsList.map((mov, idx) => {
+  const desktopRows = movsList.map((mov, idx) => {
     const bg = idx % 2 === 0 ? '#ffffff' : '#f8fafc';
+    const numIdx = String(idx + 1).padStart(2, '0');
     const idCirugiaBadge = mov.id_cirugia_snapshot 
-      ? `<span style="display: inline-block; margin-top: 3px; font-family: monospace; font-size: 9px; background-color: #e2e8f0; color: #1e293b; padding: 2px 4px; border-radius: 3px; font-weight: bold;">${mov.id_cirugia_snapshot}</span>` 
+      ? `<div style="margin-top:5px;"><span style="display:inline-block;padding:3px 6px;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:5px;font-family:Consolas,monospace;font-size:8px;line-height:10px;font-weight:700;color:#475569;">${mov.id_cirugia_snapshot}</span></div>` 
       : '';
-    const clienteSpan = mov.cliente_snapshot ? `<span style="font-size: 9.5px; color: #64748b; display: block; margin-top: 2px;">🏢 ${mov.cliente_snapshot}</span>` : '';
-    const instSpan = mov.institucion_snapshot ? `<span style="display: block; font-weight: bold; color: #0f172a; font-size: 10px;">🏥 ${mov.institucion_snapshot}</span>` : '';
-    const medSpan = mov.medico_snapshot ? `<span style="display: block; color: #475569; margin-top: 2px; font-size: 9.5px;">👨‍⚕️ ${mov.medico_snapshot}</span>` : '';
+    const clienteSpan = mov.cliente_snapshot ? `<div style="margin-top:4px;font-size:9px;line-height:13px;color:#64748b;">${mov.cliente_snapshot}</div>` : '';
+    const instSpan = mov.institucion_snapshot ? `<div style="font-size:10px;line-height:14px;font-weight:700;color:#334155;">${mov.institucion_snapshot}</div>` : '';
+    const medSpan = mov.medico_snapshot ? `<div style="margin-top:5px;font-size:9px;line-height:13px;color:#64748b;">Médico · ${mov.medico_snapshot}</div>` : '';
     
-    let obsHtml = mov.observaciones 
-      ? `<span style="display: block; font-style: italic; color: #475569; font-size: 9.5px;">💬 ${mov.observaciones}</span>` 
-      : (!mov.tiene_pendiente ? `<span style="color: #94a3b8; font-style: italic; font-size: 9px;">Sin notas</span>` : '');
-    
-    if (mov.tiene_pendiente) {
-      obsHtml += `<div style="margin-top: 4px; background-color: #fef3c7; border: 1px solid #fcd34d; color: #92400e; padding: 3px 5px; border-radius: 3px; font-weight: bold; font-size: 9px;">⚠️ Pendiente: ${mov.detalle_pendiente || ''}</div>`;
-    }
+    let obsCopy = mov.observaciones || (!mov.tiene_pendiente ? 'Sin notas' : '');
+    let pendHtml = mov.tiene_pendiente 
+      ? `<div style="margin-top:4px;background-color:#fef3c7;border:1px solid #fcd34d;color:#92400e;padding:3px 5px;border-radius:4px;font-weight:bold;font-size:9px;">⚠️ Pendiente: ${mov.detalle_pendiente || ''}</div>` 
+      : '';
 
     return `
-      <tr style="background-color: ${bg};">
-        <td style="border: 1px solid #cbd5e1; padding: 6px 3px; text-align: center; font-weight: bold; color: #475569; font-size: 10px;">${idx + 1}</td>
-        <td style="border: 1px solid #cbd5e1; padding: 6px; vertical-align: top; word-break: break-word;">
-          <strong style="color: #1d4ed8; font-size: 10.5px; display: block;">${mov.tipo_movimiento || ''}</strong>
+      <tr bgcolor="${bg}">
+        <td align="center" valign="top" style="padding:12px 7px;border-bottom:1px solid #e2e8f0;font-size:10px;color:#94a3b8;font-weight:700;">${numIdx}</td>
+        <td valign="top" style="padding:12px 9px;border-bottom:1px solid #e2e8f0;">
+          <div style="font-size:11px;line-height:15px;color:#2563eb;font-weight:700;">${mov.tipo_movimiento || ''}</div>
           ${idCirugiaBadge}
         </td>
-        <td style="border: 1px solid #cbd5e1; padding: 6px; vertical-align: top; word-break: break-word;">
-          <strong style="color: #0f172a; font-size: 10.5px; display: block;">${mov.paciente_snapshot || mov.destino || 'Sin especificar'}</strong>
+        <td valign="top" style="padding:12px 9px;border-bottom:1px solid #e2e8f0;">
+          <div style="font-size:11px;line-height:15px;font-weight:800;color:#0f172a;">${mov.paciente_snapshot || mov.destino || 'Sin especificar'}</div>
           ${clienteSpan}
         </td>
-        <td style="border: 1px solid #cbd5e1; padding: 6px; vertical-align: top; color: #334155; word-break: break-word;">
+        <td valign="top" style="padding:12px 9px;border-bottom:1px solid #e2e8f0;">
           ${instSpan}
           ${medSpan}
         </td>
-        <td style="border: 1px solid #cbd5e1; padding: 6px; vertical-align: top; color: #334155; word-break: break-word;">
-          ${obsHtml}
+        <td valign="top" style="padding:12px 9px;border-bottom:1px solid #e2e8f0;">
+          <div style="font-size:8px;line-height:11px;font-weight:800;color:#2563eb;text-transform:uppercase;letter-spacing:.3px;">${mov.tipo_movimiento || ''}</div>
+          <div style="margin-top:4px;font-size:10px;line-height:15px;color:#475569;">${obsCopy}</div>
+          ${pendHtml}
         </td>
-        <td style="border: 1px solid #cbd5e1; padding: 6px 2px; text-align: center; font-weight: bold; font-family: monospace; font-size: 11px; color: #0f172a;">${mov.cantidad_cajas || 0}</td>
-        <td style="border: 1px solid #cbd5e1; padding: 6px 2px; text-align: center; font-weight: bold; font-family: monospace; font-size: 11px; color: #0f172a;">${mov.cantidad_bultos || 0}</td>
+        <td align="center" valign="middle" style="padding:12px 5px;border-bottom:1px solid #e2e8f0;font-size:11px;font-weight:800;color:#0f172a;">${mov.cantidad_cajas || 0}</td>
+        <td align="center" valign="middle" style="padding:12px 5px;border-bottom:1px solid #e2e8f0;font-size:11px;font-weight:800;color:#0f172a;">${mov.cantidad_bultos || 0}</td>
       </tr>
     `;
   }).join('');
 
+  const mobileCards = movsList.map((mov, idx) => {
+    const numIdx = String(idx + 1).padStart(2, '0');
+    const idCirugiaPart = mov.id_cirugia_snapshot ? ` · ${mov.id_cirugia_snapshot}` : '';
+    let obsCopy = mov.observaciones || (!mov.tiene_pendiente ? 'Sin notas' : '');
+    let pendHtml = mov.tiene_pendiente 
+      ? `<div style="margin-top:4px;background-color:#fef3c7;border:1px solid #fcd34d;color:#92400e;padding:3px 5px;border-radius:4px;font-weight:bold;font-size:9px;">⚠️ Pendiente: ${mov.detalle_pendiente || ''}</div>` 
+      : '';
+
+    return `
+      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0"
+             class="mobile-only mobile-record"
+             style="border:1px solid #dbe3ee;border-radius:9px;background:#fff;margin-bottom:10px;">
+        <tr>
+          <td style="padding:12px;">
+            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+              <tr>
+                <td valign="top">
+                  <div style="font-size:9px;line-height:12px;color:#94a3b8;font-weight:700;">${numIdx}${idCirugiaPart}</div>
+                  <div class="mobile-title" style="margin-top:2px;font-size:13px;line-height:17px;font-weight:800;color:#0f172a;">${mov.paciente_snapshot || mov.destino || 'Sin especificar'}</div>
+                  ${mov.cliente_snapshot ? `<div style="margin-top:2px;font-size:10px;line-height:14px;color:#64748b;">${mov.cliente_snapshot}</div>` : ''}
+                </td>
+                <td align="right" valign="top">
+                  <span style="display:inline-block;padding:4px 7px;border-radius:999px;background:#eff6ff;color:#2563eb;font-size:9px;line-height:11px;font-weight:700;">
+                    ${mov.tipo_movimiento || ''}
+                  </span>
+                </td>
+              </tr>
+            </table>
+
+            <div style="height:1px;background:#e2e8f0;margin:10px 0;"></div>
+
+            <div style="font-size:10px;line-height:14px;font-weight:700;color:#334155;">${mov.institucion_snapshot || 'Sin especificar'}</div>
+            ${mov.medico_snapshot ? `<div style="margin-top:2px;font-size:10px;line-height:14px;color:#64748b;">Médico · ${mov.medico_snapshot}</div>` : ''}
+
+            <div style="margin-top:10px;font-size:9px;line-height:12px;font-weight:800;color:#2563eb;text-transform:uppercase;letter-spacing:.3px;">
+              ${mov.tipo_movimiento || ''}
+            </div>
+            <div class="mobile-copy" style="margin-top:3px;font-size:11px;line-height:16px;color:#475569;">
+              ${obsCopy}
+              ${pendHtml}
+            </div>
+
+            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0"
+                   style="margin-top:10px;background:#f8fafc;border-radius:7px;">
+              <tr>
+                <td style="padding:7px 9px;font-size:10px;color:#64748b;">Cajas <strong style="color:#0f172a;">${mov.cantidad_cajas || 0}</strong></td>
+                <td align="right" style="padding:7px 9px;font-size:10px;color:#64748b;">Bultos <strong style="color:#0f172a;">${mov.cantidad_bultos || 0}</strong></td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+    `;
+  }).join('');
+
   const obsGenHtml = inf?.observacion_general 
-    ? `<div style="background-color: #eff6ff; padding: 8px 10px; border-radius: 5px; border-left: 4px solid #2563eb; margin-bottom: 12px; font-family: Arial, sans-serif;">
-        <strong style="color: #1e40af; font-size: 10.5px;">Observación General de la Jornada:</strong>
-        <p style="margin: 2px 0 0 0; color: #334155; font-size: 10.5px; font-style: italic;">${inf.observacion_general}</p>
-       </div>`
+    ? `
+      <tr>
+        <td class="px" style="padding:0 20px 12px 20px;">
+          <div style="background-color:#eff6ff;padding:10px 12px;border-radius:8px;border-left:4px solid #2563eb;">
+            <strong style="color:#1e40af;font-size:11px;">Observación General de la Jornada:</strong>
+            <p style="margin:3px 0 0 0;color:#334155;font-size:11px;font-style:italic;">${inf.observacion_general}</p>
+          </div>
+        </td>
+      </tr>
+    `
     : '';
 
-  return `
-    <div style="background-color: #ffffff; padding: 14px; border-radius: 8px; border: 1px solid #cbd5e1; font-family: Arial, Helvetica, sans-serif; color: #1e293b; width: 660px; max-width: 660px; margin: 0 auto;">
-      <table width="636" cellpadding="0" cellspacing="0" border="0" style="width: 636px; margin-bottom: 12px; border-bottom: 2px solid #2563eb; padding-bottom: 8px;">
+  return `<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Informe Diario de Logística - DISTRICORR</title>
+
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: #eef2f7;
+      font-family: Arial, Helvetica, sans-serif;
+      color: #172033;
+    }
+
+    table { border-collapse: collapse; }
+
+    .mobile-only { display: none; max-height: 0; overflow: hidden; mso-hide: all; }
+
+    @media only screen and (max-width: 680px) {
+      .email-shell {
+        width: 100% !important;
+        max-width: 100% !important;
+        border-radius: 0 !important;
+      }
+
+      .px {
+        padding-left: 14px !important;
+        padding-right: 14px !important;
+      }
+
+      .header-left,
+      .header-right {
+        display: block !important;
+        width: 100% !important;
+        text-align: left !important;
+      }
+
+      .header-right {
+        padding-top: 8px !important;
+      }
+
+      .kpi-wrap {
+        display: block !important;
+        width: 100% !important;
+      }
+
+      .kpi-cell {
+        width: 50% !important;
+        display: inline-block !important;
+        box-sizing: border-box !important;
+        vertical-align: top !important;
+        padding: 3px !important;
+      }
+
+      .desktop-table {
+        display: none !important;
+        width: 0 !important;
+        height: 0 !important;
+        overflow: hidden !important;
+        opacity: 0 !important;
+      }
+
+      .mobile-only {
+        display: table !important;
+        width: 100% !important;
+        max-height: none !important;
+        overflow: visible !important;
+      }
+
+      .mobile-record {
+        width: 100% !important;
+        margin-bottom: 10px !important;
+      }
+
+      .mobile-title {
+        font-size: 14px !important;
+        line-height: 18px !important;
+      }
+
+      .mobile-copy {
+        font-size: 12px !important;
+        line-height: 17px !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" bgcolor="#eef2f7">
+  <tr>
+    <td align="center" style="padding:18px 8px;">
+
+      <table role="presentation"
+             width="940"
+             class="email-shell"
+             cellspacing="0"
+             cellpadding="0"
+             border="0"
+             bgcolor="#ffffff"
+             style="
+               width:940px;
+               max-width:940px;
+               background:#ffffff;
+               border:1px solid #dfe6ef;
+               border-radius:12px;
+               overflow:hidden;
+             ">
+
+        <!-- ACENTO SUPERIOR -->
         <tr>
-          <td valign="top">
-            <span style="font-size: 15px; font-weight: bold; color: #2563eb; font-family: Arial, sans-serif;">DISTRICORR — GESTIÓN IQ</span><br/>
-            <span style="font-size: 13px; font-weight: bold; color: #0f172a; font-family: Arial, sans-serif; display: block; margin-top: 1px;">Informe Diario de Logística</span>
-            <span style="font-size: 10.5px; color: #64748b; font-family: Arial, sans-serif; display: block; margin-top: 3px;">
-              Fecha: <strong style="color: #0f172a;">${formatDate(inf?.fecha)}</strong> &nbsp;|&nbsp; Zona: <strong style="color: #0f172a;">${inf?.zona || 'Formosa'}</strong> &nbsp;|&nbsp; Resp: <strong style="color: #0f172a;">${inf?.responsable_nombre || ''}</strong>
-            </span>
-          </td>
-          <td align="right" valign="top" style="text-align: right;">
-            <span style="background-color: #dcfce7; color: #166534; font-size: 10px; font-weight: bold; padding: 3px 10px; border-radius: 10px; border: 1px solid #86efac; font-family: Arial, sans-serif;">
-              ENVIADO
-            </span>
+          <td style="height:4px;background:#2563eb;font-size:0;line-height:0;">&nbsp;</td>
+        </tr>
+
+        <!-- HEADER COMPACTO -->
+        <tr>
+          <td class="px" style="padding:16px 20px 12px 20px;">
+            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+              <tr>
+                <td valign="top" class="header-left" style="width:72%;">
+
+                  <table role="presentation" cellspacing="0" cellpadding="0" border="0">
+                    <tr>
+                      <td style="
+                        font-size:16px;
+                        line-height:18px;
+                        font-weight:800;
+                        color:#2563eb;
+                        letter-spacing:-0.1px;
+                      ">
+                        DISTRICORR · GESTIÓN IQ
+                      </td>
+                      <td style="padding-left:8px;">
+                        <span style="
+                          display:inline-block;
+                          padding:3px 7px;
+                          border-radius:999px;
+                          background:#dcfce7;
+                          color:#166534;
+                          font-size:9px;
+                          line-height:11px;
+                          font-weight:800;
+                          letter-spacing:.35px;
+                        ">
+                          ENVIADO
+                        </span>
+                      </td>
+                    </tr>
+                  </table>
+
+                  <div style="
+                    margin-top:5px;
+                    font-size:18px;
+                    line-height:22px;
+                    font-weight:800;
+                    color:#0f172a;
+                  ">
+                    Informe Diario de Logística Operativa
+                  </div>
+
+                  <div style="
+                    margin-top:4px;
+                    font-size:11px;
+                    line-height:16px;
+                    color:#64748b;
+                  ">
+                    ${fechaStr} · <strong style="color:#334155;">${zonaStr}</strong>
+                  </div>
+                </td>
+
+                <td valign="top"
+                    align="right"
+                    class="header-right"
+                    style="width:28%;font-size:10px;line-height:15px;color:#64748b;">
+                  <strong style="color:#334155;">Responsable:</strong> ${responsableStr}<br>
+                  <strong style="color:#334155;">Enviado:</strong> ${enviadoTimeStr}
+                </td>
+              </tr>
+            </table>
           </td>
         </tr>
-      </table>
 
-      <table width="636" cellpadding="6" cellspacing="0" border="1" style="width: 636px; margin-bottom: 12px; background-color: #f8fafc; border: 1px solid #cbd5e1; border-collapse: collapse; text-align: center; font-family: Arial, sans-serif; font-size: 10px;">
-        <tr style="background-color: #f1f5f9;">
-          <td width="25%" style="border: 1px solid #cbd5e1; padding: 6px;">
-            <span style="font-size: 9.5px; color: #475569; font-weight: bold; text-transform: uppercase;">MOVIMIENTOS</span><br/>
-            <strong style="font-size: 14px; color: #0f172a;">${movsList.length}</strong>
-          </td>
-          <td width="25%" style="border: 1px solid #cbd5e1; padding: 6px;">
-            <span style="font-size: 9.5px; color: #475569; font-weight: bold; text-transform: uppercase;">TOTAL CAJAS</span><br/>
-            <strong style="font-size: 14px; color: #0f172a;">${cajas}</strong>
-          </td>
-          <td width="25%" style="border: 1px solid #cbd5e1; padding: 6px;">
-            <span style="font-size: 9.5px; color: #475569; font-weight: bold; text-transform: uppercase;">TOTAL BULTOS</span><br/>
-            <strong style="font-size: 14px; color: #0f172a;">${bultos}</strong>
-          </td>
-          <td width="25%" style="border: 1px solid #cbd5e1; padding: 6px; background-color: #fef3c7;">
-            <span style="font-size: 9.5px; color: #92400e; font-weight: bold; text-transform: uppercase;">PENDIENTES</span><br/>
-            <strong style="font-size: 14px; color: #b45309;">${pendientes}</strong>
+        <!-- RESUMEN COMPACTO -->
+        <tr>
+          <td class="px" style="padding:0 20px 12px 20px;">
+            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" class="kpi-wrap">
+              <tr>
+
+                <!-- Movimientos -->
+                <td class="kpi-cell" width="25%" style="padding-right:4px;">
+                  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0"
+                         style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;">
+                    <tr>
+                      <td style="padding:9px 10px;">
+                        <table role="presentation" cellspacing="0" cellpadding="0" border="0">
+                          <tr>
+                            <td valign="middle" style="padding-right:7px;">
+                              <!-- Lucide: ArrowLeftRight -->
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                   xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                <path d="M8 3L4 7L8 11" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M4 7H20" stroke="#2563eb" stroke-width="2" stroke-linecap="round"/>
+                                <path d="M16 21L20 17L16 13" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M20 17H4" stroke="#2563eb" stroke-width="2" stroke-linecap="round"/>
+                              </svg>
+                            </td>
+                            <td valign="middle">
+                              <div style="font-size:18px;line-height:20px;font-weight:800;color:#0f172a;">${movsList.length}</div>
+                              <div style="font-size:9px;line-height:11px;font-weight:700;color:#64748b;letter-spacing:.3px;">MOVIMIENTOS</div>
+                            </td>
+                          </tr>
+                        </table>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+
+                <!-- Cajas -->
+                <td class="kpi-cell" width="25%" style="padding-left:2px;padding-right:2px;">
+                  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0"
+                         style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;">
+                    <tr>
+                      <td style="padding:9px 10px;">
+                        <table role="presentation" cellspacing="0" cellpadding="0" border="0">
+                          <tr>
+                            <td valign="middle" style="padding-right:7px;">
+                              <!-- Lucide: Package -->
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                   xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                <path d="M21 16V8C21 7.3 20.6 6.65 20 6.3L13 2.3C12.4 1.95 11.6 1.95 11 2.3L4 6.3C3.4 6.65 3 7.3 3 8V16C3 16.7 3.4 17.35 4 17.7L11 21.7C11.6 22.05 12.4 22.05 13 21.7L20 17.7C20.6 17.35 21 16.7 21 16Z"
+                                      stroke="#4f46e5" stroke-width="2" stroke-linejoin="round"/>
+                                <path d="M3.3 7L12 12L20.7 7" stroke="#4f46e5" stroke-width="2" stroke-linejoin="round"/>
+                                <path d="M12 22V12" stroke="#4f46e5" stroke-width="2"/>
+                              </svg>
+                            </td>
+                            <td valign="middle">
+                              <div style="font-size:18px;line-height:20px;font-weight:800;color:#0f172a;">${cajas}</div>
+                              <div style="font-size:9px;line-height:11px;font-weight:700;color:#64748b;letter-spacing:.3px;">CAJAS / EQUIPOS</div>
+                            </td>
+                          </tr>
+                        </table>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+
+                <!-- Contenedores/Bultos -->
+                <td class="kpi-cell" width="25%" style="padding-left:2px;padding-right:2px;">
+                  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0"
+                         style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;">
+                    <tr>
+                      <td style="padding:9px 10px;">
+                        <table role="presentation" cellspacing="0" cellpadding="0" border="0">
+                          <tr>
+                            <td valign="middle" style="padding-right:7px;">
+                              <!-- Lucide: Boxes -->
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                   xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                <path d="M2.5 8.5L7 6L11.5 8.5L7 11L2.5 8.5Z" stroke="#0891b2" stroke-width="2" stroke-linejoin="round"/>
+                                <path d="M7 11V16" stroke="#0891b2" stroke-width="2"/>
+                                <path d="M2.5 8.5V13.5L7 16L11.5 13.5V8.5" stroke="#0891b2" stroke-width="2" stroke-linejoin="round"/>
+                                <path d="M12.5 13.5L17 11L21.5 13.5L17 16L12.5 13.5Z" stroke="#0891b2" stroke-width="2" stroke-linejoin="round"/>
+                                <path d="M17 16V21" stroke="#0891b2" stroke-width="2"/>
+                                <path d="M12.5 13.5V18.5L17 21L21.5 18.5V13.5" stroke="#0891b2" stroke-width="2" stroke-linejoin="round"/>
+                              </svg>
+                            </td>
+                            <td valign="middle">
+                              <div style="font-size:18px;line-height:20px;font-weight:800;color:#0f172a;">${bultos}</div>
+                              <div style="font-size:9px;line-height:11px;font-weight:700;color:#64748b;letter-spacing:.3px;">BULTOS</div>
+                            </td>
+                          </tr>
+                        </table>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+
+                <!-- Pendientes -->
+                <td class="kpi-cell" width="25%" style="padding-left:4px;">
+                  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0"
+                         style="background:#fffaf0;border:1px solid #fde68a;border-radius:8px;">
+                    <tr>
+                      <td style="padding:9px 10px;">
+                        <table role="presentation" cellspacing="0" cellpadding="0" border="0">
+                          <tr>
+                            <td valign="middle" style="padding-right:7px;">
+                              <!-- Lucide: ClockAlert -->
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                   xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                <circle cx="12" cy="12" r="9" stroke="#b45309" stroke-width="2"/>
+                                <path d="M12 7V12L15 14" stroke="#b45309" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M19 5L21 3" stroke="#b45309" stroke-width="2" stroke-linecap="round"/>
+                              </svg>
+                            </td>
+                            <td valign="middle">
+                              <div style="font-size:18px;line-height:20px;font-weight:800;color:#b45309;">${pendientes}</div>
+                              <div style="font-size:9px;line-height:11px;font-weight:700;color:#b45309;letter-spacing:.3px;">PENDIENTES</div>
+                            </td>
+                          </tr>
+                        </table>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+
+              </tr>
+            </table>
           </td>
         </tr>
+
+        ${obsGenHtml}
+
+        <!-- SEPARADOR + TITULO TABLA -->
+        <tr>
+          <td class="px" style="padding:8px 20px 8px 20px;">
+            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+              <tr>
+                <td style="font-size:13px;line-height:17px;font-weight:800;color:#0f172a;">
+                  Detalle de movimientos
+                </td>
+                <td align="right" style="font-size:9px;line-height:12px;color:#64748b;">
+                  ${movsList.length} registros
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
+        <!-- ======================================================
+             TABLA DESKTOP
+             ====================================================== -->
+        <tr class="desktop-table">
+          <td class="px" style="padding:0 20px 20px 20px;">
+            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0"
+                   style="width:100%;border:1px solid #dbe3ee;border-radius:8px;overflow:hidden;">
+
+              <tr bgcolor="#142033">
+                <th align="center" style="width:4%;padding:9px 7px;font-size:9px;color:#fff;">#</th>
+                <th align="left" style="width:14%;padding:9px 9px;font-size:9px;color:#fff;">MOVIMIENTO</th>
+                <th align="left" style="width:17%;padding:9px 9px;font-size:9px;color:#fff;">PACIENTE / CLIENTE</th>
+                <th align="left" style="width:22%;padding:9px 9px;font-size:9px;color:#fff;">INSTITUCIÓN / MÉDICO</th>
+                <th align="left" style="width:33%;padding:9px 9px;font-size:9px;color:#fff;">OBSERVACIONES / NOVEDAD</th>
+                <th align="center" style="width:5%;padding:9px 5px;font-size:9px;color:#fff;">CAJAS</th>
+                <th align="center" style="width:5%;padding:9px 5px;font-size:9px;color:#fff;">BULTOS</th>
+              </tr>
+
+              ${desktopRows}
+
+            </table>
+          </td>
+        </tr>
+
+        <!-- ======================================================
+             MOVIL: REGISTROS APILADOS
+             ====================================================== -->
+        <tr>
+          <td class="px" style="padding:0 14px 16px 14px;">
+            ${mobileCards}
+          </td>
+        </tr>
+
+        <!-- FOOTER MINIMO -->
+        <tr>
+          <td class="px" style="padding:11px 20px;background:#0f172a;">
+            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+              <tr>
+                <td style="font-size:9px;line-height:13px;color:#cbd5e1;">
+                  <strong style="color:#ffffff;">DISTRICORR</strong> · Gestión IQ · Logística Operativa
+                </td>
+                <td align="right" style="font-size:8px;line-height:12px;color:#64748b;">
+                  Generado automáticamente
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
       </table>
 
-      ${obsGenHtml}
+    </td>
+  </tr>
+</table>
 
-      <table width="636" cellpadding="6" cellspacing="0" border="1" style="width: 636px; background-color: #ffffff; border: 1px solid #cbd5e1; font-size: 10.5px; border-collapse: collapse; font-family: Arial, sans-serif; table-layout: fixed;">
-        <thead>
-          <tr style="background-color: #1e293b; color: #ffffff; text-align: left;">
-            <th width="24" style="border: 1px solid #0f172a; padding: 6px 3px; text-align: center; color: #ffffff; font-size: 10px;">#</th>
-            <th width="125" style="border: 1px solid #0f172a; padding: 6px; color: #ffffff; font-size: 10px;">Tipo / Cirugía</th>
-            <th width="140" style="border: 1px solid #0f172a; padding: 6px; color: #ffffff; font-size: 10px;">Paciente / Cliente</th>
-            <th width="140" style="border: 1px solid #0f172a; padding: 6px; color: #ffffff; font-size: 10px;">Institución / Médico</th>
-            <th width="135" style="border: 1px solid #0f172a; padding: 6px; color: #ffffff; font-size: 10px;">Observaciones / Novedad</th>
-            <th width="36" style="border: 1px solid #0f172a; padding: 6px 2px; text-align: center; color: #ffffff; font-size: 9.5px;">Cajas</th>
-            <th width="36" style="border: 1px solid #0f172a; padding: 6px 2px; text-align: center; color: #ffffff; font-size: 9.5px;">Bultos</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${rows}
-        </tbody>
-      </table>
-
-      <p style="font-size: 9px; color: #94a3b8; margin-top: 12px; text-align: center; font-family: Arial, sans-serif;">
-        Documento interno oficial generado por el módulo de Logística de Gestión IQ — Districorr.
-      </p>
-    </div>
-  `;
+</body>
+</html>`;
 };
 
 const copyDirectToEmailClipboard = async () => {
