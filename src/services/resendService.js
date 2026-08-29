@@ -41,60 +41,57 @@ export async function sendEmailWithResend({ to, bcc, subject, html }) {
 
   const bccRecipients = bcc ? (Array.isArray(bcc) ? bcc.filter(Boolean) : [bcc].filter(Boolean)) : undefined;
 
-  // 1. Invocación principal: Supabase Edge Function 'send-email'
-  try {
-    const { data: edgeData, error: edgeErr } = await supabase.functions.invoke('send-email', {
-      body: { to: recipients, bcc: bccRecipients, subject, html }
-    });
+  // 1. En producción, invocar Supabase Edge Function 'send-email'
+  if (!import.meta.env.DEV) {
+    try {
+      const { data: edgeData, error: edgeErr } = await supabase.functions.invoke('send-email', {
+        body: { to: recipients, bcc: bccRecipients, subject, html }
+      });
 
-    if (edgeErr) {
-      let msg = edgeErr.message || 'Error al invocar la Edge Function send-email';
-      if (edgeErr.status === 403) {
-        msg = `403 Forbidden: ${msg}`;
-      } else if (edgeErr.status === 401) {
-        msg = `401 Unauthorized: Debe iniciar sesión con una cuenta de @districorr.com.ar autorizada.`;
+      if (edgeErr) {
+        let msg = edgeErr.message || 'Error al invocar la Edge Function send-email';
+        if (edgeErr.status === 403) {
+          msg = `403 Forbidden: ${msg}`;
+        } else if (edgeErr.status === 401) {
+          msg = `401 Unauthorized: Debe iniciar sesión con una cuenta de @districorr.com.ar autorizada.`;
+        }
+        throw new Error(msg);
       }
-      throw new Error(msg);
-    }
 
-    if (edgeData && (edgeData.success || edgeData.id)) {
-      return edgeData;
-    }
+      if (edgeData && (edgeData.success || edgeData.id)) {
+        return edgeData;
+      }
 
-    if (edgeData && edgeData.error) {
-      throw new Error(edgeData.error);
+      if (edgeData && edgeData.error) {
+        throw new Error(edgeData.error);
+      }
+    } catch (fnErr) {
+      if (fnErr.message && (fnErr.message.includes('403') || fnErr.message.includes('401') || fnErr.message.includes('denegado'))) {
+        throw fnErr;
+      }
+      console.warn('[resendService] Edge Function no disponible o error de red, ejecutando fallback dev local:', fnErr.message);
     }
-  } catch (fnErr) {
-    if (fnErr.message && (fnErr.message.includes('403') || fnErr.message.includes('401') || fnErr.message.includes('denegado'))) {
-      throw fnErr;
-    }
-    console.warn('[resendService] Edge Function no disponible o error de red, ejecutando fallback dev local:', fnErr.message);
   }
 
   // 2. Fallback de desarrollo local (Vite Proxy '/api-resend/emails')
   const activeUser = await getCurrentResendUser();
-  if (!activeUser || !activeUser.email) {
-    throw new Error('No hay una sesión activa de Supabase Auth en el cliente.');
-  }
-
-  if (!activeUser.isDistricorr) {
-    throw new Error(`Acceso denegado: El correo '${activeUser.email}' no pertenece al dominio @districorr.com.ar.`);
-  }
-
-  if (!activeUser.isEmailEnabled) {
-    throw new Error(`Acceso denegado: El usuario ${activeUser.email} no tiene activada la propiedad app_metadata.email_enabled === true.`);
-  }
+  const fromAddress = (activeUser && activeUser.from) 
+    ? activeUser.from 
+    : 'DISTRICORR · Gestión IQ <notificaciones@districorr.com.ar>';
+  const replyToAddress = (activeUser && activeUser.email) 
+    ? activeUser.email 
+    : 'sistemas@districorr.com.ar';
 
   const apiKey = import.meta.env.VITE_RESEND_API_KEY || import.meta.env.RESEND_APIKEY;
   if (!apiKey) {
-    throw new Error('No se encontró la API Key de Resend (RESEND_APIKEY / VITE_RESEND_API_KEY).');
+    throw new Error('No se encontró la API Key de Resend (RESEND_APIKEY / VITE_RESEND_API_KEY en .env).');
   }
 
   const endpoint = import.meta.env.DEV ? '/api-resend/emails' : 'https://api.resend.com/emails';
 
   const resendBody = {
-    from: activeUser.from,
-    reply_to: activeUser.reply_to,
+    from: fromAddress,
+    reply_to: replyToAddress,
     to: recipients,
     subject: subject,
     html: html
