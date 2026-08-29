@@ -351,6 +351,24 @@ const fetchInformeDetalle = async () => {
   }
 };
 
+onMounted(fetchInformeDetalle);
+
+const printReport = () => {
+  window.print();
+};
+
+const formatDate = (dateStr) => {
+  if (!dateStr) return '';
+  const [y, m, d] = dateStr.split('-');
+  return `${d}/${m}/${y}`;
+};
+
+const formatDateTime = (dateTimeStr) => {
+  if (!dateTimeStr) return '';
+  const date = new Date(dateTimeStr);
+  return date.toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' }) + ' ' + date.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' });
+};
+
 const getMovementChipInfo = (tipo, obs = '') => {
   let mainType = (tipo || 'Otra gestión').trim();
   let subType = '';
