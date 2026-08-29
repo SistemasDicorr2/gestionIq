@@ -27,6 +27,41 @@ VALUES (
 )
 ON CONFLICT (key) DO NOTHING;
 
+-- Habilitar RLS (Row Level Security) y Políticas de Acceso
+ALTER TABLE public.resumen_operativo_config ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.resumen_operativo_lotes ENABLE ROW LEVEL SECURITY;
+
+-- Políticas para resumen_operativo_config
+DROP POLICY IF EXISTS "Permitir lectura de configuracion a usuarios autenticados" ON public.resumen_operativo_config;
+CREATE POLICY "Permitir lectura de configuracion a usuarios autenticados"
+ON public.resumen_operativo_config
+FOR SELECT
+TO authenticated
+USING (true);
+
+DROP POLICY IF EXISTS "Permitir modificacion de configuracion a usuarios autenticados" ON public.resumen_operativo_config;
+CREATE POLICY "Permitir modificacion de configuracion a usuarios autenticados"
+ON public.resumen_operativo_config
+FOR ALL
+TO authenticated
+USING (true)
+WITH CHECK (true);
+
+-- Políticas para resumen_operativo_lotes
+DROP POLICY IF EXISTS "Permitir lectura de lotes a anonimos y autenticados" ON public.resumen_operativo_lotes;
+CREATE POLICY "Permitir lectura de lotes a anonimos y autenticados"
+ON public.resumen_operativo_lotes
+FOR SELECT
+TO anon, authenticated
+USING (true);
+
+-- Permisos de Tablas (Grants)
+GRANT ALL ON TABLE public.resumen_operativo_config TO authenticated, service_role;
+GRANT SELECT ON TABLE public.resumen_operativo_config TO anon;
+
+GRANT ALL ON TABLE public.resumen_operativo_lotes TO authenticated, service_role;
+GRANT SELECT ON TABLE public.resumen_operativo_lotes TO anon;
+
 -- Función de Idempotencia: Generar o Consultar Lote Semanal
 CREATE OR REPLACE FUNCTION public.generar_o_consultar_lote_semanal(
     p_desde TIMESTAMPTZ,
@@ -64,7 +99,7 @@ BEGIN
         );
     END IF;
 
-    -- 2. Consultar fichas enviadas estrictamente por fecha_envio
+    -- 2. Consultar fichas enviadas strictly por fecha_envio
     SELECT 
         COALESCE(array_agg(r.id), '{}'::BIGINT[]) AS ids,
         COUNT(r.id) AS total_fichas,
@@ -180,3 +215,7 @@ BEGIN
     );
 END;
 $$;
+
+-- Permisos de Ejecución (Grants para RPCs)
+GRANT EXECUTE ON FUNCTION public.generar_o_consultar_lote_semanal TO authenticated, anon, service_role;
+GRANT EXECUTE ON FUNCTION public.obtener_lote_por_token TO authenticated, anon, service_role;
