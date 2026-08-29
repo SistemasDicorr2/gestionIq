@@ -27,9 +27,18 @@
           <button @click="setPeriod('last-month')" :class="['btn-period', activePeriod === 'last-month' ? 'active' : '']">
             Mes Anterior
           </button>
+          <button @click="showConfigModal = true" class="btn-period flex items-center gap-1.5 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-900 bg-blue-50/50 dark:bg-blue-950/30 font-bold">
+            <span>⚙️ Destinatarios Semanales</span>
+          </button>
         </div>
       </div>
     </section>
+
+    <!-- Modal Configuración Destinatarios -->
+    <ConfigurarDestinatariosModal 
+      :show="showConfigModal" 
+      @close="showConfigModal = false" 
+    />
 
     <!-- Cargando / Error -->
     <div v-if="loading" class="flex flex-col items-center justify-center py-20">
@@ -389,6 +398,7 @@ import { useToast } from 'vue-toastification';
 import ReportDrawer from '../../components/ReportDrawer.vue';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import ConfigurarDestinatariosModal from '../../components/admin/ConfigurarDestinatariosModal.vue';
 
 const toast = useToast();
 const headerConfig = inject('header-config', null);
@@ -397,6 +407,7 @@ const loading = ref(true);
 const error = ref(null);
 const reportes = ref([]);
 const showWelcomeModal = ref(false);
+const showConfigModal = ref(false);
 
 const filters = ref({
   from: '',

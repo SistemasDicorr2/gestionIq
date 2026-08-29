@@ -25,6 +25,7 @@ import PagosDashboardView from '../views/admin/PagosDashboardView.vue';
 import HistorialPagosView from '../views/admin/HistorialPagosView.vue';
 import ConfigView from '../views/ConfigView.vue';
 import ResumenOperativoView from '../views/admin/ResumenOperativoView.vue';
+import ResumenOperativoLoteView from '../views/admin/ResumenOperativoLoteView.vue';
 
 // --- Vistas y Layouts para el Módulo de Logística ---
 import LogisticaLayout from '../layouts/LogisticaLayout.vue';
@@ -64,6 +65,13 @@ const routes = [
     name: 'ActivitySummary',
     component: ActivitySummaryView,
     props: true,
+  },
+  {
+    path: '/resumen-operativo/lote/:token',
+    name: 'ResumenOperativoLote',
+    component: ResumenOperativoLoteView,
+    props: true,
+    meta: { requiresAuth: false }
   },
 
   // --- Rutas Protegidas de Administración ---
