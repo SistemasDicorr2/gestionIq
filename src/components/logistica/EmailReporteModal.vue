@@ -1,7 +1,7 @@
 <!-- src/components/logistica/EmailReporteModal.vue -->
 <template>
   <div v-if="show" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-950/80 backdrop-blur-md animate-fadeIn overflow-y-auto">
-    <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-xl sm:max-w-2xl max-h-[92vh] my-auto flex flex-col overflow-hidden border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-100 font-sans">
+    <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-xl sm:max-w-3xl max-h-[92vh] my-auto flex flex-col overflow-hidden border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-100 font-sans">
       
       <!-- Header (Fijo) -->
       <div class="px-5 py-3.5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between shrink-0">
@@ -28,13 +28,13 @@
         </button>
       </div>
 
-      <!-- Selector de Modo: Envío Automático (Principal) vs Manual (Secundario) -->
-      <div class="flex border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 p-1.5 gap-1.5 shrink-0 text-xs">
+      <!-- Selector de Modo: Envío Automático vs Vista previa vs Manual -->
+      <div class="flex border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 p-1.5 gap-1.5 shrink-0 text-xs flex-wrap">
         <button
           type="button"
           @click="activeTab = 'resend'"
           :class="[
-            'flex-1 py-1.5 px-3 rounded-xl font-extrabold transition-all text-center cursor-pointer flex items-center justify-center gap-2',
+            'flex-1 py-1.5 px-3 rounded-xl font-extrabold transition-all text-center cursor-pointer flex items-center justify-center gap-1.5 min-w-[140px]',
             activeTab === 'resend'
               ? 'bg-blue-600 text-white shadow-sm'
               : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
@@ -43,13 +43,27 @@
           <span>⚡ Envío automático</span>
           <span v-if="activeTab === 'resend'" class="px-1.5 py-0.5 bg-blue-500 text-white text-[8px] rounded font-black uppercase">RECOMENDADO</span>
         </button>
+
+        <button
+          type="button"
+          @click="activeTab = 'preview'"
+          :class="[
+            'py-1.5 px-3 rounded-xl font-bold transition-all text-center cursor-pointer flex items-center justify-center gap-1.5',
+            activeTab === 'preview'
+              ? 'bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 shadow-2xs font-extrabold'
+              : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
+          ]"
+        >
+          <span>👁️ Vista previa</span>
+        </button>
+
         <button
           type="button"
           @click="activeTab = 'manual'"
           :class="[
-            'py-1.5 px-4 rounded-xl font-bold transition-all text-center cursor-pointer',
+            'py-1.5 px-3 rounded-xl font-bold transition-all text-center cursor-pointer',
             activeTab === 'manual'
-              ? 'bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 shadow-2xs'
+              ? 'bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 shadow-2xs font-extrabold'
               : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
           ]"
         >
@@ -100,9 +114,18 @@
               <span class="font-extrabold text-slate-800 dark:text-slate-200">
                 Destinatarios
               </span>
-              <span class="px-2.5 py-0.5 bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 font-mono font-extrabold text-[11px] rounded-full">
-                {{ selectedEmailsCount }} seleccionados
-              </span>
+              <div class="flex items-center gap-2">
+                <button 
+                  type="button" 
+                  @click="activeTab = 'preview'" 
+                  class="font-bold text-blue-600 dark:text-blue-400 hover:underline text-[11px] flex items-center gap-1 cursor-pointer"
+                >
+                  <span>👁️ Ver vista previa HTML</span>
+                </button>
+                <span class="px-2.5 py-0.5 bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 font-mono font-extrabold text-[11px] rounded-full">
+                  {{ selectedEmailsCount }} seleccionados
+                </span>
+              </div>
             </div>
 
             <!-- Lista de Destinatarios en Grid Responsive de 2 columnas -->
@@ -215,7 +238,68 @@
           </div>
         </template>
 
-        <!-- 2. ENVÍO MANUAL (SECUNDARIO) -->
+        <!-- 2. VISTA PREVIA INTERACTIVA DEL CORREO -->
+        <template v-else-if="activeTab === 'preview'">
+          <div class="space-y-3">
+            <div class="flex items-center justify-between flex-wrap gap-2">
+              <div class="space-y-0.5">
+                <h4 class="font-extrabold text-xs text-slate-900 dark:text-white">Vista previa del correo</h4>
+                <p class="text-[11px] text-slate-500 dark:text-slate-400">
+                  Así se verá el mensaje en la bandeja de entrada de los destinatarios.
+                </p>
+              </div>
+
+              <!-- Conmutador de modo Escritorio vs Móvil -->
+              <div class="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl text-[11px]">
+                <button
+                  type="button"
+                  @click="previewDevice = 'desktop'"
+                  :class="[
+                    'px-2.5 py-1 rounded-lg font-bold transition-all cursor-pointer flex items-center gap-1',
+                    previewDevice === 'desktop' ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-2xs' : 'text-slate-500'
+                  ]"
+                >
+                  <span>💻 Escritorio</span>
+                </button>
+                <button
+                  type="button"
+                  @click="previewDevice = 'mobile'"
+                  :class="[
+                    'px-2.5 py-1 rounded-lg font-bold transition-all cursor-pointer flex items-center gap-1',
+                    previewDevice === 'mobile' ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-2xs' : 'text-slate-500'
+                  ]"
+                >
+                  <span>📱 Móvil</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- iFrame de Renderizado HTML del Email -->
+            <div class="flex justify-center bg-slate-200/70 dark:bg-slate-950 p-3 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden">
+              <iframe
+                :srcdoc="computedEmailHtml"
+                :style="{ width: previewDevice === 'mobile' ? '380px' : '100%', height: '480px' }"
+                class="rounded-xl border border-slate-300 dark:border-slate-700 bg-white transition-all shadow-sm"
+                title="Vista previa del correo electrónico"
+              ></iframe>
+            </div>
+
+            <div class="flex items-center justify-between pt-1">
+              <span class="text-[10px] text-slate-400 font-mono">
+                Renderizado HTML dinámico oficial de DISTRICORR · Gestión IQ
+              </span>
+              <button
+                type="button"
+                @click="activeTab = 'resend'"
+                class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs rounded-xl shadow-xs cursor-pointer flex items-center gap-1.5"
+              >
+                <span>Volver al envío 🚀</span>
+              </button>
+            </div>
+          </div>
+        </template>
+
+        <!-- 3. ENVÍO MANUAL (SECUNDARIO) -->
         <template v-else>
           <div class="p-3 bg-slate-100/70 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700/80 space-y-1">
             <h4 class="font-extrabold text-xs text-slate-900 dark:text-white">Envío manual</h4>
@@ -331,7 +415,8 @@ const props = defineProps({
 const emit = defineEmits(['close', 'copy-table', 'email-sent']);
 const toast = useToast();
 
-const activeTab = ref('resend'); // 'resend' (Envío automático) por defecto | 'manual'
+const activeTab = ref('resend'); // 'resend' (Envío automático) | 'preview' | 'manual'
+const previewDevice = ref('desktop'); // 'desktop' | 'mobile'
 const isTableCopied = ref(false);
 
 const currentUserInfo = ref(null);
@@ -359,6 +444,13 @@ const emailList = ref([
   { label: 'Contable', email: 'contable@districorr.com.ar', selected: true },
   { label: 'Sistemas', email: 'sistemas@districorr.com.ar', selected: true }
 ]);
+
+const computedEmailHtml = computed(() => {
+  if (props.getHtmlContent) {
+    return props.getHtmlContent();
+  }
+  return `<div style="padding: 20px; font-family: Arial, sans-serif;">Generando contenido de correo...</div>`;
+});
 
 const selectedEmails = computed(() => {
   return emailList.value.filter(item => item.selected).map(item => item.email);
