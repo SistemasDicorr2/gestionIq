@@ -171,14 +171,9 @@
               <td class="p-2.5 text-center font-bold text-slate-400 font-mono text-[11px]">{{ String(idx + 1).padStart(2, '0') }}</td>
               
               <td class="p-2.5 align-top">
-                <div class="flex flex-wrap items-center gap-1">
-                  <span :class="['px-2.5 py-0.5 rounded-full border text-[10px] font-extrabold inline-block', getMovementChipInfo(mov.tipo_movimiento, mov.observaciones).bgClass]">
-                    {{ mov.tipo_movimiento }}
-                  </span>
-                  <span v-if="getMovementChipInfo(mov.tipo_movimiento, mov.observaciones).subType" :class="['px-2 py-0.5 rounded-full border text-[9px] font-bold inline-block', getMovementChipInfo(mov.tipo_movimiento, mov.observaciones).subBgClass]">
-                    {{ getMovementChipInfo(mov.tipo_movimiento, mov.observaciones).subType }}
-                  </span>
-                </div>
+                <span :class="['px-2.5 py-0.5 rounded-full border text-[10px] font-extrabold inline-block', getMovementDisplayInfo(mov).bgClass]">
+                  {{ getMovementDisplayInfo(mov).displayTitle }}
+                </span>
                 <div v-if="mov.id_cirugia_snapshot" class="mt-1">
                   <span class="font-mono text-[9px] px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold inline-block">
                     {{ mov.id_cirugia_snapshot }}
@@ -197,11 +192,10 @@
               </td>
 
               <td class="p-2.5 align-top">
-                <span class="text-[9px] font-black uppercase text-blue-600 dark:text-blue-400 tracking-wider block">{{ mov.tipo_movimiento }}</span>
-                <span v-if="mov.observaciones" class="text-slate-600 dark:text-slate-300 block mt-0.5">
-                  {{ mov.observaciones }}
+                <span v-if="getMovementDisplayInfo(mov).cleanObs" class="text-slate-700 dark:text-slate-300 block text-xs">
+                  {{ getMovementDisplayInfo(mov).cleanObs }}
                 </span>
-                <span v-else-if="!mov.tiene_pendiente" class="text-slate-400 italic">Sin notas</span>
+                <span v-else-if="!mov.tiene_pendiente" class="text-slate-400 italic text-[11px]">Sin notas</span>
 
                 <div v-if="mov.tiene_pendiente" class="mt-1 p-1 px-2 bg-amber-50 dark:bg-amber-950/40 rounded-lg border border-amber-200 dark:border-amber-900/50 text-[10px] font-bold text-amber-900 dark:text-amber-300">
                   ⚠️ Pendiente: {{ mov.detalle_pendiente }}
@@ -239,14 +233,9 @@
                 🏢 {{ mov.cliente_snapshot }}
               </div>
             </div>
-            <div class="flex flex-wrap items-center gap-1 justify-end shrink-0">
-              <span :class="['px-2 py-0.5 rounded-full border text-[9px] font-extrabold inline-block', getMovementChipInfo(mov.tipo_movimiento, mov.observaciones).bgClass]">
-                {{ mov.tipo_movimiento }}
-              </span>
-              <span v-if="getMovementChipInfo(mov.tipo_movimiento, mov.observaciones).subType" :class="['px-1.5 py-0.5 rounded-full border text-[8px] font-bold inline-block', getMovementChipInfo(mov.tipo_movimiento, mov.observaciones).subBgClass]">
-                {{ getMovementChipInfo(mov.tipo_movimiento, mov.observaciones).subType }}
-              </span>
-            </div>
+            <span :class="['px-2.5 py-0.5 rounded-full border text-[9px] font-extrabold inline-block shrink-0', getMovementDisplayInfo(mov).bgClass]">
+              {{ getMovementDisplayInfo(mov).displayTitle }}
+            </span>
           </div>
 
           <div class="h-px bg-slate-100 dark:bg-slate-800"></div>
@@ -369,19 +358,34 @@ const formatDateTime = (dateTimeStr) => {
   return date.toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' }) + ' ' + date.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' });
 };
 
-const getMovementChipInfo = (tipo, obs = '') => {
-  let mainType = (tipo || 'Otra gestión').trim();
-  let subType = '';
+const getMovementDisplayInfo = (mov) => {
+  let rawTipo = (mov?.tipo_movimiento || '').trim();
+  let obs = (mov?.observaciones || '').trim();
+  let tagTitle = '';
+  let cleanObs = obs;
 
-  const match = (obs || '').match(/^\[(.*?):?\s*(.*?)\]/);
+  const match = obs.match(/^\[(.*?):?\s*(.*?)\]\s*(.*)/s);
   if (match) {
-    const tagContent = match[1].trim();
-    if (tagContent && tagContent.toLowerCase() !== mainType.toLowerCase()) {
-      subType = tagContent;
+    const bracketHeader = match[1].trim();
+    const bracketSub = match[2].trim();
+    const restText = match[3].trim();
+
+    if (bracketSub) {
+      tagTitle = bracketSub;
+    } else if (bracketHeader && bracketHeader.toLowerCase() !== 'otra gestión' && bracketHeader.toLowerCase() !== 'otra gestion') {
+      tagTitle = bracketHeader;
+    }
+
+    if (restText) {
+      cleanObs = restText;
+    } else if (bracketSub) {
+      cleanObs = bracketSub;
     }
   }
 
-  const t = mainType.toLowerCase();
+  const displayTitle = tagTitle || rawTipo || 'Otra gestión';
+  const t = displayTitle.toLowerCase();
+
   let bgClass = 'bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700';
   let inlineHtml = 'padding:3px 8px;border-radius:999px;background:#f1f5f9;color:#475569;font-size:10px;line-height:13px;font-weight:800;border:1px solid #cbd5e1;display:inline-block;';
 
@@ -397,6 +401,9 @@ const getMovementChipInfo = (tipo, obs = '') => {
   } else if (t.includes('docu')) {
     bgClass = 'bg-purple-50 text-purple-700 border-purple-200/80 dark:bg-purple-950/80 dark:text-purple-300 dark:border-purple-800';
     inlineHtml = 'padding:3px 8px;border-radius:999px;background:#faf5ff;color:#7e22ce;font-size:10px;line-height:13px;font-weight:800;border:1px solid #e9d5ff;display:inline-block;';
+  } else if (t.includes('despacho') || t.includes('envío') || t.includes('envio')) {
+    bgClass = 'bg-sky-50 text-sky-700 border-sky-200/80 dark:bg-sky-950/80 dark:text-sky-300 dark:border-sky-800';
+    inlineHtml = 'padding:3px 8px;border-radius:999px;background:#f0f9ff;color:#0369a1;font-size:10px;line-height:13px;font-weight:800;border:1px solid #bae6fd;display:inline-block;';
   } else if (t.includes('inciden')) {
     bgClass = 'bg-rose-50 text-rose-700 border-rose-200/80 dark:bg-rose-950/80 dark:text-rose-300 dark:border-rose-800';
     inlineHtml = 'padding:3px 8px;border-radius:999px;background:#fff1f2;color:#be123c;font-size:10px;line-height:13px;font-weight:800;border:1px solid #fecdd3;display:inline-block;';
@@ -405,15 +412,7 @@ const getMovementChipInfo = (tipo, obs = '') => {
     inlineHtml = 'padding:3px 8px;border-radius:999px;background:#fffbeb;color:#b45309;font-size:10px;line-height:13px;font-weight:800;border:1px solid #fde68a;display:inline-block;';
   }
 
-  let subBgClass = 'bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-950/70 dark:text-purple-300';
-  let subInlineHtml = 'padding:2px 6px;border-radius:999px;background:#faf5ff;color:#7e22ce;font-size:9px;line-height:11px;font-weight:700;border:1px solid #e9d5ff;display:inline-block;margin-top:4px;';
-
-  if (subType.toLowerCase().includes('esterili')) {
-    subBgClass = 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/70 dark:text-emerald-300';
-    subInlineHtml = 'padding:2px 6px;border-radius:999px;background:#ecfdf5;color:#047857;font-size:9px;line-height:11px;font-weight:700;border:1px solid #a7f3d0;display:inline-block;margin-top:4px;';
-  }
-
-  return { mainType, subType, bgClass, inlineHtml, subBgClass, subInlineHtml };
+  return { displayTitle, cleanObs, bgClass, inlineHtml };
 };
 
 const generateEmailTableHtml = (inf, movsList) => {
@@ -428,7 +427,7 @@ const generateEmailTableHtml = (inf, movsList) => {
   const desktopRows = movsList.map((mov, idx) => {
     const bg = idx % 2 === 0 ? '#ffffff' : '#f8fafc';
     const numIdx = String(idx + 1).padStart(2, '0');
-    const chipInfo = getMovementChipInfo(mov.tipo_movimiento, mov.observaciones);
+    const info = getMovementDisplayInfo(mov);
     const idCirugiaBadge = mov.id_cirugia_snapshot 
       ? `<div style="margin-top:5px;"><span style="display:inline-block;padding:3px 6px;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:5px;font-family:Consolas,monospace;font-size:8px;line-height:10px;font-weight:700;color:#475569;">${mov.id_cirugia_snapshot}</span></div>` 
       : '';
@@ -436,21 +435,15 @@ const generateEmailTableHtml = (inf, movsList) => {
     const instSpan = mov.institucion_snapshot ? `<div style="font-size:10px;line-height:14px;font-weight:700;color:#334155;">${mov.institucion_snapshot}</div>` : '';
     const medSpan = mov.medico_snapshot ? `<div style="margin-top:5px;font-size:9px;line-height:13px;color:#64748b;">Médico · ${mov.medico_snapshot}</div>` : '';
     
-    let obsCopy = mov.observaciones || (!mov.tiene_pendiente ? 'Sin notas' : '');
     let pendHtml = mov.tiene_pendiente 
       ? `<div style="margin-top:4px;background-color:#fef3c7;border:1px solid #fcd34d;color:#92400e;padding:3px 5px;border-radius:4px;font-weight:bold;font-size:9px;">⚠️ Pendiente: ${mov.detalle_pendiente || ''}</div>` 
-      : '';
-
-    const subChipHtml = chipInfo.subType 
-      ? `<div style="margin-top:3px;"><span style="${chipInfo.subInlineHtml}">${chipInfo.subType}</span></div>` 
       : '';
 
     return `
       <tr bgcolor="${bg}">
         <td align="center" valign="top" style="padding:12px 7px;border-bottom:1px solid #e2e8f0;font-size:10px;color:#94a3b8;font-weight:700;">${numIdx}</td>
         <td valign="top" style="padding:12px 9px;border-bottom:1px solid #e2e8f0;">
-          <span style="${chipInfo.inlineHtml}">${mov.tipo_movimiento || ''}</span>
-          ${subChipHtml}
+          <span style="${info.inlineHtml}">${info.displayTitle}</span>
           ${idCirugiaBadge}
         </td>
         <td valign="top" style="padding:12px 9px;border-bottom:1px solid #e2e8f0;">
@@ -462,8 +455,7 @@ const generateEmailTableHtml = (inf, movsList) => {
           ${medSpan}
         </td>
         <td valign="top" style="padding:12px 9px;border-bottom:1px solid #e2e8f0;">
-          <div style="font-size:8px;line-height:11px;font-weight:800;color:#2563eb;text-transform:uppercase;letter-spacing:.3px;">${mov.tipo_movimiento || ''}</div>
-          <div style="margin-top:4px;font-size:10px;line-height:15px;color:#475569;">${obsCopy}</div>
+          <div style="font-size:10px;line-height:15px;color:#475569;">${info.cleanObs || 'Sin notas'}</div>
           ${pendHtml}
         </td>
         <td align="center" valign="middle" style="padding:12px 5px;border-bottom:1px solid #e2e8f0;font-size:11px;font-weight:800;color:#0f172a;">${mov.cantidad_cajas || 0}</td>
@@ -474,9 +466,8 @@ const generateEmailTableHtml = (inf, movsList) => {
 
   const mobileCards = movsList.map((mov, idx) => {
     const numIdx = String(idx + 1).padStart(2, '0');
-    const chipInfo = getMovementChipInfo(mov.tipo_movimiento, mov.observaciones);
+    const info = getMovementDisplayInfo(mov);
     const idCirugiaPart = mov.id_cirugia_snapshot ? ` · ${mov.id_cirugia_snapshot}` : '';
-    let obsCopy = mov.observaciones || (!mov.tiene_pendiente ? 'Sin notas' : '');
     let pendHtml = mov.tiene_pendiente 
       ? `<div style="margin-top:4px;background-color:#fef3c7;border:1px solid #fcd34d;color:#92400e;padding:3px 5px;border-radius:4px;font-weight:bold;font-size:9px;">⚠️ Pendiente: ${mov.detalle_pendiente || ''}</div>` 
       : '';
@@ -495,8 +486,8 @@ const generateEmailTableHtml = (inf, movsList) => {
                   ${mov.cliente_snapshot ? `<div style="margin-top:2px;font-size:10px;line-height:14px;color:#64748b;">${mov.cliente_snapshot}</div>` : ''}
                 </td>
                 <td align="right" valign="top">
-                  <span style="${chipInfo.inlineHtml}">
-                    ${mov.tipo_movimiento || ''}
+                  <span style="${info.inlineHtml}">
+                    ${info.displayTitle}
                   </span>
                 </td>
               </tr>
@@ -507,11 +498,8 @@ const generateEmailTableHtml = (inf, movsList) => {
             <div style="font-size:10px;line-height:14px;font-weight:700;color:#334155;">${mov.institucion_snapshot || 'Sin especificar'}</div>
             ${mov.medico_snapshot ? `<div style="margin-top:2px;font-size:10px;line-height:14px;color:#64748b;">Médico · ${mov.medico_snapshot}</div>` : ''}
 
-            <div style="margin-top:10px;font-size:9px;line-height:12px;font-weight:800;color:#2563eb;text-transform:uppercase;letter-spacing:.3px;">
-              ${mov.tipo_movimiento || ''}
-            </div>
-            <div class="mobile-copy" style="margin-top:3px;font-size:11px;line-height:16px;color:#475569;">
-              ${obsCopy}
+            <div class="mobile-copy" style="margin-top:8px;font-size:11px;line-height:16px;color:#475569;">
+              ${info.cleanObs || 'Sin notas'}
               ${pendHtml}
             </div>
 
