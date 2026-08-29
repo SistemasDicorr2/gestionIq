@@ -60,149 +60,211 @@
       No se encontró el informe solicitado.
     </div>
 
-    <div v-else class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-6 shadow-xs space-y-6 print:border-none print:shadow-none print:p-0 print:bg-white print:text-black">
-      
-      <!-- ENCABEZADO DE IMPRESIÓN CON PRESENTACIÓN EJECUTIVA -->
-      <div class="border-b-2 border-blue-600 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div>
+    <div v-else class="bg-[#ffffff] dark:bg-slate-900 rounded-2xl border border-[#dfe6ef] dark:border-slate-800 overflow-hidden shadow-md font-sans text-[#172033] dark:text-slate-100 print:shadow-none print:border-none">
+      <!-- ACENTO SUPERIOR -->
+      <div class="h-1 bg-blue-600"></div>
+
+      <!-- HEADER COMPACTO -->
+      <div class="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+        <div class="space-y-1">
           <div class="flex items-center gap-2">
-            <span class="font-black text-xl text-blue-600 dark:text-blue-400 tracking-tight">DISTRICORR — GESTIÓN IQ</span>
-            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-green-100 dark:bg-green-950/60 text-green-800 dark:text-green-300 print:bg-gray-200 print:text-black">
-              {{ informe.estado }}
+            <span class="text-base sm:text-lg font-extrabold text-blue-600 dark:text-blue-400 tracking-tight">DISTRICORR · GESTIÓN IQ</span>
+            <span class="px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 text-[9px] font-black uppercase tracking-wider">
+              {{ informe.estado || 'ENVIADO' }}
             </span>
           </div>
-          <h1 class="text-base font-extrabold text-slate-900 dark:text-white mt-1 print:text-black">
+          <h2 class="text-base sm:text-xl font-extrabold text-slate-900 dark:text-white">
             Informe Diario de Logística Operativa
-          </h1>
-          <p class="text-xs text-slate-500 dark:text-slate-400 print:text-gray-600">
-            Fecha de Jornada: <strong>{{ formatDate(informe.fecha) }}</strong> | Zona: <strong>{{ informe.zona || 'Formosa' }}</strong>
+          </h2>
+          <p class="text-xs text-slate-500 dark:text-slate-400">
+            {{ formatDate(informe.fecha) }} · <strong class="text-slate-700 dark:text-slate-200">{{ informe.zona || 'Formosa Capital' }}</strong>
           </p>
         </div>
 
-        <div class="text-left sm:text-right text-xs text-slate-500 dark:text-slate-400 space-y-0.5 print:text-gray-600">
-          <p><strong>Responsable:</strong> {{ informe.responsable_nombre }}</p>
-          <p v-if="informe.enviado_at"><strong>Enviado:</strong> {{ formatDateTime(informe.enviado_at) }}</p>
+        <div class="text-left sm:text-right text-xs text-slate-500 dark:text-slate-400 space-y-0.5 font-sans">
+          <div><strong class="text-slate-700 dark:text-slate-200">Responsable:</strong> {{ informe.responsable_nombre }}</div>
+          <div><strong class="text-slate-700 dark:text-slate-200">Enviado:</strong> {{ informe.enviado_at ? formatDateTime(informe.enviado_at) : formatDateTime(new Date().toISOString()) }}</div>
         </div>
       </div>
 
-      <!-- Resumen de Contadores / Métricas Imprimibles -->
-      <div class="grid grid-cols-4 gap-3 text-center print:border print:border-gray-300 print:rounded-lg print:p-2">
-        <div class="p-3 bg-slate-50 dark:bg-slate-900/60 rounded-xl border border-slate-100 dark:border-slate-700 print:border-none">
-          <span class="text-[10px] text-slate-400 font-bold uppercase block print:text-gray-600">Movimientos</span>
-          <span class="text-base font-extrabold text-slate-800 dark:text-slate-100 print:text-black">{{ movimientos.length }}</span>
+      <!-- RESUMEN COMPACTO (4 KPI Cards) -->
+      <div class="p-4 sm:p-5">
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+          <!-- Movimientos -->
+          <div class="p-2.5 sm:p-3 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200/80 dark:border-slate-700/80 flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 3L4 7L8 11M4 7H20M16 21L20 17L16 13M20 17H4"/></svg>
+            </div>
+            <div>
+              <div class="text-lg font-extrabold text-slate-900 dark:text-white leading-none">{{ movimientos.length }}</div>
+              <div class="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mt-0.5">MOVIMIENTOS</div>
+            </div>
+          </div>
+
+          <!-- Cajas -->
+          <div class="p-2.5 sm:p-3 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200/80 dark:border-slate-700/80 flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 16V8C21 7.3 20.6 6.65 20 6.3L13 2.3C12.4 1.95 11.6 1.95 11 2.3L4 6.3C3.4 6.65 3 7.3 3 8V16C3 16.7 3.4 17.35 4 17.7L11 21.7C11.6 22.05 12.4 22.05 13 21.7L20 17.7C20.6 17.35 21 16.7 21 16Z"/></svg>
+            </div>
+            <div>
+              <div class="text-lg font-extrabold text-slate-900 dark:text-white leading-none">{{ totalCajas }}</div>
+              <div class="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mt-0.5">CAJAS / EQUIPOS</div>
+            </div>
+          </div>
+
+          <!-- Bultos -->
+          <div class="p-2.5 sm:p-3 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200/80 dark:border-slate-700/80 flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-lg bg-cyan-50 dark:bg-cyan-950/60 text-cyan-600 dark:text-cyan-400 flex items-center justify-center shrink-0">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.5 8.5L7 6L11.5 8.5L7 11L2.5 8.5Z"/></svg>
+            </div>
+            <div>
+              <div class="text-lg font-extrabold text-slate-900 dark:text-white leading-none">{{ totalBultos }}</div>
+              <div class="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mt-0.5">BULTOS</div>
+            </div>
+          </div>
+
+          <!-- Pendientes -->
+          <div class="p-2.5 sm:p-3 bg-amber-50/80 dark:bg-amber-950/40 rounded-xl border border-amber-200/80 dark:border-amber-900/60 flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-lg bg-amber-100 dark:bg-amber-900/60 text-amber-700 dark:text-amber-400 flex items-center justify-center shrink-0">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/><path d="M12 7V12L15 14" stroke="currentColor" stroke-width="2"/></svg>
+            </div>
+            <div>
+              <div class="text-lg font-extrabold text-amber-900 dark:text-amber-300 leading-none">{{ totalPendientes }}</div>
+              <div class="text-[9px] font-bold text-amber-700 dark:text-amber-400 uppercase tracking-wider mt-0.5">PENDIENTES</div>
+            </div>
+          </div>
         </div>
 
-        <div class="p-3 bg-slate-50 dark:bg-slate-900/60 rounded-xl border border-slate-100 dark:border-slate-700 print:border-none">
-          <span class="text-[10px] text-slate-400 font-bold uppercase block print:text-gray-600">Cajas y Equipos</span>
-          <span class="text-base font-extrabold text-slate-800 dark:text-slate-100 print:text-black">{{ totalCajas }}</span>
-        </div>
-
-        <div class="p-3 bg-slate-50 dark:bg-slate-900/60 rounded-xl border border-slate-100 dark:border-slate-700 print:border-none">
-          <span class="text-[10px] text-slate-400 font-bold uppercase block print:text-gray-600">Contenedores</span>
-          <span class="text-base font-extrabold text-slate-800 dark:text-slate-100 print:text-black">{{ totalBultos }}</span>
-        </div>
-
-        <div class="p-3 bg-amber-50 dark:bg-amber-950/30 rounded-xl border border-amber-100 dark:border-amber-900/40 print:border-none">
-          <span class="text-[10px] text-amber-700 dark:text-amber-400 font-bold uppercase block print:text-amber-900">Pendientes</span>
-          <span class="text-base font-extrabold text-amber-800 dark:text-amber-300 print:text-amber-900">{{ totalPendientes }}</span>
-        </div>
-      </div>
-
-      <!-- Observación General -->
-      <div v-if="informe.observacion_general" class="p-3.5 bg-slate-50 dark:bg-slate-900/60 rounded-xl border border-slate-200 dark:border-slate-700 text-xs space-y-1 print:border-gray-300">
-        <span class="font-bold text-slate-700 dark:text-slate-300 block print:text-black">Observación General de la Jornada:</span>
-        <p class="text-slate-600 dark:text-slate-400 italic print:text-gray-800">{{ informe.observacion_general }}</p>
-      </div>
-
-      <!-- Tabla Imprimible de Movimientos (Impresión Impecable) -->
-      <div class="space-y-3 print:space-y-2">
-        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 print:text-gray-800">
-          Detalle de Movimientos Registrados
-        </h3>
-
-        <!-- Formato Tabla Limpia para Impresión y Pantalla -->
-        <div class="overflow-x-auto">
-          <table class="w-full text-xs text-left border-collapse border border-slate-200 dark:border-slate-700 print:border-gray-400">
-            <thead>
-              <tr class="bg-slate-900 text-white dark:bg-slate-800 print:bg-gray-200 print:text-black font-bold">
-                <th class="p-2 border border-slate-700 print:border-gray-400 w-8 text-center">#</th>
-                <th class="p-2 border border-slate-700 print:border-gray-400 w-32">Tipo / Cirugía</th>
-                <th class="p-2 border border-slate-700 print:border-gray-400">Paciente / Cliente</th>
-                <th class="p-2 border border-slate-700 print:border-gray-400">Institución / Médico</th>
-                <th class="p-2 border border-slate-700 print:border-gray-400">Observaciones / Novedad</th>
-                <th class="p-2 border border-slate-700 print:border-gray-400 w-12 text-center">Cajas</th>
-                <th class="p-2 border border-slate-700 print:border-gray-400 w-12 text-center">Bultos</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr 
-                v-for="(mov, idx) in movimientos" 
-                :key="mov.id"
-                :class="[idx % 2 === 0 ? 'bg-white dark:bg-slate-900' : 'bg-slate-50/80 dark:bg-slate-800/50', 'print:bg-white']"
-              >
-                <td class="p-2 border border-slate-200 dark:border-slate-800 print:border-gray-300 text-center font-bold text-slate-400 print:text-black">
-                  {{ idx + 1 }}
-                </td>
-
-                <td class="p-2 border border-slate-200 dark:border-slate-800 print:border-gray-300 vertical-top">
-                  <span class="font-bold text-blue-600 dark:text-blue-400 block print:text-black">{{ mov.tipo_movimiento }}</span>
-                  <span v-if="mov.id_cirugia_snapshot" class="font-mono text-[10px] px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold inline-block mt-0.5 print:bg-gray-100 print:text-black">
-                    {{ mov.id_cirugia_snapshot }}
-                  </span>
-                </td>
-
-                <td class="p-2 border border-slate-200 dark:border-slate-800 print:border-gray-300 vertical-top">
-                  <span class="font-bold text-slate-900 dark:text-white block print:text-black">{{ mov.paciente_snapshot || mov.destino || 'Sin especificar' }}</span>
-                  <span v-if="mov.cliente_snapshot" class="text-[11px] text-slate-500 block mt-0.5 print:text-gray-600">🏢 {{ mov.cliente_snapshot }}</span>
-                </td>
-
-                <td class="p-2 border border-slate-200 dark:border-slate-800 print:border-gray-300 vertical-top text-slate-700 dark:text-slate-300 print:text-black">
-                  <span v-if="mov.institucion_snapshot" class="font-semibold block">🏥 {{ mov.institucion_snapshot }}</span>
-                  <span v-if="mov.medico_snapshot" class="text-slate-500 block mt-0.5 print:text-gray-600">👨‍⚕️ {{ mov.medico_snapshot }}</span>
-                </td>
-
-                <td class="p-2 border border-slate-200 dark:border-slate-800 print:border-gray-300 vertical-top">
-                  <span v-if="mov.observaciones" class="italic text-slate-600 dark:text-slate-400 block print:text-gray-800">
-                    💬 {{ mov.observaciones }}
-                  </span>
-                  <span v-else-if="!mov.tiene_pendiente" class="text-slate-400 italic text-[11px]">Sin notas</span>
-
-                  <div v-if="mov.tiene_pendiente" class="mt-1 p-1 px-2 bg-amber-50 dark:bg-amber-950/40 rounded border border-amber-200 dark:border-amber-900/50 text-[11px] font-bold text-amber-900 dark:text-amber-300 print:bg-yellow-50 print:text-black">
-                    ⚠️ Pendiente: {{ mov.detalle_pendiente }}
-                  </div>
-                </td>
-
-                <td class="p-2 border border-slate-200 dark:border-slate-800 print:border-gray-300 text-center font-mono font-bold text-slate-900 dark:text-white print:text-black">
-                  {{ mov.cantidad_cajas || 0 }}
-                </td>
-
-                <td class="p-2 border border-slate-200 dark:border-slate-800 print:border-gray-300 text-center font-mono font-bold text-slate-900 dark:text-white print:text-black">
-                  {{ mov.cantidad_bultos || 0 }}
-                </td>
-              </tr>
-            </tbody>
-          </table>
+        <!-- Observación General -->
+        <div v-if="informe.observacion_general" class="mt-3.5 p-3 bg-blue-50/60 dark:bg-blue-950/40 rounded-xl border-l-4 border-blue-600 text-xs space-y-1">
+          <span class="font-extrabold text-blue-900 dark:text-blue-300 block">Observación General de la Jornada:</span>
+          <p class="text-slate-700 dark:text-slate-300 italic">{{ informe.observacion_general }}</p>
         </div>
       </div>
 
-      <!-- Pie de Página de Firma y Validación de Impresión -->
-      <div class="pt-8 grid grid-cols-2 gap-8 border-t border-slate-200 dark:border-slate-700 print:border-gray-400">
-        <div class="text-center space-y-1">
-          <div class="border-b border-slate-400 w-48 mx-auto pb-8"></div>
-          <span class="text-[11px] font-bold text-slate-600 dark:text-slate-300 block print:text-black">Firma Responsable de Logística</span>
-          <span class="text-[10px] text-slate-400 block">{{ informe.responsable_nombre }}</span>
-        </div>
+      <!-- SEPARADOR + TÍTULO TABLA -->
+      <div class="px-4 sm:px-5 py-2 flex items-center justify-between border-t border-slate-100 dark:border-slate-800 text-xs font-extrabold">
+        <span class="text-slate-900 dark:text-white">Detalle de movimientos</span>
+        <span class="text-[10px] text-slate-400 dark:text-slate-500 font-mono">{{ movimientos.length }} registros</span>
+      </div>
 
-        <div class="text-center space-y-1">
-          <div class="border-b border-slate-400 w-48 mx-auto pb-8"></div>
-          <span class="text-[11px] font-bold text-slate-600 dark:text-slate-300 block print:text-black">Firma Recepción / Administración</span>
-          <span class="text-[10px] text-slate-400 block">Districorr — Gestión IQ</span>
+      <!-- TABLA DE MOVIMIENTOS DESKTOP -->
+      <div class="hidden sm:block overflow-x-auto px-4 sm:px-5 pb-5">
+        <table class="w-full text-xs text-left border-collapse border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden">
+          <thead>
+            <tr class="bg-[#142033] text-white font-bold text-[10px] uppercase">
+              <th class="p-2.5 text-center w-8">#</th>
+              <th class="p-2.5 w-32">Movimiento</th>
+              <th class="p-2.5">Paciente / Cliente</th>
+              <th class="p-2.5">Institución / Médico</th>
+              <th class="p-2.5">Observaciones / Novedad</th>
+              <th class="p-2.5 text-center w-14">Cajas</th>
+              <th class="p-2.5 text-center w-14">Bultos</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-200 dark:divide-slate-800">
+            <tr 
+              v-for="(mov, idx) in movimientos" 
+              :key="mov.id"
+              :class="idx % 2 === 0 ? 'bg-white dark:bg-slate-900' : 'bg-slate-50/70 dark:bg-slate-800/40'"
+            >
+              <td class="p-2.5 text-center font-bold text-slate-400 font-mono text-[11px]">{{ String(idx + 1).padStart(2, '0') }}</td>
+              
+              <td class="p-2.5 align-top">
+                <span class="font-bold text-blue-600 dark:text-blue-400 block">{{ mov.tipo_movimiento }}</span>
+                <span v-if="mov.id_cirugia_snapshot" class="font-mono text-[9px] px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold inline-block mt-1">
+                  {{ mov.id_cirugia_snapshot }}
+                </span>
+              </td>
+
+              <td class="p-2.5 align-top">
+                <span class="font-extrabold text-slate-900 dark:text-white block">{{ mov.paciente_snapshot || mov.destino || 'Sin especificar' }}</span>
+                <span v-if="mov.cliente_snapshot" class="text-[11px] text-slate-500 block mt-0.5">🏢 {{ mov.cliente_snapshot }}</span>
+              </td>
+
+              <td class="p-2.5 align-top text-slate-700 dark:text-slate-300">
+                <span v-if="mov.institucion_snapshot" class="font-bold block text-slate-800 dark:text-slate-200">🏥 {{ mov.institucion_snapshot }}</span>
+                <span v-if="mov.medico_snapshot" class="text-slate-500 block mt-0.5">👨‍⚕️ {{ mov.medico_snapshot }}</span>
+              </td>
+
+              <td class="p-2.5 align-top">
+                <span class="text-[9px] font-black uppercase text-blue-600 dark:text-blue-400 tracking-wider block">{{ mov.tipo_movimiento }}</span>
+                <span v-if="mov.observaciones" class="text-slate-600 dark:text-slate-300 block mt-0.5">
+                  {{ mov.observaciones }}
+                </span>
+                <span v-else-if="!mov.tiene_pendiente" class="text-slate-400 italic">Sin notas</span>
+
+                <div v-if="mov.tiene_pendiente" class="mt-1 p-1 px-2 bg-amber-50 dark:bg-amber-950/40 rounded-lg border border-amber-200 dark:border-amber-900/50 text-[10px] font-bold text-amber-900 dark:text-amber-300">
+                  ⚠️ Pendiente: {{ mov.detalle_pendiente }}
+                </div>
+              </td>
+
+              <td class="p-2.5 text-center font-mono font-extrabold text-slate-900 dark:text-white text-xs">
+                {{ mov.cantidad_cajas || 0 }}
+              </td>
+
+              <td class="p-2.5 text-center font-mono font-extrabold text-slate-900 dark:text-white text-xs">
+                {{ mov.cantidad_bultos || 0 }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- TARJETAS DE REGISTROS APILADAS MÓVIL (sm:hidden) -->
+      <div class="sm:hidden px-4 pb-4 space-y-2.5">
+        <div 
+          v-for="(mov, idx) in movimientos" 
+          :key="mov.id"
+          class="p-3 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 space-y-2"
+        >
+          <div class="flex items-start justify-between gap-2">
+            <div>
+              <div class="text-[10px] font-mono font-bold text-slate-400">
+                {{ String(idx + 1).padStart(2, '0') }} {{ mov.id_cirugia_snapshot ? '· ' + mov.id_cirugia_snapshot : '' }}
+              </div>
+              <div class="font-extrabold text-sm text-slate-900 dark:text-white mt-0.5">
+                {{ mov.paciente_snapshot || mov.destino || 'Sin especificar' }}
+              </div>
+              <div v-if="mov.cliente_snapshot" class="text-xs text-slate-500">
+                🏢 {{ mov.cliente_snapshot }}
+              </div>
+            </div>
+            <span class="px-2 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400 font-bold text-[10px] shrink-0">
+              {{ mov.tipo_movimiento }}
+            </span>
+          </div>
+
+          <div class="h-px bg-slate-100 dark:bg-slate-800"></div>
+
+          <div class="space-y-1 text-xs">
+            <div class="font-bold text-slate-800 dark:text-slate-200">🏥 {{ mov.institucion_snapshot || 'Sin especificar' }}</div>
+            <div v-if="mov.medico_snapshot" class="text-slate-500">👨‍⚕️ Médico · {{ mov.medico_snapshot }}</div>
+          </div>
+
+          <div class="space-y-1 text-xs pt-1">
+            <div class="text-[9px] font-black uppercase text-blue-600 dark:text-blue-400 tracking-wider">
+              {{ mov.tipo_movimiento }}
+            </div>
+            <div class="text-slate-600 dark:text-slate-300">
+              {{ mov.observaciones || (mov.tiene_pendiente ? 'Con pendiente' : 'Sin notas') }}
+            </div>
+            <div v-if="mov.tiene_pendiente" class="p-1.5 bg-amber-50 dark:bg-amber-950/40 rounded-lg border border-amber-200 text-[10px] font-bold text-amber-800">
+              ⚠️ Pendiente: {{ mov.detalle_pendiente }}
+            </div>
+          </div>
+
+          <div class="p-2 bg-slate-50 dark:bg-slate-800/60 rounded-lg flex items-center justify-between text-xs font-mono font-bold">
+            <span>Cajas: <strong>{{ mov.cantidad_cajas || 0 }}</strong></span>
+            <span>Bultos: <strong>{{ mov.cantidad_bultos || 0 }}</strong></span>
+          </div>
         </div>
       </div>
 
-      <!-- Pie legal -->
-      <div class="text-[10px] text-slate-400 text-center print:text-gray-500">
-        Documento interno oficial generado por el módulo de Logística de Gestión IQ — Districorr.
+      <!-- FOOTER MÍNIMO INTERNO -->
+      <div class="px-4 sm:px-5 py-2.5 bg-slate-900 text-white flex items-center justify-between text-[10px] font-sans">
+        <div><strong class="text-white font-extrabold">DISTRICORR</strong> · Gestión IQ · Logística Operativa</div>
+        <div class="text-slate-400 font-mono">Generado automáticamente</div>
       </div>
     </div>
 
