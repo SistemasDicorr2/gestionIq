@@ -105,18 +105,11 @@
 <script setup>
 import { ref, defineComponent, h } from 'vue';
 import { UserIcon, ClipboardDocumentCheckIcon, CalendarIcon, MapPinIcon, UserCircleIcon, IdentificationIcon, DocumentTextIcon, ClockIcon } from '@heroicons/vue/24/outline';
+import { formatDate } from '../utils/reportMapper.js';
 
 const props = defineProps({ reporte: Object });
 const pdfTemplateRef = ref(null);
 defineExpose({ pdfTemplateRef });
-
-const formatDate = (dateString) => {
-  if (!dateString) return 'N/A';
-  const date = new Date(dateString);
-  const userTimezoneOffset = date.getTimezoneOffset() * 60000;
-  const adjustedDate = new Date(date.getTime() + userTimezoneOffset);
-  return adjustedDate.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
-};
 
 const formatDateTime = (dateString) => {
   if (!dateString) return 'N/A';
