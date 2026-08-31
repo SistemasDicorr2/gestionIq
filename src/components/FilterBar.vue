@@ -273,8 +273,8 @@ const exportAndClose = (eventName) => {
 }
 
 .btn-primary-large {
-  @apply bg-blue-600 text-white font-extrabold py-1.5 px-4 rounded-xl text-xs shadow-sm transition-all duration-150;
-  @apply hover:bg-blue-700 hover:shadow-sm disabled:bg-slate-300 dark:disabled:bg-slate-800 disabled:text-slate-400 dark:disabled:text-slate-600 disabled:cursor-not-allowed;
+  @apply bg-brand-navy text-white font-extrabold py-1.5 px-4 rounded-xl text-xs shadow-sm transition-all duration-150;
+  @apply hover:bg-brand-navy-light hover:shadow-sm disabled:bg-slate-300 dark:disabled:bg-slate-800 disabled:text-slate-400 dark:disabled:text-slate-600 disabled:cursor-not-allowed;
   @apply active:scale-95 cursor-pointer text-center;
 }
 

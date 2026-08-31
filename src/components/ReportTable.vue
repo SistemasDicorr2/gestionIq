@@ -240,7 +240,7 @@ const formatDate = (dateString) => {
 }
 
 .action-btn-primary {
-  @apply text-[11px] font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 bg-indigo-50/50 dark:bg-indigo-950/40 px-2 py-1 rounded-lg active:scale-95 transition-all duration-150 cursor-pointer;
+  @apply text-[11px] font-bold text-brand-cyan dark:text-brand-cyan-light hover:text-brand-cyan-dark bg-brand-cyan/10 dark:bg-brand-cyan/20 px-2 py-1 rounded-lg active:scale-95 transition-all duration-150 cursor-pointer;
 }
 
 .action-btn-secondary {
