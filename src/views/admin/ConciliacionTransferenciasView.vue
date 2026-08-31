@@ -281,6 +281,56 @@
 
 
 
+      <!-- PANEL VISOR SLIM EN VIVO DE MÉTRICAS Y PROGRESO -->
+      <section v-if="files.length > 0 && !allFilesConfirmed" class="mb-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3 shadow-2xs">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs">
+          <!-- Métricas Numéricas Ultracompactas (1 fila) -->
+          <div class="flex items-center gap-3.5 flex-wrap font-mono">
+            <div class="flex items-center gap-1.5">
+              <span class="text-[10px] text-slate-500 dark:text-slate-400 font-extrabold uppercase tracking-wider">Comprobantes:</span>
+              <span class="font-black text-slate-900 dark:text-white text-xs">{{ files.length }}</span>
+              <span class="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold">({{ batchTotalCirugiasCount }} CX)</span>
+            </div>
+
+            <span class="text-slate-300 dark:text-slate-700 hidden sm:inline">|</span>
+
+            <div class="flex items-center gap-1.5">
+              <span class="text-[10px] text-slate-500 dark:text-slate-400 font-extrabold uppercase tracking-wider">Total Lote:</span>
+              <span class="font-black text-indigo-700 dark:text-indigo-300 text-xs">${{ formatNumber(batchTotalMonto) }}</span>
+            </div>
+
+            <span class="text-slate-300 dark:text-slate-700 hidden sm:inline">|</span>
+
+            <div class="flex items-center gap-1.5">
+              <span class="text-[10px] text-slate-500 dark:text-slate-400 font-extrabold uppercase tracking-wider">Imputado:</span>
+              <span class="font-black text-purple-700 dark:text-purple-300 text-xs">${{ formatNumber(batchTotalImputado) }}</span>
+            </div>
+
+            <span class="text-slate-300 dark:text-slate-700 hidden sm:inline">|</span>
+
+            <div class="flex items-center gap-1.5">
+              <span class="text-[10px] text-slate-500 dark:text-slate-400 font-extrabold uppercase tracking-wider">Pendiente:</span>
+              <span :class="['font-black text-xs', batchTotalSaldosPendientes === 0 ? 'text-emerald-700 dark:text-emerald-300' : 'text-amber-700 dark:text-amber-300']">
+                ${{ formatNumber(batchTotalSaldosPendientes) }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Barra de Progreso Slim (%) -->
+          <div class="flex items-center gap-2.5 shrink-0 min-w-[200px] w-full md:w-auto">
+            <div class="grow bg-slate-100 dark:bg-slate-800 rounded-full h-2 overflow-hidden border border-slate-200 dark:border-slate-700 shadow-inner">
+              <div 
+                class="bg-gradient-to-r from-indigo-500 via-purple-500 to-emerald-500 h-full transition-all duration-300 rounded-full"
+                :style="{ width: `${batchProgressPercentage}%` }"
+              ></div>
+            </div>
+            <span class="font-mono font-black text-xs text-indigo-700 dark:text-indigo-300 min-w-[36px] text-right">
+              {{ batchProgressPercentage }}%
+            </span>
+          </div>
+        </div>
+      </section>
+
       <!-- TABLA PRINCIPAL DE COMPROBANTES CON BOTÓN DE CONCILIACIÓN AUTOMÁTICA EN LOTE -->
       <section v-if="files.length > 0" class="mb-6 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
         
@@ -392,16 +442,37 @@
 
                 <!-- Instrumentador -->
                 <td class="px-3 py-2.5">
-                  <div v-if="item.matchedInstrumentador" class="flex items-center justify-between gap-1">
-                    <span class="font-black text-slate-900 dark:text-white truncate max-w-[150px]" :title="item.matchedInstrumentador.nombre">
-                      {{ item.matchedInstrumentador.nombre }}
-                    </span>
-                    <button 
-                      @click="openInstrumentadorSearchModal(item)" 
-                      class="text-[11px] text-indigo-600 dark:text-indigo-400 hover:underline font-bold shrink-0 cursor-pointer"
-                    >
-                      Cambiar
-                    </button>
+                  <div v-if="item.matchedInstrumentador" class="space-y-1">
+                    <div class="flex items-center justify-between gap-1">
+                      <span class="font-black text-slate-900 dark:text-white truncate max-w-[130px]" :title="item.matchedInstrumentador.nombre">
+                        {{ item.matchedInstrumentador.nombre }}
+                      </span>
+                      <button 
+                        @click="openInstrumentadorSearchModal(item)" 
+                        class="text-[10px] text-indigo-600 dark:text-indigo-400 hover:underline font-bold shrink-0 cursor-pointer"
+                      >
+                        Cambiar
+                      </button>
+                    </div>
+
+                    <!-- Botones de copiar link y WhatsApp -->
+                    <div class="flex items-center gap-1">
+                      <button 
+                        @click="copyInstrumentadorLink(item.matchedInstrumentador)"
+                        class="px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 transition cursor-pointer flex items-center gap-0.5"
+                        title="Copiar enlace al portal digital del instrumentador"
+                      >
+                        <span>🔗 Link</span>
+                      </button>
+
+                      <button 
+                        @click="copyWhatsAppMessage(item)"
+                        class="px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-955 dark:hover:bg-emerald-900 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 transition cursor-pointer flex items-center gap-0.5"
+                        title="Copiar mensaje de aviso para WhatsApp"
+                      >
+                        <span>💬 WhatsApp</span>
+                      </button>
+                    </div>
                   </div>
 
                   <div v-else class="w-full">
@@ -479,11 +550,28 @@
             </div>
 
             <div class="pt-1 flex flex-col gap-1.5">
-              <div v-if="item.matchedInstrumentador" class="flex items-center justify-between text-xs bg-emerald-50 dark:bg-emerald-950/60 p-1.5 rounded-lg border border-emerald-200 dark:border-emerald-800">
-                <span class="font-black text-emerald-900 dark:text-emerald-200">
-                  ✓ {{ item.matchedInstrumentador.nombre }}
-                </span>
-                <button @click="openInstrumentadorSearchModal(item)" class="text-[11px] text-indigo-600 font-extrabold underline">Cambiar</button>
+              <div v-if="item.matchedInstrumentador" class="space-y-1 bg-emerald-50 dark:bg-emerald-950/60 p-2 rounded-lg border border-emerald-200 dark:border-emerald-800">
+                <div class="flex items-center justify-between text-xs">
+                  <span class="font-black text-emerald-900 dark:text-emerald-200">
+                    ✓ {{ item.matchedInstrumentador.nombre }}
+                  </span>
+                  <button @click="openInstrumentadorSearchModal(item)" class="text-[11px] text-indigo-600 font-extrabold underline">Cambiar</button>
+                </div>
+                <div class="flex items-center gap-1.5 pt-0.5">
+                  <button 
+                    @click="copyInstrumentadorLink(item.matchedInstrumentador)"
+                    class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 transition cursor-pointer flex items-center gap-0.5"
+                  >
+                    <span>🔗 Link</span>
+                  </button>
+
+                  <button 
+                    @click="copyWhatsAppMessage(item)"
+                    class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-emerald-600 text-white transition cursor-pointer flex items-center gap-0.5"
+                  >
+                    <span>💬 WhatsApp</span>
+                  </button>
+                </div>
               </div>
 
               <div v-else>
@@ -1506,6 +1594,85 @@ const batchTotalCirugiasCount = computed(() => {
 const batchTotalSaldosPendientes = computed(() => {
   return files.value.reduce((sum, f) => sum + (Number(f.saldoPendienteInterno) || 0), 0);
 });
+
+const batchTotalImputado = computed(() => {
+  let total = 0;
+  Object.values(reconciliationsMap.value).forEach(r => {
+    if (r.cirugias) {
+      total += r.cirugias.reduce((sum, c) => sum + (Number(c.parte1) || 0), 0);
+    }
+  });
+  return total;
+});
+
+const batchProgressPercentage = computed(() => {
+  const total = batchTotalMonto.value;
+  if (!total || total === 0) return 0;
+  const imputado = batchTotalImputado.value;
+  return Math.min(100, Math.round((imputado / total) * 100));
+});
+
+const tokenCache = ref({});
+
+const getOrFetchActivityToken = async (dni) => {
+  if (!dni || dni === 'erp-match') return null;
+  if (tokenCache.value[dni]) return tokenCache.value[dni];
+  try {
+    const { data: token, error } = await supabase.rpc('generar_activity_token', { p_dni: String(dni) });
+    if (!error && token) {
+      tokenCache.value[dni] = token;
+      return token;
+    }
+  } catch (e) {
+    console.warn("Error obteniendo activity token:", e);
+  }
+  return null;
+};
+
+const copyInstrumentadorLink = async (inst) => {
+  if (!inst || !inst.dni) {
+    toast.error("Seleccioná un instrumentador válido.");
+    return;
+  }
+  const token = await getOrFetchActivityToken(inst.dni);
+  if (!token) {
+    toast.error("No se pudo obtener el enlace del portal para este instrumentador.");
+    return;
+  }
+  const url = `${window.location.origin}/resumen/${token}`;
+  try {
+    await navigator.clipboard.writeText(url);
+    toast.success(`🔗 Enlace del portal de ${inst.nombre} copiado al portapapeles.`);
+  } catch (e) {
+    toast.error("Error al copiar el enlace.");
+  }
+};
+
+const copyWhatsAppMessage = async (item) => {
+  if (!item || !item.matchedInstrumentador) {
+    toast.error("Asigná un instrumentador primero.");
+    return;
+  }
+  const inst = item.matchedInstrumentador;
+  const nombrePila = inst.nombre ? inst.nombre.split(' ')[0] : 'colega';
+  const token = await getOrFetchActivityToken(inst.dni);
+  
+  const linkStr = token ? `${window.location.origin}/resumen/${token}` : '';
+  const transferMonto = item.extractedData?.monto_transferido || 0;
+
+  let msg = `¡Hola ${nombrePila}! Te informo que ya procesamos tu transferencia de $${formatNumber(transferMonto)}.\n`;
+  if (linkStr) {
+    msg += `Podés ver el detalle de tus cirugías y comprobantes en tu perfil digital:\n${linkStr}\n\n`;
+  }
+  msg += `¡Muchas gracias por tu trabajo!`;
+
+  try {
+    await navigator.clipboard.writeText(msg);
+    toast.success(`💬 Mensaje para WhatsApp de ${inst.nombre} copiado al portapapeles.`);
+  } catch (e) {
+    toast.error("Error al copiar mensaje de WhatsApp.");
+  }
+};
 
 // FILTRADO DE HISTORIAL DE CONCILIACIONES DESDE SUPABASE
 const fetchConciliacionesHistorial = async () => {
