@@ -10,7 +10,20 @@ export default {
     "./src/**/*.{vue,js,ts,jsx,tsx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        brand: {
+          navy: '#0B213C',
+          'navy-dark': '#07162A',
+          'navy-light': '#16375F',
+          cyan: '#086F92',
+          'cyan-dark': '#065571',
+          'cyan-light': '#0CA0D2',
+          'bg-light': '#F7F8FA',
+          surface: '#FFFFFF'
+        }
+      }
+    },
   },
   plugins: [],
 }

@@ -285,7 +285,7 @@
                 <router-link 
                   v-if="inf.estado === 'enviado'"
                   :to="{ name: 'LogisticaDetalleInforme', params: { id: inf.id } }"
-                  class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center gap-1 active:scale-95"
+                  class="px-3 py-1.5 bg-brand-navy hover:bg-brand-navy-light text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center gap-1 active:scale-95"
                 >
                   <span>Ver Detalle</span>
                 </router-link>

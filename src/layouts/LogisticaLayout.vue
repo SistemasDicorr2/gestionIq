@@ -1,19 +1,19 @@
 <!-- src/layouts/LogisticaLayout.vue -->
 <template>
-  <div class="min-h-screen bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 flex flex-col">
+  <div class="min-h-screen bg-brand-bg-light dark:bg-slate-900 text-slate-800 dark:text-slate-100 flex flex-col font-sans">
     <!-- Header Móvil / Desktop -->
-    <header class="sticky top-0 z-30 bg-white/90 dark:bg-slate-800/90 backdrop-blur border-b border-slate-200 dark:border-slate-700 px-4 py-3 shadow-xs">
+    <header class="sticky top-0 z-30 bg-white/95 dark:bg-slate-900/95 backdrop-blur border-b border-slate-200/80 dark:border-slate-800 px-4 py-3 shadow-xs">
       <div class="max-w-4xl mx-auto flex items-center justify-between gap-3">
         <!-- Logo & Titulo del módulo + Botón Volver a Gestión IQ -->
         <div class="flex items-center gap-3">
-          <div class="h-9 w-9 rounded-xl bg-blue-600 dark:bg-blue-500 text-white font-bold flex items-center justify-center text-sm shadow-xs">
+          <div class="h-9 w-9 rounded-xl bg-brand-navy dark:bg-brand-cyan text-white font-black flex items-center justify-center text-sm shadow-xs tracking-wider">
             IQ
           </div>
           <div>
-            <h1 class="text-sm font-bold tracking-tight text-slate-900 dark:text-white leading-tight">
+            <h1 class="text-sm font-black tracking-tight text-brand-navy dark:text-white leading-tight">
               Gestión IQ
             </h1>
-            <p class="text-[11px] font-medium text-blue-600 dark:text-blue-400">
+            <p class="text-[11px] font-bold text-brand-cyan dark:text-brand-cyan-light">
               Informe Diario de Logística
             </p>
           </div>
@@ -22,7 +22,7 @@
           <button 
             type="button" 
             @click="handleReturnToGestionIQ"
-            class="ml-2 inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-bold text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-all border border-slate-200 dark:border-slate-700 cursor-pointer shadow-2xs active:scale-95"
+            class="ml-2 inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-bold text-slate-600 dark:text-slate-300 hover:text-brand-navy dark:hover:text-brand-cyan-light bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-all border border-slate-200 dark:border-slate-700 cursor-pointer shadow-2xs active:scale-95"
             title="Regresar al panel de Gestión IQ (requiere permiso/sesión)"
           >
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
@@ -35,10 +35,10 @@
         <div class="flex items-center gap-2">
           <!-- Identificación Usuario -->
           <div class="hidden sm:flex flex-col text-right">
-            <span class="text-xs font-semibold text-slate-700 dark:text-slate-200 truncate max-w-[140px]">
+            <span class="text-xs font-bold text-slate-800 dark:text-slate-200 truncate max-w-[140px]">
               {{ userName }}
             </span>
-            <span class="text-[10px] text-slate-400 dark:text-slate-500">
+            <span class="text-[10px] font-bold text-brand-cyan dark:text-slate-400">
               Logística
             </span>
           </div>
@@ -59,7 +59,7 @@
     </header>
 
     <!-- Subnavegación Superior (Desktop/Tablet) -->
-    <div class="hidden md:block bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
+    <div class="hidden md:block bg-white dark:bg-slate-900 border-b border-slate-200/80 dark:border-slate-800">
       <div class="max-w-4xl mx-auto px-4 flex items-center justify-between">
         <!-- Pestañas Principales (Izquierda) -->
         <div class="flex gap-6">
@@ -67,11 +67,11 @@
             v-for="item in mainNavItems" 
             :key="item.to.name"
             :to="item.to"
-            class="py-3 text-xs font-bold transition-colors border-b-2 flex items-center gap-2"
+            class="py-3 text-xs font-extrabold transition-colors border-b-2 flex items-center gap-2"
             :class="[
               $route.name === item.to.name 
-                ? 'border-blue-600 text-blue-600 dark:border-blue-400 dark:text-blue-400' 
-                : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
+                ? 'border-brand-navy text-brand-navy dark:border-brand-cyan-light dark:text-brand-cyan-light' 
+                : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-brand-navy dark:hover:text-slate-200'
             ]"
           >
             <component :is="item.icon" class="w-4 h-4" />
@@ -82,11 +82,11 @@
         <!-- Botón Discreto Guía de Envío (Lateral Derecho) -->
         <router-link 
           :to="{ name: 'LogisticaGuiaEnvio' }"
-          class="my-1.5 px-3 py-1.5 text-xs font-bold rounded-xl transition-all flex items-center gap-1.5 border shadow-2xs cursor-pointer"
+          class="my-1.5 px-3.5 py-1.5 text-xs font-bold rounded-xl transition-all flex items-center gap-1.5 border shadow-2xs cursor-pointer"
           :class="[
             $route.name === 'LogisticaGuiaEnvio'
-              ? 'bg-blue-600 text-white border-blue-600 shadow-xs'
-              : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-blue-50 dark:hover:bg-slate-700 hover:text-blue-600'
+              ? 'bg-brand-navy text-white border-brand-navy shadow-xs'
+              : 'bg-slate-100 dark:bg-slate-800 text-brand-navy dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-brand-cyan/10 hover:text-brand-cyan'
           ]"
         >
           <DocumentIcon class="w-4 h-4" />
@@ -101,7 +101,7 @@
     </main>
 
     <!-- Barra de Navegación Inferior (Móvil) -->
-    <nav class="md:hidden fixed bottom-0 left-0 right-0 z-30 bg-white/95 dark:bg-slate-800/95 backdrop-blur border-t border-slate-200 dark:border-slate-700 px-6 py-2 shadow-lg">
+    <nav class="md:hidden fixed bottom-0 left-0 right-0 z-30 bg-white/95 dark:bg-slate-900/95 backdrop-blur border-t border-slate-200/80 dark:border-slate-800 px-6 py-2 shadow-lg">
       <div class="max-w-md mx-auto flex items-center justify-around">
         <router-link 
           v-for="item in mobileNavItems" 
@@ -110,8 +110,8 @@
           class="flex flex-col items-center gap-1 min-w-[56px] py-1 text-[11px] font-medium transition-colors"
           :class="[
             $route.name === item.to.name 
-              ? 'text-blue-600 dark:text-blue-400 font-bold' 
-              : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
+              ? 'text-brand-navy dark:text-brand-cyan-light font-bold' 
+              : 'text-slate-500 dark:text-slate-400 hover:text-brand-navy dark:hover:text-slate-200'
           ]"
         >
           <component :is="item.icon" class="w-5 h-5" />

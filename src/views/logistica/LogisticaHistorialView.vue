@@ -12,7 +12,7 @@
         </p>
       </div>
 
-      <router-link :to="{ name: 'LogisticaNuevoInforme', query: { mode: 'new' } }" class="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-xs flex items-center gap-1.5 transition-colors self-start sm:self-auto">
+      <router-link :to="{ name: 'LogisticaNuevoInforme', query: { mode: 'new' } }" class="px-3.5 py-2 bg-brand-navy hover:bg-brand-navy-light text-white font-bold text-xs rounded-xl shadow-xs flex items-center gap-1.5 transition-colors self-start sm:self-auto">
         <span>+ Nuevo Informe</span>
       </router-link>
     </div>

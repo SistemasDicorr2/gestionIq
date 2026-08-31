@@ -7,8 +7,8 @@
     <!-- Cabecera del Sidebar -->
     <div class="p-4 border-b border-gray-200 dark:border-slate-700 flex justify-between items-center">
       <div class="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity" @click="go('/admin')" title="Ir al Home de Gestión IQ">
-        <span class="inline-flex h-8 w-8 items-center justify-center rounded-xl bg-blue-500 text-white font-bold">IQ</span>
-        <h1 class="text-xl font-semibold text-gray-900 dark:text-slate-100">Gestión IQ</h1>
+        <span class="inline-flex h-8 w-8 items-center justify-center rounded-xl bg-brand-navy dark:bg-brand-cyan text-white font-black">IQ</span>
+        <h1 class="text-xl font-black tracking-tight text-brand-navy dark:text-slate-100">Gestión IQ</h1>
       </div>
     </div>
 
@@ -231,7 +231,7 @@ const appVersion = import.meta.env.VITE_APP_VERSION ?? '1.0.0';
 </script>
 
 <style scoped>
-.nav-link { @apply w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-gray-700 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500; }
-.nav-link[aria-current="page"] { @apply bg-blue-500 text-white dark:bg-blue-600; }
-.nav-badge { @apply ml-auto text-[10px] rounded-full px-2 py-0.5 bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-200; }
+.nav-link { @apply w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-cyan; }
+.nav-link[aria-current="page"] { @apply bg-brand-navy text-white dark:bg-brand-cyan font-bold shadow-sm; }
+.nav-badge { @apply ml-auto text-[10px] font-extrabold rounded-full px-2 py-0.5 bg-brand-cyan/15 text-brand-cyan dark:bg-brand-cyan/30 dark:text-brand-cyan-light; }
 </style>
