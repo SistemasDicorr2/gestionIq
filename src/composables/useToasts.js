@@ -30,9 +30,10 @@ const toastHandler = (message, options = {}) => {
 toastHandler.success = function(message, options = {}) {
   const text = formatMessage(message, 'Operación realizada con éxito');
   return sonnerToast.success(text, {
-    icon: h(CheckCircle2Icon, { class: 'w-4 h-4 text-emerald-500 shrink-0' }),
-    duration: options.duration || options.timeout || 4000,
+    icon: h(CheckCircle2Icon, { class: 'w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0' }),
+    duration: options.duration || options.timeout || 5000,
     id: options.id,
+    className: 'border-emerald-200/80 dark:border-emerald-900/60 bg-emerald-50/90 dark:bg-emerald-950/60 text-emerald-950 dark:text-emerald-100',
     ...options
   });
 };
@@ -40,9 +41,10 @@ toastHandler.success = function(message, options = {}) {
 toastHandler.error = function(error, options = {}) {
   const text = formatMessage(error, 'Ocurrió un error inesperado.');
   return sonnerToast.error(text, {
-    icon: h(XCircleIcon, { class: 'w-4 h-4 text-rose-500 shrink-0' }),
-    duration: options.duration || options.timeout || 5000,
+    icon: h(XCircleIcon, { class: 'w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0' }),
+    duration: options.duration || options.timeout || 7000,
     id: options.id,
+    className: 'border-rose-200/80 dark:border-rose-900/60 bg-rose-50/90 dark:bg-rose-950/60 text-rose-950 dark:text-rose-100',
     ...options
   });
 };
@@ -54,8 +56,9 @@ toastHandler.info = function(message, options = {}) {
     icon: isPersistent 
       ? h(Loader2Icon, { class: 'w-4 h-4 text-brand-navy dark:text-brand-cyan-light animate-spin shrink-0' }) 
       : h(InfoIcon, { class: 'w-4 h-4 text-brand-cyan shrink-0' }),
-    duration: isPersistent ? Infinity : (options.duration || options.timeout || 4000),
+    duration: isPersistent ? Infinity : (options.duration || options.timeout || 5000),
     id: options.id,
+    className: 'border-cyan-200/80 dark:border-cyan-900/60 bg-cyan-50/90 dark:bg-cyan-950/60 text-slate-900 dark:text-white',
     ...options
   });
 };
@@ -63,9 +66,10 @@ toastHandler.info = function(message, options = {}) {
 toastHandler.warning = function(message, options = {}) {
   const text = formatMessage(message, 'Advertencia');
   return sonnerToast.warning(text, {
-    icon: h(AlertTriangleIcon, { class: 'w-4 h-4 text-amber-500 shrink-0' }),
-    duration: options.duration || options.timeout || 4500,
+    icon: h(AlertTriangleIcon, { class: 'w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0' }),
+    duration: options.duration || options.timeout || 6000,
     id: options.id,
+    className: 'border-amber-200/80 dark:border-amber-900/60 bg-amber-50/90 dark:bg-amber-950/60 text-amber-950 dark:text-amber-100',
     ...options
   });
 };
