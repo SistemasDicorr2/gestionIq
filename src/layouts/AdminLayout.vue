@@ -45,17 +45,17 @@
           <div class="relative" ref="notificationMenuRef">
             <button 
               @click="toggleDropdown" 
-              class="relative p-1.5 rounded-lg text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 focus:outline-none transition-all active:scale-95 cursor-pointer flex items-center justify-center"
-              :class="{ 'animate-bellRing': isRinging }"
+              class="relative h-7.5 w-7.5 rounded-lg text-slate-500 hover:text-brand-navy dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200/70 dark:border-slate-800 focus:outline-none transition-all active:scale-95 cursor-pointer flex items-center justify-center shadow-2xs group"
+              :class="{ 'animate-bellRing': isRinging, 'bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-700': isDropdownOpen }"
               title="Notificaciones"
               aria-label="Ver notificaciones"
             >
-              <BellIcon class="w-4 h-4 text-slate-700 dark:text-slate-200 transition-transform group-hover:scale-110" />
+              <BellIcon class="w-4.5 h-4.5 text-slate-600 dark:text-slate-300 group-hover:text-brand-navy dark:group-hover:text-white transition-colors" />
               
-              <!-- Badge Pequeño -->
+              <!-- Badge Destacado -->
               <span 
                 v-if="unreadCount > 0" 
-                class="absolute -top-0.5 -right-0.5 min-w-[14px] h-3.5 px-0.5 rounded-full bg-rose-500 text-white font-black text-[9px] flex items-center justify-center border border-white dark:border-slate-900 shadow-2xs leading-none"
+                class="absolute -top-1 -right-1 min-w-[15px] h-4 px-1 rounded-full bg-rose-500 text-white font-black text-[9px] flex items-center justify-center border-2 border-white dark:border-slate-900 shadow-xs leading-none"
               >
                 {{ unreadCount > 9 ? '9+' : unreadCount }}
               </span>
