@@ -12,73 +12,81 @@
 
     <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
       
-      <!-- Navbar / Header Principal Compacto (Height: 52px / h-13) -->
-      <header class="bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800 h-13 flex items-center justify-between px-3 sm:px-5 shrink-0 z-20 transition-all select-none">
+      <!-- Navbar / Header Principal Ultra-Compacto Estilo Linear (Height: 40px / h-10) -->
+      <header class="bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800 h-10 flex items-center justify-between px-3 shrink-0 z-20 transition-all select-none">
         
-        <!-- Izquierda: Botón Menú Móvil / Toggle Collapse + Breadcrumb -->
-        <div class="flex items-center gap-2 sm:gap-3 min-w-0">
+        <!-- Izquierda: Botón Menú Móvil / Toggle Collapse Desktop + Breadcrumb Fino -->
+        <div class="flex items-center gap-2 min-w-0">
           
           <!-- Botón Menú Móvil (md:hidden) -->
           <button 
             @click="toggleSidebar" 
-            class="p-1.5 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 md:hidden focus:outline-none transition-all active:scale-95 cursor-pointer flex items-center justify-center shrink-0"
-            title="Abrir menú de navegación"
+            class="p-1 rounded-md text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 md:hidden focus:outline-none transition-colors shrink-0"
+            title="Abrir menú"
             aria-label="Abrir menú"
           >
-            <MenuIcon class="w-5 h-5 text-slate-700 dark:text-slate-200" />
+            <MenuIcon class="w-4 h-4" />
           </button>
 
-          <!-- Botón Toggle Sidebar Desktop cuando está colapsado -->
+          <!-- Botón Toggle Sidebar Desktop (Siempre visible en escritorio) -->
           <button 
-            v-if="isSidebarCollapsed"
             @click="toggleSidebarCollapse" 
-            class="hidden md:flex p-1.5 rounded-lg text-slate-500 hover:text-brand-navy dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors shrink-0"
-            title="Expandir menú lateral"
+            class="hidden md:flex p-1 rounded-md text-slate-400 hover:text-brand-navy dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors shrink-0"
+            :title="isSidebarCollapsed ? 'Expandir menú lateral' : 'Colapsar menú lateral'"
           >
-            <PanelLeftOpenIcon class="w-4.5 h-4.5" />
+            <component :is="isSidebarCollapsed ? PanelLeftOpenIcon : PanelLeftCloseIcon" class="w-4 h-4" />
           </button>
 
-          <!-- Breadcrumb Fino -->
-          <div class="hidden sm:flex items-center gap-1.5 text-xs text-slate-400 dark:text-slate-500 font-bold shrink-0">
-            <button @click="router.push('/admin')" class="text-brand-navy dark:text-brand-cyan-light hover:underline cursor-pointer focus:outline-none" title="Ir al Panel Principal">Gestión IQ</button>
-            <span class="text-slate-300 dark:text-slate-700">/</span>
-          </div>
+          <!-- Separador fino en desktop -->
+          <div class="hidden md:block w-px h-3.5 bg-slate-200 dark:bg-slate-800 shrink-0" />
 
-          <h1 class="text-xs sm:text-sm font-extrabold text-slate-900 dark:text-white tracking-tight truncate">
-            {{ headerConfig?.title || 'Panel de Control' }}
-          </h1>
+          <!-- Breadcrumb Fino y Navegable -->
+          <div class="flex items-center gap-1.5 text-xs text-slate-400 dark:text-slate-500 min-w-0">
+            <button 
+              @click="router.push('/admin')" 
+              class="text-slate-500 hover:text-brand-navy dark:text-slate-400 dark:hover:text-white font-medium transition-colors focus:outline-none shrink-0 flex items-center gap-1" 
+              title="Ir al Panel Principal"
+            >
+              <span>Gestión IQ</span>
+            </button>
+            
+            <ChevronRightIcon class="w-3.5 h-3.5 text-slate-300 dark:text-slate-600 shrink-0" />
+
+            <span class="font-bold text-slate-900 dark:text-white tracking-tight truncate">
+              {{ headerConfig?.title || 'Panel de Control' }}
+            </span>
+          </div>
         </div>
 
         <!-- Derecha: Botón Primario de Acción y Notificaciones -->
-        <div class="flex items-center gap-1.5 sm:gap-2.5">
+        <div class="flex items-center gap-2 shrink-0">
           
           <component 
             v-for="(button, index) in (headerConfig?.buttons || [])" 
             :key="index" 
             :is="'button'" 
             @click="button.action" 
-            class="px-3 py-1.5 bg-brand-navy hover:bg-brand-navy-light dark:bg-brand-cyan text-white font-bold text-xs rounded-xl shadow-xs transition-all active:scale-95 cursor-pointer flex items-center gap-1.5 shrink-0"
+            class="px-2.5 py-1 bg-brand-navy hover:bg-brand-navy-light dark:bg-brand-cyan text-white font-extrabold text-[11px] rounded-lg shadow-2xs transition-all active:scale-95 cursor-pointer flex items-center gap-1 shrink-0"
           >
-            <component v-if="button.icon" :is="button.icon" class="w-4 h-4 shrink-0" />
-            <span class="hidden sm:inline">{{ button.text }}</span>
-            <span class="sm:hidden text-[11px]">{{ button.text }}</span>
+            <component v-if="button.icon" :is="button.icon" class="w-3.5 h-3.5 shrink-0" />
+            <span>{{ button.text }}</span>
           </component>
           
           <!-- Botón de Notificaciones con Badge -->
           <div class="relative" ref="notificationMenuRef">
             <button 
               @click="toggleDropdown" 
-              class="relative p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 focus:outline-none transition-all active:scale-95 cursor-pointer flex items-center justify-center"
+              class="relative p-1.5 rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 focus:outline-none transition-all active:scale-95 cursor-pointer flex items-center justify-center"
               :class="{ 'animate-bellRing': isRinging }"
               title="Notificaciones"
               aria-label="Ver notificaciones"
             >
-              <BellIcon class="w-4.5 h-4.5 text-slate-700 dark:text-slate-200 transition-transform group-hover:scale-110" />
+              <BellIcon class="w-4 h-4 transition-transform group-hover:scale-110" />
               
-              <!-- Badge Pequeño con Cantidad Exacta de No Leídas -->
+              <!-- Badge Pequeño -->
               <span 
                 v-if="unreadCount > 0" 
-                class="absolute top-1 right-1 min-w-[15px] h-3.5 px-1 rounded-full bg-rose-500 text-white font-black text-[9px] flex items-center justify-center border border-white dark:border-slate-900 shadow-2xs leading-none"
+                class="absolute -top-0.5 -right-0.5 min-w-[14px] h-3.5 px-0.5 rounded-full bg-rose-500 text-white font-black text-[9px] flex items-center justify-center border border-white dark:border-slate-900 shadow-2xs leading-none"
               >
                 {{ unreadCount > 9 ? '9+' : unreadCount }}
               </span>
@@ -125,7 +133,9 @@ import NotificationDropdown from '../components/NotificationDropdown.vue';
 import { 
   Bell as BellIcon, 
   Menu as MenuIcon, 
-  PanelLeftOpen as PanelLeftOpenIcon 
+  PanelLeftOpen as PanelLeftOpenIcon,
+  PanelLeftClose as PanelLeftCloseIcon,
+  ChevronRight as ChevronRightIcon
 } from 'lucide-vue-next';
 
 const router = useRouter();

@@ -19,18 +19,17 @@
       aria-label="Menú principal"
     >
       <!-- Cabecera del Sidebar -->
-      <div class="h-13 px-3.5 border-b border-slate-200/80 dark:border-slate-800 flex items-center justify-between shrink-0 overflow-hidden">
+      <div class="h-10 px-3 border-b border-slate-200/80 dark:border-slate-800 flex items-center justify-between shrink-0 overflow-hidden">
         <div 
-          class="flex items-center gap-2.5 cursor-pointer hover:opacity-85 transition-opacity min-w-0" 
+          class="flex items-center gap-2 cursor-pointer hover:opacity-85 transition-opacity min-w-0" 
           @click="go('/admin')" 
           title="Ir al Home de Gestión IQ"
         >
-          <div class="h-8 w-8 shrink-0 rounded-xl bg-brand-navy dark:bg-brand-cyan text-white font-black flex items-center justify-center text-xs shadow-xs tracking-wider">
+          <div class="h-6.5 w-6.5 shrink-0 rounded-lg bg-brand-navy dark:bg-brand-cyan text-white font-black flex items-center justify-center text-[10px] shadow-2xs tracking-wider">
             IQ
           </div>
           <div v-if="!isCollapsed" class="min-w-0 transition-all duration-200">
-            <h1 class="text-sm font-black tracking-tight text-brand-navy dark:text-white leading-none">Gestión IQ</h1>
-            <span class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest block mt-0.5">Plataforma</span>
+            <h1 class="text-xs font-black tracking-tight text-brand-navy dark:text-white leading-none">Gestión IQ</h1>
           </div>
         </div>
 
@@ -38,10 +37,10 @@
         <button 
           v-if="!isCollapsed"
           @click="$emit('toggle-collapse')" 
-          class="hidden md:flex p-1.5 rounded-lg text-slate-400 hover:text-brand-navy dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+          class="hidden md:flex p-1 rounded-md text-slate-400 hover:text-brand-navy dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
           title="Colapsar menú lateral"
         >
-          <PanelLeftCloseIcon class="w-4 h-4" />
+          <PanelLeftCloseIcon class="w-3.5 h-3.5" />
         </button>
       </div>
 
