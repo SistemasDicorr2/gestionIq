@@ -258,6 +258,8 @@ CREATE POLICY "logistica_informes_select_policy" ON public.logistica_informes_di
     USING (
         responsable_user_id = auth.uid()
         OR (auth.jwt() -> 'app_metadata' ->> 'role') = 'admin'
+        OR (auth.jwt() -> 'user_metadata' ->> 'role') = 'admin'
+        OR (auth.jwt() -> 'raw_user_meta_data' ->> 'role') = 'admin'
     );
 
 DROP POLICY IF EXISTS "logistica_informes_insert_policy" ON public.logistica_informes_diarios;
@@ -265,23 +267,28 @@ CREATE POLICY "logistica_informes_insert_policy" ON public.logistica_informes_di
     FOR INSERT TO authenticated
     WITH CHECK (
         responsable_user_id = auth.uid()
-        AND (auth.jwt() -> 'app_metadata' ->> 'role') IN ('logistica', 'admin')
+        OR (auth.jwt() -> 'app_metadata' ->> 'role') IN ('logistica', 'admin')
+        OR (auth.jwt() -> 'user_metadata' ->> 'role') IN ('logistica', 'admin')
+        OR (auth.jwt() -> 'raw_user_meta_data' ->> 'role') IN ('logistica', 'admin')
     );
 
 DROP POLICY IF EXISTS "logistica_informes_update_policy" ON public.logistica_informes_diarios;
 CREATE POLICY "logistica_informes_update_policy" ON public.logistica_informes_diarios
     FOR UPDATE TO authenticated
     USING (
-        (responsable_user_id = auth.uid() OR (auth.jwt() -> 'app_metadata' ->> 'role') = 'admin')
-        AND (auth.jwt() -> 'app_metadata' ->> 'role') IN ('logistica', 'admin')
+        responsable_user_id = auth.uid()
+        OR (auth.jwt() -> 'app_metadata' ->> 'role') = 'admin'
+        OR (auth.jwt() -> 'user_metadata' ->> 'role') = 'admin'
+        OR (auth.jwt() -> 'raw_user_meta_data' ->> 'role') = 'admin'
     )
     WITH CHECK (
-        (responsable_user_id = auth.uid() OR (auth.jwt() -> 'app_metadata' ->> 'role') = 'admin')
-        AND (auth.jwt() -> 'app_metadata' ->> 'role') IN ('logistica', 'admin')
+        responsable_user_id = auth.uid()
+        OR (auth.jwt() -> 'app_metadata' ->> 'role') = 'admin'
+        OR (auth.jwt() -> 'user_metadata' ->> 'role') = 'admin'
+        OR (auth.jwt() -> 'raw_user_meta_data' ->> 'role') = 'admin'
     );
 
 -- 8. Policies RLS Flexibles para Edición de logistica_informe_movimientos
-DROP POLICY IF EXISTS "logistica_movimientos_select_policy" ON public.logistica_movimientos_select_policy;
 DROP POLICY IF EXISTS "logistica_movimientos_select_policy" ON public.logistica_informe_movimientos;
 CREATE POLICY "logistica_movimientos_select_policy" ON public.logistica_informe_movimientos
     FOR SELECT TO authenticated
@@ -289,7 +296,12 @@ CREATE POLICY "logistica_movimientos_select_policy" ON public.logistica_informe_
         EXISTS (
             SELECT 1 FROM public.logistica_informes_diarios i
             WHERE i.id = informe_id
-              AND (i.responsable_user_id = auth.uid() OR (auth.jwt() -> 'app_metadata' ->> 'role') = 'admin')
+              AND (
+                  i.responsable_user_id = auth.uid() 
+                  OR (auth.jwt() -> 'app_metadata' ->> 'role') = 'admin'
+                  OR (auth.jwt() -> 'user_metadata' ->> 'role') = 'admin'
+                  OR (auth.jwt() -> 'raw_user_meta_data' ->> 'role') = 'admin'
+              )
         )
     );
 
@@ -300,8 +312,12 @@ CREATE POLICY "logistica_movimientos_insert_policy" ON public.logistica_informe_
         EXISTS (
             SELECT 1 FROM public.logistica_informes_diarios i
             WHERE i.id = informe_id
-              AND (i.responsable_user_id = auth.uid() OR (auth.jwt() -> 'app_metadata' ->> 'role') = 'admin')
-              AND (auth.jwt() -> 'app_metadata' ->> 'role') IN ('logistica', 'admin')
+              AND (
+                  i.responsable_user_id = auth.uid() 
+                  OR (auth.jwt() -> 'app_metadata' ->> 'role') = 'admin'
+                  OR (auth.jwt() -> 'user_metadata' ->> 'role') = 'admin'
+                  OR (auth.jwt() -> 'raw_user_meta_data' ->> 'role') = 'admin'
+              )
         )
     );
 
@@ -312,16 +328,24 @@ CREATE POLICY "logistica_movimientos_update_policy" ON public.logistica_informe_
         EXISTS (
             SELECT 1 FROM public.logistica_informes_diarios i
             WHERE i.id = informe_id
-              AND (i.responsable_user_id = auth.uid() OR (auth.jwt() -> 'app_metadata' ->> 'role') = 'admin')
-              AND (auth.jwt() -> 'app_metadata' ->> 'role') IN ('logistica', 'admin')
+              AND (
+                  i.responsable_user_id = auth.uid() 
+                  OR (auth.jwt() -> 'app_metadata' ->> 'role') = 'admin'
+                  OR (auth.jwt() -> 'user_metadata' ->> 'role') = 'admin'
+                  OR (auth.jwt() -> 'raw_user_meta_data' ->> 'role') = 'admin'
+              )
         )
     )
     WITH CHECK (
         EXISTS (
             SELECT 1 FROM public.logistica_informes_diarios i
             WHERE i.id = informe_id
-              AND (i.responsable_user_id = auth.uid() OR (auth.jwt() -> 'app_metadata' ->> 'role') = 'admin')
-              AND (auth.jwt() -> 'app_metadata' ->> 'role') IN ('logistica', 'admin')
+              AND (
+                  i.responsable_user_id = auth.uid() 
+                  OR (auth.jwt() -> 'app_metadata' ->> 'role') = 'admin'
+                  OR (auth.jwt() -> 'user_metadata' ->> 'role') = 'admin'
+                  OR (auth.jwt() -> 'raw_user_meta_data' ->> 'role') = 'admin'
+              )
         )
     );
 
@@ -332,8 +356,12 @@ CREATE POLICY "logistica_movimientos_delete_policy" ON public.logistica_informe_
         EXISTS (
             SELECT 1 FROM public.logistica_informes_diarios i
             WHERE i.id = informe_id
-              AND (i.responsable_user_id = auth.uid() OR (auth.jwt() -> 'app_metadata' ->> 'role') = 'admin')
-              AND (auth.jwt() -> 'app_metadata' ->> 'role') IN ('logistica', 'admin')
+              AND (
+                  i.responsable_user_id = auth.uid() 
+                  OR (auth.jwt() -> 'app_metadata' ->> 'role') = 'admin'
+                  OR (auth.jwt() -> 'user_metadata' ->> 'role') = 'admin'
+                  OR (auth.jwt() -> 'raw_user_meta_data' ->> 'role') = 'admin'
+              )
         )
     );
 
