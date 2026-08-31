@@ -19,15 +19,21 @@
       aria-label="Menú principal"
     >
       <!-- Cabecera del Sidebar -->
-      <div class="h-10 px-3 border-b border-slate-200/80 dark:border-slate-800 flex items-center justify-between shrink-0 overflow-hidden">
+      <div 
+        class="h-10 border-b border-slate-200/80 dark:border-slate-800 flex items-center shrink-0 overflow-hidden transition-all duration-200"
+        :class="isCollapsed ? 'justify-center px-2' : 'justify-between px-3'"
+      >
         <div 
           class="flex items-center gap-2 cursor-pointer hover:opacity-85 transition-opacity min-w-0" 
           @click="go('/admin')" 
           title="Ir al Home de Gestión IQ"
         >
-          <div class="h-6.5 w-6.5 shrink-0 rounded-lg bg-brand-navy dark:bg-brand-cyan text-white font-black flex items-center justify-center text-[10px] shadow-2xs tracking-wider">
-            IQ
-          </div>
+          <img 
+            src="/favicon-96x96.png" 
+            alt="Gestión IQ" 
+            :class="isCollapsed ? 'h-7 w-7' : 'h-6 w-6'"
+            class="shrink-0 rounded-md object-contain transition-all duration-200" 
+          />
           <div v-if="!isCollapsed" class="min-w-0 transition-all duration-200">
             <h1 class="text-xs font-black tracking-tight text-brand-navy dark:text-white leading-none">Gestión IQ</h1>
           </div>

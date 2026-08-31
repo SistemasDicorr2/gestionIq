@@ -6,9 +6,7 @@
       <div class="max-w-4xl mx-auto flex items-center justify-between gap-3">
         <!-- Logo & Titulo del módulo + Botón Volver a Gestión IQ -->
         <div class="flex items-center gap-3">
-          <div class="h-9 w-9 rounded-xl bg-brand-navy dark:bg-brand-cyan text-white font-black flex items-center justify-center text-sm shadow-xs tracking-wider">
-            IQ
-          </div>
+          <img src="/favicon-96x96.png" alt="Gestión IQ" class="h-9 w-9 shrink-0 rounded-xl object-contain shadow-2xs" />
           <div>
             <h1 class="text-sm font-black tracking-tight text-brand-navy dark:text-white leading-tight">
               Gestión IQ
