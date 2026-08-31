@@ -57,6 +57,7 @@
         <!-- BOTÓN ÚNICO CANÓNICO "+ CARGAR NUEVA CONCILIACIÓN" -->
         <div v-if="activeMainTab === 'conciliador'" class="relative" ref="nuevaConciliacionMenuRef">
           <input type="file" ref="excelInputRef" @change="handleExcelUpload" accept=".xlsx,.xls,.csv" class="hidden" />
+          <input type="file" ref="fileInputRef" @change="handleFileInputChange" multiple accept="image/*,application/pdf" class="hidden" />
 
           <div class="flex items-center gap-0.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-xs transition-all active:scale-95">
             <button 
@@ -215,57 +216,49 @@
         </section>
       </Transition>
 
-      <!-- PASO INICIAL: CARGAR PLANILLA O OMITIR -->
-      <section v-if="!libroMayorSummary && !isLibroMayorSkipped && files.length === 0 && !hasPendingDraftBanner" class="mb-6 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 text-center max-w-md mx-auto space-y-3 shadow-2xs">
-        <div class="w-10 h-10 mx-auto rounded-xl bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-xl font-bold">
-          📊
-        </div>
-        <div>
-          <h2 class="text-sm font-extrabold text-slate-900 dark:text-white">
-            ¿Querés cargar la Planilla ERP (Excel)?
-          </h2>
-          <p class="text-xs text-slate-600 dark:text-slate-400 mt-0.5 leading-relaxed font-medium">
-            Si tenés la planilla del Libro Mayor, cargala para realizar el cruce automático.
-          </p>
-        </div>
-
-        <div class="flex flex-col sm:flex-row justify-center gap-2 pt-1">
-          <label class="w-full sm:w-auto px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 dark:bg-slate-100 dark:hover:bg-white text-white dark:text-slate-900 font-extrabold text-xs transition cursor-pointer shadow-xs flex items-center justify-center">
-            <span>📊 Cargar Planilla Excel</span>
-            <input type="file" ref="excelInputRef" @change="handleExcelUpload" accept=".xlsx,.xls,.csv" class="hidden" />
-          </label>
-
-          <button 
-            @click="skipLibroMayorStep" 
-            class="w-full sm:w-auto px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-200 font-extrabold text-xs transition cursor-pointer"
-          >
-            Omitir y cargar comprobantes ➔
-          </button>
-        </div>
-      </section>
-
-      <!-- DROPZONE SLIM PARA ARCHIVOS -->
-      <section v-if="libroMayorSummary || isLibroMayorSkipped || files.length > 0" class="mb-4">
-        <input type="file" ref="fileInputRef" @change="handleFileInputChange" multiple accept="image/*,application/pdf" class="hidden" />
-
+      <!-- DROPZONE DIRECTA CANÓNICA PARA ARCHIVOS -->
+      <section v-if="!allFilesConfirmed" class="mb-4">
         <!-- Dropzone sin archivos -->
         <div 
           v-if="files.length === 0"
-          class="border-2 border-dashed rounded-2xl p-5 text-center transition cursor-pointer border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 hover:border-indigo-500"
+          class="border-2 border-dashed rounded-2xl p-6 text-center transition cursor-pointer border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 hover:border-indigo-500 shadow-2xs group"
           :class="{ 'border-indigo-500 bg-indigo-50/50 dark:bg-indigo-950/20': isDragging }"
           @dragover.prevent="isDragging = true"
           @dragleave.prevent="isDragging = false"
           @drop.prevent="handleFileDrop"
           @click="triggerFileInput"
         >
-          <div class="max-w-sm mx-auto space-y-1.5 pointer-events-none">
-            <span class="text-2xl block">📄</span>
-            <h3 class="text-xs font-extrabold text-slate-900 dark:text-white">
-              Arrastrá los comprobantes de transferencia aquí
-            </h3>
-            <p class="text-[11px] text-slate-600 dark:text-slate-400 font-medium">
-              PDF, JPG o PNG. El sistema los procesará con detección SHA-256 instantánea.
-            </p>
+          <div class="max-w-md mx-auto space-y-2.5 pointer-events-none">
+            <div class="w-12 h-12 mx-auto rounded-2xl bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-2xl font-bold shadow-2xs group-hover:scale-110 transition-transform">
+              📄
+            </div>
+            <div>
+              <h3 class="text-sm font-extrabold text-slate-900 dark:text-white">
+                Arrastrá los comprobantes de transferencia aquí
+              </h3>
+              <p class="text-xs text-slate-600 dark:text-slate-400 font-medium mt-0.5">
+                PDF, JPG o PNG. El sistema los procesará con lectura IA y caché SHA-256 instantánea.
+              </p>
+            </div>
+
+            <div class="pt-1 flex flex-wrap items-center justify-center gap-2 pointer-events-auto">
+              <button 
+                type="button" 
+                @click.stop="triggerFileInput"
+                class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-xs rounded-xl shadow-2xs transition active:scale-95 cursor-pointer flex items-center gap-1.5"
+              >
+                <span>📁 Seleccionar Comprobantes</span>
+              </button>
+
+              <button 
+                type="button" 
+                @click.stop="excelInputRef?.click()"
+                class="px-3.5 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-200 font-bold text-xs rounded-xl transition cursor-pointer flex items-center gap-1.5"
+              >
+                <span>📊</span>
+                <span>{{ libroMayorSummary ? 'Planilla ERP Cargada' : 'Cargar Planilla ERP Excel (Opcional)' }}</span>
+              </button>
+            </div>
           </div>
         </div>
 
@@ -275,11 +268,18 @@
             <span>📎</span>
             <span>Arrastrá más comprobantes o haz clic en añadir.</span>
           </div>
-          <button @click="triggerFileInput" class="w-full sm:w-auto px-3 py-1 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 font-extrabold rounded-lg text-slate-900 dark:text-slate-100 cursor-pointer border border-slate-300 dark:border-slate-700">
-            + Añadir comprobantes
-          </button>
+          <div class="flex items-center gap-2 w-full sm:w-auto">
+            <button @click="triggerFileInput" class="flex-1 sm:flex-initial px-3 py-1 bg-indigo-50 dark:bg-indigo-955 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-100 font-extrabold rounded-lg cursor-pointer border border-indigo-200 dark:border-indigo-800">
+              + Añadir comprobantes
+            </button>
+            <button @click="excelInputRef?.click()" class="flex-1 sm:flex-initial px-3 py-1 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 font-extrabold rounded-lg text-slate-900 dark:text-slate-100 cursor-pointer border border-slate-300 dark:border-slate-700">
+              📊 Planilla ERP
+            </button>
+          </div>
         </div>
       </section>
+
+
 
       <!-- TABLA PRINCIPAL DE COMPROBANTES CON BOTÓN DE CONCILIACIÓN AUTOMÁTICA EN LOTE -->
       <section v-if="files.length > 0" class="mb-6 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
@@ -370,7 +370,18 @@
                       CUIT: {{ item.extractedData.destinatario_cuit_cuil }}
                     </span>
                   </div>
-                  <span v-else-if="item.status === 'processing'" class="text-amber-700 dark:text-amber-400 animate-pulse font-bold">Analizando...</span>
+                  <div v-else-if="item.status === 'processing'" class="flex items-center gap-2 py-0.5">
+                    <div class="relative flex items-center justify-center shrink-0">
+                      <span class="animate-ping absolute inline-flex h-3.5 w-3.5 rounded-full bg-indigo-400 opacity-75"></span>
+                      <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-indigo-600"></span>
+                    </div>
+                    <div class="flex flex-col">
+                      <span class="text-xs font-black bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent animate-pulse">
+                        Leyendo datos...
+                      </span>
+                      <span class="text-[9px] text-slate-400 font-mono font-semibold">Procesamiento IA + SHA-256</span>
+                    </div>
+                  </div>
                   <span v-else class="text-slate-500 dark:text-slate-400 italic">Sin datos</span>
                 </td>
 
@@ -799,22 +810,34 @@
                 </div>
               </div>
 
-              <!-- Input de Búsqueda Integrado Slim con Atajo Enter -->
-              <input 
-                type="text" 
-                v-model="surgerySearchQuery" 
-                @keydown.enter.prevent="handleSurgerySearchEnter"
-                placeholder="🔍 Buscar por paciente, médico, sanatorio o fecha... (Presioná Enter para vincular primera sugerida)" 
-                class="w-full bg-slate-50 dark:bg-slate-950 border border-indigo-200 dark:border-indigo-800 rounded-xl px-3 py-1.5 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              />
+              <!-- Input de Búsqueda Integrado Slim con Atajo Enter y Checkbox de Pagadas -->
+              <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                <input 
+                  type="text" 
+                  v-model="surgerySearchQuery" 
+                  @keydown.enter.prevent="handleSurgerySearchEnter"
+                  placeholder="🔍 Buscar paciente, médico, sanatorio... (Enter para vincular sugerida)" 
+                  class="flex-1 bg-slate-50 dark:bg-slate-950 border border-indigo-200 dark:border-indigo-800 rounded-xl px-3 py-1.5 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                />
+                
+                <label class="flex items-center gap-1.5 text-xs text-slate-700 dark:text-slate-300 font-extrabold cursor-pointer shrink-0 bg-slate-100 dark:bg-slate-800 px-2.5 py-1.5 rounded-xl border border-slate-300 dark:border-slate-700 hover:bg-slate-200 transition">
+                  <input type="checkbox" v-model="includePaidSurgeries" class="rounded text-indigo-600 focus:ring-indigo-500 cursor-pointer" />
+                  <span>Incluir pagadas (verificación)</span>
+                </label>
+              </div>
             </div>
 
-            <!-- Lista de Cirugías Pendientes Disponibles -->
+            <!-- Lista de Cirugías Pendientes y Pagadas Disponibles -->
             <div class="border border-slate-200 dark:border-slate-800 rounded-xl divide-y divide-slate-100 dark:divide-slate-800 max-h-52 overflow-y-auto scrollbar-thin">
               <div 
                 v-for="surg in filteredAvailableSurgeries" 
                 :key="surg.id" 
-                class="p-2.5 flex flex-col sm:flex-row sm:items-center justify-between hover:bg-indigo-50/50 dark:hover:bg-indigo-950/30 text-xs gap-2 transition"
+                :class="[
+                  'p-2.5 flex flex-col sm:flex-row sm:items-center justify-between text-xs gap-2 transition',
+                  surg.esPagada || surg.estado === 'Pagado'
+                    ? 'bg-emerald-50/50 dark:bg-emerald-955/20 hover:bg-emerald-100/60 dark:hover:bg-emerald-950/40 border-l-4 border-l-emerald-500'
+                    : 'hover:bg-indigo-50/50 dark:hover:bg-indigo-950/30'
+                ]"
               >
                 <!-- Información Completa de Cirugía -->
                 <div class="min-w-0 flex-1 space-y-0.5">
@@ -822,6 +845,14 @@
                     <span class="font-extrabold text-slate-900 dark:text-white text-xs">{{ surg.paciente }}</span>
                     <span class="font-mono text-[10px] text-slate-600 dark:text-slate-300 font-bold bg-slate-100 dark:bg-slate-800 px-1.5 py-0.2 rounded">
                       📅 {{ formatDate(surg.fecha_cirugia) }}
+                    </span>
+                    <!-- BADGE VISUAL DE CIRUGÍA YA PAGADA -->
+                    <span 
+                      v-if="surg.esPagada || surg.estado === 'Pagado'" 
+                      class="px-1.5 py-0.2 rounded text-[10px] font-black bg-emerald-100 text-emerald-900 dark:bg-emerald-950 dark:text-emerald-200 border border-emerald-300 dark:border-emerald-700 flex items-center gap-1"
+                      title="Esta cirugía ya se encuentra abonada en el sistema. Disponible para verificación de comprobante."
+                    >
+                      ✓ Ya Pagada (Verificación)
                     </span>
                   </div>
                   <div class="text-[11px] text-slate-600 dark:text-slate-300 font-medium leading-tight">
@@ -835,7 +866,12 @@
                 <button 
                   type="button" 
                   @click="addSurgeryToActiveDirect(surg)" 
-                  class="self-end sm:self-auto px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs rounded-lg cursor-pointer shrink-0 shadow-2xs active:scale-95 transition flex items-center gap-1"
+                  :class="[
+                    'self-end sm:self-auto px-3 py-1.5 font-black text-xs rounded-lg cursor-pointer shrink-0 shadow-2xs active:scale-95 transition flex items-center gap-1',
+                    surg.esPagada || surg.estado === 'Pagado'
+                      ? 'bg-slate-800 hover:bg-slate-900 text-emerald-300'
+                      : 'bg-indigo-600 hover:bg-indigo-700 text-white'
+                  ]"
                 >
                   <span>+ Vincular</span>
                   <span class="font-mono font-bold text-[11px]">(${{ formatNumber(targetPreallocatedAmount > 0 ? targetPreallocatedAmount : (activeSaldoPendiente > 0 ? activeSaldoPendiente : surg.monto_a_pagar)) }})</span>
@@ -843,7 +879,7 @@
               </div>
 
               <div v-if="filteredAvailableSurgeries.length === 0" class="p-4 text-center text-xs text-slate-500 font-semibold italic">
-                No se encontraron cirugías pendientes para este profesional con el filtro introducido.
+                No se encontraron cirugías {{ includePaidSurgeries ? '' : 'pendientes' }} para este profesional con el filtro introducido.
               </div>
             </div>
 
@@ -1185,6 +1221,7 @@ const libroMayorFileName = ref('');
 
 const instrumentadoresOptions = ref([]);
 const allPendingSurgeries = ref([]);
+const includePaidSurgeries = ref(false);
 
 // MODALES FLOTANTES
 const showImputacionModal = ref(false);
@@ -1395,7 +1432,7 @@ const setFullPreallocatedAmount = () => {
 
 const filteredAvailableSurgeries = computed(() => {
   if (!activeFile.value || !activeFile.value.matchedInstrumentador) {
-    return allPendingSurgeries.value || [];
+    return (allPendingSurgeries.value || []).filter(s => includePaidSurgeries.value || (!s.esPagada && s.estado !== 'Pagado'));
   }
   const targetDni = activeFile.value.matchedInstrumentador.dni;
   const targetName = activeFile.value.matchedInstrumentador.nombre?.toLowerCase();
@@ -1403,6 +1440,8 @@ const filteredAvailableSurgeries = computed(() => {
 
   let available = (allPendingSurgeries.value || []).filter(surg => {
     if (alreadyLinkedIds.has(surg.id)) return false;
+    if (!includePaidSurgeries.value && (surg.esPagada || surg.estado === 'Pagado')) return false;
+
     if (targetDni && surg.instrumentador_dni) {
       return String(surg.instrumentador_dni) === String(targetDni);
     }
@@ -1414,12 +1453,18 @@ const filteredAvailableSurgeries = computed(() => {
 
   if (surgerySearchQuery.value.trim()) {
     const q = surgerySearchQuery.value.toLowerCase().trim();
-    available = available.filter(surg => 
-      (surg.paciente && surg.paciente.toLowerCase().includes(q)) ||
-      (surg.medico && surg.medico.toLowerCase().includes(q)) ||
-      (surg.lugar_cirugia && surg.lugar_cirugia.toLowerCase().includes(q)) ||
-      (surg.id_cirugia && surg.id_cirugia.toLowerCase().includes(q))
-    );
+    available = (allPendingSurgeries.value || []).filter(surg => {
+      if (alreadyLinkedIds.has(surg.id)) return false;
+      if (!includePaidSurgeries.value && (surg.esPagada || surg.estado === 'Pagado')) return false;
+
+      return (
+        (surg.paciente && surg.paciente.toLowerCase().includes(q)) ||
+        (surg.medico && surg.medico.toLowerCase().includes(q)) ||
+        (surg.lugar_cirugia && surg.lugar_cirugia.toLowerCase().includes(q)) ||
+        (surg.id_cirugia && String(surg.id_cirugia).toLowerCase().includes(q)) ||
+        (surg.instrumentador_completado && surg.instrumentador_completado.toLowerCase().includes(q))
+      );
+    });
   }
 
   return available;
@@ -1895,10 +1940,45 @@ const fetchInitialData = async () => {
     }
     instrumentadoresOptions.value = Object.values(mapInst);
 
+    let combinedList = [];
+
+    // 1. Fetch cirugías pendientes
     const { data: surgData, error: surgErr } = await supabase.rpc('get_todas_cirugias_pendientes');
     if (!surgErr && surgData) {
-      allPendingSurgeries.value = surgData;
+      combinedList = surgData.map(s => ({ ...s, esPagada: false }));
     }
+
+    // 2. Fetch cirugías pagadas/liquidadas desde reportes para permitir verificación
+    const { data: paidData } = await supabase
+      .from('reportes')
+      .select('id, paciente, medico, lugar_cirugia, fecha_cirugia, instrumentador_dni, instrumentador, instrumentador_completado, monto_a_pagar, monto, estado, pago_id')
+      .eq('estado', 'Pagado')
+      .order('fecha_cirugia', { ascending: false })
+      .limit(300);
+
+    if (paidData) {
+      const existingIds = new Set(combinedList.map(s => s.id));
+      paidData.forEach(p => {
+        if (!existingIds.has(p.id)) {
+          combinedList.push({
+            id: p.id,
+            paciente: p.paciente || 'Sin nombre',
+            medico: p.medico || '',
+            lugar_cirugia: p.lugar_cirugia || '',
+            fecha_cirugia: p.fecha_cirugia,
+            instrumentador_dni: p.instrumentador_dni,
+            instrumentador_completado: p.instrumentador_completado || p.instrumentador,
+            monto_a_pagar: p.monto_a_pagar || p.monto || 0,
+            monto: p.monto_a_pagar || p.monto || 0,
+            estado: p.estado || 'Pagado',
+            pago_id: p.pago_id,
+            esPagada: true
+          });
+        }
+      });
+    }
+
+    allPendingSurgeries.value = combinedList;
   } catch (err) {
     console.warn("Error cargando datos iniciales:", err);
   }

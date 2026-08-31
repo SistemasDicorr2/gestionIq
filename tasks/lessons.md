@@ -15,3 +15,7 @@
 4. **Montos Imputados Editables:** Al vincular una transferencia con cirugías, no asumir imputaciones fijas. Permitir la edición numérica libre del importe a saldar con recálculo de saldos pendientes en tiempo real.
 
 5. **Protección de Costos IA y Borradores:** Utilizar binary hashing SHA-256 en cliente previa llamada a Edge Functions de IA para devolver resultados desde caché en <50ms a costo $0 para archivos repetidos, conservando el progreso en `localStorage` y Supabase `conciliacion_borradores`.
+
+6. **Inputs de Archivo Disponibles en DOM:** Los elementos `<input type="file">` referenciados vía ref no deben estar dentro de condicionales `v-if` que los desmonter del DOM. Deben permanecer siempre montados en el nivel raíz del componente.
+
+7. **Verificación de Cirugías Pagadas:** El buscador de cirugías para vincular comprobantes debe incluir la opción de consultar cirugías ya pagadas/liquidadas mediante un checkbox explícito `[ ] Incluir pagadas (verificación)` y con una insignia verde distintiva `[✓ Ya Pagada]`.
