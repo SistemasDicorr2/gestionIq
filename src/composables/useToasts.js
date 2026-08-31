@@ -1,85 +1,149 @@
 // src/composables/useToasts.js
-
-// Importamos la función para usar toasts de la biblioteca.
-import { useToast } from 'vue-toastification';
+import { h } from 'vue';
+import { toast as sonnerToast } from 'vue-sonner';
+import {
+  CheckCircle2 as CheckCircle2Icon,
+  XCircle as XCircleIcon,
+  Info as InfoIcon,
+  AlertTriangle as AlertTriangleIcon,
+  Loader2 as Loader2Icon
+} from 'lucide-vue-next';
 
 /**
- * Este es nuestro composable centralizado para gestionar notificaciones.
- * Encapsula la lógica para asegurar que siempre se muestren mensajes válidos.
+ * Normaliza y formatea el mensaje de error o texto.
+ */
+const formatMessage = (msg, defaultMsg = 'Ocurrió un error inesperado.') => {
+  if (!msg) return defaultMsg;
+  if (typeof msg === 'string') return msg;
+  if (typeof msg === 'object' && msg.message) return msg.message;
+  return defaultMsg;
+};
+
+/**
+ * Adaptador completo para vue-sonner con estilo Linear/Vercel e íconos Lucide.
+ */
+export const toast = {
+  success(message, options = {}) {
+    const text = formatMessage(message, 'Operación realizada con éxito');
+    return sonnerToast.success(text, {
+      icon: h(CheckCircle2Icon, { class: 'w-4 h-4 text-emerald-500 shrink-0' }),
+      duration: options.duration || options.timeout || 4000,
+      id: options.id,
+      ...options
+    });
+  },
+
+  error(error, options = {}) {
+    const text = formatMessage(error, 'Ocurrió un error inesperado.');
+    return sonnerToast.error(text, {
+      icon: h(XCircleIcon, { class: 'w-4 h-4 text-rose-500 shrink-0' }),
+      duration: options.duration || options.timeout || 5000,
+      id: options.id,
+      ...options
+    });
+  },
+
+  info(message, options = {}) {
+    const text = formatMessage(message, 'Información');
+    const isPersistent = options.timeout === false || options.duration === Infinity;
+    return sonnerToast.info(text, {
+      icon: isPersistent 
+        ? h(Loader2Icon, { class: 'w-4 h-4 text-brand-navy dark:text-brand-cyan-light animate-spin shrink-0' }) 
+        : h(InfoIcon, { class: 'w-4 h-4 text-brand-cyan shrink-0' }),
+      duration: isPersistent ? Infinity : (options.duration || options.timeout || 4000),
+      id: options.id,
+      ...options
+    });
+  },
+
+  warning(message, options = {}) {
+    const text = formatMessage(message, 'Advertencia');
+    return sonnerToast.warning(text, {
+      icon: h(AlertTriangleIcon, { class: 'w-4 h-4 text-amber-500 shrink-0' }),
+      duration: options.duration || options.timeout || 4500,
+      id: options.id,
+      ...options
+    });
+  },
+
+  loading(message = 'Procesando...', options = {}) {
+    const text = formatMessage(message, 'Procesando...');
+    return sonnerToast.loading(text, {
+      icon: h(Loader2Icon, { class: 'w-4 h-4 text-brand-navy dark:text-brand-cyan-light animate-spin shrink-0' }),
+      duration: Infinity,
+      id: options.id,
+      ...options
+    });
+  },
+
+  // Shim de actualización para compatibilidad con vue-toastification
+  update(toastId, { content, options = {} }) {
+    const type = options.type || 'success';
+    const text = formatMessage(content);
+    if (type === 'error') {
+      return this.error(text, { id: toastId, ...options });
+    } else if (type === 'info') {
+      return this.info(text, { id: toastId, ...options });
+    }
+    return this.success(text, { id: toastId, ...options });
+  },
+
+  dismiss(toastId) {
+    return sonnerToast.dismiss(toastId);
+  },
+
+  clear() {
+    return sonnerToast.dismiss();
+  },
+
+  promise(promise, { loading, success, error }) {
+    return sonnerToast.promise(promise, {
+      loading,
+      success: (data) => (typeof success === 'function' ? success(data) : success),
+      error: (err) => (typeof error === 'function' ? error(err) : formatMessage(err, 'Error en el proceso')),
+    });
+  }
+};
+
+/**
+ * Hook para el uso de toasts en componentes Vue
+ */
+export function useToast() {
+  return toast;
+}
+
+/**
+ * Composable centralizado para notificaciones del sistema
  */
 export function useToasts() {
-  // Obtenemos la instancia del servicio de toasts.
-  const toast = useToast();
-
-  /**
-   * Muestra una notificación de error de forma segura.
-   * @param {any} error - El error capturado. Puede ser un objeto de error o un string.
-   * @param {string} [defaultMessage] - Un mensaje por defecto si el error no tiene uno.
-   */
   const showErrorToast = (error, defaultMessage = 'Ocurrió un error inesperado.') => {
-    let message = defaultMessage;
-    if (error && typeof error === 'object' && error.message) {
-      message = error.message;
-    } else if (typeof error === 'string') {
-      message = error;
-    }
-    toast.error(message);
+    toast.error(error, { defaultMessage });
   };
 
-  /**
-   * Muestra una notificación de éxito.
-   * @param {string} message - El mensaje a mostrar.
-   */
   const showSuccessToast = (message) => {
-    if (typeof message === 'string') {
-      toast.success(message);
-    }
+    toast.success(message);
   };
 
-  /**
-   * Muestra una notificación informativa.
-   * @param {string} message - El mensaje a mostrar.
-   */
   const showInfoToast = (message) => {
-    if (typeof message === 'string') {
-      toast.info(message);
-    }
+    toast.info(message);
   };
 
-  // --- INICIO DE LA MODIFICACIÓN ---
-
-  /**
-   * Muestra una notificación de carga que no se cierra sola y devuelve su ID.
-   * @param {string} message - El mensaje de carga a mostrar.
-   * @returns {string|number} El ID del toast creado.
-   */
-  const showLoadingToast = (message = "Procesando...") => {
-    return toast.info(message, { timeout: false });
+  const showLoadingToast = (message = 'Procesando...') => {
+    return toast.loading(message);
   };
 
-  /**
-   * Actualiza un toast existente a un estado de éxito o error.
-   * @param {string|number} toastId - El ID del toast a actualizar.
-   * @param {string} content - El nuevo mensaje a mostrar.
-   * @param {'success'|'error'|'info'} type - El nuevo tipo de notificación.
-   */
   const updateToast = (toastId, content, type = 'success') => {
-    toast.update(toastId, { 
-      content, 
-      options: { type, timeout: 5000 } 
-    });
+    toast.update(toastId, { content, options: { type } });
   };
 
-  // --- FIN DE LA MODIFICACIÓN ---
-
-  // Exponemos las funciones para que puedan ser usadas en cualquier componente.
   return {
     showErrorToast,
     showSuccessToast,
     showInfoToast,
-    // --- INICIO DE LA MODIFICACIÓN ---
     showLoadingToast,
     updateToast,
-    // --- FIN DE LA MODIFICACIÓN ---
+    toast
   };
 }
+
+export default useToasts;
