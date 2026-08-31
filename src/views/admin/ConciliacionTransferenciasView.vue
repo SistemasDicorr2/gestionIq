@@ -915,6 +915,13 @@ const targetPreallocatedAmount = ref(0);
 
 const reconciliationsMap = ref({});
 
+const formatNumber = (val) => {
+  if (val === null || val === undefined) return '0,00';
+  const num = typeof val === 'number' ? val : parseFloat(val);
+  if (isNaN(num)) return '0,00';
+  return num.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+};
+
 const activeFile = computed(() => files.value.find(f => f.id === activeFileId.value));
 
 const autoResolvedFiles = computed(() => {
