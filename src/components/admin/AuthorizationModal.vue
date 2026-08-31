@@ -70,22 +70,19 @@ const verifyPassword = async () => {
   error.value = null;
 
   try {
-    // Usamos la función 'reauthenticate' de Supabase.
-    // Esto es más seguro que un signIn, ya que verifica la sesión actual.
-    const { error: authError } = await supabase.auth.reauthenticate();
-
-    if (authError) {
-      // Si reauthenticate falla, es probable que la sesión haya expirado.
-      // Intentamos un signIn normal como fallback.
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Sesión no encontrada.");
-
-      const { error: signInError } = await supabase.auth.signInWithPassword({
-        email: user.email,
-        password: password.value,
-      });
-      if (signInError) throw signInError;
+    // 1. Obtener la información del usuario en sesión activa
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    if (userError || !user || !user.email) {
+      throw new Error("No se encontró una sesión activa de usuario.");
     }
+
+    // 2. Validar la contraseña ingresada reautenticando con signInWithPassword (sin generar OTP)
+    const { error: signInError } = await supabase.auth.signInWithPassword({
+      email: user.email,
+      password: password.value,
+    });
+
+    if (signInError) throw signInError;
     
     toast.success("Autorización exitosa.");
     emit('authorized');

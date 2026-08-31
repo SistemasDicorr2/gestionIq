@@ -446,9 +446,12 @@ const toggleDateFilter = (dateStr) => {
 };
 
 // KPIs
+const isEnviado = (estado) => (estado || '').toString().trim().toLowerCase() === 'enviado';
+const isPendiente = (estado) => (estado || '').toString().trim().toLowerCase() === 'pendiente';
+
 const totalCargadas = computed(() => reportes.value.length);
-const totalCompletadas = computed(() => reportes.value.filter(r => r.estado === 'Enviado').length);
-const totalPendientes = computed(() => reportes.value.filter(r => r.estado === 'Pendiente').length);
+const totalCompletadas = computed(() => reportes.value.filter(r => isEnviado(r.estado)).length);
+const totalPendientes = computed(() => reportes.value.filter(r => isPendiente(r.estado)).length);
 const tasaCierre = computed(() => {
   if (totalCargadas.value === 0) return 0;
   return Math.round((totalCompletadas.value / totalCargadas.value) * 100);
@@ -456,7 +459,7 @@ const tasaCierre = computed(() => {
 
 // Pestañas Filtros
 const listCompletadas = computed(() => {
-  let list = reportes.value.filter(r => r.estado === 'Enviado');
+  let list = reportes.value.filter(r => isEnviado(r.estado));
   if (selectedDateFilter.value) {
     list = list.filter(r => r.fecha_cirugia === selectedDateFilter.value);
   }
@@ -464,7 +467,7 @@ const listCompletadas = computed(() => {
 });
 
 const listPendientes = computed(() => {
-  let list = reportes.value.filter(r => r.estado === 'Pendiente');
+  let list = reportes.value.filter(r => isPendiente(r.estado));
   if (selectedDateFilter.value) {
     list = list.filter(r => r.fecha_cirugia === selectedDateFilter.value);
   }

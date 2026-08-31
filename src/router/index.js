@@ -26,6 +26,7 @@ import HistorialPagosView from '../views/admin/HistorialPagosView.vue';
 import ConfigView from '../views/ConfigView.vue';
 import ResumenOperativoView from '../views/admin/ResumenOperativoView.vue';
 import ResumenOperativoLoteView from '../views/admin/ResumenOperativoLoteView.vue';
+import ConciliacionTransferenciasView from '../views/admin/ConciliacionTransferenciasView.vue';
 
 // --- Vistas y Layouts para el Módulo de Logística ---
 import LogisticaLayout from '../layouts/LogisticaLayout.vue';
@@ -102,6 +103,12 @@ const routes = [
         path: 'pagos',
         name: 'PagosDashboard',
         component: PagosDashboardView,
+        meta: { allowedRoles: ['admin'] }
+      },
+      {
+        path: 'conciliacion',
+        name: 'ConciliacionTransferencias',
+        component: ConciliacionTransferenciasView,
         meta: { allowedRoles: ['admin'] }
       },
       {
