@@ -54,16 +54,60 @@
           </button>
         </div>
 
-        <!-- BOTONES DE CARGA RESPONSIVOS (SOLO EN CONCILIADOR) -->
-        <div v-if="activeMainTab === 'conciliador'" class="flex items-center gap-2">
-          <label class="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-900 dark:text-slate-100 font-extrabold text-xs transition cursor-pointer flex items-center justify-center gap-1 border border-slate-300 dark:border-slate-700">
-            <span>📊 Planilla ERP</span>
-            <input type="file" ref="excelInputRef" @change="handleExcelUpload" accept=".xlsx,.xls,.csv" class="hidden" />
-          </label>
+        <!-- BOTÓN ÚNICO CANÓNICO "+ CARGAR NUEVA CONCILIACIÓN" -->
+        <div v-if="activeMainTab === 'conciliador'" class="relative" ref="nuevaConciliacionMenuRef">
+          <input type="file" ref="excelInputRef" @change="handleExcelUpload" accept=".xlsx,.xls,.csv" class="hidden" />
 
-          <button @click="triggerFileInput" class="px-3 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-xs transition cursor-pointer shadow-xs flex items-center justify-center gap-1">
-            <span>📄 Comprobantes</span>
-          </button>
+          <div class="flex items-center gap-0.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-xs transition-all active:scale-95">
+            <button 
+              @click="iniciarNuevaConciliacion('comprobantes')" 
+              class="px-3.5 py-2 font-extrabold text-xs flex items-center gap-1.5 cursor-pointer"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
+              </svg>
+              <span>Cargar Nueva Conciliación</span>
+            </button>
+            <button 
+              @click="isNuevaMenuOpen = !isNuevaMenuOpen" 
+              class="px-2.5 py-2 border-l border-indigo-500/80 hover:bg-indigo-800 rounded-r-xl cursor-pointer flex items-center justify-center"
+              title="Opciones de carga"
+            >
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/>
+              </svg>
+            </button>
+          </div>
+
+          <!-- Desplegable de Opciones de Carga -->
+          <Transition name="fade">
+            <div 
+              v-if="isNuevaMenuOpen" 
+              class="absolute right-0 mt-1.5 w-60 origin-top-right rounded-2xl bg-white dark:bg-slate-900 shadow-xl ring-1 ring-black/5 z-50 p-1.5 border border-slate-200 dark:border-slate-800"
+            >
+              <button 
+                @click="iniciarNuevaConciliacion('comprobantes')" 
+                class="flex items-center gap-2.5 w-full px-3 py-2 text-xs rounded-xl text-slate-800 dark:text-slate-100 hover:bg-indigo-50 dark:hover:bg-slate-800 transition-colors cursor-pointer font-bold"
+              >
+                <span class="text-base">📄</span>
+                <div class="text-left">
+                  <div class="font-extrabold text-slate-900 dark:text-white">Comprobantes de Pago</div>
+                  <div class="text-[10px] text-slate-500 dark:text-slate-400 font-normal">Subir PDFs o fotos de transferencias</div>
+                </div>
+              </button>
+
+              <button 
+                @click="iniciarNuevaConciliacion('excel')" 
+                class="flex items-center gap-2.5 w-full px-3 py-2 text-xs rounded-xl text-slate-800 dark:text-slate-100 hover:bg-indigo-50 dark:hover:bg-slate-800 transition-colors cursor-pointer font-bold mt-1"
+              >
+                <span class="text-base">📊</span>
+                <div class="text-left">
+                  <div class="font-extrabold text-slate-900 dark:text-white">Planilla ERP / Libro Mayor</div>
+                  <div class="text-[10px] text-slate-500 dark:text-slate-400 font-normal">Subir archivo Excel (.xlsx / .csv)</div>
+                </div>
+              </button>
+            </div>
+          </Transition>
         </div>
       </div>
     </header>
@@ -863,6 +907,7 @@
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue';
+import { onClickOutside } from '@vueuse/core';
 import { supabase } from '../../services/supabase';
 import { useToast } from 'vue-toastification';
 import * as XLSX from 'xlsx';
@@ -878,6 +923,19 @@ const instSearchInputRef = ref(null);
 const isDragging = ref(false);
 const isSubmitting = ref(false);
 const isLibroMayorSkipped = ref(false);
+
+const isNuevaMenuOpen = ref(false);
+const nuevaConciliacionMenuRef = ref(null);
+onClickOutside(nuevaConciliacionMenuRef, () => { isNuevaMenuOpen.value = false; });
+
+const iniciarNuevaConciliacion = (tipo = 'comprobantes') => {
+  isNuevaMenuOpen.value = false;
+  if (tipo === 'excel') {
+    excelInputRef.value?.click();
+  } else {
+    triggerFileInput();
+  }
+};
 
 const activeMainTab = ref('conciliador'); // 'conciliador' | 'historial'
 const historialConciliaciones = ref([]);
