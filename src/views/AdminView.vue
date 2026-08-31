@@ -20,15 +20,13 @@
         <ReportTable
           :reportes="reportes"
           :selected-reportes="selectedReportes"
-          @toggle-selection="toggleSelection"
-          @toggle-select-all="toggleSelectAll"
           @open-drawer="openDrawer"
           @open-link-modal="openGenerateLinkModal"
           @export-summary="exportarResumenPacientePDF"
         />
         <PaginationControls v-if="totalReportes > itemsPerPage" :current-page="currentPage" :total-items="totalReportes" :items-per-page="itemsPerPage" @page-changed="goToPage" />
       </div>
-      
+
       <div class="sm:hidden space-y-4">
         <p v-if="reportes.length === 0" class="text-center text-slate-500 py-10 text-sm font-medium">No se encontraron reportes.</p>
         <ReportCard 
@@ -42,21 +40,6 @@
         <PaginationControls v-if="totalReportes > itemsPerPage" :current-page="currentPage" :total-items="totalReportes" :items-per-page="itemsPerPage" @page-changed="goToPage" />
       </div>
     </div>
-    
-    <Transition name="slide-up">
-      <div v-if="selectedReportes.size > 0" class="fixed bottom-0 left-0 right-0 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-t border-slate-100 dark:border-slate-800 p-4 shadow-xl flex justify-center items-center z-10 rounded-t-2xl">
-        <div class="flex items-center gap-5">
-          <span class="text-sm font-semibold text-slate-700 dark:text-slate-300">
-            {{ selectedReportes.size }} {{ selectedReportes.size === 1 ? 'reporte seleccionado' : 'reportes seleccionados' }}
-          </span>
-          <button @click="exportarSeleccionPDF" class="bg-indigo-600 text-white font-bold py-2.5 px-5 rounded-xl shadow hover:bg-indigo-700 active:scale-95 flex items-center gap-2 transition-all duration-150 cursor-pointer text-sm" :disabled="isExporting">
-            <DocumentTextIcon class="h-4.5 w-4.5" />
-            {{ isExporting ? 'Exportando...' : 'Exportar Selección' }}
-          </button>
-          <button @click="selectedReportes.clear()" class="text-xs font-bold text-slate-400 hover:text-slate-650 dark:hover:text-slate-200 transition-colors uppercase tracking-wider cursor-pointer">Limpiar</button>
-        </div>
-      </div>
-    </Transition>
     
     <NewSurgeryModal :show="isNewSurgeryModalVisible" @close="closeNewSurgeryModal" @surgery-created="handleSurgeryCreated"/>
     <ReportDrawer 

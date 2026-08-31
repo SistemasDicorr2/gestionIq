@@ -3,16 +3,8 @@
   <div class="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/80 shadow-md rounded-2xl overflow-hidden">
     <div class="overflow-x-auto">
       <table class="min-w-full divide-y divide-slate-100 dark:divide-slate-800/60">
-        <thead class="bg-slate-50/80 dark:bg-slate-900/60 border-b border-slate-100 dark:border-slate-800/60">
+        <thead class="bg-slate-50/80 dark:bg-slate-900/60 border-b border-slate-100 dark:border-slate-800/60 select-none">
           <tr>
-            <th scope="col" class="p-2 w-12 text-center">
-              <input 
-                type="checkbox" 
-                class="checkbox-lg-styled"
-                :checked="areAllOnPageSelected"
-                @change="$emit('toggle-select-all')"
-              />
-            </th>
             <th scope="col" class="table-header">Paciente</th>
             <th scope="col" class="table-header !px-2 text-center w-28">Fecha Cirugía</th>
             <th scope="col" class="table-header">Médico</th>
@@ -24,24 +16,16 @@
         </thead>
         <tbody class="divide-y divide-slate-100 dark:divide-slate-800/60 bg-white dark:bg-slate-900">
           <tr v-if="reportes.length === 0">
-            <td colspan="8" class="px-6 py-12 text-center text-slate-500 dark:text-slate-400 text-sm font-medium">
+            <td colspan="7" class="px-6 py-12 text-center text-slate-500 dark:text-slate-400 text-sm font-medium">
               No se encontraron reportes con los filtros actuales.
             </td>
           </tr>
           <tr v-for="reporte in reportes" :key="reporte.id" 
               class="transition-all duration-150"
               :class="getRowClass(reporte)">
-            <td class="p-2 w-12 text-center">
-              <input 
-                type="checkbox" 
-                class="checkbox-lg-styled"
-                :checked="isReportSelected(reporte.id)"
-                @change="$emit('toggle-selection', reporte.id)"
-              />
-            </td>
             <td class="table-cell">
-              <div class="font-semibold text-slate-900 dark:text-slate-100 max-w-[100px] lg:max-w-[110px] xl:max-w-[125px] 2xl:max-w-none truncate" :title="reporte.paciente">{{ reporte.paciente }}</div>
-              <div class="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5">ID: {{ reporte.id_cirugia || 'N/A' }}</div>
+              <div class="font-bold text-slate-900 dark:text-slate-100 max-w-[140px] lg:max-w-[170px] xl:max-w-[200px] 2xl:max-w-none truncate" :title="reporte.paciente">{{ reporte.paciente }}</div>
+              <div class="text-[10px] text-slate-400 dark:text-slate-500 font-mono mt-0.5">ID: {{ reporte.id_cirugia || 'N/A' }}</div>
               
               <!-- Mini-galería de Evidencias Cargadas (Vista Previa Rápida) -->
               <div v-if="reporte.evidencias && reporte.evidencias.length > 0" class="flex items-center gap-1.5 mt-2">
