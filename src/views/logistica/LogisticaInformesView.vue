@@ -240,8 +240,11 @@
             Informes de la Jornada ({{ todayInformesList.length }})
           </h4>
 
-          <div v-if="todayInformesList.length === 0" class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200/80 dark:border-slate-800 text-xs text-slate-500 text-center">
-            Aún no se han registrado informes de logística para la jornada de hoy.
+          <div v-if="todayInformesList.length === 0" class="p-5 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200/80 dark:border-slate-800 text-xs text-slate-500 text-center space-y-2">
+            <p>Aún no se han registrado informes de logística para la jornada de hoy ({{ todayISO }}).</p>
+            <p class="text-[11px] text-slate-400">
+              Los envíos y controles anteriores se encuentran resguardados en la sección <router-link :to="{ name: 'LogisticaGuiaEnvio' }" class="text-blue-600 dark:text-blue-400 font-bold hover:underline">Guía Envío</router-link>.
+            </p>
           </div>
 
           <div v-else class="space-y-2">
@@ -317,8 +320,11 @@
         Cargando historial reciente...
       </div>
 
-      <div v-else-if="recentInformes.length === 0" class="py-8 text-center text-xs text-slate-400">
-        No se registran informes enviados previamente.
+      <div v-else-if="recentInformes.length === 0" class="py-8 px-4 text-center text-xs text-slate-500 space-y-2">
+        <p>No se registran informes diarios de jornadas enviados previamente.</p>
+        <p class="text-[11px] text-slate-400">
+          Las guías de envío y controles de cirugías anteriores continúan disponibles en <router-link :to="{ name: 'LogisticaGuiaEnvio' }" class="text-blue-600 dark:text-blue-400 font-bold hover:underline">Guía Envío</router-link>.
+        </p>
       </div>
 
       <div v-else class="space-y-2">
