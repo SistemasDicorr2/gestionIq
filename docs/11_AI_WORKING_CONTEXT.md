@@ -59,6 +59,9 @@ Para decisiones de seguridad usar primero:
 
 Regla para cambios visuales recientes
 
+  - El conciliador de transferencias (`ConciliacionTransferenciasView.vue`) cuenta con persistencia de borradores (`conciliacion_borradores`), caché SHA-256 (`conciliacion_cache_comprobantes`), asociaciones bancarias (`conciliacion_asociaciones_bancarias`), modal flotante de instrumentadores con buscador, modal de vinculación de cirugías ultracompacto con montos editables, modal de observaciones, atajos de teclado (Esc/Enter), conciliación automática en lote, exportación de resumen PDF y pestaña de historial de conciliaciones pasadas.
+
+
   - Los cambios visuales del portal del instrumentador y la Estacion de Pagos
     Rapidos deben mantenerse frontend-only salvo autorizacion explicita.
   - Supabase, RPCs, RLS, grants, policies, contratos de datos y logica

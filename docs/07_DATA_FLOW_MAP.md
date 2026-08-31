@@ -96,7 +96,22 @@ Flujo de actividad de instrumentadores
 4.  ActivitySummaryView llama autenticar_y_obtener_resumen.
 5.  Muestra datos personales, cirugias pendientes/pagadas y comprobantes R2.
 
+Flujo de Conciliación de Transferencias (Módulo Avanzado 2026)
+
+1.  ConciliacionTransferenciasView.vue:
+    - Carga opcional de Planilla ERP (Excel) con parser dinámico de encabezados (`Nombre`, `Haber`, `Contacto`, `Observación`) y filtro de filas footer (`Totales acumulados`, `Saldo final`).
+    - Carga múltiple de comprobantes PDF/JPG/PNG.
+    - Verificación global de caché mediante SHA-256 binary hashing (`conciliacion_cache_comprobantes`) previa llamada a Edge Function `procesar-comprobante-ia` (0 costo IA para archivos repetidos).
+    - Detección e identificación automática de instrumentadores mediante asociaciones aprendidas CUIT/CBU (`conciliacion_asociaciones_bancarias`) y cruce con Planilla ERP.
+    - Modal flotante con buscador en tiempo real de instrumentadores y opción de recordar cuenta.
+    - Modal integrado ultracompacto de Vincular Cirugías con saldos en vivo (`Transferido`, `Imputado`, `Saldo Pendiente`), chips de importes sugeridos ERP, montos imputados editables en tiempo real y modal de observaciones internas.
+    - Confirmación individual o en lote (`⚡ Conciliar N automáticos listos`) llamando a `registrar_orden_de_pago` con registro interno de saldo pendiente.
+    - Sistema de borrador persistente en `localStorage` y Supabase `conciliacion_borradores` con autoguardado de bajo impacto.
+    - Resumen final de lote con métricas globales y exportación de reporte PDF (`downloadBatchSummaryPdf`).
+    - Pestaña `📜 Historial Efectuados` consumiendo `obtener_historial_ordenes_pago` para auditar conciliaciones pasadas y descargar comprobantes individuales.
+
 Notas frontend recientes:
+  - Conciliación de Transferencias con arquitectura server-centric, caché SHA-256, auto-confirmación en lote y exportación de informes PDF.
 
   - El portal del instrumentador usa datos ya cargados desde
     autenticar_y_obtener_resumen.
