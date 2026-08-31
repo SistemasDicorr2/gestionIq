@@ -670,6 +670,14 @@
                     <!-- MONTO IMPUTADO EDITABLE -->
                     <td class="px-2.5 py-1.5 text-right font-mono font-black">
                       <div class="flex items-center justify-end gap-1">
+                        <button
+                          type="button"
+                          @click="item.parte1 = Math.round(activeTransferMonto / 2); saveDraftDebounced()"
+                          class="px-1.5 py-0.5 text-[10px] font-extrabold bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950 dark:hover:bg-indigo-900 text-indigo-700 dark:text-indigo-300 rounded border border-indigo-200 dark:border-indigo-800 transition cursor-pointer shrink-0"
+                          title="Asignar el 50% de la transferencia a esta cirugía"
+                        >
+                          🌓 50%
+                        </button>
                         <span class="text-indigo-600 font-bold">$</span>
                         <input 
                           type="number" 
@@ -703,30 +711,66 @@
           <!-- 2. BUSCADOR DIRECTO DE CIRUGÍAS PENDIENTES CON ENTER TECLADO -->
           <div class="pt-2 border-t border-slate-200 dark:border-slate-800 space-y-2">
             
-            <!-- Cabecera de búsqueda y Chips ERP sugeridos -->
+            <!-- Cabecera de búsqueda y Chips de Sugerencias (50-50, 100%, ERP) -->
             <div class="space-y-1.5">
               <div class="flex items-center justify-between flex-wrap gap-2">
                 <h4 class="font-black text-[11px] text-slate-900 dark:text-white uppercase tracking-wider">
                   🔍 Buscar e Imputar Cirugías Pendientes de {{ activeFile.matchedInstrumentador?.nombre }}
                 </h4>
 
-                <!-- Chips de Importes Sugeridos por Planilla ERP -->
-                <div v-if="activeErpLiquidaciones.length > 0" class="flex items-center gap-1.5 flex-wrap text-xs">
-                  <span class="text-[10px] font-bold text-indigo-700 dark:text-indigo-300">ERP Sugeridos:</span>
+                <!-- Chips de Importes Sugeridos (50-50, 100% y Planilla ERP) -->
+                <div class="flex items-center gap-1.5 flex-wrap text-xs">
+                  <span class="text-[10px] font-bold text-indigo-700 dark:text-indigo-300 uppercase tracking-wider">Sugeridos:</span>
+                  
+                  <!-- Opción 50% / 50-50 -->
                   <button 
-                    v-for="(liq, lIdx) in activeErpLiquidaciones" 
-                    :key="lIdx"
-                    @click="targetPreallocatedAmount = liq.monto"
+                    type="button"
+                    @click="setHalfPreallocatedAmount"
                     :class="[
-                      'px-2 py-0.5 rounded-lg text-[11px] font-mono font-black border transition cursor-pointer',
-                      targetPreallocatedAmount === liq.monto 
+                      'px-2 py-0.5 rounded-lg text-[11px] font-mono font-black border transition cursor-pointer flex items-center gap-1',
+                      targetPreallocatedAmount === Math.round((activeSaldoPendiente > 0 ? activeSaldoPendiente : activeTransferMonto) / 2)
                         ? 'bg-indigo-600 text-white border-indigo-600 shadow-2xs' 
                         : 'bg-indigo-50 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800 hover:bg-indigo-100'
                     ]"
-                    :title="liq.descripcion"
+                    title="Asignar el 50% del saldo en partes iguales"
                   >
-                    ${{ formatNumber(liq.monto) }}
+                    <span>🌓 50% (50-50)</span>
+                    <span class="opacity-90">(${{ formatNumber(Math.round((activeSaldoPendiente > 0 ? activeSaldoPendiente : activeTransferMonto) / 2)) }})</span>
                   </button>
+
+                  <!-- Opción 100% Saldo -->
+                  <button 
+                    type="button"
+                    @click="setFullPreallocatedAmount"
+                    :class="[
+                      'px-2 py-0.5 rounded-lg text-[11px] font-mono font-black border transition cursor-pointer flex items-center gap-1',
+                      targetPreallocatedAmount === (activeSaldoPendiente > 0 ? activeSaldoPendiente : activeTransferMonto)
+                        ? 'bg-indigo-600 text-white border-indigo-600 shadow-2xs' 
+                        : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-700 hover:bg-slate-200'
+                    ]"
+                    title="Asignar el 100% del saldo disponible"
+                  >
+                    <span>🌕 100% Saldo</span>
+                  </button>
+
+                  <!-- Chips ERP adicionales si se cargó planilla -->
+                  <template v-if="activeErpLiquidaciones.length > 0">
+                    <span class="text-slate-300 dark:text-slate-700">|</span>
+                    <button 
+                      v-for="(liq, lIdx) in activeErpLiquidaciones" 
+                      :key="lIdx"
+                      @click="targetPreallocatedAmount = liq.monto"
+                      :class="[
+                        'px-2 py-0.5 rounded-lg text-[11px] font-mono font-black border transition cursor-pointer',
+                        targetPreallocatedAmount === liq.monto 
+                          ? 'bg-indigo-600 text-white border-indigo-600 shadow-2xs' 
+                          : 'bg-indigo-50 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800 hover:bg-indigo-100'
+                      ]"
+                      :title="liq.descripcion"
+                    >
+                      ERP: ${{ formatNumber(liq.monto) }}
+                    </button>
+                  </template>
                 </div>
               </div>
 
@@ -910,6 +954,7 @@ import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue';
 import { onClickOutside } from '@vueuse/core';
 import { supabase } from '../../services/supabase';
 import { useToast } from 'vue-toastification';
+import { formatDate } from '../../utils/reportMapper';
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
@@ -1029,6 +1074,54 @@ const activeAsignadoMonto = computed(() => {
 const activeSaldoPendiente = computed(() => {
   return activeTransferMonto.value - activeAsignadoMonto.value;
 });
+
+const setHalfPreallocatedAmount = () => {
+  const base = activeSaldoPendiente.value > 0 ? activeSaldoPendiente.value : activeTransferMonto.value;
+  targetPreallocatedAmount.value = Math.round(base / 2);
+  toast.info(`Monto sugerido configurado al 50% ($${formatNumber(targetPreallocatedAmount.value)}). Haz clic en "+ Vincular" en la cirugía deseada.`);
+};
+
+const setFullPreallocatedAmount = () => {
+  const base = activeSaldoPendiente.value > 0 ? activeSaldoPendiente.value : activeTransferMonto.value;
+  targetPreallocatedAmount.value = base;
+  toast.info(`Monto sugerido configurado al 100% ($${formatNumber(targetPreallocatedAmount.value)}).`);
+};
+
+
+
+const filteredAvailableSurgeries = computed(() => {
+  if (!activeFile.value || !activeFile.value.matchedInstrumentador) {
+    return allPendingSurgeries.value || [];
+  }
+  const targetDni = activeFile.value.matchedInstrumentador.dni;
+  const targetName = activeFile.value.matchedInstrumentador.nombre?.toLowerCase();
+  const alreadyLinkedIds = new Set(activeCirugias.value.map(c => c.id));
+
+  let available = (allPendingSurgeries.value || []).filter(surg => {
+    if (alreadyLinkedIds.has(surg.id)) return false;
+    if (targetDni && surg.instrumentador_dni) {
+      return String(surg.instrumentador_dni) === String(targetDni);
+    }
+    if (targetName && surg.instrumentador_completado) {
+      return surg.instrumentador_completado.toLowerCase().includes(targetName);
+    }
+    return true;
+  });
+
+  if (surgerySearchQuery.value.trim()) {
+    const q = surgerySearchQuery.value.toLowerCase().trim();
+    available = available.filter(surg => 
+      (surg.paciente && surg.paciente.toLowerCase().includes(q)) ||
+      (surg.medico && surg.medico.toLowerCase().includes(q)) ||
+      (surg.lugar_cirugia && surg.lugar_cirugia.toLowerCase().includes(q)) ||
+      (surg.id_cirugia && surg.id_cirugia.toLowerCase().includes(q))
+    );
+  }
+
+  return available;
+});
+
+
 
 // COMPROBANTES CON COINCIDENCIA AUTOMÁTICA LISTOS PARA CONCILIAR EN 1 CLIC
 const autoReadyFiles = computed(() => {
@@ -1832,11 +1925,21 @@ const setActiveFile = (item) => {
 
 const addSurgeryToActiveDirect = (surg) => {
   if (!activeFileId.value) return;
+  if (!reconciliationsMap.value[activeFileId.value]) {
+    reconciliationsMap.value[activeFileId.value] = { cirugias: [] };
+  }
   const list = reconciliationsMap.value[activeFileId.value].cirugias;
 
-  const totalCxVal = Number(surg.monto_a_pagar) || 0;
-  const targetVal = targetPreallocatedAmount.value > 0 ? targetPreallocatedAmount.value : (activeSaldoPendiente.value > 0 ? activeSaldoPendiente.value : totalCxVal);
-  const allocated = Math.min(targetVal, totalCxVal);
+  const totalCxVal = Number(surg.monto_a_pagar || surg.monto) || 0;
+  
+  let allocated = 0;
+  if (targetPreallocatedAmount.value > 0) {
+    allocated = targetPreallocatedAmount.value;
+  } else if (activeSaldoPendiente.value > 0) {
+    allocated = activeSaldoPendiente.value;
+  } else {
+    allocated = totalCxVal > 0 ? totalCxVal : activeTransferMonto.value;
+  }
 
   list.push({
     id: surg.id,
@@ -1845,9 +1948,9 @@ const addSurgeryToActiveDirect = (surg) => {
     lugar_cirugia: surg.lugar_cirugia,
     fecha_cirugia: surg.fecha_cirugia,
     totalCx: totalCxVal,
-    esDividido: allocated !== totalCxVal,
+    esDividido: false,
     parte1: allocated,
-    parte2: Math.max(0, totalCxVal - allocated)
+    parte2: 0
   });
 
   toast.info(`Cirugía de ${surg.paciente} vinculada ($${formatNumber(allocated)}). Podés editar el monto libremente.`);
