@@ -341,9 +341,18 @@
               >
                 <!-- Archivo -->
                 <td class="px-3 py-2.5 font-bold text-slate-900 dark:text-slate-100">
-                  <div class="flex items-center gap-1.5">
-                    <span class="text-base shrink-0">📄</span>
-                    <span class="truncate block max-w-[170px]" :title="item.name">{{ item.name }}</span>
+                  <div class="flex items-center justify-between gap-1.5">
+                    <div class="flex items-center gap-1.5 truncate">
+                      <span class="text-base shrink-0">📄</span>
+                      <span class="truncate block max-w-[140px]" :title="item.name">{{ item.name }}</span>
+                    </div>
+                    <button 
+                      @click.stop="openComprobanteModal(item)"
+                      class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-indigo-50 hover:bg-indigo-100 text-indigo-700 dark:bg-indigo-950/80 dark:hover:bg-indigo-900 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 transition cursor-pointer shrink-0 flex items-center gap-1 active:scale-95"
+                      title="Ver comprobante con zoom"
+                    >
+                      <span>👁️ Ver</span>
+                    </button>
                   </div>
                   <div class="flex items-center gap-1 mt-0.5">
                     <span v-if="item.isCached" class="text-[9px] px-1.5 py-0.2 rounded bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-mono font-bold">CACHE SHA-256</span>
@@ -434,7 +443,16 @@
             ]"
           >
             <div class="flex items-center justify-between gap-2">
-              <span class="font-extrabold text-slate-900 dark:text-white truncate">📄 {{ item.name }}</span>
+              <div class="flex items-center gap-1.5 truncate">
+                <span class="font-extrabold text-slate-900 dark:text-white truncate">📄 {{ item.name }}</span>
+                <button 
+                  @click.stop="openComprobanteModal(item)"
+                  class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-indigo-50 hover:bg-indigo-100 text-indigo-700 dark:bg-indigo-950/80 dark:hover:bg-indigo-900 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 transition cursor-pointer shrink-0 flex items-center gap-1 active:scale-95"
+                  title="Ver comprobante"
+                >
+                  <span>👁️ Ver</span>
+                </button>
+              </div>
               <span class="font-mono font-black text-xs text-indigo-700 dark:text-indigo-300 shrink-0">
                 ${{ formatNumber(item.extractedData?.monto_transferido || 0) }}
               </span>
@@ -585,9 +603,16 @@
             <span class="text-[9px] font-black uppercase tracking-wider text-indigo-700 dark:text-indigo-300 bg-indigo-100 dark:bg-indigo-955 px-1.5 py-0.5 rounded">
               VINCULACIÓN (Esc para cerrar)
             </span>
-            <span class="font-extrabold text-slate-900 dark:text-white truncate max-w-[240px]" :title="activeFile.name">
+            <span class="font-extrabold text-slate-900 dark:text-white truncate max-w-[200px]" :title="activeFile.name">
               📄 {{ activeFile.name }}
             </span>
+            <button 
+              @click.stop="openComprobanteModal(activeFile)"
+              class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-indigo-50 hover:bg-indigo-100 text-indigo-700 dark:bg-indigo-955 dark:hover:bg-indigo-900 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 transition cursor-pointer shrink-0 flex items-center gap-1 active:scale-95"
+              title="Ver comprobante con zoom"
+            >
+              <span>👁️ Ver Comprobante</span>
+            </button>
             <span class="text-slate-400">·</span>
             <span class="font-black text-indigo-600 dark:text-indigo-400">
               {{ activeFile.matchedInstrumentador?.nombre }}
@@ -946,6 +971,162 @@
       </div>
     </div>
 
+    <!-- MODAL DE PREVISUALIZACIÓN Y ZOOM DE COMPROBANTE -->
+    <div 
+      v-if="showComprobanteViewerModal && selectedPreviewFile" 
+      class="fixed inset-0 z-50 bg-slate-955/90 dark:bg-slate-955/95 backdrop-blur-md flex flex-col justify-between p-2 sm:p-4 animate-in fade-in duration-150 select-none"
+      @keydown.stop
+    >
+      <!-- BARRA SUPERIOR DE HERRAMIENTAS Y ZOOM -->
+      <div class="bg-slate-900/90 border border-slate-800 text-white rounded-2xl p-2.5 px-4 flex items-center justify-between flex-wrap gap-2 shadow-2xl shrink-0">
+        <!-- Información del Archivo -->
+        <div class="flex items-center gap-2 max-w-sm truncate">
+          <span class="text-xl">📄</span>
+          <div>
+            <h3 class="text-xs font-black text-white truncate max-w-[220px]" :title="selectedPreviewFile.name">
+              {{ selectedPreviewFile.name }}
+            </h3>
+            <p class="text-[10px] text-slate-400 font-mono">
+              {{ selectedPreviewFile.size ? (selectedPreviewFile.size / 1024).toFixed(1) + ' KB' : 'Comprobante' }} · {{ selectedPreviewFile.type || 'Archivo' }}
+            </p>
+          </div>
+        </div>
+
+        <!-- Barra de Controles de Zoom -->
+        <div class="flex items-center gap-1.5 bg-slate-800/90 p-1 rounded-xl border border-slate-700">
+          <button 
+            @click="zoomOut" 
+            :disabled="zoomScale <= 0.5"
+            class="w-8 h-8 rounded-lg bg-slate-700 hover:bg-slate-600 disabled:opacity-40 text-white font-black text-sm flex items-center justify-center transition cursor-pointer"
+            title="Alejar (-)"
+          >
+            🔍-
+          </button>
+
+          <span class="w-14 text-center font-mono font-black text-xs text-indigo-300">
+            {{ Math.round(zoomScale * 100) }}%
+          </span>
+
+          <button 
+            @click="zoomIn" 
+            :disabled="zoomScale >= 4"
+            class="w-8 h-8 rounded-lg bg-slate-700 hover:bg-slate-600 disabled:opacity-40 text-white font-black text-sm flex items-center justify-center transition cursor-pointer"
+            title="Acercar (+)"
+          >
+            🔍+
+          </button>
+
+          <span class="text-slate-600 mx-0.5">|</span>
+
+          <button 
+            @click="resetZoom" 
+            class="px-2.5 py-1.5 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-200 font-bold text-xs flex items-center gap-1 transition cursor-pointer"
+            title="Restablecer a 100%"
+          >
+            <span>↺ 100%</span>
+          </button>
+
+          <button 
+            @click="rotateComprobante" 
+            class="px-2.5 py-1.5 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-200 font-bold text-xs flex items-center gap-1 transition cursor-pointer"
+            title="Rotar 90°"
+          >
+            <span>🔄 Rotar</span>
+          </button>
+
+          <button 
+            @click="openInNewTab" 
+            class="px-2.5 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs flex items-center gap-1 transition cursor-pointer"
+            title="Abrir en pestaña nueva"
+          >
+            <span>🔗 Pestaña</span>
+          </button>
+        </div>
+
+        <!-- Botón Cerrar -->
+        <button 
+          @click="closeComprobanteModal" 
+          class="w-8 h-8 rounded-xl bg-slate-800 hover:bg-red-600 text-slate-300 hover:text-white font-bold text-sm flex items-center justify-center transition cursor-pointer shrink-0"
+          title="Cerrar (Esc)"
+        >
+          ✕
+        </button>
+      </div>
+
+      <!-- ÁREA PRINCIPAL DE VISUALIZACIÓN CON DRAG & ZOOM -->
+      <div 
+        class="grow relative my-2 overflow-hidden rounded-2xl bg-slate-950 border border-slate-800 flex items-center justify-center cursor-grab active:cursor-grabbing"
+        @wheel="handleWheelZoom"
+        @mousedown="handlePanStart"
+        @mousemove="handlePanMove"
+        @mouseup="handlePanEnd"
+        @mouseleave="handlePanEnd"
+      >
+        <!-- Si es Imagen -->
+        <template v-if="isImageFile(selectedPreviewFile)">
+          <div 
+            class="transition-transform duration-75 ease-out origin-center max-w-full max-h-full flex items-center justify-center p-4"
+            :style="{
+              transform: `translate(${panPosition.x}px, ${panPosition.y}px) scale(${zoomScale}) rotate(${zoomRotation}deg)`
+            }"
+          >
+            <img 
+              :src="getComprobanteFileUrl(selectedPreviewFile)" 
+              :alt="selectedPreviewFile.name"
+              class="max-w-[85vw] max-h-[72vh] object-contain rounded-lg shadow-2xl pointer-events-none select-none"
+            />
+          </div>
+        </template>
+
+        <!-- Si es PDF -->
+        <template v-else-if="isPdfFile(selectedPreviewFile)">
+          <div 
+            class="w-full h-full p-2 flex items-center justify-center"
+            :style="{
+              transform: `scale(${zoomScale}) rotate(${zoomRotation}deg)`,
+              transformOrigin: 'center center'
+            }"
+          >
+            <iframe 
+              :src="getComprobanteFileUrl(selectedPreviewFile)" 
+              class="w-full h-full rounded-xl border border-slate-800 shadow-2xl bg-white"
+              title="Vista previa del PDF"
+            ></iframe>
+          </div>
+        </template>
+
+        <!-- Fallback si formato indeterminado -->
+        <template v-else>
+          <div 
+            class="transition-transform duration-75 ease-out origin-center max-w-full max-h-full flex items-center justify-center p-4"
+            :style="{
+              transform: `translate(${panPosition.x}px, ${panPosition.y}px) scale(${zoomScale}) rotate(${zoomRotation}deg)`
+            }"
+          >
+            <img 
+              :src="getComprobanteFileUrl(selectedPreviewFile)" 
+              :alt="selectedPreviewFile.name"
+              class="max-w-[85vw] max-h-[72vh] object-contain rounded-lg shadow-2xl pointer-events-none select-none"
+            />
+          </div>
+        </template>
+      </div>
+
+      <!-- BARRA INFERIOR DE AYUDA RÁPIDA -->
+      <div class="bg-slate-900/90 border border-slate-800 text-slate-400 rounded-xl px-4 py-1.5 text-[11px] font-mono flex items-center justify-between shrink-0">
+        <div class="flex items-center gap-3">
+          <span>💡 Rueda del ratón: Zoom</span>
+          <span>·</span>
+          <span>Clic y arrastrar: Desplazar</span>
+          <span>·</span>
+          <span>Esc: Cerrar</span>
+        </div>
+        <div class="text-indigo-400 font-bold">
+          GESTIÓN IQ · Visor de Comprobantes
+        </div>
+      </div>
+    </div>
+
   </div>
 </template>
 
@@ -1012,6 +1193,129 @@ const showInstSearchModal = ref(false);
 const instSearchQuery = ref('');
 const targetInstFile = ref(null);
 const rememberAccountRule = ref(true);
+
+// VISOR DE COMPROBANTES Y CONTROLES DE ZOOM
+const showComprobanteViewerModal = ref(false);
+const selectedPreviewFile = ref(null);
+const zoomScale = ref(1);
+const zoomRotation = ref(0);
+const panPosition = ref({ x: 0, y: 0 });
+const isPanning = ref(false);
+const panStart = ref({ x: 0, y: 0 });
+
+const getComprobanteFileUrl = (item) => {
+  if (!item) return '';
+  if (item.rawFile) {
+    if (!item._objectUrl) {
+      item._objectUrl = URL.createObjectURL(item.rawFile);
+    }
+    return item._objectUrl;
+  }
+  if (item.previewUrl) return item.previewUrl;
+  if (item.fileBase64) {
+    const mime = item.type || (item.name?.toLowerCase().endsWith('.pdf') ? 'application/pdf' : 'image/jpeg');
+    return `data:${mime};base64,${item.fileBase64}`;
+  }
+  return '';
+};
+
+const isImageFile = (item) => {
+  if (!item) return false;
+  if (item.type && item.type.startsWith('image/')) return true;
+  const name = item.name ? item.name.toLowerCase() : '';
+  return name.endsWith('.jpg') || name.endsWith('.jpeg') || name.endsWith('.png') || name.endsWith('.webp') || name.endsWith('.gif');
+};
+
+const isPdfFile = (item) => {
+  if (!item) return false;
+  if (item.type === 'application/pdf') return true;
+  const name = item.name ? item.name.toLowerCase() : '';
+  return name.endsWith('.pdf');
+};
+
+const openComprobanteModal = async (item) => {
+  if (!item) return;
+  if (item.rawFile && !item.fileBase64) {
+    try {
+      item.fileBase64 = await fileToBase64(item.rawFile);
+    } catch (e) {
+      console.warn("No se pudo leer base64 para previsualización:", e);
+    }
+  }
+  selectedPreviewFile.value = item;
+  zoomScale.value = 1;
+  zoomRotation.value = 0;
+  panPosition.value = { x: 0, y: 0 };
+  showComprobanteViewerModal.value = true;
+};
+
+const closeComprobanteModal = () => {
+  showComprobanteViewerModal.value = false;
+  selectedPreviewFile.value = null;
+  zoomScale.value = 1;
+  zoomRotation.value = 0;
+  panPosition.value = { x: 0, y: 0 };
+};
+
+const zoomIn = () => {
+  zoomScale.value = Math.min(zoomScale.value + 0.25, 4);
+};
+
+const zoomOut = () => {
+  zoomScale.value = Math.max(zoomScale.value - 0.25, 0.5);
+};
+
+const resetZoom = () => {
+  zoomScale.value = 1;
+  zoomRotation.value = 0;
+  panPosition.value = { x: 0, y: 0 };
+};
+
+const rotateComprobante = () => {
+  zoomRotation.value = (zoomRotation.value + 90) % 360;
+};
+
+const handleWheelZoom = (e) => {
+  e.preventDefault();
+  if (e.deltaY < 0) {
+    zoomIn();
+  } else {
+    zoomOut();
+  }
+};
+
+const handlePanStart = (e) => {
+  if (zoomScale.value <= 1) return;
+  isPanning.value = true;
+  panStart.value = {
+    x: e.clientX - panPosition.value.x,
+    y: e.clientY - panPosition.value.y
+  };
+};
+
+const handlePanMove = (e) => {
+  if (!isPanning.value) return;
+  panPosition.value = {
+    x: e.clientX - panStart.value.x,
+    y: e.clientY - panStart.value.y
+  };
+};
+
+const handlePanEnd = () => {
+  isPanning.value = false;
+};
+
+const openInNewTab = () => {
+  const url = getComprobanteFileUrl(selectedPreviewFile.value);
+  if (!url) {
+    toast.error("No se pudo obtener el archivo para abrir.");
+    return;
+  }
+  const win = window.open();
+  if (win) {
+    win.document.write(`<iframe src="${url}" frameborder="0" style="border:0; top:0px; left:0px; bottom:0px; right:0px; width:100%; height:100%;" allowfullscreen></iframe>`);
+  }
+};
 
 const surgerySearchQuery = ref('');
 const targetPreallocatedAmount = ref(0);
@@ -1277,15 +1581,25 @@ const handleSurgerySearchEnter = () => {
   }
 };
 
-// MANEJADOR DE TECLADO GLOBAL (ESC / ENTER)
+// MANEJADOR DE TECLADO GLOBAL (ESC / ENTER / ZOOM)
 const handleGlobalKeyDown = (e) => {
   if (e.key === 'Escape') {
-    if (showObservacionesModal.value) {
+    if (showComprobanteViewerModal.value) {
+      closeComprobanteModal();
+    } else if (showObservacionesModal.value) {
       showObservacionesModal.value = false;
     } else if (showInstSearchModal.value) {
       showInstSearchModal.value = false;
     } else if (showImputacionModal.value) {
       showImputacionModal.value = false;
+    }
+  } else if (showComprobanteViewerModal.value) {
+    if (e.key === '+' || e.key === '=') {
+      zoomIn();
+    } else if (e.key === '-') {
+      zoomOut();
+    } else if (e.key === '0') {
+      resetZoom();
     }
   }
 };
@@ -1418,6 +1732,7 @@ const saveDraftDebounced = () => {
         size: f.size,
         type: f.type,
         fileHash: f.fileHash,
+        fileBase64: f.fileBase64 || '',
         status: f.status,
         isConfirmed: f.isConfirmed || false,
         saldoPendienteInterno: f.saldoPendienteInterno || 0,
@@ -1827,6 +2142,7 @@ const processSingleFileWithCacheAndIa = async (item) => {
     }
 
     const base64 = await fileToBase64(item.rawFile);
+    item.fileBase64 = base64;
 
     const { data, error: fnErr } = await supabase.functions.invoke('procesar-comprobante-ia', {
       body: {
