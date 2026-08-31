@@ -1,6 +1,6 @@
 <!-- src/layouts/AdminLayout.vue -->
 <template>
-  <div class="flex h-screen bg-brand-bg-light dark:bg-slate-950 font-sans text-slate-900 dark:text-slate-100">
+  <div class="flex h-screen bg-brand-bg-light dark:bg-slate-950 font-sans text-slate-900 dark:text-slate-100 overflow-hidden">
     
     <!-- Sidebar con Control de Visibilidad y Estado Colapsado -->
     <Sidebar 
@@ -49,7 +49,7 @@
           </h1>
         </div>
 
-        <!-- Derecha: Botones de Acción Dinámicos y Notificaciones -->
+        <!-- Derecha: Botón Primario de Acción y Notificaciones -->
         <div class="flex items-center gap-1.5 sm:gap-2.5">
           
           <component 
@@ -57,15 +57,15 @@
             :key="index" 
             :is="'button'" 
             @click="button.action" 
-            class="px-3 py-1.5 bg-brand-navy hover:bg-brand-navy-light dark:bg-brand-cyan text-white font-bold text-xs rounded-xl shadow-xs transition-all active:scale-95 cursor-pointer flex items-center gap-1.5"
+            class="px-3 py-1.5 bg-brand-navy hover:bg-brand-navy-light dark:bg-brand-cyan text-white font-bold text-xs rounded-xl shadow-xs transition-all active:scale-95 cursor-pointer flex items-center gap-1.5 shrink-0"
           >
             <component v-if="button.icon" :is="button.icon" class="w-4 h-4 shrink-0" />
             <span class="hidden sm:inline">{{ button.text }}</span>
             <span class="sm:hidden text-[11px]">{{ button.text }}</span>
           </component>
           
-          <!-- Botón de Notificaciones con Badge de No Leídas -->
-          <div class="relative">
+          <!-- Botón de Notificaciones con Badge -->
+          <div class="relative" ref="notificationMenuRef">
             <button 
               @click="toggleDropdown" 
               class="relative p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 focus:outline-none transition-all active:scale-95 cursor-pointer flex items-center justify-center"
@@ -96,8 +96,8 @@
         </div>
       </header>
 
-      <!-- Área de Trabajo Principal -->
-      <main class="flex-1 overflow-x-hidden overflow-y-auto p-3 sm:p-5 lg:p-6">
+      <!-- Área de Trabajo Principal (Único contenedor con Scroll) -->
+      <main class="flex-1 overflow-x-hidden overflow-y-auto p-3 sm:p-5 lg:p-6 custom-scrollbar">
         <router-view />
       </main>
     </div>
@@ -115,6 +115,7 @@
 import { ref, provide, onMounted, onUnmounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useToast } from 'vue-toastification';
+import { onClickOutside } from '@vueuse/core';
 import { supabase } from '../services/supabase.js';
 import Sidebar from '../components/Sidebar.vue';
 import ReportDrawer from '../components/ReportDrawer.vue';
@@ -160,7 +161,12 @@ provide('setHeaderConfig', setHeaderConfig);
 
 const isDropdownOpen = ref(false);
 const notifications = ref([]);
+const notificationMenuRef = ref(null);
 let notificationChannel = null;
+
+onClickOutside(notificationMenuRef, () => {
+  isDropdownOpen.value = false;
+});
 
 const unreadCount = computed(() => notifications.value.filter(n => !n.is_read).length);
 
@@ -192,7 +198,7 @@ const handleNotificationClick = (notification) => {
       if (error) throw error;
       openDrawer(data);
     })
-    .catch(err => toast.error('No se pudo encontrar el reporte asociado.'));
+    .catch(() => toast.error('No se pudo encontrar el reporte asociado.'));
 };
 
 const goToAllNotifications = () => {
@@ -200,8 +206,46 @@ const goToAllNotifications = () => {
   router.push({ name: 'Notificaciones' });
 };
 
+// Sintetizador Web Audio API para el sonido de notificación "pop-pop"
+const playNotificationPopSound = () => {
+  try {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (!AudioCtx) return;
+    const ctx = new AudioCtx();
+    
+    // Pop 1
+    const osc1 = ctx.createOscillator();
+    const gain1 = ctx.createGain();
+    osc1.type = 'sine';
+    osc1.frequency.setValueAtTime(600, ctx.currentTime);
+    osc1.frequency.exponentialRampToValueAtTime(1200, ctx.currentTime + 0.08);
+    gain1.gain.setValueAtTime(0.25, ctx.currentTime);
+    gain1.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.08);
+    osc1.connect(gain1);
+    gain1.connect(ctx.destination);
+    osc1.start(ctx.currentTime);
+    osc1.stop(ctx.currentTime + 0.08);
+
+    // Pop 2
+    const osc2 = ctx.createOscillator();
+    const gain2 = ctx.createGain();
+    osc2.type = 'sine';
+    osc2.frequency.setValueAtTime(850, ctx.currentTime + 0.09);
+    osc2.frequency.exponentialRampToValueAtTime(1700, ctx.currentTime + 0.17);
+    gain2.gain.setValueAtTime(0.25, ctx.currentTime + 0.09);
+    gain2.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.17);
+    osc2.connect(gain2);
+    gain2.connect(ctx.destination);
+    osc2.start(ctx.currentTime + 0.09);
+    osc2.stop(ctx.currentTime + 0.17);
+  } catch (e) {
+    // Ignorar si el navegador bloquea audio sin interacción del usuario
+  }
+};
+
 const triggerBellRing = () => {
   isRinging.value = true;
+  playNotificationPopSound();
   setTimeout(() => {
     isRinging.value = false;
   }, 1200);
@@ -237,6 +281,7 @@ const closeDrawer = () => {
 };
 const handleDrawerUpdate = () => {};
 </script>
+
 
 <style>
 @keyframes bellRing {

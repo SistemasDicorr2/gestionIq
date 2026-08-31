@@ -216,6 +216,7 @@ import {
   History,
   UploadCloud,
   FileSpreadsheet,
+  MoreHorizontal,
   LogOut as LogOutIcon,
   ChevronDown as ChevronDownIcon,
   PanelLeftClose as PanelLeftCloseIcon,
@@ -256,16 +257,6 @@ const items = computed(() => ([
   { label: 'Panel de Cirugías', to: { name: 'Admin' }, icon: ClipboardList, roles: ['admin','coord','user'] },
   { label: 'Estadísticas', to: { name: 'Estadisticas' }, badge: 'Nuevo', icon: BarChart3, roles: ['admin','coord'] },
   { label: 'Instrumentadores', to: { name: 'Instrumentadores' }, icon: Users, roles: ['admin','coord','user'] },
-  { label: 'Incidencias', to: { name: 'Incidencias' }, icon: AlertTriangle, roles: ['admin','coord'] },
-  {
-    label: 'Área Médicos',
-    icon: Stethoscope,
-    roles: ['admin', 'coord'],
-    children: [
-      { label: 'Gestión de Reclamos', to: { name: 'Quejas' }, icon: MessageSquare },
-      { label: 'Pedidos Especiales', to: { name: 'PedidosEspeciales' }, icon: Gift },
-    ]
-  },
   {
     label: 'Logística',
     icon: Truck,
@@ -307,15 +298,14 @@ const items = computed(() => ([
     ]
   },
   {
-    label: 'Carga de Archivos',
-    icon: UploadCloud,
+    label: 'Otras Opciones',
+    icon: MoreHorizontal,
     roles: ['admin', 'coord'],
     children: [
-      { 
-        label: 'Control Devolución', 
-        to: { name: 'LogisticaControl' },
-        icon: FileSpreadsheet
-      },
+      { label: 'Incidencias', to: { name: 'Incidencias' }, icon: AlertTriangle },
+      { label: 'Gestión de Reclamos', to: { name: 'Quejas' }, icon: MessageSquare },
+      { label: 'Pedidos Especiales', to: { name: 'PedidosEspeciales' }, icon: Gift },
+      { label: 'Control Devolución', to: { name: 'LogisticaControl' }, icon: FileSpreadsheet },
     ]
   }
 ]));
