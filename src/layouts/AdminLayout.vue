@@ -1,6 +1,6 @@
 <!-- src/layouts/AdminLayout.vue -->
 <template>
-  <div class="flex h-screen bg-brand-bg-light dark:bg-slate-950 font-sans text-slate-900 dark:text-slate-100 overflow-hidden">
+  <div class="flex h-screen bg-slate-100/80 dark:bg-slate-950 font-sans text-slate-900 dark:text-slate-100 overflow-hidden">
     
     <!-- Sidebar con Control de Visibilidad y Estado Colapsado -->
     <Sidebar 

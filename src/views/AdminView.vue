@@ -1,6 +1,6 @@
 <!-- src/views/AdminView.vue -->
 <template>
-  <div class="p-4 sm:p-5 lg:p-6 2xl:p-8 bg-slate-50/30 dark:bg-slate-950/10 min-h-screen">
+  <div class="p-2 sm:p-4 lg:p-6 2xl:p-8 min-h-screen">
     <FilterBar 
       @update-filters="applyFilters" 
       @export-lista="exportarListaPDF"

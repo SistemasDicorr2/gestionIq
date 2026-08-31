@@ -1,9 +1,9 @@
 <!-- src/components/ReportTable.vue -->
 <template>
-  <div class="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/80 shadow-md rounded-2xl overflow-hidden">
+  <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm rounded-2xl overflow-hidden select-none">
     <div class="overflow-x-auto">
-      <table class="min-w-full divide-y divide-slate-100 dark:divide-slate-800/60">
-        <thead class="bg-slate-50/80 dark:bg-slate-900/60 border-b border-slate-100 dark:border-slate-800/60 select-none">
+      <table class="min-w-full divide-y divide-slate-200/80 dark:divide-slate-800">
+        <thead class="bg-slate-100/90 dark:bg-slate-800/90 border-b border-slate-200 dark:border-slate-700">
           <tr>
             <th scope="col" class="table-header">Paciente</th>
             <th scope="col" class="table-header !px-2 text-center w-28">Fecha Cirugía</th>
@@ -14,7 +14,7 @@
             <th scope="col" class="table-header text-right">Acciones</th>
           </tr>
         </thead>
-        <tbody class="divide-y divide-slate-100 dark:divide-slate-800/60 bg-white dark:bg-slate-900">
+        <tbody class="divide-y divide-slate-200/80 dark:divide-slate-800 bg-white dark:bg-slate-900">
           <tr v-if="reportes.length === 0">
             <td colspan="7" class="px-6 py-12 text-center text-slate-500 dark:text-slate-400 text-sm font-medium">
               No se encontraron reportes con los filtros actuales.
@@ -25,7 +25,7 @@
               :class="getRowClass(reporte)">
             <td class="table-cell">
               <div class="font-bold text-slate-900 dark:text-slate-100 max-w-[140px] lg:max-w-[170px] xl:max-w-[200px] 2xl:max-w-none truncate" :title="reporte.paciente">{{ reporte.paciente }}</div>
-              <div class="text-[10px] text-slate-400 dark:text-slate-500 font-mono mt-0.5">ID: {{ reporte.id_cirugia || 'N/A' }}</div>
+              <div class="text-[10px] text-slate-500 dark:text-slate-400 font-mono font-semibold mt-0.5">ID: {{ reporte.id_cirugia || 'N/A' }}</div>
               
               <!-- Mini-galería de Evidencias Cargadas (Vista Previa Rápida) -->
               <div v-if="reporte.evidencias && reporte.evidencias.length > 0" class="flex items-center gap-1.5 mt-2">
@@ -33,7 +33,7 @@
                   v-for="(ev, imgIdx) in reporte.evidencias.slice(0, 3)" 
                   :key="ev.url"
                   @click="openQuickPreview(reporte.evidencias, imgIdx)"
-                  class="relative w-8 h-8 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-800 hover:scale-110 active:scale-95 transition-all shadow-sm cursor-pointer shrink-0"
+                  class="relative w-8 h-8 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-800 hover:scale-110 active:scale-95 transition-all shadow-2xs cursor-pointer shrink-0"
                   title="Ver evidencia"
                 >
                   <img 
@@ -45,27 +45,27 @@
                 </button>
                 <span 
                   v-if="reporte.evidencias.length > 3" 
-                  class="text-[9px] font-black text-slate-500 bg-slate-100 dark:bg-slate-800 dark:text-slate-400 px-1.5 py-0.5 rounded-md"
+                  class="text-[9px] font-black text-slate-600 bg-slate-100 dark:bg-slate-800 dark:text-slate-300 px-1.5 py-0.5 rounded-md"
                 >
                   +{{ reporte.evidencias.length - 3 }}
                 </span>
               </div>
             </td>
-            <td class="table-cell !px-2 text-center font-semibold text-slate-800 dark:text-slate-200">
+            <td class="table-cell !px-2 text-center font-bold text-slate-900 dark:text-slate-100">
               {{ formatDate(reporte.fecha_cirugia) }}
             </td>
-            <td class="table-cell text-slate-700 dark:text-slate-300">
+            <td class="table-cell text-slate-800 dark:text-slate-200 font-medium">
               <div class="max-w-[85px] lg:max-w-[95px] xl:max-w-[110px] 2xl:max-w-none truncate" :title="reporte.medico">
                 {{ reporte.medico }}
               </div>
             </td>
-            <td class="table-cell text-slate-800 dark:text-slate-200 font-semibold">
+            <td class="table-cell text-slate-900 dark:text-slate-100 font-bold">
               <div class="max-w-[85px] lg:max-w-[95px] xl:max-w-[110px] 2xl:max-w-none truncate" :title="reporte.instrumentador_completado || 'No asignado'">
                 {{ reporte.instrumentador_completado || 'No asignado' }}
               </div>
             </td>
             <td class="table-cell">
-              <span :class="['px-2.5 py-0.5 text-[10px] font-bold rounded-full border inline-flex items-center gap-1 shadow-sm uppercase tracking-wider', getEstadoClass(reporte.estado)]">
+              <span :class="['px-2.5 py-0.5 text-[10px] font-extrabold rounded-full border inline-flex items-center gap-1 shadow-2xs uppercase tracking-wider', getEstadoClass(reporte.estado)]">
                 <span :class="['w-1.5 h-1.5 rounded-full shrink-0', getDotClass(reporte.estado)]"></span>
                 {{ reporte.estado || 'Pendiente' }}
               </span>
@@ -73,16 +73,16 @@
             <td class="table-cell">
               <div v-if="reporte.fecha_link_generado" class="flex flex-col gap-0.5">
                 <span class="text-[11px] font-medium text-slate-700 dark:text-slate-300">
-                  Creado: <span class="font-semibold">{{ formatDate(reporte.fecha_link_generado) }}</span>
+                  Creado: <span class="font-bold text-slate-900 dark:text-white">{{ formatDate(reporte.fecha_link_generado) }}</span>
                 </span>
-                <span class="text-[9px] font-bold uppercase tracking-widest text-emerald-650 dark:text-emerald-450 mt-0.5">
+                <span class="text-[9px] font-black uppercase tracking-widest text-emerald-600 dark:text-emerald-400 mt-0.5">
                   Ficha Activa
                 </span>
               </div>
               <span v-else class="text-slate-400 dark:text-slate-500 text-xs italic font-medium">Sin generar</span>
             </td>
             <td class="table-cell text-right">
-              <div class="inline-flex items-center gap-1.5 xl:gap-2 2xl:gap-3">
+              <div class="inline-flex items-center gap-1.5 xl:gap-2">
                 <button @click="$emit('open-link-modal', reporte)" class="action-btn-primary">Compartir</button>
                 <button @click.prevent="$emit('open-drawer', reporte)" class="action-btn-secondary">Detalles</button>
                 <button @click="$emit('export-summary', reporte)" title="Exportar Resumen de Paciente" class="action-icon-btn">
@@ -140,12 +140,12 @@ const getRowClass = (reporte) => {
     return 'bg-indigo-50/30 dark:bg-indigo-950/20 hover:bg-indigo-50/40 dark:hover:bg-indigo-950/30';
   }
   if (reporte.estado === 'Enviado') {
-    return 'bg-emerald-50/5 dark:bg-emerald-950/5 hover:bg-emerald-50/15 dark:hover:bg-emerald-950/10';
+    return 'bg-emerald-50/10 dark:bg-emerald-950/10 hover:bg-emerald-50/25 dark:hover:bg-emerald-950/20';
   }
   if (reporte.estado === 'Pendiente') {
-    return 'bg-amber-50/5 dark:bg-amber-950/5 hover:bg-amber-50/15 dark:hover:bg-amber-950/10';
+    return 'bg-amber-50/10 dark:bg-amber-950/10 hover:bg-amber-50/25 dark:hover:bg-amber-950/20';
   }
-  return 'hover:bg-slate-50/30 dark:hover:bg-slate-800/20';
+  return 'hover:bg-slate-100/60 dark:hover:bg-slate-800/40';
 };
 
 const areAllOnPageSelected = computed(() => {
@@ -170,34 +170,20 @@ const handleImageError = (event, originalUrl) => {
   }
 };
 
-// ========= INICIO DE LA MEJORA: INTELIGENCIA DE PRESENTACIÓN MOVIDA AQUÍ =========
 const getEstadoClass = (estado) => {
   if (estado === 'Enviado') {
-    return 'bg-emerald-50/80 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-250 border-emerald-300/60 dark:border-emerald-800/80';
+    return 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800';
   }
   if (estado === 'Pendiente') {
-    return 'bg-amber-50/80 dark:bg-amber-950/40 text-amber-800 dark:text-amber-250 border-amber-300/60 dark:border-amber-800/80';
+    return 'bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border-amber-300 dark:border-amber-800';
   }
-  return 'bg-slate-50 dark:bg-slate-900/60 text-slate-700 dark:text-slate-300 border-slate-200/50 dark:border-slate-750';
+  return 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-700';
 };
 
 const getDotClass = (estado) => {
   if (estado === 'Enviado') return 'bg-emerald-500 animate-pulse';
   if (estado === 'Pendiente') return 'bg-amber-500';
   return 'bg-slate-400';
-};
-
-const formatDateTime = (dateString) => {
-  if (!dateString) return '';
-  const date = new Date(dateString);
-  return date.toLocaleString('es-AR', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: false
-  });
 };
 
 const formatDate = (dateString) => {
@@ -207,31 +193,26 @@ const formatDate = (dateString) => {
   const adjustedDate = new Date(date.getTime() + userTimezoneOffset);
   return adjustedDate.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
 };
-// ========= FIN DE LA MEJORA =========
 </script>
 
 <style scoped>
 .table-header {
-  @apply px-2 py-2.5 text-left text-[11px] font-bold text-slate-400 uppercase tracking-wider dark:text-slate-500 lg:px-2.5 xl:px-3 2xl:px-6;
+  @apply px-2.5 py-3 text-left text-[11px] font-extrabold text-slate-700 uppercase tracking-wider dark:text-slate-200 lg:px-3 xl:px-4 2xl:px-6;
 }
 
 .table-cell {
-  @apply px-2 py-2.5 whitespace-nowrap text-xs text-slate-600 dark:text-slate-300 lg:px-2.5 xl:px-3 2xl:px-6;
-}
-
-.checkbox-lg-styled {
-  @apply h-5 w-5 rounded-md text-indigo-600 focus:ring-indigo-500/20 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 transition-all duration-150 cursor-pointer;
+  @apply px-2.5 py-3 whitespace-nowrap text-xs text-slate-800 dark:text-slate-200 lg:px-3 xl:px-4 2xl:px-6;
 }
 
 .action-btn-primary {
-  @apply text-[11px] font-bold text-brand-cyan dark:text-brand-cyan-light hover:text-brand-cyan-dark bg-brand-cyan/10 dark:bg-brand-cyan/20 px-2 py-1 rounded-lg active:scale-95 transition-all duration-150 cursor-pointer;
+  @apply text-[11px] font-extrabold text-brand-cyan dark:text-brand-cyan-light hover:text-white bg-brand-cyan/15 dark:bg-brand-cyan/25 hover:bg-brand-cyan px-2.5 py-1 rounded-lg active:scale-95 transition-all duration-150 cursor-pointer shadow-sm;
 }
 
 .action-btn-secondary {
-  @apply text-[11px] font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white bg-slate-50 dark:bg-slate-800 px-2 py-1 rounded-lg active:scale-95 transition-all duration-150 cursor-pointer;
+  @apply text-[11px] font-bold text-slate-700 dark:text-slate-200 hover:text-slate-950 dark:hover:text-white bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700 px-2.5 py-1 rounded-lg active:scale-95 transition-all duration-150 cursor-pointer shadow-sm;
 }
 
 .action-icon-btn {
-  @apply text-slate-400 hover:text-slate-700 dark:text-slate-500 dark:hover:text-slate-300 p-1.5 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg active:scale-95 transition-all duration-150 cursor-pointer;
+  @apply text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg active:scale-95 transition-all duration-150 cursor-pointer;
 }
 </style>
