@@ -4,14 +4,15 @@ Estructura principal
 
 Confirmado por codigo :
 
-  - src/main.js: inicializa Vue, router, Toast y Tailwind.
-  - src/App.vue: contiene solo router-view.
+  - src/main.js: inicializa Vue, router, vue-sonner CSS y Tailwind.
+  - src/App.vue: contiene router-view y Toaster de vue-sonner (expand=true, position=top-right, richColors).
   - src/router/index.js: define rutas publicas y protegidas.
-  - src/layouts/AdminLayout.vue: layout de administracion, header dinamico,
-    sidebar, notificaciones realtime.
+  - src/layouts/AdminLayout.vue: layout de administracion, UtilBar ultra-compacta (40px, toggle sidebar a la izquierda, notificaciones + CTA Nueva Cirugia a la derecha), sidebar colapsable (228px <-> 64px), notificaciones realtime con sonido sintetizado Web Audio API ("pop-pop").
+  - src/components/Sidebar.vue: menu lateral colapsable con tooltips Reka UI, acoplamiento de submenús en "Otras Opciones" (Incidencias, Área Médicos, Carga de Archivos/Control Devolución).
+  - src/components/ReportTable.vue: tabla de cirugías optimizada sin columna de checkboxes para maximizar el ancho de lectura de Paciente/Médico.
   - src/views/: pantallas de negocio.
   - src/components/: componentes reutilizables y modales.
-  - src/composables/: hooks de UI/autorizacion/PDF/toasts.
+  - src/composables/useToasts.js: adaptador universal invocable de vue-sonner con colores semanticos explícitos (verde éxito, rojo error, cian info, ámbar advertencia) y duraciones ampliadas (5s-8s) sin apilamiento.
   - src/services/: cliente Supabase y servicios auxiliares.
   - src/directives/: directiva autosize.
 Router

@@ -59,12 +59,11 @@ Para decisiones de seguridad usar primero:
 
 Regla para cambios visuales recientes
 
+  - El Shell principal (`AdminLayout.vue`) utiliza una UtilBar ultra-compacta de 40px (`h-10`) enfocada únicamente en acciones globales (toggle de sidebar a la izquierda, notificaciones + CTA Nueva Cirugía a la derecha, sin títulos ni breadcrumbs fijos).
+  - El Sidebar (`Sidebar.vue`) es colapsable (228px <-> 64px) con tooltips de Reka UI en modo colapsado y submenús secundarios agrupados en "Otras Opciones".
+  - El sistema de notificaciones toast utiliza `vue-sonner` con un adaptador en `useToasts.js` (alias global en `vite.config.js`), desplegando notificaciones expandidas (`expand: true`) con colores semánticos explícitos (verde, rojo, cian, ámbar) y duraciones de 5s a 8s.
+  - Las notificaciones en tiempo real emiten un sonido de aviso sintetizado mediante Web Audio API ("pop-pop").
+  - La tabla de cirugías (`ReportTable.vue`) no incluye columna de checkboxes para aprovechar al máximo el espacio horizontal de lectura.
   - El conciliador de transferencias (`ConciliacionTransferenciasView.vue`) cuenta con persistencia de borradores (`conciliacion_borradores`), caché SHA-256 (`conciliacion_cache_comprobantes`), asociaciones bancarias (`conciliacion_asociaciones_bancarias`), modal flotante de instrumentadores con buscador, modal de vinculación de cirugías ultracompacto con montos editables, modal de observaciones, atajos de teclado (Esc/Enter), conciliación automática en lote, exportación de resumen PDF y pestaña de historial de conciliaciones pasadas.
-
-
-  - Los cambios visuales del portal del instrumentador y la Estacion de Pagos
-    Rapidos deben mantenerse frontend-only salvo autorizacion explicita.
-  - Supabase, RPCs, RLS, grants, policies, contratos de datos y logica
-    economica se trabajan fuera del agente visual.
-  - Antes de documentar o modificar estas superficies, revisar el codigo real y
-    registrar si el cambio usa datos confirmados o inferencias pendientes.
+  - Los cambios visuales del portal del instrumentador y la Estacion de Pagos Rapidos deben mantenerse frontend-only salvo autorizacion explicita.
+  - Supabase, RPCs, RLS, grants, policies, contratos de datos y logica economica se trabajan fuera del agente visual.
