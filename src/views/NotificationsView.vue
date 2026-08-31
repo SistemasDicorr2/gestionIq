@@ -1,51 +1,51 @@
 <!-- src/views/NotificationsView.vue -->
 <template>
-  <div class="p-4 sm:p-6 lg:p-8">
+  <div class="p-3 sm:p-6 lg:p-8">
     <div class="max-w-4xl mx-auto">
       <!-- Cabecera de la Página -->
-      <div class="pb-4 border-b border-gray-200 dark:border-slate-700">
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-slate-100">
+      <div class="pb-3 border-b border-slate-200 dark:border-slate-800">
+        <h1 class="text-xl sm:text-2xl font-black text-brand-navy dark:text-white tracking-tight">
           Historial de Notificaciones
         </h1>
-        <p class="mt-1 text-sm text-gray-600 dark:text-slate-400">
+        <p class="mt-0.5 text-xs sm:text-sm text-slate-500 dark:text-slate-400">
           Aquí puedes ver todas las notificaciones generadas en el sistema.
         </p>
       </div>
 
       <!-- Estado de Carga -->
-      <div v-if="loading" class="mt-8 space-y-4">
+      <div v-if="loading" class="mt-6 space-y-3">
         <!-- Usamos un esqueleto simple para el feedback de carga -->
-        <div v-for="n in 5" :key="n" class="h-16 bg-gray-200 dark:bg-slate-800 rounded-lg animate-pulse"></div>
+        <div v-for="n in 5" :key="n" class="h-16 bg-slate-100 dark:bg-slate-800/80 rounded-xl animate-pulse"></div>
       </div>
 
       <!-- Estado de Error -->
-      <div v-else-if="error" class="mt-8 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-        <strong class="font-bold">Error:</strong>
+      <div v-else-if="error" class="mt-6 bg-rose-50 border border-rose-200 text-rose-700 dark:bg-rose-950/30 dark:border-rose-900 dark:text-rose-400 px-4 py-3 rounded-xl text-xs sm:text-sm" role="alert">
+        <strong class="font-bold">Error: </strong>
         <span class="block sm:inline">{{ error }}</span>
       </div>
 
       <!-- Contenido Principal -->
-      <div v-else class="mt-8">
+      <div v-else class="mt-6">
         <!-- Mensaje para cuando no hay notificaciones -->
-        <div v-if="notifications.length === 0" class="text-center py-10 px-4 bg-white dark:bg-slate-800 rounded-lg border border-dashed border-gray-300 dark:border-slate-700">
-          <p class="text-gray-500 dark:text-slate-400">No se han encontrado notificaciones.</p>
+        <div v-if="notifications.length === 0" class="text-center py-10 px-4 bg-white dark:bg-slate-900 rounded-2xl border border-dashed border-slate-200 dark:border-slate-800">
+          <p class="text-xs sm:text-sm font-semibold text-slate-500 dark:text-slate-400">No se han encontrado notificaciones.</p>
         </div>
         
         <!-- Lista de Notificaciones -->
-        <div v-else class="bg-white dark:bg-slate-800 shadow-md rounded-lg overflow-hidden">
-          <ul class="divide-y divide-gray-200 dark:divide-slate-700">
+        <div v-else class="bg-white dark:bg-slate-900 shadow-xs border border-slate-200/80 dark:border-slate-800 rounded-2xl overflow-hidden">
+          <ul class="divide-y divide-slate-100 dark:divide-slate-800/80">
             <li
               v-for="notification in notifications"
               :key="notification.id"
               class="notification-item"
               :class="{ 'unread-highlight': !notification.is_read }"
             >
-              <div class="flex-shrink-0 self-start">
-                <InformationCircleIcon class="h-6 w-6 text-blue-500" />
+              <div class="flex-shrink-0 self-start pt-0.5">
+                <InformationCircleIcon class="h-5 w-5 text-brand-cyan" />
               </div>
-              <div class="flex-grow">
-                <p v-html="notification.message" class="text-sm text-gray-900 dark:text-slate-200"></p>
-                <p class="text-xs text-gray-500 dark:text-slate-400 mt-0.5">{{ formatTimeAgo(notification.created_at) }}</p>
+              <div class="flex-grow min-w-0">
+                <p v-html="notification.message" class="text-xs sm:text-sm text-slate-800 dark:text-slate-200 leading-relaxed break-words"></p>
+                <p class="text-[11px] text-slate-400 dark:text-slate-500 font-mono mt-1">{{ formatTimeAgo(notification.created_at) }}</p>
               </div>
             </li>
           </ul>

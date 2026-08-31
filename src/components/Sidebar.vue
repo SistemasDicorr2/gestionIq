@@ -164,6 +164,14 @@
           <LogOutIcon class="w-4 h-4 shrink-0" />
           <span class="truncate">{{ loggingOut ? 'Cerrando…' : 'Cerrar sesión' }}</span>
         </button>
+
+        <!-- Indicador de Versión -->
+        <div v-if="!isCollapsed" class="px-3 pt-1 pb-0.5 text-[10px] font-semibold text-slate-400 dark:text-slate-500 text-center select-none tracking-tight">
+          Gestión IQ v3.0.0
+        </div>
+        <div v-else class="text-[9px] font-bold text-slate-400 dark:text-slate-500 text-center select-none py-1">
+          v3.0
+        </div>
       </div>
     </aside>
   </TooltipProvider>
@@ -252,8 +260,8 @@ onBeforeUnmount(() => document.removeEventListener('keydown', onKey));
 
 // --- ESTRUCTURA DE NAVEGACIÓN CON ICONOS LUCIDE ---
 const items = computed(() => ([
-  { label: 'Resumen Operativo', to: { name: 'ResumenOperativo' }, badge: 'Nuevo', icon: LayoutDashboard, roles: ['admin','coord'] },
   { label: 'Panel de Cirugías', to: { name: 'Admin' }, icon: ClipboardList, roles: ['admin','coord','user'] },
+  { label: 'Resumen Operativo', to: { name: 'ResumenOperativo' }, badge: 'Nuevo', icon: LayoutDashboard, roles: ['admin','coord'] },
   { label: 'Estadísticas', to: { name: 'Estadisticas' }, badge: 'Nuevo', icon: BarChart3, roles: ['admin','coord'] },
   { label: 'Instrumentadores', to: { name: 'Instrumentadores' }, icon: Users, roles: ['admin','coord','user'] },
   {
