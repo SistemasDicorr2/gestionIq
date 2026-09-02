@@ -830,7 +830,35 @@ const fetchData = async () => {
   try {
     const { data, error: rpcError } = await supabase.rpc('get_todas_cirugias_pendientes');
     if (rpcError) throw rpcError;
-    allPendingSurgeries.value = data || [];
+
+    let surgeries = data || [];
+
+    // Enriquecimiento frontend read-only para asegurar fecha de completado (created_at / fecha_envio)
+    if (surgeries.length > 0) {
+      const ids = surgeries.map(s => s.id).filter(Boolean);
+      if (ids.length > 0) {
+        const { data: reportesData, error: reportesError } = await supabase
+          .from('reportes')
+          .select('id, created_at, fecha_envio')
+          .in('id', ids);
+
+        if (!reportesError && reportesData) {
+          const reportesMap = new Map();
+          reportesData.forEach(r => reportesMap.set(r.id, r));
+
+          surgeries = surgeries.map(s => {
+            const r = reportesMap.get(s.id);
+            return {
+              ...s,
+              created_at: s.created_at || s.fecha_completada || r?.created_at || r?.fecha_envio || null,
+              fecha_envio: s.fecha_envio || r?.fecha_envio || null,
+            };
+          });
+        }
+      }
+    }
+
+    allPendingSurgeries.value = surgeries;
   } catch (err) {
     error.value = "No se pudo cargar la lista de cirugías pendientes.";
     showErrorToast(err, error.value);
@@ -1111,9 +1139,19 @@ const handleClosePostPagoModal = () => {
 };
 
 const formatCurrency = (value) => new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(value || 0);
+
 const formatDate = (dateString) => {
   if (!dateString) return 'N/A';
-  return new Date(dateString).toLocaleDateString('es-AR', { timeZone: 'UTC' });
+  try {
+    const str = String(dateString);
+    const date = /^\d{4}-\d{2}-\d{2}$/.test(str)
+      ? new Date(`${str}T00:00:00`)
+      : new Date(str);
+    if (Number.isNaN(date.getTime())) return 'N/A';
+    return date.toLocaleDateString('es-AR', { timeZone: 'UTC' });
+  } catch (e) {
+    return 'N/A';
+  }
 };
 </script>
 
