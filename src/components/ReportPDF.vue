@@ -1,6 +1,6 @@
 <!-- src/components/ReportPDF.vue (VERSIÓN FINAL Y DEFINITIVA) -->
 <template>
-  <div ref="pdfTemplateRef" class="bg-white text-black p-8 font-sans w-[794px] min-h-[1122px]">
+  <div ref="pdfTemplateRef" class="bg-white text-black p-8 font-sans box-border w-[794px] max-w-full print:p-6 print:w-full print:min-h-0 print:h-auto print:box-border">
     <div v-if="reporte" class="flex flex-col h-full text-sm">
       
       <header class="flex justify-between items-start border-b-2 border-slate-200 pb-2">

@@ -46,7 +46,18 @@
           class="px-3.5 py-2 bg-slate-800 dark:bg-slate-700 hover:bg-slate-900 text-white font-bold text-xs rounded-xl shadow-xs flex items-center gap-1.5 transition-colors cursor-pointer"
         >
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
-          <span>🖨️ Imprimir / PDF</span>
+          <span>🖨️ Imprimir</span>
+        </button>
+
+        <button 
+          type="button" 
+          @click="downloadDirectPDF"
+          :disabled="isExportingPDF"
+          class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-extrabold text-xs rounded-xl shadow-xs flex items-center gap-1.5 transition-all active:scale-98 cursor-pointer"
+          title="Descargar reporte en formato PDF listo para guardar o compartir"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          <span>{{ isExportingPDF ? 'Generando PDF...' : '📥 Descargar PDF' }}</span>
         </button>
       </div>
     </div>
@@ -60,7 +71,7 @@
       No se encontró el informe solicitado.
     </div>
 
-    <div v-else class="bg-[#ffffff] dark:bg-slate-900 rounded-2xl border border-[#dfe6ef] dark:border-slate-800 overflow-hidden shadow-md font-sans text-[#172033] dark:text-slate-100 print:shadow-none print:border-none">
+    <div v-else ref="reportContentRef" class="bg-[#ffffff] dark:bg-slate-900 rounded-2xl border border-[#dfe6ef] dark:border-slate-800 overflow-hidden shadow-md font-sans text-[#172033] dark:text-slate-100 print:shadow-none print:border-none">
       <!-- ACENTO SUPERIOR -->
       <div class="h-1 bg-blue-600"></div>
 
@@ -291,11 +302,15 @@ import { useRoute } from 'vue-router';
 import { supabase } from '../../services/supabase';
 import { useToast } from 'vue-toastification';
 import EmailReporteModal from '../../components/logistica/EmailReporteModal.vue';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 const route = useRoute();
 const toast = useToast();
 const loading = ref(true);
 const showEmailModal = ref(false);
+const reportContentRef = ref(null);
+const isExportingPDF = ref(false);
 
 const informe = ref(null);
 const movimientos = ref([]);
@@ -344,6 +359,61 @@ onMounted(fetchInformeDetalle);
 
 const printReport = () => {
   window.print();
+};
+
+const downloadDirectPDF = async () => {
+  if (!reportContentRef.value) {
+    toast.error('No se pudo encontrar el contenido del reporte para exportar.');
+    return;
+  }
+
+  isExportingPDF.value = true;
+  toast.info('Generando documento PDF...');
+
+  try {
+    const el = reportContentRef.value;
+    const canvas = await html2canvas(el, {
+      scale: 2,
+      useCORS: true,
+      logging: false,
+      backgroundColor: '#ffffff'
+    });
+
+    const imgData = canvas.toDataURL('image/jpeg', 0.95);
+    const pdf = new jsPDF({
+      orientation: 'portrait',
+      unit: 'mm',
+      format: 'a4',
+      compress: true
+    });
+
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = pdf.internal.pageSize.getHeight();
+    const imgHeight = (canvas.height * pdfWidth) / canvas.width;
+    let heightLeft = imgHeight;
+    let position = 0;
+
+    pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, imgHeight);
+    heightLeft -= pdfHeight;
+
+    while (heightLeft > 0) {
+      position = heightLeft - imgHeight;
+      pdf.addPage();
+      pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, imgHeight);
+      heightLeft -= pdfHeight;
+    }
+
+    const dateClean = (informe.value?.fecha || '').replace(/-/g, '_');
+    const filename = `Informe_Logistica_${dateClean || 'districorr'}.pdf`;
+    pdf.save(filename);
+
+    toast.success(`Documento PDF "${filename}" descargado con éxito.`);
+  } catch (err) {
+    console.error('Error al exportar PDF:', err);
+    toast.error('Error al generar PDF: ' + err.message);
+  } finally {
+    isExportingPDF.value = false;
+  }
 };
 
 const formatDate = (dateStr) => {
@@ -461,58 +531,6 @@ const generateEmailTableHtml = (inf, movsList) => {
         <td align="center" valign="middle" style="padding:12px 5px;border-bottom:1px solid #e2e8f0;font-size:11px;font-weight:800;color:#0f172a;">${mov.cantidad_cajas || 0}</td>
         <td align="center" valign="middle" style="padding:12px 5px;border-bottom:1px solid #e2e8f0;font-size:11px;font-weight:800;color:#0f172a;">${mov.cantidad_bultos || 0}</td>
       </tr>
-    `;
-  }).join('');
-
-  const mobileCards = movsList.map((mov, idx) => {
-    const numIdx = String(idx + 1).padStart(2, '0');
-    const info = getMovementDisplayInfo(mov);
-    const idCirugiaPart = mov.id_cirugia_snapshot ? ` · ${mov.id_cirugia_snapshot}` : '';
-    let pendHtml = mov.tiene_pendiente 
-      ? `<div style="margin-top:4px;background-color:#fef3c7;border:1px solid #fcd34d;color:#92400e;padding:3px 5px;border-radius:4px;font-weight:bold;font-size:9px;">⚠️ Pendiente: ${mov.detalle_pendiente || ''}</div>` 
-      : '';
-
-    return `
-      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0"
-             class="mobile-only mobile-record"
-             style="border:1px solid #dbe3ee;border-radius:9px;background:#fff;margin-bottom:10px;">
-        <tr>
-          <td style="padding:12px;">
-            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
-              <tr>
-                <td valign="top">
-                  <div style="font-size:9px;line-height:12px;color:#94a3b8;font-weight:700;">${numIdx}${idCirugiaPart}</div>
-                  <div class="mobile-title" style="margin-top:2px;font-size:13px;line-height:17px;font-weight:800;color:#0f172a;">${mov.paciente_snapshot || mov.destino || 'Sin especificar'}</div>
-                  ${mov.cliente_snapshot ? `<div style="margin-top:2px;font-size:10px;line-height:14px;color:#64748b;">${mov.cliente_snapshot}</div>` : ''}
-                </td>
-                <td align="right" valign="top">
-                  <span style="${info.inlineHtml}">
-                    ${info.displayTitle}
-                  </span>
-                </td>
-              </tr>
-            </table>
-
-            <div style="height:1px;background:#e2e8f0;margin:10px 0;"></div>
-
-            <div style="font-size:10px;line-height:14px;font-weight:700;color:#334155;">${mov.institucion_snapshot || 'Sin especificar'}</div>
-            ${mov.medico_snapshot ? `<div style="margin-top:2px;font-size:10px;line-height:14px;color:#64748b;">Médico · ${mov.medico_snapshot}</div>` : ''}
-
-            <div class="mobile-copy" style="margin-top:8px;font-size:11px;line-height:16px;color:#475569;">
-              ${info.cleanObs || 'Sin notas'}
-              ${pendHtml}
-            </div>
-
-            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0"
-                   style="margin-top:10px;background:#f8fafc;border-radius:7px;">
-              <tr>
-                <td style="padding:7px 9px;font-size:10px;color:#64748b;">Cajas <strong style="color:#0f172a;">${mov.cantidad_cajas || 0}</strong></td>
-                <td align="right" style="padding:7px 9px;font-size:10px;color:#64748b;">Bultos <strong style="color:#0f172a;">${mov.cantidad_bultos || 0}</strong></td>
-              </tr>
-            </table>
-          </td>
-        </tr>
-      </table>
     `;
   }).join('');
 
@@ -860,9 +878,9 @@ const generateEmailTableHtml = (inf, movsList) => {
         </tr>
 
         <!-- ======================================================
-             TABLA DESKTOP
+             TABLA PRINCIPAL
              ====================================================== -->
-        <tr class="desktop-table">
+        <tr>
           <td class="px" style="padding:0 20px 20px 20px;">
             <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0"
                    style="width:100%;border:1px solid #dbe3ee;border-radius:8px;overflow:hidden;">
@@ -880,15 +898,6 @@ const generateEmailTableHtml = (inf, movsList) => {
               ${desktopRows}
 
             </table>
-          </td>
-        </tr>
-
-        <!-- ======================================================
-             MOVIL: REGISTROS APILADOS
-             ====================================================== -->
-        <tr>
-          <td class="px" style="padding:0 14px 16px 14px;">
-            ${mobileCards}
           </td>
         </tr>
 

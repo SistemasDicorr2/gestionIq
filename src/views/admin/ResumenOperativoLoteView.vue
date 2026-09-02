@@ -73,7 +73,7 @@
     </div>
 
     <!-- Reutilización directa del componente canónico ReportPDF.vue (Fuente Única de Verdad Visual y de Datos) -->
-    <main v-else class="max-w-4xl mx-auto p-4 sm:p-6 space-y-8 print:p-0 print:m-0 print:max-w-none flex flex-col items-center">
+    <main v-else class="max-w-4xl mx-auto p-4 sm:p-6 space-y-8 print:space-y-0 print:p-0 print:m-0 print:max-w-none flex flex-col items-center print:block">
       <div 
         v-for="(ficha, index) in fichas" 
         :key="ficha.id || index"
