@@ -623,7 +623,7 @@ const hasMissingAmount = (surgery) => {
 };
 
 const getCompletedDate = (surgery) => {
-  const raw = surgery?.fecha_completada || surgery?.created_at || surgery?.fecha_creacion || surgery?.updated_at;
+  const raw = surgery?.fecha_envio || surgery?.fecha_completada || surgery?.created_at || surgery?.fecha_creacion || surgery?.updated_at;
   if (!raw) return 'No registrada';
   return formatDate(raw);
 };
@@ -844,14 +844,16 @@ const fetchData = async () => {
 
         if (!reportesError && reportesData) {
           const reportesMap = new Map();
-          reportesData.forEach(r => reportesMap.set(r.id, r));
+          reportesData.forEach(r => reportesMap.set(String(r.id), r));
 
           surgeries = surgeries.map(s => {
-            const r = reportesMap.get(s.id);
+            const r = reportesMap.get(String(s.id));
+            const fechaEnvio = r?.fecha_envio || s.fecha_envio || null;
             return {
               ...s,
-              created_at: s.created_at || s.fecha_completada || r?.created_at || r?.fecha_envio || null,
-              fecha_envio: s.fecha_envio || r?.fecha_envio || null,
+              fecha_envio: fechaEnvio,
+              fecha_completada: fechaEnvio || s.fecha_completada || null,
+              created_at: s.created_at || r?.created_at || null,
             };
           });
         }
