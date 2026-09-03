@@ -1,21 +1,36 @@
 -- =============================================================================
--- MIGRACIÓN SQL: RPC de Lectura Pública de Informe de Logística por UUID
+-- MIGRACIÓN SQL COMPATIBLE POSTGREST: RPC de Lectura Pública por ID TEXT/UUID
 -- Archivo: supabase/migrations/20260903_obtener_informe_logistica_publico.sql
 -- =============================================================================
 
 BEGIN;
 
-CREATE OR REPLACE FUNCTION public.obtener_informe_logistica_publico(p_informe_id UUID)
+-- Limpieza preventiva de firma previa si existía con parametro UUID
+DROP FUNCTION IF EXISTS public.obtener_informe_logistica_publico(UUID);
+DROP FUNCTION IF EXISTS public.obtener_informe_logistica_publico(TEXT);
+
+CREATE OR REPLACE FUNCTION public.obtener_informe_logistica_publico(p_informe_id TEXT)
 RETURNS JSONB
 LANGUAGE plpgsql
 SECURITY DEFINER
 SET search_path = ''
 AS $$
 DECLARE
+    v_id_uuid UUID;
     v_informe RECORD;
     v_movimientos JSONB;
 BEGIN
-    -- 1. Obtener informe diario publicado (enviado o corregido)
+    -- 1. Casteo seguro de texto a UUID
+    BEGIN
+        v_id_uuid := p_informe_id::UUID;
+    EXCEPTION WHEN OTHERS THEN
+        RETURN json_build_object(
+            'success', false,
+            'error', 'El identificador del informe no tiene un formato UUID válido.'
+        )::jsonb;
+    END;
+
+    -- 2. Obtener encabezado del informe diario
     SELECT 
         id,
         fecha,
@@ -27,33 +42,16 @@ BEGIN
         enviado_at
     INTO v_informe
     FROM public.logistica_informes_diarios
-    WHERE id = p_informe_id
-      AND estado IN ('enviado', 'corregido');
+    WHERE id = v_id_uuid;
 
     IF NOT FOUND THEN
-        -- Si no existe en estado publicado, intentar como fallback de informe existente
-        SELECT 
-            id,
-            fecha,
-            responsable_nombre,
-            zona,
-            observacion_general,
-            estado,
-            created_at,
-            enviado_at
-        INTO v_informe
-        FROM public.logistica_informes_diarios
-        WHERE id = p_informe_id;
-        
-        IF NOT FOUND THEN
-            RETURN json_build_object(
-                'success', false,
-                'error', 'Informe de logística no encontrado o el enlace es inválido.'
-            )::jsonb;
-        END IF;
+        RETURN json_build_object(
+            'success', false,
+            'error', 'Informe de logística no encontrado o el enlace es inválido.'
+        )::jsonb;
     END IF;
 
-    -- 2. Obtener lista de movimientos ordenados
+    -- 3. Obtener movimientos asociados ordenados
     SELECT COALESCE(
         json_agg(
             json_build_object(
@@ -82,7 +80,7 @@ BEGIN
         '[]'::jsonb
     ) INTO v_movimientos
     FROM public.logistica_informe_movimientos m
-    WHERE m.informe_id = p_informe_id;
+    WHERE m.informe_id = v_id_uuid;
 
     RETURN json_build_object(
         'success', true,
@@ -92,7 +90,7 @@ BEGIN
 END;
 $$;
 
--- Permisos de ejecución
-GRANT EXECUTE ON FUNCTION public.obtener_informe_logistica_publico(UUID) TO anon, authenticated;
+-- Otorgar permisos de ejecución explícitos a anon y authenticated
+GRANT EXECUTE ON FUNCTION public.obtener_informe_logistica_publico(TEXT) TO anon, authenticated, service_role;
 
 COMMIT;
