@@ -478,16 +478,15 @@ const normalizeText = (str) => {
   return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
 };
 
-// Código Base generado en frontend
+// Código Base generado en frontend (Formato estándar de 11 dígitos de datos: FAM-MATVARCLASCONT-SERIE)
 const computedBaseCode = computed(() => {
   const fam = form.value.familia || 'OS';
   const mat = form.value.material || 'X';
   const varnt = form.value.variante || '00';
   const clas = form.value.clasificacion || 'CO';
   const cont = form.value.contenido || 'C';
-  const mrc = form.value.marca ? form.value.marca.substring(0, 2).toUpperCase() : '';
 
-  return `${fam}-${mat}${varnt}${clas}${cont}${mrc}`;
+  return `${fam}-${mat}${varnt}${clas}${cont}`;
 });
 
 const computedNextCode = computed(() => {
