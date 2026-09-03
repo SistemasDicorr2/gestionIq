@@ -9,9 +9,9 @@
       </router-link>
 
       <div class="flex items-center gap-2">
-        <!-- BOTÓN EDITAR INFORME -->
+        <!-- BOTÓN EDITAR INFORME (Solo usuarios autenticados) -->
         <router-link 
-          v-if="informe"
+          v-if="informe && !isPublicView"
           :to="{ name: 'LogisticaNuevoInforme', query: { id: informe.id } }"
           class="px-3.5 py-2 bg-amber-500 hover:bg-amber-600 text-white font-extrabold text-xs rounded-xl shadow-xs flex items-center gap-1.5 transition-all active:scale-98"
           title="Editar datos, movimientos u observaciones de este informe"
@@ -21,6 +21,7 @@
         </router-link>
 
         <button 
+          v-if="!isPublicView"
           type="button" 
           @click="showEmailModal = true"
           class="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs rounded-xl shadow-xs flex items-center gap-1.5 transition-all active:scale-98 cursor-pointer"
@@ -31,6 +32,7 @@
         </button>
 
         <button 
+          v-if="!isPublicView"
           type="button" 
           @click="copyDirectToEmailClipboard"
           class="px-3 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold text-xs rounded-xl shadow-xs flex items-center gap-1.5 transition-all cursor-pointer"
@@ -338,6 +340,8 @@ const showEmailModal = ref(false);
 const reportContentRef = ref(null);
 const isExportingPDF = ref(false);
 
+const isPublicView = computed(() => route.name === 'LogisticaInformePublico' || route.meta?.requiresAuth === false);
+
 const informe = ref(null);
 const movimientos = ref([]);
 
@@ -506,7 +510,7 @@ const generateEmailTableHtml = (inf, movsList) => {
   const responsableStr = inf?.responsable_nombre || 'Logística';
   const enviadoTimeStr = inf?.enviado_at ? formatDateTime(inf.enviado_at) : formatDateTime(new Date().toISOString());
   const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://gestioniq.districorr.com.ar';
-  const reportWebUrl = inf?.id ? `${baseUrl}/logistica/informes/${inf.id}` : '#';
+  const reportWebUrl = inf?.id ? `${baseUrl}/logistica/informes/publico/${inf.id}` : '#';
 
   const desktopRows = movsList.map((mov, idx) => {
     const bg = idx % 2 === 0 ? '#ffffff' : '#f8fafc';
@@ -744,30 +748,6 @@ const generateEmailTableHtml = (inf, movsList) => {
                     style="width:28%;font-size:10px;line-height:15px;color:#64748b;">
                   <strong style="color:#334155;">Responsable:</strong> ${responsableStr}<br>
                   <strong style="color:#334155;">Enviado:</strong> ${enviadoTimeStr}
-                </td>
-              </tr>
-            </table>
-          </td>
-        </tr>
-
-        <!-- INDICADOR / BOTÓN ACCESO Y PDF EN MAIL -->
-        <tr>
-          <td class="px" style="padding:0 20px 12px 20px;">
-            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:8px;">
-              <tr>
-                <td style="padding:10px 14px;font-size:11px;color:#0369a1;font-weight:bold;">
-                  <div style="font-size:12px;color:#0369a1;margin-bottom:2px;">
-                    <span style="font-size:14px;margin-right:4px;">📎</span>
-                    <strong>Reporte PDF Oficial Adjunto:</strong> <span style="font-family:monospace;font-size:11px;">Informe_Logistica_${fechaStr.replace(/\//g, '_')}.pdf</span>
-                  </div>
-                  <div style="font-size:10px;color:#0284c7;font-weight:normal;">
-                    El documento PDF vectorial se encuentra adjunto al pie de este correo electrónico.
-                  </div>
-                </td>
-                <td align="right" valign="middle" style="padding:10px 14px;white-space:nowrap;">
-                  <a href="${reportWebUrl}" target="_blank" style="display:inline-block;padding:7px 14px;background:#0284c7;color:#ffffff;font-size:11px;font-weight:800;border-radius:6px;text-decoration:none;box-shadow:0 1px 2px rgba(0,0,0,0.1);">
-                    🌐 Abrir Reporte en Web ➔
-                  </a>
                 </td>
               </tr>
             </table>
