@@ -1,11 +1,26 @@
 -- =============================================================================
--- MIGRACIÓN SQL COMPATIBLE POSTGREST: RPC de Lectura Pública por ID TEXT/UUID
+-- MIGRACIÓN SQL DEFINITIVA: Permisos de Lectura Pública para Informes de Logística
 -- Archivo: supabase/migrations/20260903_obtener_informe_logistica_publico.sql
 -- =============================================================================
 
 BEGIN;
 
--- Limpieza preventiva de firma previa si existía con parametro UUID
+-- 1. Habilitar permisos SELECT para el rol anon (usuarios no autenticados)
+GRANT SELECT ON TABLE public.logistica_informes_diarios TO anon, authenticated;
+GRANT SELECT ON TABLE public.logistica_informe_movimientos TO anon, authenticated;
+
+-- 2. Crear políticas RLS de lectura pública (SELECT) para el rol anon
+DROP POLICY IF EXISTS "logistica_informes_anon_select_policy" ON public.logistica_informes_diarios;
+CREATE POLICY "logistica_informes_anon_select_policy" ON public.logistica_informes_diarios
+    FOR SELECT TO anon
+    USING (true);
+
+DROP POLICY IF EXISTS "logistica_movimientos_anon_select_policy" ON public.logistica_informe_movimientos;
+CREATE POLICY "logistica_movimientos_anon_select_policy" ON public.logistica_informe_movimientos
+    FOR SELECT TO anon
+    USING (true);
+
+-- 3. Crear/Actualizar la RPC pública SECURITY DEFINER
 DROP FUNCTION IF EXISTS public.obtener_informe_logistica_publico(UUID);
 DROP FUNCTION IF EXISTS public.obtener_informe_logistica_publico(TEXT);
 
@@ -20,7 +35,6 @@ DECLARE
     v_informe RECORD;
     v_movimientos JSONB;
 BEGIN
-    -- 1. Casteo seguro de texto a UUID
     BEGIN
         v_id_uuid := p_informe_id::UUID;
     EXCEPTION WHEN OTHERS THEN
@@ -30,7 +44,6 @@ BEGIN
         )::jsonb;
     END;
 
-    -- 2. Obtener encabezado del informe diario
     SELECT 
         id,
         fecha,
@@ -47,11 +60,10 @@ BEGIN
     IF NOT FOUND THEN
         RETURN json_build_object(
             'success', false,
-            'error', 'Informe de logística no encontrado o el enlace es inválido.'
+            'error', 'Informe de logística no encontrado.'
         )::jsonb;
     END IF;
 
-    -- 3. Obtener movimientos asociados ordenados
     SELECT COALESCE(
         json_agg(
             json_build_object(
@@ -90,7 +102,9 @@ BEGIN
 END;
 $$;
 
--- Otorgar permisos de ejecución explícitos a anon y authenticated
 GRANT EXECUTE ON FUNCTION public.obtener_informe_logistica_publico(TEXT) TO anon, authenticated, service_role;
+
+-- 4. Notificar recarga de schema cache a PostgREST
+NOTIFY pgrst, 'reload schema';
 
 COMMIT;
