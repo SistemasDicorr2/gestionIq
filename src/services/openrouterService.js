@@ -10,13 +10,12 @@ export const generateCodeWithAI = async (userDescription, dictionaryEntries, isA
     throw new Error('Debés ingresar una descripción o nombre para consultar a la IA.');
   }
 
-  // 1. Obtener API Key desde env o localStorage
+  // 1. Obtener API Key exclusivamente desde variable de entorno de Vercel / Backend
   const apiKey = import.meta.env.VITE_OPENROUTER_API_KEY || 
-                 import.meta.env.VITE_OPENROUTER_APIKEY || 
-                 localStorage.getItem('OPENROUTER_API_KEY') || '';
+                 import.meta.env.VITE_OPENROUTER_APIKEY || '';
 
   if (!apiKey) {
-    throw new Error('OPENROUTER_NO_KEY');
+    throw new Error('NO_SERVER_KEY');
   }
 
   // 2. Formatear las opciones disponibles en el diccionario para enviárselas como contexto a la IA

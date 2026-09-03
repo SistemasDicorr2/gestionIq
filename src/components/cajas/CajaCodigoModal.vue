@@ -54,20 +54,10 @@
           <!-- Detector / Parser e IA OpenRouter -->
           <div class="p-3.5 sm:p-4 bg-gradient-to-br from-brand-cyan/15 via-brand-cyan/5 to-transparent dark:from-slate-800/90 dark:to-slate-800/40 rounded-xl border border-brand-cyan/40 space-y-2.5">
             <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
-              <div class="flex items-center gap-2">
-                <label class="text-xs font-black text-brand-navy dark:text-brand-cyan flex items-center gap-1.5 shrink-0">
-                  <SparklesIcon class="w-4 h-4 text-brand-cyan animate-pulse" />
-                  <span>Parser & Asistente IA (OpenRouter)</span>
-                </label>
-                <button 
-                  type="button" 
-                  @click="showApiKeyPrompt = !showApiKeyPrompt"
-                  class="text-[10px] font-bold text-slate-500 hover:text-brand-navy dark:text-slate-400 dark:hover:text-brand-cyan underline cursor-pointer"
-                  title="Configurar tu API Key de OpenRouter"
-                >
-                  {{ showApiKeyPrompt ? 'Ocultar Key' : '🔑 API Key' }}
-                </button>
-              </div>
+              <label class="text-xs font-black text-brand-navy dark:text-brand-cyan flex items-center gap-1.5 shrink-0">
+                <SparklesIcon class="w-4 h-4 text-brand-cyan animate-pulse" />
+                <span>Parser & Asistente IA</span>
+              </label>
 
               <span v-if="smartDetectedSummary && !aiExplanation" class="text-[10px] font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-950/80 px-2 py-0.5 rounded-md border border-emerald-300 dark:border-emerald-800 truncate max-w-full sm:max-w-xs">
                 {{ smartDetectedSummary }}
@@ -193,28 +183,6 @@
                     <span class="font-bold text-brand-navy dark:text-brand-cyan">{{ aiResultDetails.contenido || '-' }}</span>
                   </div>
                 </div>
-              </div>
-            </div>
-
-            <!-- Modal Configuración API Key (si no está definida) -->
-            <div v-if="showApiKeyPrompt" class="pt-2 border-t border-brand-cyan/20 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2">
-              <div class="text-[11px] text-amber-800 dark:text-amber-300 font-medium">
-                🔑 Ingresá tu API Key de OpenRouter (`sk-or-v1-...`) para habilitar la IA:
-              </div>
-              <div class="flex items-center gap-1.5">
-                <input 
-                  v-model="inputApiKey"
-                  type="password"
-                  placeholder="sk-or-v1-..."
-                  class="px-2 py-1 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 font-mono text-slate-900 dark:text-white"
-                />
-                <button 
-                  @click="saveApiKey"
-                  type="button"
-                  class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-lg cursor-pointer shrink-0"
-                >
-                  Guardar
-                </button>
               </div>
             </div>
           </div>
@@ -470,9 +438,6 @@ const showAiExplanationDropdown = ref(false);
 
 const aiSuggestionsHistory = ref([]);
 const activeSuggestionIndex = ref(0);
-
-const showApiKeyPrompt = ref(false);
-const inputApiKey = ref('');
 
 const form = ref({
   familia: 'OS',
@@ -799,15 +764,6 @@ const handleGenerateAI = async (isAlternative = false) => {
   loadingAI.value = false;
 };
 
-const saveApiKey = () => {
-  if (inputApiKey.value.trim()) {
-    localStorage.setItem('OPENROUTER_API_KEY', inputApiKey.value.trim());
-    showApiKeyPrompt.value = false;
-    showSuccessToast('API Key guardada localmente.');
-    handleGenerateAI(false);
-  }
-};
-
 const handleQuickParse = () => {
   if (quickParseInput.value) {
     parseTextToIntelligentComponents(quickParseInput.value);
@@ -904,7 +860,6 @@ const resetForm = (userInitiated = false) => {
   aiSuggestionsHistory.value = [];
   activeSuggestionIndex.value = 0;
   showAiExplanationDropdown.value = false;
-  showApiKeyPrompt.value = false;
   
   form.value = {
     familia: 'OS',
