@@ -67,6 +67,7 @@
             <span class="px-1.5 py-0.5 bg-slate-200 dark:bg-slate-700 rounded text-slate-800 dark:text-slate-200">comprasimplantes@districorr.com.ar</span>
             <span class="px-1.5 py-0.5 bg-slate-200 dark:bg-slate-700 rounded text-slate-800 dark:text-slate-200">deposito@districorr.com.ar</span>
             <span class="px-1.5 py-0.5 bg-slate-200 dark:bg-slate-700 rounded text-slate-800 dark:text-slate-200">logistica@districorr.com.ar</span>
+            <span class="px-1.5 py-0.5 bg-slate-200 dark:bg-slate-700 rounded text-slate-800 dark:text-slate-200">log.formosa@districorr.com.ar</span>
             <span class="px-1.5 py-0.5 bg-slate-200 dark:bg-slate-700 rounded text-slate-800 dark:text-slate-200">log.corrientes@districorr.com.ar</span>
             <span class="px-1.5 py-0.5 bg-slate-200 dark:bg-slate-700 rounded text-slate-800 dark:text-slate-200">controldecalidad@districorr.com.ar</span>
             <span class="px-1.5 py-0.5 bg-slate-200 dark:bg-slate-700 rounded text-slate-800 dark:text-slate-200">fsimonetto@districorr.com.ar</span>

@@ -451,7 +451,8 @@ const STORAGE_KEY_PREFIX = 'giq_default_recipients_';
 const emailList = ref([
   { label: 'Compras Implantes', email: 'comprasimplantes@districorr.com.ar', selected: true },
   { label: 'Depósito Central', email: 'deposito@districorr.com.ar', selected: true },
-  { label: 'Logística Formosa', email: 'logistica@districorr.com.ar', selected: true },
+  { label: 'Logística Hernán', email: 'logistica@districorr.com.ar', selected: true },
+  { label: 'Logística Formosa', email: 'log.formosa@districorr.com.ar', selected: true },
   { label: 'Logística Corrientes', email: 'log.corrientes@districorr.com.ar', selected: true },
   { label: 'Control de Calidad', email: 'controldecalidad@districorr.com.ar', selected: true },
   { label: 'F. Simonetto', email: 'fsimonetto@districorr.com.ar', selected: true },
