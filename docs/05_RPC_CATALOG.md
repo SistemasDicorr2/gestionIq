@@ -18,6 +18,7 @@ RPCs consumidas
 | ------ | ------ | ------ | ------ | ------ |
 | buscar_cirugias_logistica | LogisticaNuevoInformeView.vue | Logistica | Confirmado por codigo y Supabase | Medio: Búsqueda acotada read-only de cirugías |
 | enviar_informe_logistica | LogisticaNuevoInformeView.vue | Logistica | Confirmado por codigo y Supabase | Alto: Transaccional de envío e inmutabilidad de informe diario |
+| obtener_informe_logistica_publico | LogisticaDetalleInformeView.vue | Logistica | Confirmado por codigo y Supabase | Medio: Lectura pública SECURITY DEFINER por UUID de informes diarios |
 | search_reportes_avanzado | AdminView.vue | Reportes | Confirmado por codigo | Alto: rompe panel principal y exportaciones |
 | create_instrumentador_token | FichaView.vue | Ficha/instrumentadores | Confirmado por codigo | Medio: rompe link a resumen |
 | autenticar_y_obtener_resumen | ActivitySummaryView.vue | Portal instrumentador | Confirmado por codigo y Supabase | Alto: rompe acceso a actividad/pagos |

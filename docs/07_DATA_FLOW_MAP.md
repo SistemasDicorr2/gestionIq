@@ -62,10 +62,12 @@ Flujo de Informe Diario de Logística (Nuevo Módulo Independiente 2026)
     - Acceso para usuarios con rol `logistica` o `admin`.
 
 3.  LogisticaDetalleInformeView.vue:
-    - Vista de detalle de informe individual.
-    - Botón `✏️ Editar Informe` para modificar movimientos o corregir observaciones.
-    - Generador `📧 Tabla para Email` que genera una tabla HTML de 660px estilizada y copiable con un clic para pegar en Outlook o Gmail.
-    - Impresión física y guardado en PDF `🖨️ Imprimir / Guardar PDF` con maquetación ejecutiva y líneas de firma.
+    - Vista de detalle de informe individual y acceso por enlace público (`/logistica/informes/publico/:id`).
+    - Consumo seguro de datos mediante la RPC SECURITY DEFINER `obtener_informe_logistica_publico(p_informe_id TEXT)` y RLS SELECT para el rol `anon`, permitiendo la lectura directa vía link de mail sin requerir autenticación previa.
+    - Ocultamiento dinámico de acciones administrativas de edición (`isPublicView`) cuando se accede como vista pública de solo lectura.
+    - Generador de PDF vectorial nativo (`src/services/logisticaPdfGenerator.js`) mediante `jsPDF` y `jspdf-autotable`, reemplazando capturas `html2canvas` por documentos ejecutivos nítidos, livianos y de texto seleccionable.
+    - Botón discreto al pie del reporte `📥 Descargar PDF Oficial` para descarga inmediata bajo demanda en escritorio y móviles.
+    - Plantilla HTML para correos de distribución con enlace directo al reporte web (`🌐 Abrir en Gestión IQ y Descargar PDF Oficial ➔`) colocado al pie de la firma.
 
 Flujo de pagos
 
