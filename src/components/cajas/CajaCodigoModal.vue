@@ -559,15 +559,17 @@ const parseTextToIntelligentComponents = (rawInput) => {
   const famOptions = optionsFor('Familia');
   let matchedFam = null;
 
-  if (norm.includes('cadera')) {
+  const normTokens = norm.split(/[\s\/,\(\)\.\-]+/).filter(Boolean);
+
+  if (norm.includes('cadera') || normTokens.includes('cad')) {
     matchedFam = norm.includes('no cementad') ? 'RN' : 'RC';
-  } else if (norm.includes('columna')) {
+  } else if (norm.includes('columna') || normTokens.includes('col') || normTokens.includes('colum')) {
     matchedFam = 'CO';
-  } else if (norm.includes('rodilla')) {
+  } else if (norm.includes('rodilla') || normTokens.includes('rod')) {
     matchedFam = 'RR';
-  } else if (norm.includes('artroscopia')) {
+  } else if (norm.includes('artroscopia') || normTokens.includes('art')) {
     matchedFam = 'AR';
-  } else if (norm.includes('canulado')) {
+  } else if (norm.includes('canulado') || normTokens.includes('can')) {
     matchedFam = 'TR';
   } else if (norm.includes('ligamento')) {
     matchedFam = norm.includes('cruzado') ? 'LC' : 'LG';
@@ -585,7 +587,7 @@ const parseTextToIntelligentComponents = (rawInput) => {
     matchedFam = norm.includes('micro') ? 'MC' : (norm.includes('sierra') ? 'MS' : 'MT');
   } else if (norm.includes('sierra')) {
     matchedFam = 'SR';
-  } else if (norm.includes('osteosintesis') || norm.split(/\s+/).includes('os')) {
+  } else if (norm.includes('osteosintesis') || normTokens.includes('os')) {
     matchedFam = 'OS';
   } else {
     for (const opt of famOptions) {
@@ -635,7 +637,7 @@ const parseTextToIntelligentComponents = (rawInput) => {
   // Match Clasificación
   let matchedClas = null;
   if (norm.includes('volar')) matchedClas = 'VL';
-  else if (norm.includes('columna')) matchedClas = 'CO';
+  else if (norm.includes('columna') || normTokens.includes('col')) matchedClas = 'CO';
   else if (norm.includes('tibia proximal')) matchedClas = 'TP';
   else if (norm.includes('tibia distal')) matchedClas = 'TD';
   else if (norm.includes('tibia expert')) matchedClas = 'TX';
@@ -666,11 +668,11 @@ const parseTextToIntelligentComponents = (rawInput) => {
   }
 
   // Match Contenido
-  if (norm.includes('instrumental')) { form.value.contenido = 'I'; detected.push('Instrumental (I)'); }
+  if (norm.includes('instrumental') || normTokens.includes('inst')) { form.value.contenido = 'I'; detected.push('Instrumental (I)'); }
   else if (norm.includes('implante') || norm.includes('set') || norm.includes('placa')) { form.value.contenido = 'P'; detected.push('Implantes (P)'); }
   else if (norm.includes('unificad')) { form.value.contenido = 'U'; detected.push('Unificado (U)'); }
   else if (norm.includes('maletin')) { form.value.contenido = 'M'; detected.push('Maletín (M)'); }
-  else if (norm.includes('contenedor') || norm.includes('caja')) { form.value.contenido = 'C'; detected.push('Contenedor (C)'); }
+  else if (norm.includes('contenedor') || norm.includes('caja') || normTokens.includes('ca') || normTokens.includes('caj')) { form.value.contenido = 'C'; detected.push('Contenedor / Caja (C)'); }
 
   if (detected.length > 0) {
     smartDetectedSummary.value = 'Auto-detectado: ' + detected.join(' | ');
@@ -832,6 +834,12 @@ const fetchPreviewSeries = async () => {
 watch(() => props.show, (newVal) => {
   if (newVal) {
     resetForm(false);
+    fetchPreviewSeries();
+  }
+});
+
+watch(computedBaseCode, (newBase) => {
+  if (newBase && !isHistorico.value) {
     fetchPreviewSeries();
   }
 });
