@@ -640,22 +640,19 @@ const parseTextToIntelligentComponents = (rawInput) => {
     detected.push(`Clasif: ${matchedClas}`);
   }
 
-  // Match Contenido (Priorizar Caja/Contenedor cuando aparezca explícitamente la palabra 'caja' o 'contenedor')
-  if (norm.includes('contenedor') || norm.includes('caja') || normTokens.includes('ca') || normTokens.includes('caj')) {
-    form.value.contenido = 'C';
-    detected.push('Contenedor / Caja (C)');
-  } else if (norm.includes('instrumental') || normTokens.includes('inst')) {
+  // Match Contenido (Reglas oficiales Districorr: I = Instrumental, P = Implante, U = Unificado, C = Contenedor)
+  if (norm.includes('instrumental') || normTokens.includes('inst') || normTokens.includes('instru')) {
     form.value.contenido = 'I';
     detected.push('Instrumental (I)');
-  } else if (norm.includes('implante') || norm.includes('set') || norm.includes('placa')) {
+  } else if (norm.includes('implante') || norm.includes('placa') || norm.includes('protesis') || normTokens.includes('imp')) {
     form.value.contenido = 'P';
     detected.push('Implantes (P)');
-  } else if (norm.includes('unificad')) {
+  } else if (norm.includes('unificad') || norm.includes('ambos')) {
     form.value.contenido = 'U';
     detected.push('Unificado (U)');
-  } else if (norm.includes('maletin')) {
-    form.value.contenido = 'M';
-    detected.push('Maletín (M)');
+  } else if (norm.includes('contenedor') || norm.includes('caja') || normTokens.includes('ca') || normTokens.includes('caj')) {
+    form.value.contenido = 'C';
+    detected.push('Contenedor / Caja (C)');
   }
 
   if (detected.length > 0) {
