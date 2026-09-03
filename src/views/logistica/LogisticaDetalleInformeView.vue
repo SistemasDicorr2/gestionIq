@@ -361,6 +361,22 @@ const fetchInformeDetalle = async () => {
     loading.value = true;
     const informeId = route.params.id;
 
+    // 1. Intentar recuperación mediante RPC pública SECURITY DEFINER (para acceso vía link de correo sin sesión)
+    try {
+      const { data: rpcData, error: rpcErr } = await supabase.rpc('obtener_informe_logistica_publico', {
+        p_informe_id: informeId
+      });
+
+      if (!rpcErr && rpcData && rpcData.success && rpcData.informe) {
+        informe.value = rpcData.informe;
+        movimientos.value = rpcData.movimientos || [];
+        return;
+      }
+    } catch (e) {
+      console.warn('[LogisticaDetalleInformeView] RPC pública no disponible, ejecutando consulta de fallback:', e);
+    }
+
+    // 2. Fallback de consulta directa para usuarios autenticados
     const { data: inf, error: infErr } = await supabase
       .from('logistica_informes_diarios')
       .select('*')
