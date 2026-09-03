@@ -750,14 +750,16 @@ const handleGenerateAI = async (isAlternative = false) => {
       }
     }
   } catch (err) {
-    console.warn('Fallback a parser local inteligente:', err);
+    if (err.message !== 'OPENROUTER_NO_KEY') {
+      console.warn('Procesando con motor inteligente local:', err.message);
+    }
     parseTextToIntelligentComponents(query);
     if (!form.value.nombre) form.value.nombre = query.trim();
 
     if (err.message === 'OPENROUTER_NO_KEY') {
       showSuccessToast('Código deducido con el analizador inteligente de Gestión IQ.');
     } else {
-      showSuccessToast('Código deducido localmente: ' + (err.message || ''));
+      showSuccessToast('Código deducido localmente.');
     }
   } finally {
     loadingAI.value = false;
