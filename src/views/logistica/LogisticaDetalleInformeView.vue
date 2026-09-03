@@ -313,8 +313,7 @@ import { useRoute } from 'vue-router';
 import { supabase } from '../../services/supabase';
 import { useToast } from 'vue-toastification';
 import EmailReporteModal from '../../components/logistica/EmailReporteModal.vue';
-import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
+import { generateLogisticaInformePDF, getLogisticaInformePdfBase64 } from '../../services/logisticaPdfGenerator';
 
 const route = useRoute();
 const toast = useToast();
@@ -373,52 +372,18 @@ const printReport = () => {
 };
 
 const downloadDirectPDF = async () => {
-  if (!reportContentRef.value) {
+  if (!informe.value) {
     toast.error('No se pudo encontrar el contenido del reporte para exportar.');
     return;
   }
 
   isExportingPDF.value = true;
-  toast.info('Generando documento PDF...');
+  toast.info('Generando documento PDF vectorial...');
 
   try {
-    const el = reportContentRef.value;
-    const canvas = await html2canvas(el, {
-      scale: 2,
-      useCORS: true,
-      logging: false,
-      backgroundColor: '#ffffff'
-    });
-
-    const imgData = canvas.toDataURL('image/jpeg', 0.95);
-    const pdf = new jsPDF({
-      orientation: 'portrait',
-      unit: 'mm',
-      format: 'a4',
-      compress: true
-    });
-
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = pdf.internal.pageSize.getHeight();
-    const imgHeight = (canvas.height * pdfWidth) / canvas.width;
-    let heightLeft = imgHeight;
-    let position = 0;
-
-    pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, imgHeight);
-    heightLeft -= pdfHeight;
-
-    while (heightLeft > 0) {
-      position = heightLeft - imgHeight;
-      pdf.addPage();
-      pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, imgHeight);
-      heightLeft -= pdfHeight;
-    }
-
+    generateLogisticaInformePDF(informe.value, movimientos.value);
     const dateClean = (informe.value?.fecha || '').replace(/-/g, '_');
-    const filename = `Informe_Logistica_${dateClean || 'districorr'}.pdf`;
-    pdf.save(filename);
-
-    toast.success(`Documento PDF "${filename}" descargado con éxito.`);
+    toast.success(`Documento PDF "Informe_Logistica_${dateClean || 'districorr'}.pdf" descargado con éxito.`);
   } catch (err) {
     console.error('Error al exportar PDF:', err);
     toast.error('Error al generar PDF: ' + err.message);
@@ -428,42 +393,9 @@ const downloadDirectPDF = async () => {
 };
 
 const generatePdfBase64 = async () => {
-  if (!reportContentRef.value) return null;
+  if (!informe.value) return null;
   try {
-    const el = reportContentRef.value;
-    const canvas = await html2canvas(el, {
-      scale: 2,
-      useCORS: true,
-      logging: false,
-      backgroundColor: '#ffffff'
-    });
-
-    const imgData = canvas.toDataURL('image/jpeg', 0.95);
-    const pdf = new jsPDF({
-      orientation: 'portrait',
-      unit: 'mm',
-      format: 'a4',
-      compress: true
-    });
-
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = pdf.internal.pageSize.getHeight();
-    const imgHeight = (canvas.height * pdfWidth) / canvas.width;
-    let heightLeft = imgHeight;
-    let position = 0;
-
-    pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, imgHeight);
-    heightLeft -= pdfHeight;
-
-    while (heightLeft > 0) {
-      position = heightLeft - imgHeight;
-      pdf.addPage();
-      pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, imgHeight);
-      heightLeft -= pdfHeight;
-    }
-
-    const dataUri = pdf.output('datauristring');
-    return dataUri.split(',')[1];
+    return getLogisticaInformePdfBase64(informe.value, movimientos.value);
   } catch (err) {
     console.error('Error generando PDF base64 para email:', err);
     return null;
@@ -794,6 +726,25 @@ const generateEmailTableHtml = (inf, movsList) => {
                     style="width:28%;font-size:10px;line-height:15px;color:#64748b;">
                   <strong style="color:#334155;">Responsable:</strong> ${responsableStr}<br>
                   <strong style="color:#334155;">Enviado:</strong> ${enviadoTimeStr}
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
+        <!-- INDICADOR / BOTÓN DESCARGAR PDF ADJUNTO EN MAIL -->
+        <tr>
+          <td class="px" style="padding:0 20px 12px 20px;">
+            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:8px;">
+              <tr>
+                <td style="padding:8px 12px;font-size:11px;color:#0369a1;font-weight:bold;">
+                  <span style="font-size:13px;margin-right:4px;">📎</span>
+                  <span>Documento oficial adjunto en este correo: <strong>Informe_Logistica_${fechaStr.replace(/\//g, '_')}.pdf</strong></span>
+                </td>
+                <td align="right" style="padding:8px 12px;">
+                  <span style="display:inline-block;padding:4px 10px;background:#0284c7;color:#ffffff;font-size:10px;font-weight:800;border-radius:6px;">
+                    📥 PDF Adjunto Incluido
+                  </span>
                 </td>
               </tr>
             </table>
