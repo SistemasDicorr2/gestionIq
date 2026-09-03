@@ -466,19 +466,19 @@ const inputApiKey = ref('');
 
 const form = ref({
   familia: 'OS',
-  material: 'T',
-  variante: '35',
+  material: '',
+  variante: '',
   clasificacion: 'VL',
-  contenido: 'U',
+  contenido: 'C',
   marca: '',
   nombre: '',
   observaciones: ''
 });
 
 const previewData = ref({
-  codigo_base: 'OS-T35VLU',
+  codigo_base: 'OS-VLC',
   siguiente_serie: 1,
-  siguiente_codigo: 'OS-T35VLU-001',
+  siguiente_codigo: 'OS-VLC-001',
   ultimo_codigo: null
 });
 
@@ -607,6 +607,10 @@ const parseTextToIntelligentComponents = (rawInput) => {
     form.value.familia = matchedFam;
     detected.push(`Familia: ${matchedFam}`);
   }
+
+  // Resetear campos opcionales para evitar heredar defaults previos
+  form.value.material = '';
+  form.value.variante = '';
 
   // Match Material
   if (norm.includes('titanio') || norm.includes('titani')) {
@@ -875,10 +879,10 @@ const resetForm = (userInitiated = false) => {
   
   form.value = {
     familia: 'OS',
-    material: 'T',
-    variante: '35',
+    material: '',
+    variante: '',
     clasificacion: 'VL',
-    contenido: 'U',
+    contenido: 'C',
     marca: '',
     nombre: '',
     observaciones: ''
