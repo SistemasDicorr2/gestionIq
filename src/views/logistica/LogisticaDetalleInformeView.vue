@@ -489,6 +489,8 @@ const generateEmailTableHtml = (inf, movsList) => {
   const zonaStr = inf?.zona || 'Formosa Capital';
   const responsableStr = inf?.responsable_nombre || 'Logística';
   const enviadoTimeStr = inf?.enviado_at ? formatDateTime(inf.enviado_at) : formatDateTime(new Date().toISOString());
+  const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://gestioniq.districorr.com.ar';
+  const reportWebUrl = inf?.id ? `${baseUrl}/logistica/informes/${inf.id}` : '#';
 
   const desktopRows = movsList.map((mov, idx) => {
     const bg = idx % 2 === 0 ? '#ffffff' : '#f8fafc';
@@ -732,19 +734,24 @@ const generateEmailTableHtml = (inf, movsList) => {
           </td>
         </tr>
 
-        <!-- INDICADOR / BOTÓN DESCARGAR PDF ADJUNTO EN MAIL -->
+        <!-- INDICADOR / BOTÓN ACCESO Y PDF EN MAIL -->
         <tr>
           <td class="px" style="padding:0 20px 12px 20px;">
             <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:8px;">
               <tr>
-                <td style="padding:8px 12px;font-size:11px;color:#0369a1;font-weight:bold;">
-                  <span style="font-size:13px;margin-right:4px;">📎</span>
-                  <span>Documento oficial adjunto en este correo: <strong>Informe_Logistica_${fechaStr.replace(/\//g, '_')}.pdf</strong></span>
+                <td style="padding:10px 14px;font-size:11px;color:#0369a1;font-weight:bold;">
+                  <div style="font-size:12px;color:#0369a1;margin-bottom:2px;">
+                    <span style="font-size:14px;margin-right:4px;">📎</span>
+                    <strong>Reporte PDF Oficial Adjunto:</strong> <span style="font-family:monospace;font-size:11px;">Informe_Logistica_${fechaStr.replace(/\//g, '_')}.pdf</span>
+                  </div>
+                  <div style="font-size:10px;color:#0284c7;font-weight:normal;">
+                    El documento PDF vectorial se encuentra adjunto al pie de este correo electrónico.
+                  </div>
                 </td>
-                <td align="right" style="padding:8px 12px;">
-                  <span style="display:inline-block;padding:4px 10px;background:#0284c7;color:#ffffff;font-size:10px;font-weight:800;border-radius:6px;">
-                    📥 PDF Adjunto Incluido
-                  </span>
+                <td align="right" valign="middle" style="padding:10px 14px;white-space:nowrap;">
+                  <a href="${reportWebUrl}" target="_blank" style="display:inline-block;padding:7px 14px;background:#0284c7;color:#ffffff;font-size:11px;font-weight:800;border-radius:6px;text-decoration:none;box-shadow:0 1px 2px rgba(0,0,0,0.1);">
+                    🌐 Abrir Reporte en Web ➔
+                  </a>
                 </td>
               </tr>
             </table>
