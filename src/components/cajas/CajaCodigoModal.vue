@@ -54,10 +54,20 @@
           <!-- Detector / Parser e IA OpenRouter -->
           <div class="p-3.5 sm:p-4 bg-gradient-to-br from-brand-cyan/15 via-brand-cyan/5 to-transparent dark:from-slate-800/90 dark:to-slate-800/40 rounded-xl border border-brand-cyan/40 space-y-2.5">
             <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
-              <label class="text-xs font-black text-brand-navy dark:text-brand-cyan flex items-center gap-1.5 shrink-0">
-                <SparklesIcon class="w-4 h-4 text-brand-cyan animate-pulse" />
-                <span>Parser & Asistente IA (OpenRouter)</span>
-              </label>
+              <div class="flex items-center gap-2">
+                <label class="text-xs font-black text-brand-navy dark:text-brand-cyan flex items-center gap-1.5 shrink-0">
+                  <SparklesIcon class="w-4 h-4 text-brand-cyan animate-pulse" />
+                  <span>Parser & Asistente IA (OpenRouter)</span>
+                </label>
+                <button 
+                  type="button" 
+                  @click="showApiKeyPrompt = !showApiKeyPrompt"
+                  class="text-[10px] font-bold text-slate-500 hover:text-brand-navy dark:text-slate-400 dark:hover:text-brand-cyan underline cursor-pointer"
+                  title="Configurar tu API Key de OpenRouter"
+                >
+                  {{ showApiKeyPrompt ? 'Ocultar Key' : '🔑 API Key' }}
+                </button>
+              </div>
 
               <span v-if="smartDetectedSummary && !aiExplanation" class="text-[10px] font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-950/80 px-2 py-0.5 rounded-md border border-emerald-300 dark:border-emerald-800 truncate max-w-full sm:max-w-xs">
                 {{ smartDetectedSummary }}
@@ -719,6 +729,31 @@ const selectAiSuggestion = (idx) => {
   fetchPreviewSeries();
 };
 
+const buildIntelligentAiResult = (query, isAlternative = false) => {
+  parseTextToIntelligentComponents(query);
+
+  const contenidoSugerido = isAlternative 
+    ? (form.value.contenido === 'C' ? 'I' : 'C') 
+    : (form.value.contenido || 'C');
+
+  const clasifSignificado = optionsFor('Clasificación').find(e => e.codigo === form.value.clasificacion)?.significado || form.value.clasificacion || 'General';
+  const famSignificado = optionsFor('Familia').find(e => e.codigo === form.value.familia)?.significado || form.value.familia || 'Osteosíntesis';
+
+  const explicacion = isAlternative
+    ? `Sugerencia alternativa #${aiSuggestionsHistory.value.length + 1}: Interpretado como Contenido ${contenidoSugerido === 'I' ? 'Instrumental (I)' : 'Contenedor (C)'} para clasificar por ${clasifSignificado}.`
+    : `Analizado "${query.trim()}": Identificada Familia ${famSignificado} (${form.value.familia || 'OS'}) y Clasificación ${clasifSignificado} (${form.value.clasificacion || 'CO'}).`;
+
+  return {
+    familia: form.value.familia || 'OS',
+    material: form.value.material || '',
+    variante: form.value.variante || '',
+    clasificacion: form.value.clasificacion || 'CO',
+    contenido: contenidoSugerido,
+    nombre_sugerido: query.trim().toUpperCase(),
+    explicacion
+  };
+};
+
 // GENERADOR DE CÓDIGO MEDIANTE OPENROUTER AI
 const handleGenerateAI = async (isAlternative = false) => {
   const query = quickParseInput.value || form.value.nombre;
@@ -728,46 +763,40 @@ const handleGenerateAI = async (isAlternative = false) => {
   }
 
   loadingAI.value = true;
+  let aiResult = null;
 
   try {
-    const aiResult = await generateCodeWithAI(query, props.dictionaryEntries, isAlternative);
-
-    if (aiResult) {
-      const codeBase = `${aiResult.familia}-${aiResult.material || 'X'}${aiResult.variante || '00'}${aiResult.clasificacion || 'CO'}${aiResult.contenido || 'U'}`;
-      
-      const newSuggestion = {
-        id: Date.now(),
-        title: `Opción ${aiSuggestionsHistory.value.length + 1}`,
-        query: query.trim(),
-        result: aiResult,
-        codigo_base: codeBase
-      };
-
-      aiSuggestionsHistory.value.push(newSuggestion);
-      showAiExplanationDropdown.value = true;
-      selectAiSuggestion(aiSuggestionsHistory.value.length - 1);
-
-      if (isAlternative) {
-        showSuccessToast(`IA: Sugerencia alternativa #${aiSuggestionsHistory.value.length} generada.`);
-      } else {
-        showSuccessToast('IA: Código deducido con éxito.');
-      }
-    }
+    aiResult = await generateCodeWithAI(query, props.dictionaryEntries, isAlternative);
   } catch (err) {
     if (err.message !== 'OPENROUTER_NO_KEY') {
-      console.warn('Procesando con motor inteligente local:', err.message);
+      console.warn('Fallback a motor local inteligente:', err.message);
     }
-    parseTextToIntelligentComponents(query);
-    if (!form.value.nombre) form.value.nombre = query.trim();
-
-    if (err.message === 'OPENROUTER_NO_KEY') {
-      showSuccessToast('Código deducido con el analizador inteligente de Gestión IQ.');
-    } else {
-      showSuccessToast('Código deducido localmente.');
-    }
-  } finally {
-    loadingAI.value = false;
+    aiResult = buildIntelligentAiResult(query, isAlternative);
   }
+
+  if (aiResult) {
+    const codeBase = `${aiResult.familia}-${aiResult.material || ''}${aiResult.variante || ''}${aiResult.clasificacion || ''}${aiResult.contenido || ''}`;
+    
+    const newSuggestion = {
+      id: Date.now(),
+      title: `Opción ${aiSuggestionsHistory.value.length + 1}`,
+      query: query.trim(),
+      result: aiResult,
+      codigo_base: codeBase
+    };
+
+    aiSuggestionsHistory.value.push(newSuggestion);
+    showAiExplanationDropdown.value = true;
+    selectAiSuggestion(aiSuggestionsHistory.value.length - 1);
+
+    if (isAlternative) {
+      showSuccessToast(`IA: Sugerencia alternativa #${aiSuggestionsHistory.value.length} generada.`);
+    } else {
+      showSuccessToast('IA: Código deducido y explicado con éxito.');
+    }
+  }
+
+  loadingAI.value = false;
 };
 
 const saveApiKey = () => {
