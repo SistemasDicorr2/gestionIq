@@ -74,6 +74,13 @@ const routes = [
     props: true,
     meta: { requiresAuth: false }
   },
+  {
+    path: '/logistica/informes/publico/:id',
+    name: 'LogisticaInformePublico',
+    component: LogisticaDetalleInformeView,
+    props: true,
+    meta: { requiresAuth: false }
+  },
 
   // --- Rutas Protegidas de Administración ---
   {

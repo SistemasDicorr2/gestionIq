@@ -290,6 +290,22 @@
         <div><strong class="text-white font-extrabold">DISTRICORR</strong> · Gestión IQ · Logística Operativa</div>
         <div class="text-slate-400 font-mono">Generado automáticamente</div>
       </div>
+
+      <!-- BOTÓN DISCRETO AL PIE DEL REPORTE PARA DESCARGA DE PDF -->
+      <div class="p-4 bg-slate-50 dark:bg-slate-800/80 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3 print:hidden">
+        <div class="text-xs text-slate-600 dark:text-slate-300 font-medium">
+          📄 ¿Deseás guardar una copia oficial en PDF de este reporte diario?
+        </div>
+        <button 
+          type="button" 
+          @click="downloadDirectPDF"
+          :disabled="isExportingPDF"
+          class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-extrabold text-xs rounded-xl shadow-xs flex items-center gap-2 transition-all active:scale-98 cursor-pointer shrink-0"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          <span>{{ isExportingPDF ? 'Generando PDF...' : '📥 Descargar PDF Oficial' }}</span>
+        </button>
+      </div>
     </div>
 
     <!-- Modal de Envió por Correo / Copiar Emails Oficiales / Prueba Resend -->
@@ -925,6 +941,18 @@ const generateEmailTableHtml = (inf, movsList) => {
               ${desktopRows}
 
             </table>
+          </td>
+        </tr>
+
+        <!-- FOOTER CALLOUT EN EMAIL -->
+        <tr>
+          <td class="px" style="padding:14px 20px;background:#f8fafc;border-top:1px solid #e2e8f0;text-align:center;">
+            <div style="font-size:11px;color:#334155;font-weight:bold;margin-bottom:6px;">
+              📄 ¿Deseás descargar la versión oficial en PDF de este informe diario?
+            </div>
+            <a href="${reportWebUrl}" target="_blank" style="display:inline-block;padding:8px 18px;background:#0284c7;color:#ffffff;font-size:11px;font-weight:800;border-radius:6px;text-decoration:none;box-shadow:0 1px 3px rgba(0,0,0,0.15);">
+              📥 Abrir en Gestión IQ y Descargar PDF Oficial ➔
+            </a>
           </td>
         </tr>
 
