@@ -230,6 +230,7 @@ import {
   UploadCloud,
   FileSpreadsheet,
   MoreHorizontal,
+  Box as BoxIcon,
   LogOut as LogOutIcon,
   ChevronDown as ChevronDownIcon,
   PanelLeftClose as PanelLeftCloseIcon,
@@ -315,6 +316,7 @@ const items = computed(() => ([
     icon: MoreHorizontal,
     roles: ['admin', 'coord'],
     children: [
+      { label: 'Cajas & Knowledge', to: { name: 'CajasKnowledge' }, icon: BoxIcon },
       { label: 'Incidencias', to: { name: 'Incidencias' }, icon: AlertTriangle },
       { label: 'Gestión de Reclamos', to: { name: 'Quejas' }, icon: MessageSquare },
       { label: 'Pedidos Especiales', to: { name: 'PedidosEspeciales' }, icon: Gift },

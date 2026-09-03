@@ -27,6 +27,7 @@ import ConfigView from '../views/ConfigView.vue';
 import ResumenOperativoView from '../views/admin/ResumenOperativoView.vue';
 import ResumenOperativoLoteView from '../views/admin/ResumenOperativoLoteView.vue';
 import ConciliacionTransferenciasView from '../views/admin/ConciliacionTransferenciasView.vue';
+import CajasKnowledgeView from '../views/admin/CajasKnowledgeView.vue';
 
 // --- Vistas y Layouts para el Módulo de Logística ---
 import LogisticaLayout from '../layouts/LogisticaLayout.vue';
@@ -129,6 +130,12 @@ const routes = [
         name: 'Configuracion',
         component: ConfigView,
         meta: { allowedRoles: ['admin'] }
+      },
+      {
+        path: 'cajas-knowledge',
+        name: 'CajasKnowledge',
+        component: CajasKnowledgeView,
+        meta: { allowedRoles: ['admin', 'coord'] }
       }
     ]
   },
