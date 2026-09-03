@@ -1,6 +1,142 @@
 <!-- src/components/cajas/CajasKnowledgeTab.vue -->
 <template>
-  <div class="space-y-4">
+  <div class="space-y-5">
+
+    <!-- BANNER GUÍA DE NOMENCLATURA EN 6 COLUMNAS (11 DÍGITOS) -->
+    <div class="bg-gradient-to-br from-brand-navy via-slate-900 to-slate-950 text-white p-5 sm:p-6 rounded-2xl shadow-xl border border-slate-800 space-y-5">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800/80 pb-4">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2">
+            <SparklesIcon class="w-5 h-5 text-brand-cyan" />
+            <h3 class="text-base sm:text-lg font-black tracking-tight text-white">
+              Instructivo de Nomenclatura del Código (11 Dígitos)
+            </h3>
+          </div>
+          <p class="text-xs text-slate-300">
+            Estructura canónica estándar para la codificación oficial de cajas, sets e instrumental.
+          </p>
+        </div>
+
+        <!-- Ejemplo Interactivo de Código -->
+        <div class="bg-slate-900/90 border border-brand-cyan/40 p-2.5 px-4 rounded-xl text-center shadow-inner self-start sm:self-auto">
+          <span class="text-[9px] font-bold text-slate-400 block uppercase tracking-wider">Ejemplo Canónico Estándar</span>
+          <span class="font-mono text-lg font-black text-brand-cyan tracking-wider">CO-X00COI-001</span>
+        </div>
+      </div>
+
+      <!-- COLUMNAS EXPLICATIVAS PUNTO POR PUNTO -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3">
+        
+        <!-- Columna 1: FAMILIA -->
+        <div class="bg-slate-800/80 hover:bg-slate-800 rounded-xl p-3.5 border border-slate-700/80 space-y-2 transition-all">
+          <div class="flex items-center justify-between">
+            <span class="text-[10px] font-extrabold uppercase text-brand-cyan tracking-wider">1. Familia</span>
+            <span class="px-1.5 py-0.5 rounded bg-brand-cyan/20 text-brand-cyan text-[10px] font-mono font-black">XX</span>
+          </div>
+          <div class="space-y-1">
+            <h4 class="text-xs font-black text-white">Especialidad (2 Letras)</h4>
+            <p class="text-[11px] text-slate-300 leading-snug">Identifica la rama quirúrgica o tipo de equipo.</p>
+          </div>
+          <div class="pt-1 text-[10px] font-medium text-slate-300 space-y-0.5 border-t border-slate-700/50">
+            <div>• <strong class="text-white">CO:</strong> Columna</div>
+            <div>• <strong class="text-white">OS:</strong> Osteosíntesis</div>
+            <div>• <strong class="text-white">RC / RN:</strong> Cadera</div>
+            <div>• <strong class="text-white">RR:</strong> Rodilla</div>
+            <div>• <strong class="text-white">CL:</strong> Clavo Endomedular</div>
+          </div>
+        </div>
+
+        <!-- Columna 2: MATERIAL -->
+        <div class="bg-slate-800/80 hover:bg-slate-800 rounded-xl p-3.5 border border-slate-700/80 space-y-2 transition-all">
+          <div class="flex items-center justify-between">
+            <span class="text-[10px] font-extrabold uppercase text-amber-400 tracking-wider">2. Material</span>
+            <span class="px-1.5 py-0.5 rounded bg-amber-400/20 text-amber-300 text-[10px] font-mono font-black">X</span>
+          </div>
+          <div class="space-y-1">
+            <h4 class="text-xs font-black text-white">Composición (1 Letra)</h4>
+            <p class="text-[11px] text-slate-300 leading-snug">Composición del material quirúrgico.</p>
+          </div>
+          <div class="pt-1 text-[10px] font-medium text-slate-300 space-y-0.5 border-t border-slate-700/50">
+            <div>• <strong class="text-white">T:</strong> Titanio</div>
+            <div>• <strong class="text-white">A:</strong> Acero Quirúrgico</div>
+            <div>• <strong class="text-white">PE:</strong> PEEK</div>
+            <div>• <strong class="text-white">X:</strong> Mixto / No especif.</div>
+          </div>
+        </div>
+
+        <!-- Columna 3: MEDIDA / VARIANTE -->
+        <div class="bg-slate-800/80 hover:bg-slate-800 rounded-xl p-3.5 border border-slate-700/80 space-y-2 transition-all">
+          <div class="flex items-center justify-between">
+            <span class="text-[10px] font-extrabold uppercase text-emerald-400 tracking-wider">3. Medida</span>
+            <span class="px-1.5 py-0.5 rounded bg-emerald-400/20 text-emerald-300 text-[10px] font-mono font-black">00</span>
+          </div>
+          <div class="space-y-1">
+            <h4 class="text-xs font-black text-white">Diámetro / Var. (2 Núm.)</h4>
+            <p class="text-[11px] text-slate-300 leading-snug">Medida del sistema en milímetros o variante.</p>
+          </div>
+          <div class="pt-1 text-[10px] font-medium text-slate-300 space-y-0.5 border-t border-slate-700/50">
+            <div>• <strong class="text-white">35:</strong> 3,5 mm</div>
+            <div>• <strong class="text-white">45:</strong> 4,5 mm</div>
+            <div>• <strong class="text-white">27:</strong> 2,7 mm</div>
+            <div>• <strong class="text-white">00:</strong> Sin medida / N/A</div>
+          </div>
+        </div>
+
+        <!-- Columna 4: CLASIFICACIÓN -->
+        <div class="bg-slate-800/80 hover:bg-slate-800 rounded-xl p-3.5 border border-slate-700/80 space-y-2 transition-all">
+          <div class="flex items-center justify-between">
+            <span class="text-[10px] font-extrabold uppercase text-indigo-400 tracking-wider">4. Clasificación</span>
+            <span class="px-1.5 py-0.5 rounded bg-indigo-400/20 text-indigo-300 text-[10px] font-mono font-black">XX</span>
+          </div>
+          <div class="space-y-1">
+            <h4 class="text-xs font-black text-white">Anatomía (2 Letras)</h4>
+            <p class="text-[11px] text-slate-300 leading-snug">Sistema anatómico específico.</p>
+          </div>
+          <div class="pt-1 text-[10px] font-medium text-slate-300 space-y-0.5 border-t border-slate-700/50">
+            <div>• <strong class="text-white">CO:</strong> Fijación Columna</div>
+            <div>• <strong class="text-white">VL:</strong> Placa Volar Radio</div>
+            <div>• <strong class="text-white">TP:</strong> Tibia Proximal</div>
+            <div>• <strong class="text-white">FR:</strong> Fémur / Femoral</div>
+          </div>
+        </div>
+
+        <!-- Columna 5: CONTENIDO -->
+        <div class="bg-slate-800/80 hover:bg-slate-800 rounded-xl p-3.5 border border-slate-700/80 space-y-2 transition-all">
+          <div class="flex items-center justify-between">
+            <span class="text-[10px] font-extrabold uppercase text-rose-400 tracking-wider">5. Contenido</span>
+            <span class="px-1.5 py-0.5 rounded bg-rose-400/20 text-rose-300 text-[10px] font-mono font-black">X</span>
+          </div>
+          <div class="space-y-1">
+            <h4 class="text-xs font-black text-white">Tipo Set (1 Letra)</h4>
+            <p class="text-[11px] text-slate-300 leading-snug">Contenido de la caja o conjunto.</p>
+          </div>
+          <div class="pt-1 text-[10px] font-medium text-slate-300 space-y-0.5 border-t border-slate-700/50">
+            <div>• <strong class="text-white">P:</strong> Implante / Implantes</div>
+            <div>• <strong class="text-white">I:</strong> Instrumental solo</div>
+            <div>• <strong class="text-white">C:</strong> Contenedor completo</div>
+            <div>• <strong class="text-white">U:</strong> Unificado (Imp+Inst)</div>
+          </div>
+        </div>
+
+        <!-- Columna 6: SERIE -->
+        <div class="bg-slate-800/80 hover:bg-slate-800 rounded-xl p-3.5 border border-slate-700/80 space-y-2 transition-all">
+          <div class="flex items-center justify-between">
+            <span class="text-[10px] font-extrabold uppercase text-cyan-400 tracking-wider">6. Serie</span>
+            <span class="px-1.5 py-0.5 rounded bg-cyan-400/20 text-cyan-300 text-[10px] font-mono font-black">XXX</span>
+          </div>
+          <div class="space-y-1">
+            <h4 class="text-xs font-black text-white">Correlativo (3 Núm)</h4>
+            <p class="text-[11px] text-slate-300 leading-snug">Secuencia correlativa automática.</p>
+          </div>
+          <div class="pt-1 text-[10px] font-medium text-slate-300 space-y-0.5 border-t border-slate-700/50">
+            <div>• <strong class="text-white">001:</strong> Primera caja</div>
+            <div>• <strong class="text-white">002:</strong> Segunda caja</div>
+            <div>• <strong class="text-white">003+:</strong> Siguiente serie</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
     
     <!-- Toolbar de Búsqueda y Filtros de Knowledge -->
     <div class="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-3">
@@ -270,7 +406,7 @@ import { supabase } from '../../services/supabase';
 import { useToasts } from '../../composables/useToasts';
 import CajaKnowledgeModal from './CajaKnowledgeModal.vue';
 import CajaKnowledgeReaderModal from './CajaKnowledgeReaderModal.vue';
-import { Search as SearchIcon, Plus as PlusIcon, BookMarked as BookMarkedIcon, Edit3 as EditIcon, Eye as EyeIcon } from 'lucide-vue-next';
+import { Search as SearchIcon, Plus as PlusIcon, BookMarked as BookMarkedIcon, Edit3 as EditIcon, Eye as EyeIcon, Sparkles as SparklesIcon } from 'lucide-vue-next';
 
 const { showErrorToast } = useToasts();
 

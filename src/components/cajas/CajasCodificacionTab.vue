@@ -165,6 +165,16 @@
                 <!-- Acciones -->
                 <td class="px-3 py-2 text-right">
                   <div class="flex items-center justify-end gap-1.5">
+                    <!-- Botón Modificar / Editar Código -->
+                    <button 
+                      @click="openEditarModal(item)"
+                      type="button"
+                      class="p-1 rounded-lg text-slate-500 hover:text-brand-navy hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors shrink-0 cursor-pointer"
+                      title="Modificar datos de este código"
+                    >
+                      <EditIcon class="w-4 h-4 text-brand-navy dark:text-brand-cyan" />
+                    </button>
+
                     <!-- Botón Generar Etiqueta 12x3 cm -->
                     <button 
                       @click="openEtiquetaModal(item)"
@@ -263,6 +273,14 @@
       @close="showEtiquetaModal = false"
     />
 
+    <CajaEditarCodigoModal 
+      :show="showEditarModal"
+      :item="selectedItemForEditar"
+      :dictionary-entries="dictionaryEntries"
+      @close="showEditarModal = false"
+      @updated="fetchCodigos"
+    />
+
   </div>
 </template>
 
@@ -273,7 +291,8 @@ import { useToasts } from '../../composables/useToasts';
 import CajaCodigoModal from './CajaCodigoModal.vue';
 import CajasDiccionarioModal from './CajasDiccionarioModal.vue';
 import CajaEtiquetaModal from './CajaEtiquetaModal.vue';
-import { Search as SearchIcon, Plus as PlusIcon, BookOpen as BookOpenIcon, Box as BoxIcon, Tag as TagIcon } from 'lucide-vue-next';
+import CajaEditarCodigoModal from './CajaEditarCodigoModal.vue';
+import { Search as SearchIcon, Plus as PlusIcon, BookOpen as BookOpenIcon, Box as BoxIcon, Tag as TagIcon, Edit3 as EditIcon } from 'lucide-vue-next';
 
 const { showSuccessToast, showErrorToast } = useToasts();
 
@@ -291,7 +310,9 @@ const itemsPerPage = ref(25);
 const showNuevoCodigoModal = ref(false);
 const showDiccionarioModal = ref(false);
 const showEtiquetaModal = ref(false);
+const showEditarModal = ref(false);
 const selectedItemForEtiqueta = ref(null);
+const selectedItemForEditar = ref(null);
 
 const fetchCodigos = async () => {
   loading.value = true;
@@ -327,6 +348,11 @@ const fetchDictionary = async () => {
 const openEtiquetaModal = (item) => {
   selectedItemForEtiqueta.value = item;
   showEtiquetaModal.value = true;
+};
+
+const openEditarModal = (item) => {
+  selectedItemForEditar.value = item;
+  showEditarModal.value = true;
 };
 
 const handleCodeCreated = async (newItem) => {

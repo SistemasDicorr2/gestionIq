@@ -10,14 +10,14 @@
             <BoxIcon class="w-5 h-5" />
           </div>
           <h2 class="text-base sm:text-lg font-black tracking-tight text-slate-900 dark:text-white">
-            Cajas & Knowledge
+            Cajas & Instructivos
           </h2>
           <span class="px-2 py-0.5 text-[10px] font-black uppercase rounded-full bg-brand-cyan/10 text-brand-cyan border border-brand-cyan/20">
             V1
           </span>
         </div>
         <p class="text-xs text-slate-500 dark:text-slate-400">
-          Codificación de cajas, sets e instrumental y preservación del conocimiento operativo.
+          Codificación de cajas, sets e instrumental, guía de nomenclatura de 11 dígitos e instructivos operativos.
         </p>
       </div>
 
@@ -42,7 +42,7 @@
           class="px-4 py-1.5 text-xs rounded-lg transition-all flex items-center gap-2 cursor-pointer"
         >
           <BookMarkedIcon class="w-4 h-4" />
-          <span>Knowledge</span>
+          <span>Instructivos</span>
         </button>
       </div>
     </div>
