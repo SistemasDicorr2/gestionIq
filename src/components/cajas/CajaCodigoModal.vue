@@ -667,12 +667,23 @@ const parseTextToIntelligentComponents = (rawInput) => {
     detected.push(`Clasif: ${matchedClas}`);
   }
 
-  // Match Contenido
-  if (norm.includes('instrumental') || normTokens.includes('inst')) { form.value.contenido = 'I'; detected.push('Instrumental (I)'); }
-  else if (norm.includes('implante') || norm.includes('set') || norm.includes('placa')) { form.value.contenido = 'P'; detected.push('Implantes (P)'); }
-  else if (norm.includes('unificad')) { form.value.contenido = 'U'; detected.push('Unificado (U)'); }
-  else if (norm.includes('maletin')) { form.value.contenido = 'M'; detected.push('Maletín (M)'); }
-  else if (norm.includes('contenedor') || norm.includes('caja') || normTokens.includes('ca') || normTokens.includes('caj')) { form.value.contenido = 'C'; detected.push('Contenedor / Caja (C)'); }
+  // Match Contenido (Priorizar Caja/Contenedor cuando aparezca explícitamente la palabra 'caja' o 'contenedor')
+  if (norm.includes('contenedor') || norm.includes('caja') || normTokens.includes('ca') || normTokens.includes('caj')) {
+    form.value.contenido = 'C';
+    detected.push('Contenedor / Caja (C)');
+  } else if (norm.includes('instrumental') || normTokens.includes('inst')) {
+    form.value.contenido = 'I';
+    detected.push('Instrumental (I)');
+  } else if (norm.includes('implante') || norm.includes('set') || norm.includes('placa')) {
+    form.value.contenido = 'P';
+    detected.push('Implantes (P)');
+  } else if (norm.includes('unificad')) {
+    form.value.contenido = 'U';
+    detected.push('Unificado (U)');
+  } else if (norm.includes('maletin')) {
+    form.value.contenido = 'M';
+    detected.push('Maletín (M)');
+  }
 
   if (detected.length > 0) {
     smartDetectedSummary.value = 'Auto-detectado: ' + detected.join(' | ');
@@ -739,15 +750,14 @@ const handleGenerateAI = async (isAlternative = false) => {
       }
     }
   } catch (err) {
-    console.error('Error generando con IA:', err);
+    console.warn('Fallback a parser local inteligente:', err);
+    parseTextToIntelligentComponents(query);
+    if (!form.value.nombre) form.value.nombre = query.trim();
+
     if (err.message === 'OPENROUTER_NO_KEY') {
-      showApiKeyPrompt.value = true;
-      showWarningToast('Se requiere una API Key de OpenRouter. Podés ingresarla arriba.');
+      showSuccessToast('Código deducido con el analizador inteligente de Gestión IQ.');
     } else {
-      showErrorToast('No se pudo completar la consulta IA: ' + err.message);
-      if (aiSuggestionsHistory.value.length === 0) {
-        parseTextToIntelligentComponents(query);
-      }
+      showSuccessToast('Código deducido localmente: ' + (err.message || ''));
     }
   } finally {
     loadingAI.value = false;
