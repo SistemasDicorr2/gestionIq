@@ -480,20 +480,14 @@ const normalizeText = (str) => {
 
 // Código Base generado en frontend
 const computedBaseCode = computed(() => {
-  const parts = [];
-  if (form.value.familia) parts.push(form.value.familia);
-  
-  let rest = '';
-  if (form.value.material) rest += form.value.material;
-  if (form.value.variante) rest += form.value.variante;
-  if (form.value.clasificacion) rest += form.value.clasificacion;
-  if (form.value.contenido) rest += form.value.contenido;
-  if (form.value.marca) rest += form.value.marca.substring(0, 2).toUpperCase();
+  const fam = form.value.familia || 'OS';
+  const mat = form.value.material || 'X';
+  const varnt = form.value.variante || '00';
+  const clas = form.value.clasificacion || 'CO';
+  const cont = form.value.contenido || 'C';
+  const mrc = form.value.marca ? form.value.marca.substring(0, 2).toUpperCase() : '';
 
-  if (rest) {
-    return `${parts.join('')}-${rest}`;
-  }
-  return parts.join('');
+  return `${fam}-${mat}${varnt}${clas}${cont}${mrc}`;
 });
 
 const computedNextCode = computed(() => {
@@ -710,8 +704,8 @@ const buildIntelligentAiResult = (query, isAlternative = false) => {
 
   return {
     familia: form.value.familia || 'OS',
-    material: form.value.material || '',
-    variante: form.value.variante || '',
+    material: form.value.material || 'X',
+    variante: form.value.variante || '00',
     clasificacion: form.value.clasificacion || 'CO',
     contenido: contenidoSugerido,
     nombre_sugerido: query.trim().toUpperCase(),
