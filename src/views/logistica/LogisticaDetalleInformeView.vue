@@ -182,7 +182,7 @@
               <td class="p-2.5 text-center font-bold text-slate-400 font-mono text-[11px]">{{ String(idx + 1).padStart(2, '0') }}</td>
               
               <td class="p-2.5 align-top">
-                <span :class="['px-2.5 py-0.5 rounded-full border text-[10px] font-extrabold inline-block', getMovementDisplayInfo(mov).bgClass]">
+                <span :class="['px-2.5 py-0.5 rounded-md border text-[10px] font-extrabold inline-block', getMovementDisplayInfo(mov).bgClass]">
                   {{ getMovementDisplayInfo(mov).displayTitle }}
                 </span>
                 <div v-if="mov.id_cirugia_snapshot" class="mt-1">
@@ -203,10 +203,14 @@
               </td>
 
               <td class="p-2.5 align-top">
+                <div v-if="getMovementDisplayInfo(mov).subDetail" class="mb-1.5 p-2 bg-purple-50/90 dark:bg-purple-950/40 rounded-lg border-l-3 border-purple-600 text-xs text-purple-950 dark:text-purple-200">
+                  <span class="font-extrabold text-purple-800 dark:text-purple-300">Motivo / Gestión:</span> {{ getMovementDisplayInfo(mov).subDetail }}
+                </div>
+
                 <span v-if="getMovementDisplayInfo(mov).cleanObs" class="text-slate-700 dark:text-slate-300 block text-xs">
                   {{ getMovementDisplayInfo(mov).cleanObs }}
                 </span>
-                <span v-else-if="!mov.tiene_pendiente" class="text-slate-400 italic text-[11px]">Sin notas</span>
+                <span v-else-if="!getMovementDisplayInfo(mov).subDetail && !mov.tiene_pendiente" class="text-slate-400 italic text-[11px]">Sin notas</span>
 
                 <div v-if="mov.tiene_pendiente" class="mt-1 p-1 px-2 bg-amber-50 dark:bg-amber-950/40 rounded-lg border border-amber-200 dark:border-amber-900/50 text-[10px] font-bold text-amber-900 dark:text-amber-300">
                   ⚠️ Pendiente: {{ mov.detalle_pendiente }}
@@ -244,7 +248,7 @@
                 🏢 {{ mov.cliente_snapshot }}
               </div>
             </div>
-            <span :class="['px-2.5 py-0.5 rounded-full border text-[9px] font-extrabold inline-block shrink-0', getMovementDisplayInfo(mov).bgClass]">
+            <span :class="['px-2.5 py-0.5 rounded-md border text-[9px] font-extrabold inline-block shrink-0', getMovementDisplayInfo(mov).bgClass]">
               {{ getMovementDisplayInfo(mov).displayTitle }}
             </span>
           </div>
@@ -260,8 +264,14 @@
             <div class="text-[9px] font-black uppercase text-blue-600 dark:text-blue-400 tracking-wider">
               {{ mov.tipo_movimiento }}
             </div>
-            <div class="text-slate-600 dark:text-slate-300">
-              {{ mov.observaciones || (mov.tiene_pendiente ? 'Con pendiente' : 'Sin notas') }}
+            <div v-if="getMovementDisplayInfo(mov).subDetail" class="p-2 bg-purple-50/80 dark:bg-purple-950/40 rounded-lg border-l-3 border-purple-600 text-xs font-semibold text-purple-950 dark:text-purple-200">
+              <span class="font-extrabold">Motivo:</span> {{ getMovementDisplayInfo(mov).subDetail }}
+            </div>
+            <div v-if="getMovementDisplayInfo(mov).cleanObs" class="text-slate-600 dark:text-slate-300">
+              {{ getMovementDisplayInfo(mov).cleanObs }}
+            </div>
+            <div v-else-if="!getMovementDisplayInfo(mov).subDetail && !mov.tiene_pendiente" class="text-slate-400 italic text-xs">
+              Sin notas
             </div>
             <div v-if="mov.tiene_pendiente" class="p-1.5 bg-amber-50 dark:bg-amber-950/40 rounded-lg border border-amber-200 text-[10px] font-bold text-amber-800">
               ⚠️ Pendiente: {{ mov.detalle_pendiente }}
@@ -290,6 +300,7 @@
       :movimientos="movimientos"
       :htmlTableProvider="copyDirectToEmailClipboard"
       :getHtmlContent="() => generateEmailTableHtml(informe, movimientos)"
+      :getPdfBase64="generatePdfBase64"
       @close="showEmailModal = false"
       @copy-table="copyDirectToEmailClipboard"
     />
@@ -416,6 +427,49 @@ const downloadDirectPDF = async () => {
   }
 };
 
+const generatePdfBase64 = async () => {
+  if (!reportContentRef.value) return null;
+  try {
+    const el = reportContentRef.value;
+    const canvas = await html2canvas(el, {
+      scale: 2,
+      useCORS: true,
+      logging: false,
+      backgroundColor: '#ffffff'
+    });
+
+    const imgData = canvas.toDataURL('image/jpeg', 0.95);
+    const pdf = new jsPDF({
+      orientation: 'portrait',
+      unit: 'mm',
+      format: 'a4',
+      compress: true
+    });
+
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = pdf.internal.pageSize.getHeight();
+    const imgHeight = (canvas.height * pdfWidth) / canvas.width;
+    let heightLeft = imgHeight;
+    let position = 0;
+
+    pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, imgHeight);
+    heightLeft -= pdfHeight;
+
+    while (heightLeft > 0) {
+      position = heightLeft - imgHeight;
+      pdf.addPage();
+      pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, imgHeight);
+      heightLeft -= pdfHeight;
+    }
+
+    const dataUri = pdf.output('datauristring');
+    return dataUri.split(',')[1];
+  } catch (err) {
+    console.error('Error generando PDF base64 para email:', err);
+    return null;
+  }
+};
+
 const formatDate = (dateStr) => {
   if (!dateStr) return '';
   const [y, m, d] = dateStr.split('-');
@@ -432,6 +486,7 @@ const getMovementDisplayInfo = (mov) => {
   let rawTipo = (mov?.tipo_movimiento || '').trim();
   let obs = (mov?.observaciones || '').trim();
   let tagTitle = '';
+  let subDetail = '';
   let cleanObs = obs;
 
   const match = obs.match(/^\[(.*?):?\s*(.*?)\]\s*(.*)/s);
@@ -441,48 +496,57 @@ const getMovementDisplayInfo = (mov) => {
     const restText = match[3].trim();
 
     if (bracketSub) {
-      tagTitle = bracketSub;
-    } else if (bracketHeader && bracketHeader.toLowerCase() !== 'otra gestión' && bracketHeader.toLowerCase() !== 'otra gestion') {
+      subDetail = bracketSub;
+    }
+
+    if (bracketHeader && bracketHeader.toLowerCase() !== 'otra gestión' && bracketHeader.toLowerCase() !== 'otra gestion') {
       tagTitle = bracketHeader;
     }
 
     if (restText) {
       cleanObs = restText;
-    } else if (bracketSub) {
-      cleanObs = bracketSub;
+    } else {
+      cleanObs = '';
     }
   }
 
-  const displayTitle = tagTitle || rawTipo || 'Otra gestión';
-  const t = displayTitle.toLowerCase();
-
-  let bgClass = 'bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700';
-  let inlineHtml = 'padding:3px 8px;border-radius:999px;background:#f1f5f9;color:#475569;font-size:10px;line-height:13px;font-weight:800;border:1px solid #cbd5e1;display:inline-block;';
-
-  if (t.includes('entrega')) {
-    bgClass = 'bg-blue-50 text-blue-700 border-blue-200/80 dark:bg-blue-950/80 dark:text-blue-300 dark:border-blue-800';
-    inlineHtml = 'padding:3px 8px;border-radius:999px;background:#eff6ff;color:#2563eb;font-size:10px;line-height:13px;font-weight:800;border:1px solid #bfdbfe;display:inline-block;';
-  } else if (t.includes('retiro')) {
-    bgClass = 'bg-indigo-50 text-indigo-700 border-indigo-200/80 dark:bg-indigo-950/80 dark:text-indigo-300 dark:border-indigo-800';
-    inlineHtml = 'padding:3px 8px;border-radius:999px;background:#eef2ff;color:#4f46e5;font-size:10px;line-height:13px;font-weight:800;border:1px solid #c7d2fe;display:inline-block;';
-  } else if (t.includes('esterili')) {
-    bgClass = 'bg-emerald-50 text-emerald-700 border-emerald-200/80 dark:bg-emerald-950/80 dark:text-emerald-300 dark:border-emerald-800';
-    inlineHtml = 'padding:3px 8px;border-radius:999px;background:#ecfdf5;color:#047857;font-size:10px;line-height:13px;font-weight:800;border:1px solid #a7f3d0;display:inline-block;';
-  } else if (t.includes('docu')) {
-    bgClass = 'bg-purple-50 text-purple-700 border-purple-200/80 dark:bg-purple-950/80 dark:text-purple-300 dark:border-purple-800';
-    inlineHtml = 'padding:3px 8px;border-radius:999px;background:#faf5ff;color:#7e22ce;font-size:10px;line-height:13px;font-weight:800;border:1px solid #e9d5ff;display:inline-block;';
-  } else if (t.includes('despacho') || t.includes('envío') || t.includes('envio')) {
-    bgClass = 'bg-sky-50 text-sky-700 border-sky-200/80 dark:bg-sky-950/80 dark:text-sky-300 dark:border-sky-800';
-    inlineHtml = 'padding:3px 8px;border-radius:999px;background:#f0f9ff;color:#0369a1;font-size:10px;line-height:13px;font-weight:800;border:1px solid #bae6fd;display:inline-block;';
-  } else if (t.includes('inciden')) {
-    bgClass = 'bg-rose-50 text-rose-700 border-rose-200/80 dark:bg-rose-950/80 dark:text-rose-300 dark:border-rose-800';
-    inlineHtml = 'padding:3px 8px;border-radius:999px;background:#fff1f2;color:#be123c;font-size:10px;line-height:13px;font-weight:800;border:1px solid #fecdd3;display:inline-block;';
-  } else if (t.includes('control') || t.includes('devolu')) {
-    bgClass = 'bg-amber-50 text-amber-700 border-amber-200/80 dark:bg-amber-950/80 dark:text-amber-300 dark:border-amber-800';
-    inlineHtml = 'padding:3px 8px;border-radius:999px;background:#fffbeb;color:#b45309;font-size:10px;line-height:13px;font-weight:800;border:1px solid #fde68a;display:inline-block;';
+  let displayTitle = tagTitle || rawTipo || 'Otra gestión';
+  const tLower = displayTitle.toLowerCase();
+  
+  if (rawTipo === 'Otra gestión' || tLower.includes('otra gestión') || tLower.includes('otra gestion') || displayTitle.length > 25) {
+    displayTitle = 'Otra gestión';
   }
 
-  return { displayTitle, cleanObs, bgClass, inlineHtml };
+  const t = displayTitle.toLowerCase();
+
+  // Estilos por defecto para "Otra gestión": Morado/Púrpura elegante en formato rectangular badge
+  let bgClass = 'bg-purple-50 text-purple-800 border-purple-200/80 dark:bg-purple-950/80 dark:text-purple-300 dark:border-purple-800 rounded-md font-extrabold';
+  let inlineHtml = 'padding:3px 8px;border-radius:5px;background:#f3e8ff;color:#6b21a8;font-size:10px;line-height:13px;font-weight:800;border:1px solid #d8b4fe;display:inline-block;white-space:nowrap;';
+
+  if (t.includes('entrega')) {
+    bgClass = 'bg-blue-50 text-blue-700 border-blue-200/80 dark:bg-blue-950/80 dark:text-blue-300 dark:border-blue-800 rounded-md font-extrabold';
+    inlineHtml = 'padding:3px 8px;border-radius:5px;background:#eff6ff;color:#2563eb;font-size:10px;line-height:13px;font-weight:800;border:1px solid #bfdbfe;display:inline-block;white-space:nowrap;';
+  } else if (t.includes('retiro')) {
+    bgClass = 'bg-indigo-50 text-indigo-700 border-indigo-200/80 dark:bg-indigo-950/80 dark:text-indigo-300 dark:border-indigo-800 rounded-md font-extrabold';
+    inlineHtml = 'padding:3px 8px;border-radius:5px;background:#eef2ff;color:#4f46e5;font-size:10px;line-height:13px;font-weight:800;border:1px solid #c7d2fe;display:inline-block;white-space:nowrap;';
+  } else if (t.includes('esterili')) {
+    bgClass = 'bg-emerald-50 text-emerald-700 border-emerald-200/80 dark:bg-emerald-950/80 dark:text-emerald-300 dark:border-emerald-800 rounded-md font-extrabold';
+    inlineHtml = 'padding:3px 8px;border-radius:5px;background:#ecfdf5;color:#047857;font-size:10px;line-height:13px;font-weight:800;border:1px solid #a7f3d0;display:inline-block;white-space:nowrap;';
+  } else if (t.includes('docu')) {
+    bgClass = 'bg-fuchsia-50 text-fuchsia-700 border-fuchsia-200/80 dark:bg-fuchsia-950/80 dark:text-fuchsia-300 dark:border-fuchsia-800 rounded-md font-extrabold';
+    inlineHtml = 'padding:3px 8px;border-radius:5px;background:#fdf4ff;color:#a21caf;font-size:10px;line-height:13px;font-weight:800;border:1px solid #f5d0fe;display:inline-block;white-space:nowrap;';
+  } else if (t.includes('despacho') || t.includes('envío') || t.includes('envio')) {
+    bgClass = 'bg-sky-50 text-sky-700 border-sky-200/80 dark:bg-sky-950/80 dark:text-sky-300 dark:border-sky-800 rounded-md font-extrabold';
+    inlineHtml = 'padding:3px 8px;border-radius:5px;background:#f0f9ff;color:#0369a1;font-size:10px;line-height:13px;font-weight:800;border:1px solid #bae6fd;display:inline-block;white-space:nowrap;';
+  } else if (t.includes('inciden')) {
+    bgClass = 'bg-rose-50 text-rose-700 border-rose-200/80 dark:bg-rose-950/80 dark:text-rose-300 dark:border-rose-800 rounded-md font-extrabold';
+    inlineHtml = 'padding:3px 8px;border-radius:5px;background:#fff1f2;color:#be123c;font-size:10px;line-height:13px;font-weight:800;border:1px solid #fecdd3;display:inline-block;white-space:nowrap;';
+  } else if (t.includes('control') || t.includes('devolu')) {
+    bgClass = 'bg-amber-50 text-amber-700 border-amber-200/80 dark:bg-amber-950/80 dark:text-amber-300 dark:border-amber-800 rounded-md font-extrabold';
+    inlineHtml = 'padding:3px 8px;border-radius:5px;background:#fffbeb;color:#b45309;font-size:10px;line-height:13px;font-weight:800;border:1px solid #fde68a;display:inline-block;white-space:nowrap;';
+  }
+
+  return { displayTitle, cleanObs, subDetail, bgClass, inlineHtml };
 };
 
 const generateEmailTableHtml = (inf, movsList) => {
@@ -505,6 +569,10 @@ const generateEmailTableHtml = (inf, movsList) => {
     const instSpan = mov.institucion_snapshot ? `<div style="font-size:10px;line-height:14px;font-weight:700;color:#334155;">${mov.institucion_snapshot}</div>` : '';
     const medSpan = mov.medico_snapshot ? `<div style="margin-top:5px;font-size:9px;line-height:13px;color:#64748b;">Médico · ${mov.medico_snapshot}</div>` : '';
     
+    let subDetailHtml = info.subDetail 
+      ? `<div style="margin-bottom:5px;padding:6px 9px;background:#f3e8ff;border-left:3px solid #7e22ce;border-radius:4px;font-size:10px;line-height:14px;color:#581c87;"><strong>Motivo:</strong> ${info.subDetail}</div>` 
+      : '';
+
     let pendHtml = mov.tiene_pendiente 
       ? `<div style="margin-top:4px;background-color:#fef3c7;border:1px solid #fcd34d;color:#92400e;padding:3px 5px;border-radius:4px;font-weight:bold;font-size:9px;">⚠️ Pendiente: ${mov.detalle_pendiente || ''}</div>` 
       : '';
@@ -525,7 +593,8 @@ const generateEmailTableHtml = (inf, movsList) => {
           ${medSpan}
         </td>
         <td valign="top" style="padding:12px 9px;border-bottom:1px solid #e2e8f0;">
-          <div style="font-size:10px;line-height:15px;color:#475569;">${info.cleanObs || 'Sin notas'}</div>
+          ${subDetailHtml}
+          <div style="font-size:10px;line-height:15px;color:#475569;">${info.cleanObs || (!info.subDetail ? 'Sin notas' : '')}</div>
           ${pendHtml}
         </td>
         <td align="center" valign="middle" style="padding:12px 5px;border-bottom:1px solid #e2e8f0;font-size:11px;font-weight:800;color:#0f172a;">${mov.cantidad_cajas || 0}</td>

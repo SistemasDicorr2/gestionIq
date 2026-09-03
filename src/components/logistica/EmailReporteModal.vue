@@ -108,12 +108,31 @@
             </p>
           </div>
 
-          <!-- Bloque de Destinatarios (Grid en 2 columnas) -->
+          <!-- Indicador de PDF Adjunto Incluido -->
+          <div class="p-2.5 bg-blue-50/80 dark:bg-blue-950/40 rounded-xl border border-blue-200 dark:border-blue-800/80 flex items-center justify-between gap-2 text-xs">
+            <div class="flex items-center gap-2 min-w-0">
+              <span class="text-base shrink-0">📎</span>
+              <div class="min-w-0">
+                <span class="font-extrabold text-blue-950 dark:text-blue-200 block truncate">Reporte PDF Adjunto Incluido</span>
+                <span class="text-[10px] text-blue-700 dark:text-blue-300 block truncate">Se adjunta automáticamente el archivo PDF oficial del informe.</span>
+              </div>
+            </div>
+            <span class="px-2 py-0.5 rounded bg-blue-600 text-white text-[9px] font-black uppercase tracking-wider shrink-0">
+              PDF INCLUIDO
+            </span>
+          </div>
+
+          <!-- Selección de Destinatarios Oficiales -->
           <div class="space-y-2">
-            <div class="flex items-center justify-between text-xs">
-              <span class="font-extrabold text-slate-800 dark:text-slate-200">
-                Destinatarios
-              </span>
+            <div class="flex items-center justify-between gap-2">
+              <div class="space-y-0.5">
+                <h4 class="font-extrabold text-xs text-slate-900 dark:text-white">
+                  Destinatarios oficiales de Districorr
+                </h4>
+                <p class="text-[10px] text-slate-500 dark:text-slate-400">
+                  Seleccioná los correos a los que se transmitirá este informe.
+                </p>
+              </div>
               <div class="flex items-center gap-2">
                 <button 
                   type="button" 
@@ -167,15 +186,15 @@
                   type="checkbox" 
                   v-model="saveAsDefault" 
                   @change="handleSaveDefaultToggle"
-                  class="w-3.5 h-3.5 rounded text-blue-600 border-slate-300 dark:border-slate-600 cursor-pointer"
+                  class="w-3.5 h-3.5 rounded text-blue-600 border-slate-300 dark:border-slate-600 cursor-pointer" 
                 />
-                <span>Usar estos destinatarios como predeterminados</span>
+                <span>Recordar mi selección</span>
               </label>
             </div>
           </div>
 
-          <!-- Recibir Copia en mi Correo (BCC) -->
-          <div class="p-3 bg-slate-50/80 dark:bg-slate-800/40 rounded-xl border border-slate-200/60 dark:border-slate-800 space-y-1">
+          <!-- Recibir Copia Checkbox -->
+          <div class="p-2.5 bg-slate-50/80 dark:bg-slate-800/40 rounded-xl border border-slate-200/60 dark:border-slate-800 space-y-1">
             <label class="flex items-center gap-2 cursor-pointer font-bold text-xs text-slate-800 dark:text-slate-200">
               <input 
                 type="checkbox" 
@@ -185,18 +204,13 @@
               <span>Recibir una copia en mi correo</span>
             </label>
             <p class="text-[10px] text-slate-500 dark:text-slate-400 pl-6 leading-relaxed">
-              La recibirás en <strong class="font-mono text-slate-700 dark:text-slate-300">{{ currentUserInfo?.email || 'tu casilla' }}</strong> para conservar el correo y continuar la conversación desde tu cliente habitual.
+              La recibirás en <strong class="font-mono text-slate-700 dark:text-slate-300">{{ currentUserInfo?.email || 'tu casilla' }}</strong>.
             </p>
           </div>
 
-          <!-- Advertencia y Botón CTA Principal de Envío con Doble Confirmación de Seguridad -->
-          <div class="space-y-2 pt-1">
-            <div class="text-[10px] text-amber-800 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 px-3 py-2 rounded-xl border border-amber-200/70 dark:border-amber-900/60 font-semibold flex items-center gap-2">
-              <span>⚠️</span>
-              <span>Al continuar, el correo se enviará directamente a los destinatarios seleccionados.</span>
-            </div>
-
-            <button
+          <!-- Botón Principal de Envío Automático -->
+          <div class="pt-1">
+            <button 
               type="button"
               @click="handleSendButtonClick"
               :disabled="isSendingResend || selectedEmailsCount === 0 || (currentUserInfo && !currentUserInfo.isResendReady)"
@@ -213,7 +227,7 @@
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
-              <span v-if="isSendingResend">Enviando informe...</span>
+              <span v-if="isSendingResend">Generando PDF y enviando informe...</span>
               <span v-else-if="isConfirmingSend">⚠️ Confirmar envío directo a {{ selectedEmailsCount }} destinatarios</span>
               <span v-else>Enviar informe ahora</span>
             </button>
@@ -409,7 +423,8 @@ const props = defineProps({
   stats: Object,
   movimientos: Array,
   htmlTableProvider: Function,
-  getHtmlContent: Function
+  getHtmlContent: Function,
+  getPdfBase64: Function
 });
 
 const emit = defineEmits(['close', 'copy-table', 'email-sent']);
@@ -654,11 +669,31 @@ const handleSendResend = async () => {
     const bccRecipient = receiveCopy.value && currentUserInfo.value?.email ? currentUserInfo.value.email : undefined;
     const targetCount = selectedEmails.value.length;
 
+    let attachments = undefined;
+    if (props.getPdfBase64) {
+      try {
+        toast.info('Generando reporte PDF adjunto para el correo...');
+        const pdfBase64 = await props.getPdfBase64();
+        if (pdfBase64) {
+          const dateClean = (props.informe?.fecha || '').replace(/-/g, '_');
+          attachments = [
+            {
+              filename: `Informe_Logistica_${dateClean || 'districorr'}.pdf`,
+              content: pdfBase64
+            }
+          ];
+        }
+      } catch (pdfErr) {
+        console.warn('[EmailReporteModal] No se pudo adjuntar el PDF al correo:', pdfErr);
+      }
+    }
+
     const res = await sendEmailWithResend({
       to: selectedEmails.value,
       bcc: bccRecipient,
       subject: subjectStr,
-      html: htmlContent
+      html: htmlContent,
+      attachments: attachments
     });
 
     lastSentCount.value = targetCount;

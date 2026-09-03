@@ -33,7 +33,7 @@ export async function getCurrentResendUser() {
 /**
  * Enviar correo a través de la Edge Function 'send-email' (basada en el usuario autenticado activo en Supabase Auth)
  */
-export async function sendEmailWithResend({ to, bcc, subject, html }) {
+export async function sendEmailWithResend({ to, bcc, subject, html, attachments }) {
   const recipients = Array.isArray(to) ? to.filter(Boolean) : [to].filter(Boolean);
   if (recipients.length === 0) {
     throw new Error('Debes especificar al menos un correo de destino.');
@@ -45,7 +45,7 @@ export async function sendEmailWithResend({ to, bcc, subject, html }) {
   if (!import.meta.env.DEV) {
     try {
       const { data: edgeData, error: edgeErr } = await supabase.functions.invoke('send-email', {
-        body: { to: recipients, bcc: bccRecipients, subject, html }
+        body: { to: recipients, bcc: bccRecipients, subject, html, attachments }
       });
 
       if (edgeErr) {
@@ -99,6 +99,10 @@ export async function sendEmailWithResend({ to, bcc, subject, html }) {
 
   if (bccRecipients && bccRecipients.length > 0) {
     resendBody.bcc = bccRecipients;
+  }
+
+  if (attachments && attachments.length > 0) {
+    resendBody.attachments = attachments;
   }
 
   const response = await fetch(endpoint, {
