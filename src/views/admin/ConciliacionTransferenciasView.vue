@@ -619,6 +619,32 @@
           />
         </div>
 
+        <!-- Selector de Filtro (Conciliaciones vs Todas) -->
+        <div class="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl shrink-0">
+          <button 
+            @click="historialFilterType = 'conciliaciones'"
+            :class="[
+              'px-3 py-1.5 rounded-lg text-xs font-black transition cursor-pointer',
+              historialFilterType === 'conciliaciones' 
+                ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-2xs' 
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
+            ]"
+          >
+            ⚡ Solo Conciliaciones
+          </button>
+          <button 
+            @click="historialFilterType = 'todas'"
+            :class="[
+              'px-3 py-1.5 rounded-lg text-xs font-black transition cursor-pointer',
+              historialFilterType === 'todas' 
+                ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-2xs' 
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
+            ]"
+          >
+            📜 Todas las Órdenes
+          </button>
+        </div>
+
         <button @click="fetchConciliacionesHistorial" class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-200 font-extrabold rounded-xl transition cursor-pointer flex items-center justify-center gap-1 shrink-0">
           <span>🔄 Actualizar Historial</span>
         </button>
@@ -645,8 +671,13 @@
               <tr v-for="orden in filteredHistorialConciliaciones" :key="orden.id" class="hover:bg-slate-50 dark:hover:bg-slate-800/40">
                 <!-- ID / Fecha -->
                 <td class="px-4 py-3 font-mono">
-                  <span class="font-black text-slate-900 dark:text-white block">OP-{{ String(orden.id || '') }}</span>
-                  <span class="text-[10px] text-slate-500 font-semibold">{{ formatDate(orden.fecha_emision) }}</span>
+                  <div class="flex items-center gap-1.5">
+                    <span class="font-black text-slate-900 dark:text-white block">OP-{{ String(orden.id || '') }}</span>
+                    <span v-if="isConciliacionOrder(orden)" class="px-1.5 py-0.2 rounded text-[9px] font-black bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-300">
+                      ⚡ Conciliación
+                    </span>
+                  </div>
+                  <span class="text-[10px] text-slate-500 font-semibold block mt-0.5">{{ formatDate(orden.fecha_emision) }}</span>
                 </td>
 
                 <!-- Instrumentador -->
@@ -659,9 +690,9 @@
                   </span>
                 </td>
 
-                <!-- Monto -->
+                <!-- Monto (Leído desde monto_total_general de la RPC) -->
                 <td class="px-4 py-3 text-right font-mono font-black text-indigo-700 dark:text-indigo-300 text-sm">
-                  ${{ formatNumber(orden.monto_total || 0) }}
+                  ${{ formatNumber(orden.monto_total_general || orden.monto_total || orden.monto || 0) }}
                 </td>
 
                 <!-- Notas -->
@@ -675,9 +706,11 @@
                 <td class="px-4 py-3 text-right">
                   <button 
                     @click="downloadIndividualOrderPdf(orden)"
-                    class="px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 font-extrabold text-xs rounded-lg transition cursor-pointer"
+                    :disabled="loadingPdfOrdenId === orden.id"
+                    class="px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 font-extrabold text-xs rounded-lg transition cursor-pointer flex items-center gap-1.5 ml-auto active:scale-95 disabled:opacity-50"
                   >
-                    📄 PDF Detalle
+                    <div v-if="loadingPdfOrdenId === orden.id" class="w-3.5 h-3.5 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+                    <span v-else>📄 PDF Detalle</span>
                   </button>
                 </td>
               </tr>
@@ -1268,6 +1301,7 @@ import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue';
 import { onClickOutside } from '@vueuse/core';
 import { supabase } from '../../services/supabase';
 import { useToast } from 'vue-toastification';
+import { useOrdenDePagoPDF } from '../../composables/useOrdenDePagoPDF';
 import { formatDate } from '../../utils/reportMapper';
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
@@ -1763,14 +1797,32 @@ const switchToHistorialTab = () => {
   fetchConciliacionesHistorial();
 };
 
+const historialFilterType = ref('conciliaciones'); // 'conciliaciones' | 'todas'
+const loadingPdfOrdenId = ref(null);
+
+const isConciliacionOrder = (orden) => {
+  if (!orden || !orden.notas) return false;
+  const norm = orden.notas.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  return norm.includes('conciliac') || norm.includes('lote') || norm.includes('transferencia');
+};
+
 const filteredHistorialConciliaciones = computed(() => {
+  let list = historialConciliaciones.value;
+
+  if (historialFilterType.value === 'conciliaciones') {
+    const conciliacionesList = list.filter(isConciliacionOrder);
+    if (conciliacionesList.length > 0) {
+      list = conciliacionesList;
+    }
+  }
+
   if (!historialSearchQuery.value.trim()) {
-    return historialConciliaciones.value;
+    return list;
   }
   const q = historialSearchQuery.value.toLowerCase().trim();
   const searchWithoutHash = q.replace(/^#/, '').replace(/^op-?/i, '');
 
-  return historialConciliaciones.value.filter(o => {
+  return list.filter(o => {
     const matchId = String(o.id || '').toLowerCase().includes(searchWithoutHash);
     const matchNombre = o.instrumentadores_nombres?.some(n => String(n).toLowerCase().includes(q)) || String(o.instrumentadores_nombres || '').toLowerCase().includes(q);
     const matchDni = o.instrumentadores_dnis?.some(d => String(d).includes(q)) || String(o.instrumentadores_dnis || '').includes(q);
@@ -1789,31 +1841,22 @@ const formatInstrumentadorDnis = (val) => {
   return val || 'N/A';
 };
 
-const downloadIndividualOrderPdf = (orden) => {
+const downloadIndividualOrderPdf = async (orden) => {
+  if (!orden || !orden.id) return;
   try {
-    const doc = new jsPDF();
-    const ordenIdStr = String(orden?.id || '');
-    doc.setFontSize(16);
-    doc.text("GESTIÓN IQ - Comprobante de Conciliación", 14, 20);
-    doc.setFontSize(10);
-    doc.text(`Orden N°: OP-${ordenIdStr}`, 14, 28);
-    doc.text(`Fecha de Emisión: ${formatDate(orden.fecha_emision)}`, 14, 34);
-    doc.text(`Instrumentador: ${formatInstrumentadorNames(orden.instrumentadores_nombres)} (DNI: ${formatInstrumentadorDnis(orden.instrumentadores_dnis)})`, 14, 40);
-    doc.text(`Monto Total Conciliado: $${formatNumber(orden.monto_total || 0)}`, 14, 46);
-
-    doc.autoTable({
-      startY: 54,
-      head: [['Detalle & Notas de la Operación']],
-      body: [[orden.notas || 'Sin notas registradas']],
-      styles: { fontSize: 9 },
-      headStyles: { fillColor: [79, 70, 229] }
+    loadingPdfOrdenId.value = orden.id;
+    const { data: detalle, error: rpcErr } = await supabase.rpc('obtener_detalle_orden_pago', {
+      p_orden_id: orden.id
     });
-
-    doc.save(`Conciliacion_OP_${ordenIdStr}.pdf`);
-    toast.success("PDF individual descargado.");
+    if (rpcErr) throw rpcErr;
+    if (!detalle) throw new Error('No se encontraron detalles para la orden.');
+    generatePDF(detalle);
+    toast.success(`Reporte PDF de Orden #${orden.id} descargado.`);
   } catch (err) {
     console.error("Error al generar PDF individual:", err);
-    toast.error("No se pudo generar el PDF.");
+    toast.error("No se pudo generar el PDF de la orden.");
+  } finally {
+    loadingPdfOrdenId.value = null;
   }
 };
 
