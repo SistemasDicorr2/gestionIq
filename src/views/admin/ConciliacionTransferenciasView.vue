@@ -1682,7 +1682,7 @@ const getOrFetchActivityToken = async (dni) => {
   if (!dni || dni === 'erp-match') return null;
   if (tokenCache.value[dni]) return tokenCache.value[dni];
   try {
-    const { data: token, error } = await supabase.rpc('generar_activity_token', { p_dni: String(dni) });
+    const { data: token, error } = await supabase.rpc('generar_activity_token', { p_instrumentador_dni: String(dni) });
     if (!error && token) {
       tokenCache.value[dni] = token;
       return token;
@@ -1745,10 +1745,16 @@ const fetchConciliacionesHistorial = async () => {
     const { data, error: rpcErr } = await supabase.rpc('obtener_historial_ordenes_pago');
     if (rpcErr) throw rpcErr;
 
-    // Filtrar aquellas órdenes que correspondan a Conciliaciones de pagos
-    historialConciliaciones.value = (data || []).filter(o => 
-      o.notas && o.notas.toLowerCase().includes('conciliación')
-    );
+    const list = data || [];
+    // Ordenar de más reciente a más antiguo
+    list.sort((a, b) => new Date(b.fecha_emision || 0) - new Date(a.fecha_emision || 0) || (b.id - a.id));
+
+    // Filtrar órdenes correspondientes a Conciliaciones de pagos (tolerante a tildes/mayúsculas)
+    historialConciliaciones.value = list.filter(o => {
+      if (!o.notas) return false;
+      const norm = o.notas.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+      return norm.includes('conciliac') || norm.includes('lote') || norm.includes('pago');
+    });
   } catch (err) {
     console.warn("Error cargando historial de conciliaciones:", err);
   } finally {
@@ -2693,6 +2699,7 @@ const confirmarConciliacion = async () => {
 
 onMounted(() => {
   fetchInitialData();
+  fetchConciliacionesHistorial();
   checkForExistingDraft();
   window.addEventListener('keydown', handleGlobalKeyDown);
 });
