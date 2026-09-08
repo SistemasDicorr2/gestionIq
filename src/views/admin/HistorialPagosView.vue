@@ -127,9 +127,20 @@
                     {{ orden.instrumentadores_nombres }}
                   </td>
                   <td class="table-cell text-center">
-                    <div class="flex items-center justify-center gap-2.5">
+                    <div class="flex items-center justify-center gap-2">
                       <button @click="verDetalle(orden)" class="btn-detail">
                         Ver Detalle
+                      </button>
+                      <button 
+                        @click="descargarPDFOrden(orden)" 
+                        :disabled="loadingPdfOrdenId === orden.id"
+                        class="btn-icon-pdf" 
+                        title="Descargar Reporte PDF de la Orden"
+                      >
+                        <div v-if="loadingPdfOrdenId === orden.id" class="w-4 h-4 border-2 border-rose-500 border-t-transparent rounded-full animate-spin"></div>
+                        <svg v-else class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                        </svg>
                       </button>
                       <button @click="abrirCompartir(orden)" class="btn-icon-share" title="Compartir Enlace">
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
@@ -141,7 +152,7 @@
                          target="_blank" 
                          rel="noopener noreferrer"
                          class="btn-icon-premium"
-                         title="Descargar Comprobante">
+                         title="Descargar Comprobante Bancario">
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                           <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                         </svg>
@@ -199,7 +210,7 @@
                 </div>
               </div>
 
-              <div v-if="!inst.loading" class="grid grid-cols-2 gap-3 pt-2">
+              <div v-if="!inst.loading" class="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-2">
                 <button 
                   @click="copiarTexto(getShareLink(inst), 'Enlace')"
                   :disabled="!inst.token"
@@ -218,7 +229,19 @@
                   <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                   </svg>
-                  Mensaje WhatsApp
+                  WhatsApp
+                </button>
+                <button 
+                  @click="descargarPDFInstrumentador(inst)"
+                  :disabled="loadingPdfInstDni === inst.dni"
+                  class="btn-share-action text-rose-700 bg-rose-50 dark:text-rose-400 dark:bg-rose-950/40 border-rose-100/50 dark:border-rose-900/30 hover:bg-rose-100 dark:hover:bg-rose-950"
+                  title="Descargar Reporte PDF del Instrumentador"
+                >
+                  <div v-if="loadingPdfInstDni === inst.dni" class="w-3.5 h-3.5 border-2 border-rose-500 border-t-transparent rounded-full animate-spin"></div>
+                  <svg v-else class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                  </svg>
+                  PDF Pago
                 </button>
               </div>
             </div>
@@ -239,10 +262,12 @@
 import { ref, onMounted, computed, watch } from 'vue';
 import { supabase } from '../../services/supabase';
 import { useToasts } from '../../composables/useToasts';
+import { useOrdenDePagoPDF } from '../../composables/useOrdenDePagoPDF';
 import OrdenDePagoDetalleModal from '../../components/admin/OrdenDePagoDetalleModal.vue';
 import CorrectionWorkspace from '../../components/admin/corrections/CorrectionWorkspace.vue';
 
 const { showSuccessToast, showErrorToast } = useToasts();
+const { generatePDF } = useOrdenDePagoPDF();
 
 const activeTab = ref('historial');
 const historial = ref([]);
@@ -253,6 +278,10 @@ const selectedOrdenId = ref(null);
 const dniFilter = ref('');
 const startDateFilter = ref('');
 const endDateFilter = ref('');
+
+// Estado de carga para PDFs
+const loadingPdfOrdenId = ref(null);
+const loadingPdfInstDni = ref(null);
 
 // Compartir
 const isShareModalVisible = ref(false);
@@ -341,6 +370,44 @@ function verDetalle(orden) {
 function closeModal() {
   isModalVisible.value = false;
   selectedOrdenId.value = null;
+}
+
+async function descargarPDFOrden(orden) {
+  try {
+    loadingPdfOrdenId.value = orden.id;
+    const { data: detalle, error: rpcErr } = await supabase.rpc('obtener_detalle_orden_pago', {
+      p_orden_id: orden.id
+    });
+    if (rpcErr) throw rpcErr;
+    if (!detalle) throw new Error('No se encontraron detalles para la orden.');
+    generatePDF(detalle);
+    showSuccessToast(`Reporte PDF de Orden #${orden.id} descargado.`);
+  } catch (err) {
+    console.error('Error al generar PDF de la orden:', err);
+    showErrorToast(err, 'No se pudo generar el reporte PDF de la orden.');
+  } finally {
+    loadingPdfOrdenId.value = null;
+  }
+}
+
+async function descargarPDFInstrumentador(inst) {
+  if (!selectedOrdenForShare.value) return;
+  try {
+    loadingPdfInstDni.value = inst.dni;
+    const ordenId = selectedOrdenForShare.value.id;
+    const { data: detalle, error: rpcErr } = await supabase.rpc('obtener_detalle_orden_pago', {
+      p_orden_id: ordenId
+    });
+    if (rpcErr) throw rpcErr;
+    if (!detalle) throw new Error('No se encontraron detalles para la orden.');
+    generatePDF(detalle, inst.dni);
+    showSuccessToast(`Reporte PDF para ${inst.nombre} descargado.`);
+  } catch (err) {
+    console.error('Error al generar PDF del instrumentador:', err);
+    showErrorToast(err, 'No se pudo generar el reporte PDF.');
+  } finally {
+    loadingPdfInstDni.value = null;
+  }
 }
 
 function getShareLink(inst) {
@@ -465,6 +532,12 @@ watch(activeTab, (newTab) => {
   @apply p-2 rounded-xl text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-100/50 dark:border-emerald-900/30;
   @apply hover:bg-emerald-100 dark:hover:bg-emerald-950 hover:text-emerald-800 dark:hover:text-emerald-300;
   @apply active:scale-95 transition-all duration-150 cursor-pointer flex items-center justify-center;
+}
+
+.btn-icon-pdf {
+  @apply p-2 rounded-xl text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/40 border border-rose-100/50 dark:border-rose-900/30;
+  @apply hover:bg-rose-100 dark:hover:bg-rose-950 hover:text-rose-800 dark:hover:text-rose-300;
+  @apply active:scale-95 transition-all duration-150 cursor-pointer flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed;
 }
 
 .btn-share-action {

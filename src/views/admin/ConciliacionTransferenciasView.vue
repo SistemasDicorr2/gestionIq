@@ -966,8 +966,17 @@
                 </button>
               </div>
 
-              <div v-if="filteredAvailableSurgeries.length === 0" class="p-4 text-center text-xs text-slate-500 font-semibold italic">
-                No se encontraron cirugías {{ includePaidSurgeries ? '' : 'pendientes' }} para este profesional con el filtro introducido.
+              <div v-if="filteredAvailableSurgeries.length === 0" class="p-4 text-center text-xs text-slate-500 font-semibold space-y-2">
+                <p class="italic">No se encontraron cirugías {{ includePaidSurgeries ? '' : 'pendientes' }} para este profesional con el filtro introducido.</p>
+                <div v-if="!showAllSurgeriesOverride" class="pt-1">
+                  <button 
+                    type="button" 
+                    @click="showAllSurgeriesOverride = true" 
+                    class="px-3 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 dark:bg-indigo-950 dark:hover:bg-indigo-900 dark:text-indigo-300 font-extrabold text-xs rounded-lg border border-indigo-200 dark:border-indigo-800 transition cursor-pointer"
+                  >
+                    🔍 Mostrar todas las cirugías disponibles sin filtrar por profesional
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -1310,6 +1319,7 @@ const libroMayorFileName = ref('');
 const instrumentadoresOptions = ref([]);
 const allPendingSurgeries = ref([]);
 const includePaidSurgeries = ref(false);
+const showAllSurgeriesOverride = ref(false);
 
 // MODALES FLOTANTES
 const showImputacionModal = ref(false);
@@ -1518,41 +1528,95 @@ const setFullPreallocatedAmount = () => {
 
 
 
-const filteredAvailableSurgeries = computed(() => {
-  if (!activeFile.value || !activeFile.value.matchedInstrumentador) {
-    return (allPendingSurgeries.value || []).filter(s => includePaidSurgeries.value || (!s.esPagada && s.estado !== 'Pagado'));
+const cleanStr = (str) => {
+  if (!str) return '';
+  return String(str)
+    .toLowerCase()
+    .trim()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+};
+
+const cleanDni = (val) => {
+  if (!val) return '';
+  return String(val).replace(/\D/g, '');
+};
+
+const isSurgeryMatch = (surg, matchedInst) => {
+  if (!matchedInst) return true;
+
+  const targetDniClean = cleanDni(matchedInst.dni);
+  const surgDniClean = cleanDni(surg.instrumentador_dni);
+
+  // 1. Si ambos tienen DNI numérico válido y no es 'erp-match', comparar DNI
+  if (targetDniClean && surgDniClean && matchedInst.dni !== 'erp-match') {
+    if (targetDniClean === surgDniClean) return true;
   }
-  const targetDni = activeFile.value.matchedInstrumentador.dni;
-  const targetName = activeFile.value.matchedInstrumentador.nombre?.toLowerCase();
+
+  // 2. Coincidencia por nombre (si DNI no coincidió o es 'erp-match' o no existe DNI)
+  const targetName = cleanStr(matchedInst.nombre);
+  const surgName = cleanStr(surg.instrumentador_nombre || surg.instrumentador_completado || surg.instrumentador);
+
+  if (!targetName || !surgName) {
+    return Boolean(targetDniClean && surgDniClean && targetDniClean === surgDniClean);
+  }
+
+  // Coincidencia directa subcadena (ej: "fleitas gaona marisel" vs "fleitas gaona ma...")
+  if (surgName.includes(targetName) || targetName.includes(surgName)) {
+    return true;
+  }
+
+  // Coincidencia por palabras/tokens (ej: coincide "fleitas" y "gaona")
+  const targetTokens = targetName.split(/\s+/).filter(t => t.length >= 3);
+  const surgTokens = surgName.split(/\s+/).filter(t => t.length >= 3);
+
+  if (targetTokens.length > 0 && surgTokens.length > 0) {
+    const matchingTokens = targetTokens.filter(tToken =>
+      surgTokens.some(sToken => sToken.includes(tToken) || tToken.includes(sToken))
+    );
+    if (targetTokens.length === 1 && matchingTokens.length >= 1) return true;
+    if (targetTokens.length > 1 && matchingTokens.length >= 2) return true;
+    if (targetTokens.length > 1 && matchingTokens.length >= 1 && surgTokens.length === 1) return true;
+  }
+
+  return false;
+};
+
+const filteredAvailableSurgeries = computed(() => {
+  const allSurgeries = allPendingSurgeries.value || [];
   const alreadyLinkedIds = new Set(activeCirugias.value.map(c => c.id));
 
-  let available = (allPendingSurgeries.value || []).filter(surg => {
+  let available = allSurgeries.filter(surg => {
     if (alreadyLinkedIds.has(surg.id)) return false;
     if (!includePaidSurgeries.value && (surg.esPagada || surg.estado === 'Pagado')) return false;
-
-    if (targetDni && surg.instrumentador_dni) {
-      return String(surg.instrumentador_dni) === String(targetDni);
-    }
-    if (targetName && surg.instrumentador_completado) {
-      return surg.instrumentador_completado.toLowerCase().includes(targetName);
-    }
     return true;
   });
 
   if (surgerySearchQuery.value.trim()) {
-    const q = surgerySearchQuery.value.toLowerCase().trim();
-    available = (allPendingSurgeries.value || []).filter(surg => {
-      if (alreadyLinkedIds.has(surg.id)) return false;
-      if (!includePaidSurgeries.value && (surg.esPagada || surg.estado === 'Pagado')) return false;
+    const q = cleanStr(surgerySearchQuery.value);
+    return available.filter(surg => {
+      const paciente = cleanStr(surg.paciente);
+      const medico = cleanStr(surg.medico);
+      const lugar = cleanStr(surg.lugar_cirugia);
+      const idCx = cleanStr(surg.id_cirugia || surg.id);
+      const instName = cleanStr(surg.instrumentador_nombre || surg.instrumentador_completado || surg.instrumentador);
 
       return (
-        (surg.paciente && surg.paciente.toLowerCase().includes(q)) ||
-        (surg.medico && surg.medico.toLowerCase().includes(q)) ||
-        (surg.lugar_cirugia && surg.lugar_cirugia.toLowerCase().includes(q)) ||
-        (surg.id_cirugia && String(surg.id_cirugia).toLowerCase().includes(q)) ||
-        (surg.instrumentador_completado && surg.instrumentador_completado.toLowerCase().includes(q))
+        paciente.includes(q) ||
+        medico.includes(q) ||
+        lugar.includes(q) ||
+        idCx.includes(q) ||
+        instName.includes(q)
       );
     });
+  }
+
+  if (showAllSurgeriesOverride.value) {
+    return available;
+  }
+
+  if (activeFile.value && activeFile.value.matchedInstrumentador) {
+    return available.filter(surg => isSurgeryMatch(surg, activeFile.value.matchedInstrumentador));
   }
 
   return available;
@@ -1865,6 +1929,7 @@ const openImputacionModal = (item) => {
   setActiveFile(item);
   surgerySearchQuery.value = '';
   targetPreallocatedAmount.value = 0;
+  showAllSurgeriesOverride.value = false;
   showImputacionModal.value = true;
 };
 
@@ -2112,7 +2177,27 @@ const fetchInitialData = async () => {
     // 1. Fetch cirugías pendientes
     const { data: surgData, error: surgErr } = await supabase.rpc('get_todas_cirugias_pendientes');
     if (!surgErr && surgData) {
-      combinedList = surgData.map(s => ({ ...s, esPagada: false }));
+      combinedList = surgData.map(s => {
+        const instName = s.instrumentador_nombre || s.instrumentador_completado || s.instrumentador || '';
+        return {
+          ...s,
+          instrumentador_nombre: instName,
+          instrumentador_completado: instName,
+          instrumentador: instName,
+          esPagada: false
+        };
+      });
+
+      surgData.forEach(s => {
+        const instName = s.instrumentador_nombre || s.instrumentador_completado || s.instrumentador;
+        if (s.instrumentador_dni && !mapInst[s.instrumentador_dni] && instName) {
+          mapInst[s.instrumentador_dni] = {
+            dni: s.instrumentador_dni,
+            nombre: instName
+          };
+        }
+      });
+      instrumentadoresOptions.value = Object.values(mapInst);
     }
 
     // 2. Fetch cirugías pagadas/liquidadas desde reportes para permitir verificación
@@ -2127,6 +2212,7 @@ const fetchInitialData = async () => {
       const existingIds = new Set(combinedList.map(s => s.id));
       paidData.forEach(p => {
         if (!existingIds.has(p.id)) {
+          const instName = p.instrumentador_completado || p.instrumentador_nombre || p.instrumentador || '';
           combinedList.push({
             id: p.id,
             paciente: p.paciente || 'Sin nombre',
@@ -2134,7 +2220,9 @@ const fetchInitialData = async () => {
             lugar_cirugia: p.lugar_cirugia || '',
             fecha_cirugia: p.fecha_cirugia,
             instrumentador_dni: p.instrumentador_dni,
-            instrumentador_completado: p.instrumentador_completado || p.instrumentador,
+            instrumentador_nombre: instName,
+            instrumentador_completado: instName,
+            instrumentador: instName,
             monto_a_pagar: p.monto_a_pagar || p.monto || 0,
             monto: p.monto_a_pagar || p.monto || 0,
             estado: p.estado || 'Pagado',

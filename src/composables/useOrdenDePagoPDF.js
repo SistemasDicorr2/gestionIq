@@ -3,48 +3,59 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
 export function useOrdenDePagoPDF() {
-  const generatePDF = (ordenDetails) => {
+  const generatePDF = (ordenDetails, targetDni = null) => {
+    if (!ordenDetails) return;
+
     const doc = new jsPDF();
     const margin = 15;
     const pageWidth = doc.internal.pageSize.getWidth();
-    let y = 0; // Se inicia en 0 para un control más preciso
+    let y = 0;
 
-    // --- INICIO DE LA MODIFICACIÓN ---
-
-    // --- DATOS DE LA EMPRESA (RELLENAR) ---
+    // --- DATOS DE LA EMPRESA ---
     const empresa = {
       nombre: "DISTRICORR SRL",
       cuit: "CUIT: 30-71598290-7",
       direccion: "9 de julio 1251, Corrientes Capital",
-      contacto: "Email: ventas@districorr.com "
+      contacto: "Email: pagos@districorr.com"
     };
 
-    // --- FUNCIÓN HELPER PARA EL PIE DE PÁGINA ---
+    // Filtrar instrumentadores si se especificó un targetDni
+    let pagos = ordenDetails.pagos_instrumentadores || ordenDetails.pagos || [];
+    if (targetDni) {
+      pagos = pagos.filter(p => String(p.instrumentador_dni) === String(targetDni));
+    }
+
+    const totalGeneral = targetDni && pagos.length > 0
+      ? pagos.reduce((acc, p) => acc + (Number(p.monto_total_instrumentador) || 0), 0)
+      : (ordenDetails.monto_total_general || 0);
+
+    // --- HELPER PARA PIE DE PÁGINA ---
     const addFooter = () => {
       const pageCount = doc.internal.getNumberOfPages();
       const pageHeight = doc.internal.pageSize.getHeight();
       doc.setFontSize(8);
-      doc.setTextColor(150);
+      doc.setTextColor(140);
+
+      const totalCxCount = pagos.reduce((acc, p) => acc + (p.cirugias || p.reportes || []).length, 0);
 
       for (let i = 1; i <= pageCount; i++) {
         doc.setPage(i);
-        // Línea superior del footer
-        doc.line(margin, pageHeight - 25, pageWidth - margin, pageHeight - 25);
+        doc.setDrawColor(220);
+        doc.line(margin, pageHeight - 20, pageWidth - margin, pageHeight - 25);
         
-        // Resumen de totales
-        const summaryText = `Resumen: ${ordenDetails.pagos_instrumentadores.length} Instrumentador(es) | ${ordenDetails.pagos_instrumentadores.reduce((acc, p) => acc + p.cirugias.length, 0)} Cirugía(s) Totales`;
-        doc.text(summaryText, margin, pageHeight - 18);
+        const summaryText = `Resumen: ${pagos.length} Instrumentador(es) | ${totalCxCount} Imputación(es) Quirúrgica(s) · Documento no válido como factura`;
+        doc.text(summaryText, margin, pageHeight - 14);
 
-        // Número de página
         const pageNumText = `Página ${i} de ${pageCount}`;
-        doc.text(pageNumText, pageWidth - margin, pageHeight - 18, { align: 'right' });
+        doc.text(pageNumText, pageWidth - margin, pageHeight - 14, { align: 'right' });
       }
     };
 
     // --- BLOQUE 1: CABECERA PROFESIONAL ---
-    y = 20;
+    y = 18;
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(16);
+    doc.setTextColor(15, 23, 42); // slate-900
     doc.text(empresa.nombre, margin, y);
 
     doc.setFont('helvetica', 'normal');
@@ -55,100 +66,139 @@ export function useOrdenDePagoPDF() {
     doc.text(empresa.contacto, margin, y + 13);
 
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(22);
-    doc.text('Orden de Pago', pageWidth - margin, y, { align: 'right' });
-    y += 20;
-
-    // --- BLOQUE 2: RESUMEN EJECUTIVO MEJORADO ---
-    doc.setDrawColor(220);
-    doc.line(margin, y, pageWidth - margin, y);
-    y += 10;
-
+    doc.setFontSize(20);
+    doc.setTextColor(79, 70, 229); // indigo-600
+    doc.text('Reporte de Pago e Imputaciones', pageWidth - margin, y, { align: 'right' });
+    
     doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
     doc.setTextColor(100);
-    doc.text('N° de Orden:', margin, y);
-    doc.text('Fecha de Emisión:', pageWidth / 2, y, { align: 'center' });
-    doc.text('Monto Total:', pageWidth - margin, y, { align: 'right' });
-    
-    y += 7;
-    doc.setFontSize(14);
+    doc.text(`Comprobante de Liquidación de Actividad`, pageWidth - margin, y + 6, { align: 'right' });
+    y += 22;
+
+    // --- BLOQUE 2: RESUMEN EJECUTIVO ---
+    doc.setDrawColor(226, 232, 240);
+    doc.line(margin, y, pageWidth - margin, y);
+    y += 8;
+
+    doc.setFontSize(9);
     doc.setFont('helvetica', 'bold');
-    doc.setTextColor(0);
-    doc.text(`#${ordenDetails.id}`, margin, y);
-    doc.text(`${new Date(ordenDetails.fecha_emision).toLocaleDateString('es-AR', { timeZone: 'UTC' })}`, pageWidth / 2, y, { align: 'center' });
-    doc.text(`${new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(ordenDetails.monto_total_general)}`, pageWidth - margin, y, { align: 'right' });
+    doc.setTextColor(100);
+    doc.text('N° DE ORDEN', margin, y);
+    doc.text('FECHA DE EMISIÓN', pageWidth / 2, y, { align: 'center' });
+    doc.text('MONTO TOTAL LIQUIDADO', pageWidth - margin, y, { align: 'right' });
     
-    y += 15;
+    y += 6;
+    doc.setFontSize(13);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(15, 23, 42);
+    doc.text(`#${ordenDetails.id || 'S/N'}`, margin, y);
+    
+    const fechaEmisionStr = ordenDetails.fecha_emision 
+      ? new Date(ordenDetails.fecha_emision).toLocaleDateString('es-AR', { timeZone: 'UTC', day: '2-digit', month: '2-digit', year: 'numeric' })
+      : 'N/A';
+    doc.text(fechaEmisionStr, pageWidth / 2, y, { align: 'center' });
+    
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(5, 150, 105); // emerald-600
+    doc.text(`${new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(totalGeneral)}`, pageWidth - margin, y, { align: 'right' });
+    
+    y += 12;
 
-    // --- BLOQUE 3: DETALLE DE PAGOS CON TABLA ENRIQUECIDA ---
-    ordenDetails.pagos_instrumentadores.forEach(pago => {
+    // --- BLOQUE 3: DETALLE POR INSTRUMENTADOR E IMPUTACIONES ---
+    pagos.forEach((pago, pIdx) => {
+      doc.setDrawColor(203, 213, 225);
       doc.line(margin, y, pageWidth - margin, y);
-      y += 10;
+      y += 8;
 
-      doc.setFontSize(12);
+      doc.setFontSize(11);
       doc.setFont('helvetica', 'bold');
-      doc.text(`Instrumentador: ${pago.instrumentador_nombre}`, margin, y);
+      doc.setTextColor(30, 41, 59);
+      doc.text(`Instrumentador: ${pago.instrumentador_nombre || 'No especificado'}`, margin, y);
       
-      doc.setFontSize(10);
-      doc.setFont('helvetica', 'normal');
-      doc.setTextColor(100);
-      doc.text(`Total para este instrumentador: ${new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(pago.monto_total_instrumentador)}`, pageWidth - margin, y, { align: 'right' });
-      y += 10;
+      if (pago.instrumentador_dni) {
+        doc.setFontSize(9);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(100);
+        doc.text(`(DNI: ${pago.instrumentador_dni})`, margin + doc.getTextWidth(`Instrumentador: ${pago.instrumentador_nombre} `), y);
+      }
 
-      // Se mapean los datos para la nueva tabla, incluyendo el 'id_cirugia'.
-      const body = pago.cirugias.map(c => [
-        c.id_cirugia, // Nueva columna
-        new Date(c.fecha_cirugia).toLocaleDateString('es-AR', { timeZone: 'UTC', day: '2-digit', month: '2-digit', year: 'numeric' }),
-        c.paciente,
-        new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(c.monto_final)
-      ]);
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(79, 70, 229);
+      doc.text(`Total Liquidado: ${new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(pago.monto_total_instrumentador || 0)}`, pageWidth - margin, y, { align: 'right' });
+      y += 6;
+
+      const cirugiasList = pago.cirugias || pago.reportes || [];
+      const body = cirugiasList.map(c => {
+        const idCx = c.id_cirugia || (c.id ? `CX-${c.id}` : '-');
+        const fechaCx = c.fecha_cirugia 
+          ? new Date(c.fecha_cirugia).toLocaleDateString('es-AR', { timeZone: 'UTC', day: '2-digit', month: '2-digit', year: 'numeric' })
+          : '-';
+        const pacienteDesc = c.medico 
+          ? `${c.paciente || 'Paciente sin datos'}\nMédico: ${c.medico}`
+          : (c.paciente || 'Paciente sin datos');
+        const monto = c.monto_final !== undefined 
+          ? c.monto_final 
+          : (c.monto_a_pagar !== undefined ? c.monto_a_pagar : 0);
+
+        return [
+          idCx,
+          fechaCx,
+          pacienteDesc,
+          new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(monto)
+        ];
+      });
 
       autoTable(doc, {
         startY: y,
-        // Se añade la nueva cabecera 'ID Cirugía'.
-        head: [['ID Cirugía', 'Fecha', 'Paciente / Procedimiento', 'Monto Pagado']],
+        head: [['ID Cirugía', 'Fecha CX', 'Paciente / Médico', 'Monto Imputado']],
         body: body,
         theme: 'striped',
         headStyles: { 
-          fillColor: [41, 51, 61], // Color oscuro (slate-800)
+          fillColor: [30, 41, 59], // slate-800
           textColor: [255, 255, 255],
-          fontStyle: 'bold'
+          fontStyle: 'bold',
+          fontSize: 8.5
         },
         styles: {
-          fontSize: 9,
-          cellPadding: 2.5,
+          fontSize: 8.5,
+          cellPadding: 3,
+          textColor: [15, 23, 42]
         },
         columnStyles: {
-          0: { cellWidth: 25 }, // Ancho fijo para ID Cirugía
-          3: { halign: 'right' } // Alinear montos a la derecha
+          0: { cellWidth: 25, fontStyle: 'bold' },
+          1: { cellWidth: 25 },
+          3: { halign: 'right', fontStyle: 'bold', textColor: [5, 150, 105] }
         }
       });
 
-      y = doc.lastAutoTable.finalY + 15;
+      y = doc.lastAutoTable.finalY + 12;
     });
 
     // --- BLOQUE 4: NOTAS ADICIONALES ---
     if (ordenDetails.notas) {
+      doc.setDrawColor(226, 232, 240);
       doc.line(margin, y, pageWidth - margin, y);
-      y += 10;
-      doc.setFontSize(10);
-      doc.setFont('helvetica', 'bold');
-      doc.text('Notas Adicionales:', margin, y);
-      y += 6;
+      y += 8;
       doc.setFontSize(9);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(30, 41, 59);
+      doc.text('Notas / Observaciones de la Orden:', margin, y);
+      y += 5;
+      doc.setFontSize(8.5);
       doc.setFont('helvetica', 'normal');
-      doc.setTextColor(100);
+      doc.setTextColor(71, 85, 105);
       const noteLines = doc.splitTextToSize(ordenDetails.notas, pageWidth - (margin * 2));
       doc.text(noteLines, margin, y);
     }
 
-    // --- BLOQUE 5: PIE DE PÁGINA ---
+    // --- PIE DE PÁGINA ---
     addFooter();
 
-    // --- FIN DE LA MODIFICACIÓN ---
-
-    doc.save(`OrdenDePago_${ordenDetails.id}.pdf`);
+    const fileNameDni = targetDni ? `_${targetDni}` : '';
+    doc.save(`Reporte_Pago_Orden_${ordenDetails.id}${fileNameDni}.pdf`);
   };
 
   return { generatePDF };
-}
+}
