@@ -455,24 +455,17 @@
                       </button>
                     </div>
 
-                    <!-- Botones de copiar link y WhatsApp -->
-                    <div class="flex items-center gap-1">
-                      <button 
-                        @click="copyInstrumentadorLink(item.matchedInstrumentador)"
-                        class="px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 transition cursor-pointer flex items-center gap-0.5"
-                        title="Copiar enlace al portal digital del instrumentador"
-                      >
-                        <span>🔗 Link</span>
-                      </button>
-
-                      <button 
-                        @click="copyWhatsAppMessage(item)"
-                        class="px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-955 dark:hover:bg-emerald-900 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 transition cursor-pointer flex items-center gap-0.5"
-                        title="Copiar mensaje de aviso para WhatsApp"
-                      >
-                        <span>💬 WhatsApp</span>
-                      </button>
-                    </div>
+                    <!-- Botón único unificado para mensaje + link -->
+                    <button 
+                      @click="copyWhatsAppMessage(item)"
+                      class="px-2 py-1 rounded-lg text-[10px] font-black bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-955 dark:hover:bg-emerald-900 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 transition cursor-pointer flex items-center gap-1.5 shadow-2xs active:scale-95"
+                      title="Copiar mensaje de aviso para WhatsApp con el link al portal"
+                    >
+                      <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                      </svg>
+                      <span>Copiar Mensaje + Link</span>
+                    </button>
                   </div>
 
                   <div v-else class="w-full">
@@ -557,19 +550,15 @@
                   </span>
                   <button @click="openInstrumentadorSearchModal(item)" class="text-[11px] text-indigo-600 font-extrabold underline">Cambiar</button>
                 </div>
-                <div class="flex items-center gap-1.5 pt-0.5">
-                  <button 
-                    @click="copyInstrumentadorLink(item.matchedInstrumentador)"
-                    class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 transition cursor-pointer flex items-center gap-0.5"
-                  >
-                    <span>🔗 Link</span>
-                  </button>
-
+                <div class="pt-0.5">
                   <button 
                     @click="copyWhatsAppMessage(item)"
-                    class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-emerald-600 text-white transition cursor-pointer flex items-center gap-0.5"
+                    class="w-full py-1 rounded-lg text-[10px] font-black bg-emerald-600 hover:bg-emerald-700 text-white transition cursor-pointer flex items-center justify-center gap-1.5 shadow-2xs active:scale-95"
                   >
-                    <span>💬 WhatsApp</span>
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                    </svg>
+                    <span>Copiar Mensaje + Link</span>
                   </button>
                 </div>
               </div>
