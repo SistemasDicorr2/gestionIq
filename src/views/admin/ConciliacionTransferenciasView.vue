@@ -1738,7 +1738,7 @@ const copyWhatsAppMessage = async (item) => {
   }
 };
 
-// FILTRADO DE HISTORIAL DE CONCILIACIONES DESDE SUPABASE
+// HISTORIAL DE CONCILIACIONES Y LIQUIDACIONES DESDE SUPABASE
 const fetchConciliacionesHistorial = async () => {
   isHistorialLoading.value = true;
   try {
@@ -1746,15 +1746,11 @@ const fetchConciliacionesHistorial = async () => {
     if (rpcErr) throw rpcErr;
 
     const list = data || [];
-    // Ordenar de más reciente a más antiguo
+    // Ordenar de más reciente a más antiguo por fecha de emisión o ID
     list.sort((a, b) => new Date(b.fecha_emision || 0) - new Date(a.fecha_emision || 0) || (b.id - a.id));
 
-    // Filtrar órdenes correspondientes a Conciliaciones de pagos (tolerante a tildes/mayúsculas)
-    historialConciliaciones.value = list.filter(o => {
-      if (!o.notas) return false;
-      const norm = o.notas.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-      return norm.includes('conciliac') || norm.includes('lote') || norm.includes('pago');
-    });
+    // Mostrar todas las órdenes de pago y liquidaciones del sistema
+    historialConciliaciones.value = list;
   } catch (err) {
     console.warn("Error cargando historial de conciliaciones:", err);
   } finally {
@@ -1772,11 +1768,14 @@ const filteredHistorialConciliaciones = computed(() => {
     return historialConciliaciones.value;
   }
   const q = historialSearchQuery.value.toLowerCase().trim();
+  const searchWithoutHash = q.replace(/^#/, '').replace(/^op-?/i, '');
+
   return historialConciliaciones.value.filter(o => {
-    const matchNombre = o.instrumentadores_nombres?.some(n => n.toLowerCase().includes(q));
-    const matchDni = o.instrumentadores_dnis?.some(d => d.includes(q));
+    const matchId = String(o.id || '').toLowerCase().includes(searchWithoutHash);
+    const matchNombre = o.instrumentadores_nombres?.some(n => String(n).toLowerCase().includes(q)) || String(o.instrumentadores_nombres || '').toLowerCase().includes(q);
+    const matchDni = o.instrumentadores_dnis?.some(d => String(d).includes(q)) || String(o.instrumentadores_dnis || '').includes(q);
     const matchNotas = o.notas && o.notas.toLowerCase().includes(q);
-    return matchNombre || matchDni || matchNotas;
+    return matchId || matchNombre || matchDni || matchNotas;
   });
 });
 
