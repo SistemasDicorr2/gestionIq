@@ -2217,36 +2217,40 @@ const fetchInitialData = async () => {
     }
 
     // 2. Fetch cirugías pagadas/liquidadas desde reportes para permitir verificación
-    const { data: paidData } = await supabase
-      .from('reportes')
-      .select('id, paciente, medico, lugar_cirugia, fecha_cirugia, instrumentador_dni, instrumentador, instrumentador_completado, monto, estado')
-      .eq('estado', 'Pagado')
-      .order('fecha_cirugia', { ascending: false })
-      .limit(300);
+    try {
+      const { data: paidData, error: paidErr } = await supabase
+        .from('reportes')
+        .select('id, paciente, medico, lugar_cirugia, fecha_cirugia, instrumentador_dni, instrumentador, instrumentador_completado, estado')
+        .eq('estado', 'Pagado')
+        .order('fecha_cirugia', { ascending: false })
+        .limit(300);
 
-    if (paidData) {
-      const existingIds = new Set(combinedList.map(s => s.id));
-      paidData.forEach(p => {
-        if (!existingIds.has(p.id)) {
-          const instName = p.instrumentador_completado || p.instrumentador_nombre || p.instrumentador || '';
-          combinedList.push({
-            id: p.id,
-            paciente: p.paciente || 'Sin nombre',
-            medico: p.medico || '',
-            lugar_cirugia: p.lugar_cirugia || '',
-            fecha_cirugia: p.fecha_cirugia,
-            instrumentador_dni: p.instrumentador_dni,
-            instrumentador_nombre: instName,
-            instrumentador_completado: instName,
-            instrumentador: instName,
-            monto_a_pagar: p.monto || 0,
-            monto: p.monto || 0,
-            estado: p.estado || 'Pagado',
-            pago_id: null,
-            esPagada: true
-          });
-        }
-      });
+      if (!paidErr && paidData) {
+        const existingIds = new Set(combinedList.map(s => s.id));
+        paidData.forEach(p => {
+          if (!existingIds.has(p.id)) {
+            const instName = p.instrumentador_completado || p.instrumentador_nombre || p.instrumentador || '';
+            combinedList.push({
+              id: p.id,
+              paciente: p.paciente || 'Sin nombre',
+              medico: p.medico || '',
+              lugar_cirugia: p.lugar_cirugia || '',
+              fecha_cirugia: p.fecha_cirugia,
+              instrumentador_dni: p.instrumentador_dni,
+              instrumentador_nombre: instName,
+              instrumentador_completado: instName,
+              instrumentador: instName,
+              monto_a_pagar: 0,
+              monto: 0,
+              estado: p.estado || 'Pagado',
+              pago_id: null,
+              esPagada: true
+            });
+          }
+        });
+      }
+    } catch (e) {
+      console.warn("No se pudieron consultar cirugías pagadas adicionales:", e);
     }
 
     allPendingSurgeries.value = combinedList;
