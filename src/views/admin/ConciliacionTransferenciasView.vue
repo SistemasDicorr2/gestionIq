@@ -645,17 +645,17 @@
               <tr v-for="orden in filteredHistorialConciliaciones" :key="orden.id" class="hover:bg-slate-50 dark:hover:bg-slate-800/40">
                 <!-- ID / Fecha -->
                 <td class="px-4 py-3 font-mono">
-                  <span class="font-black text-slate-900 dark:text-white block">OP-{{ orden.id.slice(0, 8) }}</span>
+                  <span class="font-black text-slate-900 dark:text-white block">OP-{{ String(orden.id || '') }}</span>
                   <span class="text-[10px] text-slate-500 font-semibold">{{ formatDate(orden.fecha_emision) }}</span>
                 </td>
 
                 <!-- Instrumentador -->
                 <td class="px-4 py-3">
-                  <span class="font-extrabold text-slate-900 dark:text-white block truncate max-w-[200px]" :title="orden.instrumentadores_nombres?.join(', ')">
-                    {{ orden.instrumentadores_nombres?.join(', ') || 'Profesional no especificado' }}
+                  <span class="font-extrabold text-slate-900 dark:text-white block truncate max-w-[200px]" :title="formatInstrumentadorNames(orden.instrumentadores_nombres)">
+                    {{ formatInstrumentadorNames(orden.instrumentadores_nombres) }}
                   </span>
                   <span class="text-[10px] font-mono text-slate-500 font-bold block">
-                    DNI: {{ orden.instrumentadores_dnis?.join(', ') || 'N/A' }}
+                    DNI: {{ formatInstrumentadorDnis(orden.instrumentadores_dnis) }}
                   </span>
                 </td>
 
@@ -1779,15 +1779,26 @@ const filteredHistorialConciliaciones = computed(() => {
   });
 });
 
+const formatInstrumentadorNames = (val) => {
+  if (Array.isArray(val)) return val.join(', ') || 'Profesional no especificado';
+  return val || 'Profesional no especificado';
+};
+
+const formatInstrumentadorDnis = (val) => {
+  if (Array.isArray(val)) return val.join(', ') || 'N/A';
+  return val || 'N/A';
+};
+
 const downloadIndividualOrderPdf = (orden) => {
   try {
     const doc = new jsPDF();
+    const ordenIdStr = String(orden?.id || '');
     doc.setFontSize(16);
     doc.text("GESTIÓN IQ - Comprobante de Conciliación", 14, 20);
     doc.setFontSize(10);
-    doc.text(`Orden N°: OP-${orden.id.slice(0, 8)}`, 14, 28);
+    doc.text(`Orden N°: OP-${ordenIdStr}`, 14, 28);
     doc.text(`Fecha de Emisión: ${formatDate(orden.fecha_emision)}`, 14, 34);
-    doc.text(`Instrumentador: ${orden.instrumentadores_nombres?.join(', ') || 'N/A'} (DNI: ${orden.instrumentadores_dnis?.join(', ') || 'N/A'})`, 14, 40);
+    doc.text(`Instrumentador: ${formatInstrumentadorNames(orden.instrumentadores_nombres)} (DNI: ${formatInstrumentadorDnis(orden.instrumentadores_dnis)})`, 14, 40);
     doc.text(`Monto Total Conciliado: $${formatNumber(orden.monto_total || 0)}`, 14, 46);
 
     doc.autoTable({
@@ -1798,7 +1809,7 @@ const downloadIndividualOrderPdf = (orden) => {
       headStyles: { fillColor: [79, 70, 229] }
     });
 
-    doc.save(`Conciliacion_OP_${orden.id.slice(0, 8)}.pdf`);
+    doc.save(`Conciliacion_OP_${ordenIdStr}.pdf`);
     toast.success("PDF individual descargado.");
   } catch (err) {
     console.error("Error al generar PDF individual:", err);
@@ -2208,7 +2219,7 @@ const fetchInitialData = async () => {
     // 2. Fetch cirugías pagadas/liquidadas desde reportes para permitir verificación
     const { data: paidData } = await supabase
       .from('reportes')
-      .select('id, paciente, medico, lugar_cirugia, fecha_cirugia, instrumentador_dni, instrumentador, instrumentador_completado, monto_a_pagar, monto, estado, pago_id')
+      .select('id, paciente, medico, lugar_cirugia, fecha_cirugia, instrumentador_dni, instrumentador, instrumentador_completado, monto, estado')
       .eq('estado', 'Pagado')
       .order('fecha_cirugia', { ascending: false })
       .limit(300);
@@ -2228,10 +2239,10 @@ const fetchInitialData = async () => {
             instrumentador_nombre: instName,
             instrumentador_completado: instName,
             instrumentador: instName,
-            monto_a_pagar: p.monto_a_pagar || p.monto || 0,
-            monto: p.monto_a_pagar || p.monto || 0,
+            monto_a_pagar: p.monto || 0,
+            monto: p.monto || 0,
             estado: p.estado || 'Pagado',
-            pago_id: p.pago_id,
+            pago_id: null,
             esPagada: true
           });
         }
