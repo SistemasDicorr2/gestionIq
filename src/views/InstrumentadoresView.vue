@@ -164,6 +164,13 @@
                   <td class="px-6 py-4 whitespace-nowrap text-center text-xs font-medium">
                     <div class="inline-flex items-center gap-2">
                       <button 
+                        @click="openAccessHistoryModal(iq)" 
+                        title="Ver historial de ingresos al portal"
+                        class="p-2 text-slate-500 hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-slate-700 rounded-lg transition-colors"
+                      >
+                        <ClockIcon class="w-4 h-4 text-amber-500" />
+                      </button>
+                      <button 
                         @click="openStatsModal(iq)" 
                         title="Ver análisis de rendimiento"
                         class="p-2 text-slate-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-slate-700 rounded-lg transition-colors"
@@ -264,14 +271,24 @@
               </div>
             </div>
 
-            <!-- Stats Button -->
-            <button 
-              @click="openStatsModal(iq)"
-              class="w-full py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 transition-colors"
-            >
-              <ChartBarIcon class="w-4 h-4 text-blue-600" />
-              <span>Ver Análisis de Rendimiento</span>
-            </button>
+            <!-- Botones de Acción Mobile -->
+            <div class="grid grid-cols-2 gap-2">
+              <button 
+                @click="openStatsModal(iq)"
+                class="py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors"
+              >
+                <ChartBarIcon class="w-4 h-4 text-blue-600" />
+                <span>Rendimiento</span>
+              </button>
+
+              <button 
+                @click="openAccessHistoryModal(iq)"
+                class="py-2.5 bg-amber-50 hover:bg-amber-100 dark:bg-slate-700 dark:hover:bg-slate-600 text-amber-800 dark:text-amber-300 border border-amber-200/80 dark:border-slate-600 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors"
+              >
+                <ClockIcon class="w-4 h-4 text-amber-600" />
+                <span>Historial Ingresos</span>
+              </button>
+            </div>
           </div>
         </div>
 
@@ -280,7 +297,7 @@
           :current-page="currentPage" 
           :total-items="totalItems" 
           :items-per-page="itemsPerPage" 
-          @page-changed="goToPage" 
+          @update:page="currentPage = $event" 
         />
       </div>
     </div>
@@ -393,6 +410,7 @@
     <EstadisticasInstrumentadorModal :show="isStatsModalOpen" :instrumentador="selectedInstrumentador" @close="isStatsModalOpen = false" />
     <NewInstrumentadorModal :show="isNewModalOpen" @close="isNewModalOpen = false" @created="handleUpdate"/>
     <ImportInstrumentadoresModal :show="isImportModalOpen" @close="isImportModalOpen = false" @imported="handleUpdate"/>
+    <AccessHistoryModal :show="isAccessModalOpen" :token="selectedAccessToken" :dni="selectedAccessDni" @close="isAccessModalOpen = false" />
   </div>
 </template>
 
@@ -409,6 +427,7 @@ import EditInstrumentadorModal from '../components/EditInstrumentadorModal.vue';
 import EstadisticasInstrumentadorModal from '../components/EstadisticasInstrumentadorModal.vue';
 import NewInstrumentadorModal from '../components/NewInstrumentadorModal.vue';
 import ImportInstrumentadoresModal from '../components/ImportInstrumentadoresModal.vue';
+import AccessHistoryModal from '../components/AccessHistoryModal.vue';
 import PaginationControls from '../components/PaginationControls.vue';
 import InstrumentadoresFilters from '../components/InstrumentadoresFilters.vue';
 
@@ -443,10 +462,19 @@ const loading = ref(true);
 const error = ref(null);
 const isEditModalOpen = ref(false);
 const isStatsModalOpen = ref(false);
+const isAccessModalOpen = ref(false);
+const selectedAccessDni = ref('');
+const selectedAccessToken = ref('');
 const selectedInstrumentador = ref(null);
 const currentPage = ref(1);
 const itemsPerPage = ref(10);
 const copiedDni = ref(null);
+
+const openAccessHistoryModal = (iq) => {
+  selectedAccessDni.value = iq.dni || '';
+  selectedAccessToken.value = iq.activity_token || iq.token || '';
+  isAccessModalOpen.value = true;
+};
 
 const filters = ref({
   searchTerm: '',

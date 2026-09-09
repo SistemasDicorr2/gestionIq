@@ -61,25 +61,14 @@
             <div class="flex items-center gap-2.5 flex-wrap">
               <h1 class="text-2xl font-extrabold sm:text-3xl text-slate-950 dark:text-white tracking-tight">Mi Actividad Profesional</h1>
               
-              <!-- Badge de Registro de Último Ingreso (Clicable para abrir modal de historial) -->
-              <button 
-                v-if="formattedPreviousAccess" 
-                @click="isAccessModalOpen = true" 
-                class="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-bold rounded-full bg-blue-50 text-blue-700 border border-blue-200/80 hover:bg-blue-100 hover:border-blue-300 dark:bg-blue-950/50 dark:text-blue-300 dark:border-blue-800/60 dark:hover:bg-blue-900/60 shadow-2xs transition-all duration-200 cursor-pointer hover:scale-102 active:scale-98 group"
-                title="Hacé clic para ver el historial completo de ingresos"
-              >
-                <svg class="w-3.5 h-3.5 text-blue-500 group-hover:rotate-12 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+              <!-- Badge de Registro de Último Ingreso -->
+              <span v-if="formattedPreviousAccess" class="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-bold rounded-full bg-blue-50 text-blue-700 border border-blue-200/80 dark:bg-blue-950/50 dark:text-blue-300 dark:border-blue-800/60 shadow-2xs">
+                <svg class="w-3.5 h-3.5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                 <span>Último ingreso: {{ formattedPreviousAccess }}</span>
-                <svg class="w-3 h-3 ml-0.5 text-blue-400 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" /></svg>
-              </button>
-              <button 
-                v-else-if="isFirstAccess" 
-                @click="isAccessModalOpen = true" 
-                class="inline-flex items-center gap-1 px-3 py-1 text-xs font-bold rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200/80 hover:bg-emerald-100 dark:bg-emerald-950/50 dark:text-emerald-300 dark:border-emerald-800/60 shadow-2xs transition-all duration-200 cursor-pointer hover:scale-102 active:scale-98"
-                title="Hacé clic para ver el historial completo de ingresos"
-              >
-                <span>✨ Primer ingreso registrado</span>
-              </button>
+              </span>
+              <span v-else-if="isFirstAccess" class="inline-flex items-center gap-1 px-3 py-1 text-xs font-bold rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200/80 dark:bg-emerald-950/50 dark:text-emerald-300 dark:border-emerald-800/60 shadow-2xs">
+                ✨ Primer ingreso registrado
+              </span>
             </div>
             <p class="mt-1 text-xs sm:text-sm text-slate-600 dark:text-slate-300 font-medium">
               Consultá tus cirugías registradas, el estado de tus pagos y tus datos personales.
@@ -436,14 +425,6 @@
         :liquidaciones="historialLiquidaciones" 
         @close="isReportModalOpen = false" 
       />
-
-      <!-- Modal de Historial de Ingresos al Portal -->
-      <AccessHistoryModal 
-        :show="isAccessModalOpen" 
-        :token="token" 
-        :dni="dni" 
-        @close="isAccessModalOpen = false" 
-      />
     </div>
   </div>
 </template>
@@ -457,7 +438,6 @@ import FaqSection from '../components/FaqSection.vue';
 import PaymentDetailModal from '../components/PaymentDetailModal.vue';
 import MyDataSection from '../components/MyDataSection.vue';
 import ReportePagosModal from '../components/ReportePagosModal.vue';
-import AccessHistoryModal from '../components/AccessHistoryModal.vue';
 import { useReportePagosPDF } from '../composables/useReportePagosPDF';
 
 const isAuthenticated = ref(false);
@@ -469,7 +449,6 @@ const instrumentadorInfo = ref(null);
 const activeTab = ref('resumen');
 const isDetailModalOpen = ref(false);
 const isReportModalOpen = ref(false);
-const isAccessModalOpen = ref(false);
 const selectedLiquidacion = ref(null);
 const isDarkMode = ref(false);
 const searchPagosQuery = ref('');
