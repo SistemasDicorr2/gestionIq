@@ -56,9 +56,20 @@
 
       <!-- ESTADO 2: VISTA DE DATOS -->
       <div v-else class="max-w-6xl px-4 mx-auto sm:px-6 lg:px-8">
-        <header class="flex items-start justify-between gap-4 mb-4">
+        <header class="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-4">
           <div>
-            <h1 class="text-2xl font-extrabold sm:text-3xl text-slate-950 dark:text-white tracking-tight">Mi Actividad Profesional</h1>
+            <div class="flex items-center gap-2.5 flex-wrap">
+              <h1 class="text-2xl font-extrabold sm:text-3xl text-slate-950 dark:text-white tracking-tight">Mi Actividad Profesional</h1>
+              
+              <!-- Badge de Registro de Último Ingreso -->
+              <span v-if="formattedPreviousAccess" class="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-bold rounded-full bg-blue-50 text-blue-700 border border-blue-200/80 dark:bg-blue-950/50 dark:text-blue-300 dark:border-blue-800/60 shadow-2xs">
+                <svg class="w-3.5 h-3.5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                <span>Último ingreso: {{ formattedPreviousAccess }}</span>
+              </span>
+              <span v-else-if="isFirstAccess" class="inline-flex items-center gap-1 px-3 py-1 text-xs font-bold rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200/80 dark:bg-emerald-950/50 dark:text-emerald-300 dark:border-emerald-800/60 shadow-2xs">
+                ✨ Primer ingreso registrado
+              </span>
+            </div>
             <p class="mt-1 text-xs sm:text-sm text-slate-600 dark:text-slate-300 font-medium">
               Consultá tus cirugías registradas, el estado de tus pagos y tus datos personales.
             </p>
@@ -436,11 +447,58 @@ const isReportModalOpen = ref(false);
 const selectedLiquidacion = ref(null);
 const isDarkMode = ref(false);
 const searchPagosQuery = ref('');
+const formattedPreviousAccess = ref('');
+const isFirstAccess = ref(false);
 
 const route = useRoute();
 const toast = useToast();
 const token = route.params.token;
 const { generarReporteOrdenIndividual } = useReportePagosPDF();
+
+const registerAccessLog = (cleanDni, tokenStr) => {
+  if (!cleanDni || !tokenStr) return;
+  const storageKey = `gestioniq_last_portal_access_${tokenStr}_${cleanDni}`;
+  try {
+    const rawPrevious = localStorage.getItem(storageKey);
+    const nowIso = new Date().toISOString();
+
+    if (rawPrevious) {
+      const prevDate = new Date(rawPrevious);
+      if (!isNaN(prevDate.getTime())) {
+        const fechaStr = prevDate.toLocaleDateString('es-AR', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric'
+        });
+        const horaStr = prevDate.toLocaleTimeString('es-AR', {
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+        formattedPreviousAccess.value = `${fechaStr}, ${horaStr} hs`;
+        isFirstAccess.value = false;
+      } else {
+        formattedPreviousAccess.value = '';
+        isFirstAccess.value = true;
+      }
+    } else {
+      formattedPreviousAccess.value = '';
+      isFirstAccess.value = true;
+    }
+
+    // Actualizar con el ingreso actual en localStorage
+    localStorage.setItem(storageKey, nowIso);
+
+    // Registro adicional preventivo / auditoría asíncrona a Supabase
+    supabase.from('ficha_access_events').insert({
+      token: tokenStr,
+      dni: cleanDni,
+      accessed_at: nowIso,
+      user_agent: typeof navigator !== 'undefined' ? navigator.userAgent : 'unknown'
+    }).then(() => {}).catch(() => {});
+  } catch (e) {
+    console.warn("No se pudo guardar el registro de ingreso local:", e);
+  }
+};
 
 const descargarPDFOrdenIndividual = (liq) => {
   generarReporteOrdenIndividual({
@@ -476,6 +534,9 @@ const authenticate = async (overrideDni = null) => {
       allActivityData.value = (data.activity_summary || []).filter(r => r.estado === 'Enviado');
       isAuthenticated.value = true;
       dni.value = cleanDni;
+
+      // Registrar comprobación de ingreso del usuario a su enlace personal
+      registerAccessLog(cleanDni, token);
 
       // Guardar en sessionStorage para no pedir DNI en refresco de pagina
       try {
