@@ -28,7 +28,7 @@
             Mes Anterior
           </button>
           <button @click="showConfigModal = true" class="btn-period flex items-center gap-1.5 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-900 bg-blue-50/50 dark:bg-blue-950/30 font-bold">
-            <span>⚙️ Destinatarios Semanales</span>
+            <span>⚙️ Programación y Destinatarios</span>
           </button>
         </div>
       </div>

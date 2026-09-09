@@ -10,6 +10,15 @@
           <h3 class="text-lg font-extrabold text-slate-900 dark:text-white">
             Programación y Destinatarios del Reporte Semanal
           </h3>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+            Las direcciones listadas recibirán el reporte automático
+            <span v-if="schedule.activo" class="font-bold text-blue-600 dark:text-blue-400">
+              cada {{ getDayName(schedule.dia) }} a las {{ String(schedule.hora).padStart(2, '0') }}:00 hs (ART)
+            </span>
+            <span v-else class="font-bold text-amber-600 dark:text-amber-400">
+              (Envío automático pausado)
+            </span>.
+          </p>
         </div>
         <button @click="$emit('close')" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1 text-xl font-bold cursor-pointer">
           ✕
