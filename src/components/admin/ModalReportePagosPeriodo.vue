@@ -217,7 +217,7 @@ const props = defineProps({
 
 const emit = defineEmits(['close']);
 
-const { generarReportePagos } = useReportePagosPDF();
+const { generarReportePagos, generarReporteListadoCompletoPagos } = useReportePagosPDF();
 const { showSuccessToast, showErrorToast } = useToasts();
 
 const periodoPreset = ref('esta-semana');
@@ -374,86 +374,24 @@ const ejecutarDescargaPDF = async () => {
 
     const detailedOrders = await Promise.all(orderDetailsPromises);
 
-    // 2. Si se seleccionó un Instrumentador específico
+    // 2. Determinar si hay filtro de instrumentador específico
+    let instFiltro = null;
     if (selectedDni.value !== 'todos') {
       const instObj = availableInstrumentadores.value.find(i => String(i.dni) === String(selectedDni.value));
-      const targetNombre = instObj?.nombre || 'Instrumentador Quirúrgico';
-
-      // Construir liquidaciones para este instrumentador
-      const liquidaciones = [];
-      detailedOrders.forEach(det => {
-        const pagos = det.pagos_instrumentadores || det.pagos || [];
-        const pagoInst = pagos.find(p => String(p.instrumentador_dni) === String(selectedDni.value));
-        if (pagoInst) {
-          liquidaciones.push({
-            orden_de_pago_id: det.id,
-            fecha_pago: det.fecha_emision,
-            monto_total: pagoInst.monto_total_instrumentador,
-            cirugias: (pagoInst.cirugias || pagoInst.reportes || []).map(c => ({
-              paciente: c.paciente,
-              fecha_cirugia: c.fecha_cirugia,
-              monto: c.monto_final !== undefined ? c.monto_final : (c.monto_a_pagar || 0)
-            }))
-          });
-        }
-      });
-
-      generarReportePagos({
-        instrumentador: {
-          nombre_completo: targetNombre,
-          dni: selectedDni.value
-        },
-        liquidaciones,
-        periodoLabel: periodoLabelFinal.value
-      });
-
-      showSuccessToast(`Reporte PDF generado para ${targetNombre}.`);
-    } else {
-      // 3. Si seleccionó "Todos los instrumentadores", agrupar por cada instrumentador o consolidado
-      const instMap = new Map();
-      detailedOrders.forEach(det => {
-        const pagos = det.pagos_instrumentadores || det.pagos || [];
-        pagos.forEach(p => {
-          const dniStr = String(p.instrumentador_dni).trim();
-          if (!instMap.has(dniStr)) {
-            instMap.set(dniStr, {
-              instrumentador: {
-                nombre_completo: p.instrumentador_nombre,
-                dni: dniStr
-              },
-              liquidaciones: []
-            });
-          }
-          instMap.get(dniStr).liquidaciones.push({
-            orden_de_pago_id: det.id,
-            fecha_pago: det.fecha_emision,
-            monto_total: p.monto_total_instrumentador,
-            cirugias: (p.cirugias || p.reportes || []).map(c => ({
-              paciente: c.paciente,
-              fecha_cirugia: c.fecha_cirugia,
-              monto: c.monto_final !== undefined ? c.monto_final : (c.monto_a_pagar || 0)
-            }))
-          });
-        });
-      });
-
-      const allGroups = Array.from(instMap.values());
-      if (allGroups.length === 0) {
-        throw new Error('No se encontraron detalles de liquidaciones en las órdenes seleccionadas.');
-      }
-
-      // Descargar el reporte para cada instrumentador activo en el período
-      for (const group of allGroups) {
-        generarReportePagos({
-          instrumentador: group.instrumentador,
-          liquidaciones: group.liquidaciones,
-          periodoLabel: periodoLabelFinal.value
-        });
-      }
-
-      showSuccessToast(`Se descargaron ${allGroups.length} reportes de pagos correspondientes al período.`);
+      instFiltro = {
+        dni: selectedDni.value,
+        nombre: instObj?.nombre || 'Instrumentador Quirúrgico'
+      };
     }
 
+    // 3. Generar UN SOLO PDF con el listado consolidado completo
+    generarReporteListadoCompletoPagos({
+      ordenesDetalladas: detailedOrders,
+      periodoLabel: periodoLabelFinal.value,
+      instrumentadorFiltro: instFiltro
+    });
+
+    showSuccessToast('Listado oficial de pagos descargado exitosamente en PDF.');
     emit('close');
   } catch (err) {
     console.error('Error al generar reporte de período:', err);
