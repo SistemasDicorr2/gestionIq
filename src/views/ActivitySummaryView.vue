@@ -455,48 +455,64 @@ const toast = useToast();
 const token = route.params.token;
 const { generarReporteOrdenIndividual } = useReportePagosPDF();
 
-const registerAccessLog = (cleanDni, tokenStr) => {
+const registerAccessLog = async (cleanDni, tokenStr) => {
   if (!cleanDni || !tokenStr) return;
   const storageKey = `gestioniq_last_portal_access_${tokenStr}_${cleanDni}`;
-  try {
-    const rawPrevious = localStorage.getItem(storageKey);
-    const nowIso = new Date().toISOString();
+  const nowIso = new Date().toISOString();
+  let foundPreviousDate = null;
 
-    if (rawPrevious) {
-      const prevDate = new Date(rawPrevious);
-      if (!isNaN(prevDate.getTime())) {
-        const fechaStr = prevDate.toLocaleDateString('es-AR', {
-          day: '2-digit',
-          month: '2-digit',
-          year: 'numeric'
-        });
-        const horaStr = prevDate.toLocaleTimeString('es-AR', {
-          hour: '2-digit',
-          minute: '2-digit'
-        });
-        formattedPreviousAccess.value = `${fechaStr}, ${horaStr} hs`;
-        isFirstAccess.value = false;
-      } else {
-        formattedPreviousAccess.value = '';
-        isFirstAccess.value = true;
+  try {
+    // 1. Consultar el último ingreso guardado en Supabase (tabla ficha_access_logs)
+    const { data: dbLogs, error: dbErr } = await supabase
+      .from('ficha_access_logs')
+      .select('accessed_at')
+      .eq('dni', cleanDni)
+      .eq('token', tokenStr)
+      .order('accessed_at', { ascending: false })
+      .limit(1);
+
+    if (!dbErr && dbLogs && dbLogs.length > 0 && dbLogs[0].accessed_at) {
+      foundPreviousDate = new Date(dbLogs[0].accessed_at);
+    } else {
+      // Fallback a localStorage si en la DB aún no había registros anteriores
+      const rawPrevious = localStorage.getItem(storageKey);
+      if (rawPrevious) {
+        const prevDate = new Date(rawPrevious);
+        if (!isNaN(prevDate.getTime())) {
+          foundPreviousDate = prevDate;
+        }
       }
+    }
+
+    if (foundPreviousDate && !isNaN(foundPreviousDate.getTime())) {
+      const fechaStr = foundPreviousDate.toLocaleDateString('es-AR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      });
+      const horaStr = foundPreviousDate.toLocaleTimeString('es-AR', {
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+      formattedPreviousAccess.value = `${fechaStr}, ${horaStr} hs`;
+      isFirstAccess.value = false;
     } else {
       formattedPreviousAccess.value = '';
       isFirstAccess.value = true;
     }
 
-    // Actualizar con el ingreso actual en localStorage
-    localStorage.setItem(storageKey, nowIso);
-
-    // Registro adicional preventivo / auditoría asíncrona a Supabase
-    supabase.from('ficha_access_events').insert({
+    // 2. Guardar el ingreso actual en Supabase (ficha_access_logs)
+    await supabase.from('ficha_access_logs').insert({
       token: tokenStr,
       dni: cleanDni,
       accessed_at: nowIso,
       user_agent: typeof navigator !== 'undefined' ? navigator.userAgent : 'unknown'
-    }).then(() => {}).catch(() => {});
+    });
+
+    // 3. Respaldar en localStorage para disponibilidad inmediata offline
+    localStorage.setItem(storageKey, nowIso);
   } catch (e) {
-    console.warn("No se pudo guardar el registro de ingreso local:", e);
+    console.warn("No se pudo guardar/consultar el registro de ingreso:", e);
   }
 };
 
@@ -536,7 +552,7 @@ const authenticate = async (overrideDni = null) => {
       dni.value = cleanDni;
 
       // Registrar comprobación de ingreso del usuario a su enlace personal
-      registerAccessLog(cleanDni, token);
+      await registerAccessLog(cleanDni, token);
 
       // Guardar en sessionStorage para no pedir DNI en refresco de pagina
       try {
