@@ -22,9 +22,19 @@
             Instrumentador Quirúrgico Registrado
           </span>
         </div>
-        <div class="px-4 py-2.5 text-center border rounded-xl bg-slate-50 border-slate-100 sm:text-right dark:bg-slate-950/50 dark:border-slate-800">
-          <p class="text-[10px] font-bold tracking-wider uppercase text-slate-400 dark:text-slate-500">DNI</p>
-          <p class="mt-0.5 text-base font-extrabold tracking-wide text-slate-950 dark:text-slate-100">{{ info?.dni || 'No especificado' }}</p>
+        <div class="flex flex-col sm:flex-row items-center gap-3 shrink-0">
+          <div class="px-4 py-2.5 text-center border rounded-xl bg-slate-50 border-slate-100 sm:text-right dark:bg-slate-950/50 dark:border-slate-800">
+            <p class="text-[10px] font-bold tracking-wider uppercase text-slate-400 dark:text-slate-500">DNI</p>
+            <p class="mt-0.5 text-base font-extrabold tracking-wide text-slate-950 dark:text-slate-100">{{ info?.dni || 'No especificado' }}</p>
+          </div>
+          <button 
+            @click="emit('openAccessHistory')" 
+            class="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-3.5 py-2 text-xs font-extrabold text-blue-700 bg-blue-50 border border-blue-200 rounded-xl hover:bg-blue-100 dark:bg-blue-950/40 dark:border-blue-800/60 dark:text-blue-300 dark:hover:bg-blue-900/50 transition-all duration-200 hover:-translate-y-0.5 cursor-pointer"
+            title="Ver historial completo de accesos a tu portal"
+          >
+            <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+            <span>Historial de accesos</span>
+          </button>
         </div>
       </div>
     </div>
@@ -208,6 +218,8 @@ const props = defineProps({
     default: () => []
   }
 });
+
+const emit = defineEmits(['openAccessHistory']);
 
 // Calcula las iniciales para la foto de perfil vacía
 const iniciales = computed(() => {
