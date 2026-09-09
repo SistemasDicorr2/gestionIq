@@ -645,75 +645,130 @@
           🌀 Cargando historial de conciliaciones desde Supabase...
         </div>
 
-        <div v-else-if="filteredHistorialConciliaciones.length > 0" class="w-full overflow-x-auto">
+        <div v-else-if="groupedHistorialConciliaciones.length > 0" class="w-full overflow-x-auto">
           <table class="w-full text-left border-collapse text-xs whitespace-nowrap">
             <thead>
               <tr class="bg-slate-100 dark:bg-slate-800/80 text-slate-800 dark:text-slate-200 font-extrabold uppercase tracking-wider text-[10px] border-b-2 border-slate-300 dark:border-slate-700">
-                <th class="px-4 py-3">Identificador & Emisión</th>
-                <th class="px-4 py-3">Instrumentador / Profesional</th>
-                <th class="px-4 py-3 text-right">Monto Conciliado</th>
-                <th class="px-4 py-3">Notas Internas & Detalles</th>
-                <th class="px-4 py-3 text-right">Acción</th>
+                <th class="px-4 py-3">Identificador / Lote</th>
+                <th class="px-4 py-3">Instrumentadores / Profesionales</th>
+                <th class="px-4 py-3 text-right">Monto Acumulado</th>
+                <th class="px-4 py-3">Detalle / Estado</th>
+                <th class="px-4 py-3 text-right">Desplegar / Acción</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-200 dark:divide-slate-800">
-              <tr v-for="orden in filteredHistorialConciliaciones" :key="orden.id" class="hover:bg-slate-50 dark:hover:bg-slate-800/40">
-                <!-- Identificador / Fecha -->
-                <td class="px-4 py-3 font-mono">
-                  <div class="flex items-center gap-1.5 flex-wrap">
-                    <span v-if="isConciliacionOrder(orden)" class="font-black text-indigo-700 dark:text-indigo-300 text-xs block">
-                      Conciliación #{{ String(orden.id || '') }}
+              <template v-for="group in groupedHistorialConciliaciones" :key="group.key">
+                
+                <!-- FILA PADRE: LOTE DE CONCILIACIÓN / ORDEN INDIVIDUAL -->
+                <tr 
+                  @click="toggleHistorialGroup(group.key)" 
+                  :class="[
+                    'transition-colors cursor-pointer select-none',
+                    group.isConciliacion 
+                      ? 'bg-indigo-50/70 hover:bg-indigo-100/90 dark:bg-indigo-950/40 dark:hover:bg-indigo-900/60 border-l-4 border-l-indigo-600' 
+                      : 'bg-slate-50 hover:bg-slate-100 dark:bg-slate-900 dark:hover:bg-slate-800/60'
+                  ]"
+                >
+                  <td class="px-4 py-3.5 font-mono">
+                    <div class="flex items-center gap-2">
+                      <svg 
+                        :class="['w-4 h-4 text-indigo-600 dark:text-indigo-400 transition-transform duration-200 shrink-0', expandedGroupKeys[group.key] ? 'rotate-90' : '']" 
+                        fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"
+                      >
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                      </svg>
+                      
+                      <span class="font-black text-slate-950 dark:text-white text-xs">
+                        {{ group.title }}
+                      </span>
+
+                      <span v-if="group.isConciliacion" class="px-2 py-0.5 rounded-full text-[10px] font-black bg-indigo-200 text-indigo-900 dark:bg-indigo-900 dark:text-indigo-200 border border-indigo-300 dark:border-indigo-800 shadow-2xs">
+                        ⚡ Lote de {{ group.ordenes.length }} {{ group.ordenes.length === 1 ? 'pago' : 'pagos' }}
+                      </span>
+                      <span v-else class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border border-slate-300 dark:border-slate-700">
+                        Orden Individual
+                      </span>
+                    </div>
+                    <span class="text-[10px] text-slate-500 font-semibold block mt-1 ml-6">
+                      Emitido: {{ formatDate(group.fecha) }}
                     </span>
-                    <span v-else class="font-black text-slate-900 dark:text-white text-xs block">
-                      Orden #{{ String(orden.id || '') }}
+                  </td>
+
+                  <td class="px-4 py-3.5">
+                    <span class="font-extrabold text-slate-900 dark:text-white block truncate max-w-[240px]">
+                      {{ group.profesionalesResumen }}
                     </span>
-
-                    <span v-if="isConciliacionOrder(orden)" class="px-2 py-0.5 rounded-full text-[9px] font-extrabold bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 shadow-2xs">
-                      ⚡ Lote Conciliado
+                    <span class="text-[10px] text-slate-500 font-semibold block mt-0.5">
+                      {{ group.ordenes.length }} orden{{ group.ordenes.length > 1 ? 'es' : '' }} en este lote
                     </span>
-                    <span v-else class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
-                      Orden Individual
+                  </td>
+
+                  <td class="px-4 py-3.5 text-right font-mono font-black text-indigo-700 dark:text-indigo-300 text-sm">
+                    ${{ formatNumber(group.totalMonto) }}
+                  </td>
+
+                  <td class="px-4 py-3.5 text-slate-600 dark:text-slate-400 text-xs">
+                    <span class="font-bold text-slate-700 dark:text-slate-300">
+                      {{ expandedGroupKeys[group.key] ? '▲ Haz clic para ocultar' : `▼ Haz clic para ver las ${group.ordenes.length} orden(es)` }}
                     </span>
-                  </div>
-                  <span class="text-[10px] text-slate-500 font-semibold block mt-1">
-                    Ref: OP-{{ String(orden.id || '') }} · {{ formatDate(orden.fecha_emision) }}
-                  </span>
-                </td>
+                  </td>
 
-                <!-- Instrumentador -->
-                <td class="px-4 py-3">
-                  <span class="font-extrabold text-slate-900 dark:text-white block truncate max-w-[200px]" :title="formatInstrumentadorNames(orden.instrumentadores_nombres)">
-                    {{ formatInstrumentadorNames(orden.instrumentadores_nombres) }}
-                  </span>
-                  <span class="text-[10px] font-mono text-slate-500 font-bold block">
-                    DNI: {{ formatInstrumentadorDnis(orden.instrumentadores_dnis) }}
-                  </span>
-                </td>
+                  <td class="px-4 py-3.5 text-right">
+                    <button 
+                      class="px-3 py-1.5 bg-white dark:bg-slate-800 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 font-extrabold text-xs rounded-xl shadow-2xs transition cursor-pointer"
+                    >
+                      {{ expandedGroupKeys[group.key] ? '▲ Ocultar' : '▼ Ver Órdenes' }}
+                    </button>
+                  </td>
+                </tr>
 
-                <!-- Monto (Leído desde monto_total_general de la RPC) -->
-                <td class="px-4 py-3 text-right font-mono font-black text-indigo-700 dark:text-indigo-300 text-sm">
-                  ${{ formatNumber(orden.monto_total_general || orden.monto_total || orden.monto || 0) }}
-                </td>
-
-                <!-- Notas -->
-                <td class="px-4 py-3 text-slate-700 dark:text-slate-300">
-                  <span class="block truncate max-w-[320px] font-medium text-xs" :title="orden.notas">
-                    {{ orden.notas || 'Sin notas adicionadas' }}
-                  </span>
-                </td>
-
-                <!-- Acción -->
-                <td class="px-4 py-3 text-right">
-                  <button 
-                    @click="downloadIndividualOrderPdf(orden)"
-                    :disabled="loadingPdfOrdenId === orden.id"
-                    class="px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 font-extrabold text-xs rounded-lg transition cursor-pointer flex items-center gap-1.5 ml-auto active:scale-95 disabled:opacity-50"
+                <!-- FILAS HIJAS: ÓRDENES INDIVIDUALES (DESPLEGADAS AL HACER CLIC) -->
+                <template v-if="expandedGroupKeys[group.key]">
+                  <tr 
+                    v-for="orden in group.ordenes" 
+                    :key="`orden-${orden.id}`" 
+                    class="bg-white dark:bg-slate-950/80 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors border-l-4 border-l-indigo-400 dark:border-l-indigo-600"
                   >
-                    <div v-if="loadingPdfOrdenId === orden.id" class="w-3.5 h-3.5 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
-                    <span v-else>📄 PDF Detalle</span>
-                  </button>
-                </td>
-              </tr>
+                    <td class="px-4 py-3 pl-10 font-mono">
+                      <div class="flex items-center gap-1.5">
+                        <span class="font-black text-slate-900 dark:text-white">↳ OP-{{ String(orden.id || '') }}</span>
+                      </div>
+                      <span class="text-[10px] text-slate-500 font-semibold block mt-0.5">{{ formatDate(orden.fecha_emision) }}</span>
+                    </td>
+
+                    <td class="px-4 py-3">
+                      <span class="font-extrabold text-slate-900 dark:text-white block truncate max-w-[200px]" :title="formatInstrumentadorNames(orden.instrumentadores_nombres)">
+                        {{ formatInstrumentadorNames(orden.instrumentadores_nombres) }}
+                      </span>
+                      <span class="text-[10px] font-mono text-slate-500 font-bold block">
+                        DNI: {{ formatInstrumentadorDnis(orden.instrumentadores_dnis) }}
+                      </span>
+                    </td>
+
+                    <td class="px-4 py-3 text-right font-mono font-bold text-slate-800 dark:text-slate-200 text-xs">
+                      ${{ formatNumber(orden.monto_total_general || orden.monto_total || orden.monto || 0) }}
+                    </td>
+
+                    <td class="px-4 py-3 text-slate-700 dark:text-slate-300">
+                      <span class="block truncate max-w-[320px] font-medium text-xs" :title="orden.notas">
+                        {{ orden.notas || 'Sin notas adicionadas' }}
+                      </span>
+                    </td>
+
+                    <td class="px-4 py-3 text-right">
+                      <button 
+                        @click.stop="downloadIndividualOrderPdf(orden)"
+                        :disabled="loadingPdfOrdenId === orden.id"
+                        class="px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 font-extrabold text-xs rounded-lg transition cursor-pointer flex items-center gap-1.5 ml-auto active:scale-95 disabled:opacity-50"
+                      >
+                        <div v-if="loadingPdfOrdenId === orden.id" class="w-3.5 h-3.5 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+                        <span v-else>📄 PDF Detalle</span>
+                      </button>
+                    </td>
+                  </tr>
+                </template>
+
+              </template>
             </tbody>
           </table>
         </div>
@@ -1799,6 +1854,11 @@ const switchToHistorialTab = () => {
 
 const historialFilterType = ref('conciliaciones'); // 'conciliaciones' | 'todas'
 const loadingPdfOrdenId = ref(null);
+const expandedGroupKeys = ref({});
+
+const toggleHistorialGroup = (groupKey) => {
+  expandedGroupKeys.value[groupKey] = !expandedGroupKeys.value[groupKey];
+};
 
 const isConciliacionOrder = (orden) => {
   if (!orden || !orden.notas) return false;
@@ -1829,6 +1889,67 @@ const filteredHistorialConciliaciones = computed(() => {
     const matchNotas = o.notas && o.notas.toLowerCase().includes(q);
     return matchId || matchNombre || matchDni || matchNotas;
   });
+});
+
+const groupedHistorialConciliaciones = computed(() => {
+  const flatList = filteredHistorialConciliaciones.value;
+  if (!flatList || flatList.length === 0) return [];
+
+  const groupsMap = {};
+
+  flatList.forEach((orden) => {
+    let dateStr = 'sin-fecha';
+    if (orden.fecha_emision) {
+      dateStr = String(orden.fecha_emision).slice(0, 10);
+    }
+    
+    const isConc = isConciliacionOrder(orden);
+    const key = isConc ? `lote_${dateStr}` : `individual_${orden.id}`;
+
+    if (!groupsMap[key]) {
+      groupsMap[key] = {
+        key: key,
+        isConciliacion: isConc,
+        fecha: orden.fecha_emision,
+        ordenes: [],
+        totalMonto: 0,
+        profesionalesSet: new Set()
+      };
+    }
+
+    groupsMap[key].ordenes.push(orden);
+    const monto = parseFloat(orden.monto_total_general || orden.monto_total || orden.monto || 0);
+    if (!isNaN(monto)) {
+      groupsMap[key].totalMonto += monto;
+    }
+
+    if (Array.isArray(orden.instrumentadores_nombres)) {
+      orden.instrumentadores_nombres.forEach(n => {
+        if (n) groupsMap[key].profesionalesSet.add(n);
+      });
+    } else if (orden.instrumentadores_nombres) {
+      groupsMap[key].profesionalesSet.add(orden.instrumentadores_nombres);
+    }
+  });
+
+  const sortedGroups = Object.values(groupsMap).sort((a, b) => new Date(b.fecha || 0) - new Date(a.fecha || 0));
+
+  let loteCounter = sortedGroups.filter(g => g.isConciliacion).length;
+
+  sortedGroups.forEach((g) => {
+    if (g.isConciliacion) {
+      g.loteNumber = loteCounter--;
+      g.title = `Conciliación #${g.loteNumber}`;
+    } else {
+      g.title = `Orden #${g.ordenes[0]?.id || ''}`;
+    }
+    const profs = Array.from(g.profesionalesSet);
+    g.profesionalesResumen = profs.length > 0 
+      ? (profs.slice(0, 2).join(', ') + (profs.length > 2 ? ` +${profs.length - 2} más` : ''))
+      : 'Profesional no especificado';
+  });
+
+  return sortedGroups;
 });
 
 const formatInstrumentadorNames = (val) => {
