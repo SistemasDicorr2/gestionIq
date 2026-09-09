@@ -649,7 +649,7 @@
           <table class="w-full text-left border-collapse text-xs whitespace-nowrap">
             <thead>
               <tr class="bg-slate-100 dark:bg-slate-800/80 text-slate-800 dark:text-slate-200 font-extrabold uppercase tracking-wider text-[10px] border-b-2 border-slate-300 dark:border-slate-700">
-                <th class="px-4 py-3">ID / Fecha Emisión</th>
+                <th class="px-4 py-3">Identificador & Emisión</th>
                 <th class="px-4 py-3">Instrumentador / Profesional</th>
                 <th class="px-4 py-3 text-right">Monto Conciliado</th>
                 <th class="px-4 py-3">Notas Internas & Detalles</th>
@@ -658,15 +658,26 @@
             </thead>
             <tbody class="divide-y divide-slate-200 dark:divide-slate-800">
               <tr v-for="orden in filteredHistorialConciliaciones" :key="orden.id" class="hover:bg-slate-50 dark:hover:bg-slate-800/40">
-                <!-- ID / Fecha -->
+                <!-- Identificador / Fecha -->
                 <td class="px-4 py-3 font-mono">
-                  <div class="flex items-center gap-1.5">
-                    <span class="font-black text-slate-900 dark:text-white block">OP-{{ String(orden.id || '') }}</span>
-                    <span v-if="isConciliacionOrder(orden)" class="px-1.5 py-0.2 rounded text-[9px] font-black bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-300">
-                      ⚡ Conciliación
+                  <div class="flex items-center gap-1.5 flex-wrap">
+                    <span v-if="isConciliacionOrder(orden)" class="font-black text-indigo-700 dark:text-indigo-300 text-xs block">
+                      Conciliación #{{ String(orden.id || '') }}
+                    </span>
+                    <span v-else class="font-black text-slate-900 dark:text-white text-xs block">
+                      Orden #{{ String(orden.id || '') }}
+                    </span>
+
+                    <span v-if="isConciliacionOrder(orden)" class="px-2 py-0.5 rounded-full text-[9px] font-extrabold bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 shadow-2xs">
+                      ⚡ Lote Conciliado
+                    </span>
+                    <span v-else class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
+                      Orden Individual
                     </span>
                   </div>
-                  <span class="text-[10px] text-slate-500 font-semibold block mt-0.5">{{ formatDate(orden.fecha_emision) }}</span>
+                  <span class="text-[10px] text-slate-500 font-semibold block mt-1">
+                    Ref: OP-{{ String(orden.id || '') }} · {{ formatDate(orden.fecha_emision) }}
+                  </span>
                 </td>
 
                 <!-- Instrumentador -->
