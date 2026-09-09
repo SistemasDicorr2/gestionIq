@@ -442,7 +442,7 @@
 
                 <!-- Instrumentador -->
                 <td class="px-3 py-2.5">
-                  <div v-if="item.matchedInstrumentador" class="space-y-1">
+                  <div v-if="item.matchedInstrumentador && item.matchedInstrumentador.dni && item.matchedInstrumentador.dni !== 'erp-match'" class="space-y-1">
                     <div class="flex items-center justify-between gap-1">
                       <span class="font-black text-slate-900 dark:text-white truncate max-w-[130px]" :title="item.matchedInstrumentador.nombre">
                         {{ item.matchedInstrumentador.nombre }}
@@ -483,7 +483,7 @@
                 <td class="px-3 py-2.5 text-right pr-3">
                   <button 
                     @click="openImputacionModal(item)" 
-                    :disabled="!item.matchedInstrumentador"
+                    :disabled="!item.matchedInstrumentador || !item.matchedInstrumentador.dni || item.matchedInstrumentador.dni === 'erp-match'"
                     :class="[
                       'px-2.5 py-1.5 rounded-lg text-xs font-black transition cursor-pointer shadow-xs w-full max-w-[130px] text-center',
                       item.isConfirmed
@@ -543,7 +543,7 @@
             </div>
 
             <div class="pt-1 flex flex-col gap-1.5">
-              <div v-if="item.matchedInstrumentador" class="space-y-1 bg-emerald-50 dark:bg-emerald-950/60 p-2 rounded-lg border border-emerald-200 dark:border-emerald-800">
+              <div v-if="item.matchedInstrumentador && item.matchedInstrumentador.dni && item.matchedInstrumentador.dni !== 'erp-match'" class="space-y-1 bg-emerald-50 dark:bg-emerald-950/60 p-2 rounded-lg border border-emerald-200 dark:border-emerald-800">
                 <div class="flex items-center justify-between text-xs">
                   <span class="font-black text-emerald-900 dark:text-emerald-200">
                     ✓ {{ item.matchedInstrumentador.nombre }}
@@ -574,7 +574,7 @@
 
               <button 
                 @click="openImputacionModal(item)" 
-                :disabled="!item.matchedInstrumentador"
+                :disabled="!item.matchedInstrumentador || !item.matchedInstrumentador.dni || item.matchedInstrumentador.dni === 'erp-match'"
                 :class="[
                   'w-full py-2 rounded-xl text-xs font-black transition cursor-pointer text-center',
                   item.isConfirmed
@@ -1972,8 +1972,45 @@ const downloadBatchSummaryPdf = () => {
   }
 };
 
+const sanitizeMatchedInstrumentador = (inst) => {
+  if (!inst) return null;
+  let dni = inst.dni;
+  if (!dni || dni === 'erp-match' || String(dni).trim() === '') {
+    dni = null;
+  }
+
+  if (dni) {
+    dni = String(dni).replace(/\D/g, '');
+  }
+
+  if (!dni && inst.nombre && instrumentadoresOptions.value.length > 0) {
+    const normName = inst.nombre.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+    const found = instrumentadoresOptions.value.find(i => {
+      const optName = (i.nombre || '').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+      return optName === normName || (optName.length > 3 && (optName.includes(normName) || normName.includes(optName)));
+    });
+    if (found && found.dni) {
+      dni = String(found.dni).replace(/\D/g, '');
+    }
+  }
+
+  if (!dni) return null;
+
+  return {
+    dni: dni,
+    nombre: inst.nombre || 'Instrumentador'
+  };
+};
+
 // ABRIR MODAL PRINCIPAL DE IMPUTACIÓN DE CIRUGÍAS
 const openImputacionModal = (item) => {
+  const sanitized = sanitizeMatchedInstrumentador(item?.matchedInstrumentador);
+  if (!sanitized || !sanitized.dni) {
+    toast.error(`⚠️ El comprobante "${item.name}" no tiene un instrumentador vinculado con DNI registrado. Hacé clic en "🔍 Asignar..." para seleccionar el instrumentador.`);
+    openInstrumentadorSearchModal(item);
+    return;
+  }
+  item.matchedInstrumentador = sanitized;
   setActiveFile(item);
   surgerySearchQuery.value = '';
   targetPreallocatedAmount.value = 0;
@@ -2202,19 +2239,45 @@ const skipLibroMayorStep = () => {
 
 const fetchInitialData = async () => {
   try {
+    const mapInst = {};
+
+    // 0. Cargar primero la tabla oficial de instrumentadores
+    try {
+      const { data: dbInst } = await supabase
+        .from('instrumentadores')
+        .select('dni, nombre, nombre_completo');
+      if (dbInst) {
+        dbInst.forEach(i => {
+          if (i.dni) {
+            const dniStr = String(i.dni).trim().replace(/\D/g, '');
+            if (dniStr) {
+              mapInst[dniStr] = {
+                dni: dniStr,
+                nombre: i.nombre_completo || i.nombre || `Instrumentador ${dniStr}`
+              };
+            }
+          }
+        });
+      }
+    } catch (dbErr) {
+      console.warn("No se pudo cargar tabla instrumentadores directamente:", dbErr);
+    }
+
     const { data: instData } = await supabase
       .from('reportes')
       .select('instrumentador_dni, instrumentador, instrumentador_completado')
       .not('instrumentador_dni', 'is', null);
 
-    const mapInst = {};
     if (instData) {
       instData.forEach(r => {
-        if (r.instrumentador_dni && !mapInst[r.instrumentador_dni]) {
-          mapInst[r.instrumentador_dni] = {
-            dni: r.instrumentador_dni,
-            nombre: r.instrumentador_completado || r.instrumentador
-          };
+        if (r.instrumentador_dni) {
+          const dniStr = String(r.instrumentador_dni).trim().replace(/\D/g, '');
+          if (dniStr && !mapInst[dniStr]) {
+            mapInst[dniStr] = {
+              dni: dniStr,
+              nombre: r.instrumentador_completado || r.instrumentador
+            };
+          }
         }
       });
     }
@@ -2588,15 +2651,22 @@ const tryMatchWithLibroMayor = (item) => {
   });
 
   if (erpMatch) {
-    const instGiq = instrumentadoresOptions.value.find(i => 
-      i.nombre.toLowerCase().includes(erpMatch.instrumentadorNombre.toLowerCase())
-    );
+    const normErpName = erpMatch.instrumentadorNombre.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+    const instGiq = instrumentadoresOptions.value.find(i => {
+      const optName = (i.nombre || '').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+      return optName === normErpName || (optName.length > 3 && (optName.includes(normErpName) || normErpName.includes(optName)));
+    });
 
-    item.matchedInstrumentador = {
-      dni: instGiq ? instGiq.dni : 'erp-match',
-      nombre: erpMatch.instrumentadorNombre
-    };
-    item.matchType = 'libro_mayor';
+    if (instGiq && instGiq.dni) {
+      item.matchedInstrumentador = {
+        dni: String(instGiq.dni).replace(/\D/g, ''),
+        nombre: instGiq.nombre || erpMatch.instrumentadorNombre
+      };
+      item.matchType = 'libro_mayor';
+    } else {
+      item.matchedInstrumentador = null;
+      item.matchType = 'unmatched';
+    }
   }
 };
 
@@ -2691,6 +2761,16 @@ const confirmarConciliacion = async () => {
     toast.error("Vincular al menos 1 cirugía para registrar la conciliación.");
     return;
   }
+
+  const rawInst = activeFile.value?.matchedInstrumentador;
+  const sanitizedInst = sanitizeMatchedInstrumentador(rawInst);
+
+  if (!sanitizedInst || !sanitizedInst.dni) {
+    toast.error(`⚠️ El instrumentador "${rawInst?.nombre || 'asignado'}" no está vinculado a un DNI registrado en la base de datos. Hacé clic en "🔍 Asignar..." para vincularlo a un profesional con DNI válido.`);
+    return;
+  }
+
+  activeFile.value.matchedInstrumentador = sanitizedInst;
 
   isSubmitting.value = true;
   try {
