@@ -20,10 +20,24 @@
           </h1>
         </div>
 
-        <!-- Sublínea Integrada: Selector de Borradores e Iniciar Nuevo -->
+        <!-- Sublínea Integrada: Selector de Borradores, Indicador de Autoguardado e Iniciar Nuevo -->
         <div class="flex items-center gap-2 text-xs flex-wrap pt-0.5">
           <span class="text-slate-500 dark:text-slate-400">
             {{ userDrafts.length > 0 ? `${userDrafts.length} ${userDrafts.length === 1 ? 'borrador activo' : 'borradores activos'}` : 'Registro táctil de operaciones diarias' }}
+          </span>
+
+          <!-- Badge de Estado de Autoguardado en Vivo -->
+          <span 
+            :class="[
+              'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-[10px] font-extrabold border transition-all shadow-2xs',
+              autoSaveStatus === 'saving' ? 'bg-blue-50 text-blue-800 border-blue-200 dark:bg-blue-950 dark:text-blue-300 dark:border-blue-900 animate-pulse' :
+              autoSaveStatus === 'saved' ? 'bg-emerald-50 text-emerald-800 border-emerald-200 dark:bg-emerald-950 dark:text-emerald-300 dark:border-emerald-900' :
+              autoSaveStatus === 'error' ? 'bg-rose-50 text-rose-800 border-rose-200 dark:bg-rose-950 dark:text-rose-300 dark:border-rose-900' :
+              'bg-slate-100 text-slate-600 border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700'
+            ]"
+          >
+            <span :class="['w-1.5 h-1.5 rounded-full', autoSaveStatus === 'saving' ? 'bg-blue-500 animate-ping' : autoSaveStatus === 'saved' ? 'bg-emerald-500' : autoSaveStatus === 'error' ? 'bg-rose-500' : 'bg-slate-400']"></span>
+            <span>{{ autoSaveMessage }}</span>
           </span>
 
           <button 
@@ -915,41 +929,116 @@ const filterCounts = computed(() => {
   return { total, entregas, retiros, incidencias, otros };
 });
 
-onBeforeRouteLeave((to, from, next) => {
+// --- RESPALDO Y RECUPERACIÓN LOCAL (localStorage) ---
+const saveLocalBackup = () => {
+  if (loading.value || !informe.responsable_user_id || informe.estado === 'enviado') return;
+  try {
+    const backupKey = `logistica_draft_backup_${informe.responsable_user_id}_${informe.fecha}`;
+    const payload = {
+      informe: { ...informe },
+      movimientos: movimientos.value,
+      updatedAt: Date.now()
+    };
+    localStorage.setItem(backupKey, JSON.stringify(payload));
+  } catch (err) {
+    console.warn('No se pudo escribir el respaldo local:', err);
+  }
+};
+
+const clearLocalBackup = () => {
+  if (!informe.responsable_user_id || !informe.fecha) return;
+  try {
+    const backupKey = `logistica_draft_backup_${informe.responsable_user_id}_${informe.fecha}`;
+    localStorage.removeItem(backupKey);
+  } catch (err) {
+    console.warn('Error al limpiar respaldo local:', err);
+  }
+};
+
+const restoreLocalBackupIfNewer = (dbMovsCount, dbUpdatedAt) => {
+  if (!informe.responsable_user_id || !informe.fecha) return false;
+  try {
+    const backupKey = `logistica_draft_backup_${informe.responsable_user_id}_${informe.fecha}`;
+    const raw = localStorage.getItem(backupKey);
+    if (!raw) return false;
+    const backup = JSON.parse(raw);
+    if (!backup || !Array.isArray(backup.movimientos)) return false;
+
+    const dbTime = dbUpdatedAt ? new Date(dbUpdatedAt).getTime() : 0;
+    if (backup.movimientos.length > dbMovsCount || (backup.updatedAt && backup.updatedAt > dbTime + 3000)) {
+      movimientos.value = backup.movimientos;
+      if (backup.informe?.observacion_general) {
+        informe.observacion_general = backup.informe.observacion_general;
+      }
+      autoSaveStatus.value = 'saved';
+      lastSaveTime.value = 'Dispositivo';
+      toast.info('📁 Se restauraron datos no sincronizados desde tu dispositivo.', { timeout: 3500 });
+      return true;
+    }
+  } catch (err) {
+    console.warn('Error al verificar respaldo local:', err);
+  }
+  return false;
+};
+
+onBeforeRouteLeave(async (to, from, next) => {
   if (informe.estado === 'enviado' || isSending.value || isDeletingDraft.value) {
     next();
     return;
   }
+
+  saveLocalBackup();
+  clearTimeout(autoSaveTimer);
+
   if (movimientos.value.length > 0 || informe.observacion_general.trim()) {
-    const confirmLeave = window.confirm('Tienes movimientos o datos cargados en borrador. ¿Estás seguro de que deseas salir sin enviar el informe diario?');
-    if (confirmLeave) {
-      next();
-    } else {
-      next(false);
+    try {
+      await saveDraftInternal(true);
+    } catch (err) {
+      console.warn('Sincronización en salida de ruta:', err);
     }
-  } else {
-    next();
   }
+  next();
 });
 
-// Mutex Lock contra concurrencia de autoguardado
+const handleVisibilityChange = () => {
+  if (document.visibilityState === 'hidden') {
+    saveLocalBackup();
+    if (!loading.value && informe.responsable_user_id && informe.estado !== 'enviado') {
+      if (movimientos.value.length > 0 || informe.observacion_general.trim()) {
+        saveDraftInternal(true);
+      }
+    }
+  }
+};
+
+const handleBeforeUnload = () => {
+  saveLocalBackup();
+};
+
+// Mutex Lock y Cola de Concurrencia de Autoguardado
 let isSavingInternal = false;
+let hasPendingSave = false;
 let autoSaveTimer = null;
 
-const scheduleAutoSave = () => {
+const scheduleAutoSave = (delayMs = 1200) => {
   if (loading.value || isSending.value || isDeletingDraft.value || informe.estado === 'enviado' || !informe.responsable_user_id) return;
-  // No programar autoguardado de un informe nuevo limpio si aún no tiene movimientos ni observaciones
+
+  // 1. Respaldo local ultra-rápido en dispositivo (0ms)
+  saveLocalBackup();
+
+  // No programar autoguardado a la nube de un informe nuevo limpio sin movimientos ni observaciones
   if (!informe.id && movimientos.value.length === 0 && !informe.observacion_general.trim()) return;
+
   autoSaveStatus.value = 'saving';
   clearTimeout(autoSaveTimer);
   autoSaveTimer = setTimeout(async () => {
     await saveDraftInternal(true);
-  }, 1400);
+  }, delayMs);
 };
 
-// Watcher para guardar borrador automáticamente ante cambios
+// Watcher defensivo profundo para autoguardado ante cualquier cambio de estado
 watch(
-  () => [informe.fecha, informe.zona, informe.observacion_general],
+  () => [informe.fecha, informe.zona, informe.observacion_general, movimientos.value.length],
   ([newFecha], [oldFecha]) => {
     if (newFecha !== oldFecha) {
       checkEnviadoForDate(newFecha);
@@ -1299,6 +1388,9 @@ const loadDraftData = async (draftId) => {
 
   movimientos.value = (movs || []).map(m => ({ ...m, tempId: m.id }));
   autoSaveStatus.value = 'saved';
+
+  // Respaldo local y recuperación de emergencias
+  restoreLocalBackupIfNewer(movimientos.value.length, existing.updated_at || existing.created_at);
 };
 
 const switchDraft = async (draftId) => {
@@ -1318,6 +1410,7 @@ const switchDraft = async (draftId) => {
 
 const startNewCleanReport = () => {
   clearTimeout(autoSaveTimer);
+  clearLocalBackup();
   editingIndex.value = null;
   informe.id = null;
   informe.fecha = todayISO;
@@ -1338,6 +1431,7 @@ const deleteCurrentDraft = async () => {
   try {
     isDeletingDraft.value = true;
     clearTimeout(autoSaveTimer);
+    clearLocalBackup();
     const draftIdToDelete = informe.id;
 
     // 1. Eliminar movimientos asociados (Permitido por Grant DELETE en movimientos)
@@ -1376,6 +1470,9 @@ const deleteCurrentDraft = async () => {
 onMounted(async () => {
   try {
     loading.value = true;
+    window.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
     const { data: { session } } = await supabase.auth.getSession();
     if (!session?.user) return;
 
@@ -1410,17 +1507,24 @@ onMounted(async () => {
 
 onUnmounted(() => {
   clearTimeout(autoSaveTimer);
+  window.removeEventListener('visibilitychange', handleVisibilityChange);
+  window.removeEventListener('beforeunload', handleBeforeUnload);
+  saveLocalBackup();
 });
 
-// Guardado seguro con bloqueo mutex y resolución de duplicados por fecha
+// Guardado seguro con bloqueo mutex, cola de reintento y respaldo local
 const saveDraftInternal = async (isSilent = false) => {
   if (!informe.responsable_user_id) return false;
-  if (isSavingInternal) return true;
+  if (isSavingInternal) {
+    hasPendingSave = true;
+    return true;
+  }
 
   try {
     isSavingInternal = true;
     isSaving.value = true;
     autoSaveStatus.value = 'saving';
+    saveLocalBackup();
 
     if (informe.id) {
       const { error } = await supabase
@@ -1547,6 +1651,10 @@ const saveDraftInternal = async (isSilent = false) => {
   } finally {
     isSaving.value = false;
     isSavingInternal = false;
+    if (hasPendingSave) {
+      hasPendingSave = false;
+      scheduleAutoSave(300);
+    }
   }
 };
 
@@ -1595,6 +1703,7 @@ const submitInformeFinal = async () => {
     if (error) throw error;
 
     toast.success('¡Informe diario guardado y enviado exitosamente!');
+    clearLocalBackup();
     showResumenModal.value = false;
     router.replace({ name: 'LogisticaDetalleInforme', params: { id: informe.id } });
   } catch (err) {
