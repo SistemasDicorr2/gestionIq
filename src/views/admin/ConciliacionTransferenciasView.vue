@@ -2373,7 +2373,7 @@ const fetchInitialData = async () => {
     try {
       const { data: dbInst } = await supabase
         .from('instrumentadores')
-        .select('dni, nombre, nombre_completo');
+        .select('dni, nombre_completo');
       if (dbInst) {
         dbInst.forEach(i => {
           if (i.dni) {

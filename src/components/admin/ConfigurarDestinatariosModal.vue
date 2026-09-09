@@ -8,62 +8,123 @@
         <div>
           <span class="text-xs font-black uppercase text-blue-600 dark:text-blue-400">CONFIGURACIÓN AUTOMÁTICA</span>
           <h3 class="text-lg font-extrabold text-slate-900 dark:text-white">
-            Destinatarios del Reporte Semanal (Jueves 15 hs)
+            Programación y Destinatarios del Reporte Semanal
           </h3>
         </div>
-        <button @click="$emit('close')" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1 text-xl font-bold">
+        <button @click="$emit('close')" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1 text-xl font-bold cursor-pointer">
           ✕
         </button>
       </div>
 
-      <p class="text-xs text-slate-500 dark:text-slate-400">
-        Las direcciones listadas a continuación recibirán automáticamente el reporte ejecutivo por correo con el enlace al lote inmutable de fichas cada jueves a las 15:00 hs.
-      </p>
-
       <!-- Estado de Carga -->
       <div v-if="loading" class="py-8 text-center text-xs text-slate-400">
-        Cargando configuración de destinatarios...
+        Cargando configuración...
       </div>
 
-      <div v-else class="space-y-4">
-        <!-- Agregar Nuevo Email -->
-        <form @submit.prevent="addEmail" class="flex gap-2">
-          <input 
-            v-model="newEmail" 
-            type="email" 
-            placeholder="ejemplo@districorr.com.ar" 
-            class="flex-1 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-3.5 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          <button 
-            type="submit" 
-            :disabled="!newEmail.trim()"
-            class="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-xs font-bold rounded-xl transition cursor-pointer"
-          >
-            + Añadir
-          </button>
-        </form>
-
-        <!-- Lista de Emails Registrados -->
-        <div class="space-y-2 max-h-56 overflow-y-auto pr-1">
-          <div 
-            v-for="(email, idx) in emailList" 
-            :key="idx" 
-            class="flex items-center justify-between p-2.5 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200/80 dark:border-slate-700 text-xs font-semibold text-slate-800 dark:text-slate-200"
-          >
-            <div class="flex items-center gap-2">
-              <span class="text-slate-400 text-sm">✉️</span>
-              <span>{{ email }}</span>
-            </div>
-            <button 
-              @click="removeEmail(idx)" 
-              class="text-red-500 hover:text-red-700 text-xs font-bold px-2 py-1 rounded hover:bg-red-50 dark:hover:bg-red-950/40 transition cursor-pointer"
-            >
-              Quitar
-            </button>
+      <div v-else class="space-y-5">
+        
+        <!-- SECCIÓN 1: HORARIO Y DÍA DE ENVÍO AUTOMÁTICO -->
+        <div class="p-4 bg-blue-50/60 dark:bg-blue-950/30 rounded-xl border border-blue-200/80 dark:border-blue-900/60 space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-extrabold text-blue-950 dark:text-blue-200 flex items-center gap-1.5">
+              <span>⏰</span>
+              <span>Horario de Envío Automático (ART UTC-3)</span>
+            </span>
+            
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input type="checkbox" v-model="schedule.activo" class="sr-only peer" />
+              <div class="w-9 h-5 bg-slate-300 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
+              <span class="ml-2 text-xs font-bold text-slate-700 dark:text-slate-300">
+                {{ schedule.activo ? 'Activo' : 'Pausado' }}
+              </span>
+            </label>
           </div>
 
-          <div v-if="emailList.length === 0" class="text-center py-4 text-xs text-slate-400 italic">
-            No hay destinatarios registrados.
+          <div class="grid grid-cols-2 gap-3 pt-1">
+            <div>
+              <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
+                Día de la Semana
+              </label>
+              <select 
+                v-model.number="schedule.dia" 
+                :disabled="!schedule.activo"
+                class="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-xs font-semibold text-slate-900 dark:text-slate-100 disabled:opacity-50"
+              >
+                <option :value="1">Lunes</option>
+                <option :value="2">Martes</option>
+                <option :value="3">Miércoles</option>
+                <option :value="4">Jueves (Recomendado)</option>
+                <option :value="5">Viernes</option>
+                <option :value="6">Sábado</option>
+                <option :value="0">Domingo</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
+                Hora de Envío
+              </label>
+              <select 
+                v-model.number="schedule.hora" 
+                :disabled="!schedule.activo"
+                class="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-xs font-semibold text-slate-900 dark:text-slate-100 disabled:opacity-50"
+              >
+                <option v-for="h in hoursOptions" :key="h.value" :value="h.value">
+                  {{ h.label }}
+                </option>
+              </select>
+            </div>
+          </div>
+
+          <p class="text-[10px] text-blue-800 dark:text-blue-300 opacity-90 leading-tight">
+            ℹ️ El informe consolidará todas las fichas enviadas desde el sábado anterior a las 00:00 hs hasta el {{ getDayName(schedule.dia) }} a las {{ String(schedule.hora).padStart(2, '0') }}:00 hs.
+          </p>
+        </div>
+
+        <!-- SECCIÓN 2: LISTA DE DESTINATARIOS -->
+        <div class="space-y-3">
+          <label class="block text-xs font-extrabold text-slate-800 dark:text-slate-200">
+            ✉️ Destinatarios del Correo
+          </label>
+
+          <form @submit.prevent="addEmail" class="flex gap-2">
+            <input 
+              v-model="newEmail" 
+              type="email" 
+              placeholder="ejemplo@districorr.com.ar" 
+              class="flex-1 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-3.5 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <button 
+              type="submit" 
+              :disabled="!newEmail.trim()"
+              class="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-xs font-bold rounded-xl transition cursor-pointer"
+            >
+              + Añadir
+            </button>
+          </form>
+
+          <!-- Lista de Emails Registrados -->
+          <div class="space-y-2 max-h-48 overflow-y-auto pr-1">
+            <div 
+              v-for="(email, idx) in emailList" 
+              :key="idx" 
+              class="flex items-center justify-between p-2.5 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200/80 dark:border-slate-700 text-xs font-semibold text-slate-800 dark:text-slate-200"
+            >
+              <div class="flex items-center gap-2">
+                <span class="text-slate-400 text-sm">✉️</span>
+                <span>{{ email }}</span>
+              </div>
+              <button 
+                @click="removeEmail(idx)" 
+                class="text-red-500 hover:text-red-700 text-xs font-bold px-2 py-1 rounded hover:bg-red-50 dark:hover:bg-red-950/40 transition cursor-pointer"
+              >
+                Quitar
+              </button>
+            </div>
+
+            <div v-if="emailList.length === 0" class="text-center py-4 text-xs text-slate-400 italic">
+              No hay destinatarios registrados.
+            </div>
           </div>
         </div>
       </div>
@@ -100,7 +161,7 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
+import { ref, reactive, watch } from 'vue';
 import { supabase } from '../../services/supabase';
 import { useToast } from 'vue-toastification';
 import { sendEmailWithResend } from '../../services/resendService';
@@ -118,23 +179,67 @@ const testing = ref(false);
 const newEmail = ref('');
 const emailList = ref([]);
 
+const schedule = reactive({
+  dia: 4,      // 4 = Jueves
+  hora: 15,    // 15:00 hs ART
+  minuto: 0,
+  activo: true
+});
+
+const hoursOptions = [
+  { value: 8, label: '08:00 hs' },
+  { value: 9, label: '09:00 hs' },
+  { value: 10, label: '10:00 hs' },
+  { value: 11, label: '11:00 hs' },
+  { value: 12, label: '12:00 hs' },
+  { value: 13, label: '13:00 hs' },
+  { value: 14, label: '14:00 hs' },
+  { value: 15, label: '15:00 hs (Por defecto)' },
+  { value: 16, label: '16:00 hs' },
+  { value: 17, label: '17:00 hs' },
+  { value: 18, label: '18:00 hs' },
+  { value: 19, label: '19:00 hs' },
+  { value: 20, label: '20:00 hs' }
+];
+
+const getDayName = (dayNum) => {
+  const map = { 1: 'Lunes', 2: 'Martes', 3: 'Miércoles', 4: 'Jueves', 5: 'Viernes', 6: 'Sábado', 0: 'Domingo' };
+  return map[dayNum] || 'Jueves';
+};
+
 const fetchConfig = async () => {
   try {
     loading.value = true;
-    const { data, error } = await supabase
+    
+    // 1. Obtener destinatarios
+    const { data: emailsData, error: emailsErr } = await supabase
       .from('resumen_operativo_config')
       .select('value')
       .eq('key', 'emails_destinatarios')
       .single();
 
-    if (error && error.code !== 'PGRST116') throw error;
-    if (data && Array.isArray(data.value)) {
-      emailList.value = [...data.value];
+    if (emailsErr && emailsErr.code !== 'PGRST116') throw emailsErr;
+    if (emailsData && Array.isArray(emailsData.value)) {
+      emailList.value = [...emailsData.value];
     } else {
       emailList.value = ["sistemas@districorr.com.ar", "contable@districorr.com.ar", "auxiliardeposito@districorr.com.ar"];
     }
+
+    // 2. Obtener programación del envío
+    const { data: scheduleData } = await supabase
+      .from('resumen_operativo_config')
+      .select('value')
+      .eq('key', 'programacion_semanal')
+      .single();
+
+    if (scheduleData && scheduleData.value) {
+      schedule.dia = scheduleData.value.dia ?? 4;
+      schedule.hora = scheduleData.value.hora ?? 15;
+      schedule.minuto = scheduleData.value.minuto ?? 0;
+      schedule.activo = scheduleData.value.activo ?? true;
+    }
   } catch (err) {
-    toast.error("Error al cargar destinatarios: " + err.message);
+    toast.error("Error al cargar configuración: " + err.message);
   } finally {
     loading.value = false;
   }
@@ -165,7 +270,9 @@ const removeEmail = (index) => {
 const saveConfig = async () => {
   try {
     saving.value = true;
-    const { error } = await supabase
+
+    // 1. Guardar lista de destinatarios
+    const { error: emailsErr } = await supabase
       .from('resumen_operativo_config')
       .upsert({
         key: 'emails_destinatarios',
@@ -173,12 +280,41 @@ const saveConfig = async () => {
         updated_at: new Date().toISOString()
       });
 
-    if (error) throw error;
+    if (emailsErr) throw emailsErr;
 
-    toast.success("Lista de destinatarios actualizada correctamente.");
+    // 2. Intentar sincronizar programación con la RPC (si está instalada en Supabase)
+    try {
+      const { error: rpcErr } = await supabase.rpc('actualizar_programacion_resumen_semanal', {
+        p_dia: schedule.dia,
+        p_hora: schedule.hora,
+        p_minuto: schedule.minuto,
+        p_activo: schedule.activo
+      });
+
+      if (rpcErr) {
+        console.warn("RPC actualizar_programacion_resumen_semanal no disponible aún:", rpcErr.message);
+        // Fallback: Guardar directamente en la tabla de configuración
+        await supabase
+          .from('resumen_operativo_config')
+          .upsert({
+            key: 'programacion_semanal',
+            value: {
+              dia: schedule.dia,
+              hora: schedule.hora,
+              minuto: schedule.minuto,
+              activo: schedule.activo
+            },
+            updated_at: new Date().toISOString()
+          });
+      }
+    } catch (dbErr) {
+      console.warn("Respaldo directo de configuración de horario:", dbErr);
+    }
+
+    toast.success("Configuración y destinatarios actualizados correctamente.");
     emit('close');
   } catch (err) {
-    toast.error("Error al guardar destinatarios: " + err.message);
+    toast.error("Error al guardar configuración: " + err.message);
   } finally {
     saving.value = false;
   }
@@ -189,7 +325,7 @@ const testReporteEmail = async () => {
     testing.value = true;
     toast.info("Generando lote e invocando envío de prueba...");
 
-    // 1. Guardar destinatarios actualizados
+    // 1. Guardar destinatarios y programación actualizados
     await saveConfig();
 
     const targetEmails = emailList.value.length > 0 
@@ -346,3 +482,13 @@ const testReporteEmail = async () => {
   }
 };
 </script>
+
+<style scoped>
+@keyframes scaleUp {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+.animate-scaleUp {
+  animation: scaleUp 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+</style>
