@@ -6,29 +6,43 @@
       <p class="text-slate-500 dark:text-slate-400 mt-1.5 text-sm sm:text-base">Auditá el historial de pagos y utilizá las herramientas para corregir errores de forma segura.</p>
     </div>
 
-    <!-- Sistema de Pestañas Tipo Pills Moderno -->
-    <div class="mb-8 p-1 bg-slate-100 dark:bg-slate-900/60 rounded-xl inline-flex gap-1.5 border border-slate-200/50 dark:border-slate-800/40">
-      <button
-        @click="activeTab = 'historial'"
-        :class="[
-          'px-5 py-2 text-sm font-semibold rounded-lg transition-all duration-200 active:scale-95 cursor-pointer',
-          activeTab === 'historial'
-            ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-50 shadow-sm border border-slate-200/40 dark:border-slate-700/30'
-            : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-205'
-        ]"
+    <!-- Sistema de Pestañas y Acciones Principales -->
+    <div class="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div class="p-1 bg-slate-100 dark:bg-slate-900/60 rounded-xl inline-flex gap-1.5 border border-slate-200/50 dark:border-slate-800/40 w-fit">
+        <button
+          @click="activeTab = 'historial'"
+          :class="[
+            'px-5 py-2 text-sm font-semibold rounded-lg transition-all duration-200 active:scale-95 cursor-pointer',
+            activeTab === 'historial'
+              ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-50 shadow-sm border border-slate-200/40 dark:border-slate-700/30'
+              : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-205'
+          ]"
+        >
+          Historial de Órdenes
+        </button>
+        <button
+          @click="activeTab = 'herramientas'"
+          :class="[
+            'px-5 py-2 text-sm font-semibold rounded-lg transition-all duration-200 active:scale-95 cursor-pointer',
+            activeTab === 'herramientas'
+              ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-50 shadow-sm border border-slate-200/40 dark:border-slate-700/30'
+              : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-205'
+          ]"
+        >
+          Herramientas de Corrección
+        </button>
+      </div>
+
+      <!-- Botón de Reporte Ejecutivo por Período -->
+      <button 
+        type="button"
+        @click="isModalPeriodoVisible = true"
+        class="px-5 py-2.5 rounded-xl font-bold text-xs sm:text-sm bg-blue-600 hover:bg-blue-700 active:scale-95 text-white shadow-md shadow-blue-500/20 transition-all flex items-center gap-2 cursor-pointer w-fit"
       >
-        Historial de Órdenes
-      </button>
-      <button
-        @click="activeTab = 'herramientas'"
-        :class="[
-          'px-5 py-2 text-sm font-semibold rounded-lg transition-all duration-200 active:scale-95 cursor-pointer',
-          activeTab === 'herramientas'
-            ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-50 shadow-sm border border-slate-200/40 dark:border-slate-700/30'
-            : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-205'
-        ]"
-      >
-        Herramientas de Corrección
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        </svg>
+        <span>Generar Reporte por Período</span>
       </button>
     </div>
 
@@ -178,6 +192,13 @@
       @close="closeModal"
     />
 
+    <!-- Modal Reporte Ejecutivo por Período / Instrumentador -->
+    <ModalReportePagosPeriodo
+      :show="isModalPeriodoVisible"
+      :historial="historial"
+      @close="isModalPeriodoVisible = false"
+    />
+
     <!-- Modal Compartir Enlace/Mensaje -->
     <Transition name="fade">
       <div v-if="isShareModalVisible" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-md flex items-center justify-center p-4">
@@ -219,29 +240,28 @@
                   <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
                   </svg>
-                  Copiar Link
+                  <span>Copiar Enlace</span>
                 </button>
                 <button 
-                  @click="copiarTexto(getWhatsAppMessage(inst), 'Mensaje')"
+                  @click="copiarTexto(getWhatsAppMessage(inst), 'Mensaje de WhatsApp')"
                   :disabled="!inst.token"
-                  class="btn-share-action text-emerald-700 bg-emerald-50 dark:text-emerald-400 dark:bg-emerald-950/40 border-emerald-100/50 dark:border-emerald-900/30 hover:bg-emerald-100 dark:hover:bg-emerald-950"
+                  class="btn-share-action text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800/60"
                 >
                   <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                   </svg>
-                  WhatsApp
+                  <span>Mensaje WhatsApp</span>
                 </button>
                 <button 
                   @click="descargarPDFInstrumentador(inst)"
                   :disabled="loadingPdfInstDni === inst.dni"
-                  class="btn-share-action text-rose-700 bg-rose-50 dark:text-rose-400 dark:bg-rose-950/40 border-rose-100/50 dark:border-rose-900/30 hover:bg-rose-100 dark:hover:bg-rose-950"
-                  title="Descargar Reporte PDF del Instrumentador"
+                  class="btn-share-action text-rose-700 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/40 border-rose-200 dark:border-rose-800/60"
                 >
-                  <div v-if="loadingPdfInstDni === inst.dni" class="w-3.5 h-3.5 border-2 border-rose-500 border-t-transparent rounded-full animate-spin"></div>
+                  <div v-if="loadingPdfInstDni === inst.dni" class="w-3 h-3 border-2 border-rose-500 border-t-transparent rounded-full animate-spin"></div>
                   <svg v-else class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
                   </svg>
-                  PDF Pago
+                  <span>Descargar PDF</span>
                 </button>
               </div>
             </div>
@@ -262,18 +282,20 @@
 import { ref, onMounted, computed, watch } from 'vue';
 import { supabase } from '../../services/supabase';
 import { useToasts } from '../../composables/useToasts';
-import { useOrdenDePagoPDF } from '../../composables/useOrdenDePagoPDF';
+import { useReportePagosPDF } from '../../composables/useReportePagosPDF';
 import OrdenDePagoDetalleModal from '../../components/admin/OrdenDePagoDetalleModal.vue';
+import ModalReportePagosPeriodo from '../../components/admin/ModalReportePagosPeriodo.vue';
 import CorrectionWorkspace from '../../components/admin/corrections/CorrectionWorkspace.vue';
 
 const { showSuccessToast, showErrorToast } = useToasts();
-const { generatePDF } = useOrdenDePagoPDF();
+const { generarReporteDesdeDetalleOrden } = useReportePagosPDF();
 
 const activeTab = ref('historial');
 const historial = ref([]);
 const isLoading = ref(true);
 const error = ref(null);
 const isModalVisible = ref(false);
+const isModalPeriodoVisible = ref(false);
 const selectedOrdenId = ref(null);
 const dniFilter = ref('');
 const startDateFilter = ref('');
@@ -380,8 +402,8 @@ async function descargarPDFOrden(orden) {
     });
     if (rpcErr) throw rpcErr;
     if (!detalle) throw new Error('No se encontraron detalles para la orden.');
-    generatePDF(detalle);
-    showSuccessToast(`Reporte PDF de Orden #${orden.id} descargado.`);
+    generarReporteDesdeDetalleOrden(detalle);
+    showSuccessToast(`Reporte oficial de Orden #${orden.id} descargado.`);
   } catch (err) {
     console.error('Error al generar PDF de la orden:', err);
     showErrorToast(err, 'No se pudo generar el reporte PDF de la orden.');
@@ -400,8 +422,8 @@ async function descargarPDFInstrumentador(inst) {
     });
     if (rpcErr) throw rpcErr;
     if (!detalle) throw new Error('No se encontraron detalles para la orden.');
-    generatePDF(detalle, inst.dni);
-    showSuccessToast(`Reporte PDF para ${inst.nombre} descargado.`);
+    generarReporteDesdeDetalleOrden(detalle, inst.dni);
+    showSuccessToast(`Reporte oficial para ${inst.nombre} descargado.`);
   } catch (err) {
     console.error('Error al generar PDF del instrumentador:', err);
     showErrorToast(err, 'No se pudo generar el reporte PDF.');

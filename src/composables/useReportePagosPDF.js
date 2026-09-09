@@ -284,8 +284,77 @@ export function useReportePagosPDF() {
     });
   };
 
+  const generarReporteDesdeDetalleOrden = (detalleOrden, dniFiltro = null) => {
+    if (!detalleOrden) return;
+    const pagos = detalleOrden.pagos_instrumentadores || detalleOrden.pagos || [];
+    
+    // Si se especifica un DNI, filtrar solo ese
+    let targetPagos = pagos;
+    if (dniFiltro) {
+      targetPagos = pagos.filter(p => String(p.instrumentador_dni) === String(dniFiltro));
+    }
+
+    if (targetPagos.length === 0 && pagos.length > 0) {
+      targetPagos = pagos;
+    }
+
+    // Si hay 1 solo instrumentador objetivo
+    if (targetPagos.length === 1) {
+      const p = targetPagos[0];
+      const liquidacion = {
+        orden_de_pago_id: detalleOrden.id,
+        fecha_pago: detalleOrden.fecha_emision,
+        monto_total: p.monto_total_instrumentador,
+        cirugias: (p.cirugias || p.reportes || []).map(c => ({
+          paciente: c.paciente,
+          fecha_cirugia: c.fecha_cirugia,
+          monto: c.monto_final !== undefined ? c.monto_final : (c.monto_a_pagar || 0)
+        }))
+      };
+      generarReporteOrdenIndividual({
+        instrumentador: {
+          nombre_completo: p.instrumentador_nombre,
+          dni: p.instrumentador_dni
+        },
+        liquidacion
+      });
+      return;
+    }
+
+    // Si hay varios instrumentadores, generar para cada uno
+    targetPagos.forEach(p => {
+      const liquidacion = {
+        orden_de_pago_id: detalleOrden.id,
+        fecha_pago: detalleOrden.fecha_emision,
+        monto_total: p.monto_total_instrumentador,
+        cirugias: (p.cirugias || p.reportes || []).map(c => ({
+          paciente: c.paciente,
+          fecha_cirugia: c.fecha_cirugia,
+          monto: c.monto_final !== undefined ? c.monto_final : (c.monto_a_pagar || 0)
+        }))
+      };
+      generarReporteOrdenIndividual({
+        instrumentador: {
+          nombre_completo: p.instrumentador_nombre,
+          dni: p.instrumentador_dni
+        },
+        liquidacion
+      });
+    });
+  };
+
+  const generarReporteConsolidadoPeriodo = ({ instrumentador, liquidaciones, periodoLabel }) => {
+    generarReportePagos({
+      instrumentador,
+      liquidaciones,
+      periodoLabel: periodoLabel || 'Período personalizado'
+    });
+  };
+
   return {
     generarReportePagos,
-    generarReporteOrdenIndividual
+    generarReporteOrdenIndividual,
+    generarReporteDesdeDetalleOrden,
+    generarReporteConsolidadoPeriodo
   };
 }

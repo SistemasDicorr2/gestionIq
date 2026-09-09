@@ -55,10 +55,8 @@
 <script setup>
 import { ref, watch } from 'vue';
 // --- INICIO DE LA CORRECCIÓN ---
-// Se usan rutas relativas para asegurar que Vite encuentre los archivos.
 import { supabase } from '../../services/supabase';
-import { useOrdenDePagoPDF } from '../../composables/useOrdenDePagoPDF';
-// --- FIN DE LA CORRECCIÓN ---
+import { useReportePagosPDF } from '../../composables/useReportePagosPDF';
 
 const props = defineProps({
   ordenId: { type: Number, default: null },
@@ -70,7 +68,7 @@ const detalle = ref(null);
 const isLoading = ref(false);
 const error = ref(null);
 const R2_PUBLIC_URL = import.meta.env.VITE_R2_PUBLIC_URL;
-const { generatePDF } = useOrdenDePagoPDF();
+const { generarReporteDesdeDetalleOrden } = useReportePagosPDF();
 
 async function fetchDetalleOrden(id) {
   if (!id) return;
@@ -99,7 +97,7 @@ function closeModal() {
 
 function descargarPDF() {
   if (detalle.value) {
-    generatePDF(detalle.value);
+    generarReporteDesdeDetalleOrden(detalle.value);
   }
 }
 
