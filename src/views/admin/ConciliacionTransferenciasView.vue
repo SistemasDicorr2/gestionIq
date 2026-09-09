@@ -1903,13 +1903,12 @@ const groupedHistorialConciliaciones = computed(() => {
       dateStr = String(orden.fecha_emision).slice(0, 10);
     }
     
-    const isConc = isConciliacionOrder(orden);
-    const key = isConc ? `lote_${dateStr}` : `individual_${orden.id}`;
+    // Unificar por lote/fecha de emisión de la conciliación
+    const key = `conciliacion_${dateStr}`;
 
     if (!groupsMap[key]) {
       groupsMap[key] = {
         key: key,
-        isConciliacion: isConc,
         fecha: orden.fecha_emision,
         ordenes: [],
         totalMonto: 0,
@@ -1919,7 +1918,7 @@ const groupedHistorialConciliaciones = computed(() => {
 
     groupsMap[key].ordenes.push(orden);
     const monto = parseFloat(orden.monto_total_general || orden.monto_total || orden.monto || 0);
-    if (!isNaN(monto)) {
+    if (!isNaN(monto) && monto > 0) {
       groupsMap[key].totalMonto += monto;
     }
 
@@ -1934,18 +1933,15 @@ const groupedHistorialConciliaciones = computed(() => {
 
   const sortedGroups = Object.values(groupsMap).sort((a, b) => new Date(b.fecha || 0) - new Date(a.fecha || 0));
 
-  let loteCounter = sortedGroups.filter(g => g.isConciliacion).length;
+  const totalGroups = sortedGroups.length;
 
-  sortedGroups.forEach((g) => {
-    if (g.isConciliacion) {
-      g.loteNumber = loteCounter--;
-      g.title = `Conciliación #${g.loteNumber}`;
-    } else {
-      g.title = `Orden #${g.ordenes[0]?.id || ''}`;
-    }
+  sortedGroups.forEach((g, idx) => {
+    g.loteNumber = totalGroups - idx;
+    g.isConciliacion = true;
+    g.title = `Conciliación #${g.loteNumber}`;
     const profs = Array.from(g.profesionalesSet);
     g.profesionalesResumen = profs.length > 0 
-      ? (profs.slice(0, 2).join(', ') + (profs.length > 2 ? ` +${profs.length - 2} más` : ''))
+      ? (profs.slice(0, 3).join(', ') + (profs.length > 3 ? ` +${profs.length - 3} más` : ''))
       : 'Profesional no especificado';
   });
 
