@@ -227,6 +227,17 @@
                 <span>Regularizar Antiguos</span>
               </button>
 
+              <!-- Vista Previa Ejecutiva Imprimible -->
+              <button 
+                type="button"
+                @click="isModalImprimibleOpen = true"
+                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/40 hover:bg-indigo-100 dark:hover:bg-indigo-900/50 border border-indigo-200/60 dark:border-indigo-900/60 transition-all shadow-2xs active:scale-95 cursor-pointer"
+                title="Abrir vista previa e imprimir fichas"
+              >
+                <span>🖨️</span>
+                <span>Imprimir Fichas</span>
+              </button>
+
               <!-- Selector Registros por Página -->
               <div class="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 border-l border-slate-200 dark:border-slate-800 pl-2">
                 <span class="hidden sm:inline font-medium">Mostrar:</span>
@@ -292,6 +303,23 @@
                       </div>
                       <div class="text-indigo-600 dark:text-indigo-400 font-semibold flex items-center gap-1">
                         <span class="text-[10px] font-bold text-indigo-400 dark:text-indigo-500 uppercase tracking-wider">Ficha completa:</span> {{ getCompletedDate(surgery) }}
+                      </div>
+                      <div class="flex flex-wrap items-center gap-1.5 mt-1">
+                        <span v-if="surgery.es_ok" class="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700 bg-emerald-50 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-900/60 px-2 py-0.5 rounded-full" :title="`Control registrado: ${formatDate(surgery.control_fecha)}`">
+                          📦 Control: OK
+                        </span>
+                        <span v-else-if="surgery.tiene_problemas" class="inline-flex items-center gap-1 text-[10px] font-extrabold text-red-700 bg-red-50 dark:bg-red-950/60 dark:text-red-300 border border-red-200 dark:border-red-900/60 px-2 py-0.5 rounded-full" :title="`Problemas: ${surgery.control_observaciones || 'Registrado con problemas'}`">
+                          🔴 Con Problemas {{ surgery.control_observaciones ? `(${surgery.control_observaciones})` : '' }}
+                        </span>
+                        <span v-else-if="surgery.necesita_revision" class="inline-flex items-center gap-1 text-[10px] font-bold text-amber-700 bg-amber-50 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-200 dark:border-amber-900/60 px-2 py-0.5 rounded-full" :title="`Revisión: ${surgery.control_observaciones || ''}`">
+                          ⚠️ En Revisión
+                        </span>
+                        <span v-else class="inline-flex items-center gap-1 text-[10px] font-bold text-slate-600 bg-slate-100 dark:bg-slate-800 dark:text-slate-300 border border-slate-200 dark:border-slate-700 px-2 py-0.5 rounded-full" title="Aún no se ha registrado devolución en control de materiales">
+                          ⏳ Falta control
+                        </span>
+                        <span v-if="surgery.dias_antiguedad !== null" class="text-[10px] font-bold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full">
+                          🕒 {{ surgery.dias_antiguedad }}d
+                        </span>
                       </div>
                     </div>
                   </td>
@@ -469,6 +497,14 @@
       @close="isRegularizacionModalVisible = false"
       @confirm="handleConfirmRegularizacion"
     />
+
+    <!-- Modal Resumen Imprimible Estilo Email Ejecutivo -->
+    <ModalResumenPendientesImprimible
+      :show="isModalImprimibleOpen"
+      :surgeries="kpiPeriodSurgeries"
+      :period-title="selectedKpiPeriodLabel"
+      @close="isModalImprimibleOpen = false"
+    />
   </div>
 </template>
 
@@ -479,6 +515,7 @@ import { useToasts } from '../../composables/useToasts';
 import FileUpload from '../../components/uploader/FileUpload.vue';
 import PostPagoModal from '../../components/PostPagoModal.vue';
 import ModalRegularizacionAntiguos from '../../components/admin/ModalRegularizacionAntiguos.vue';
+import ModalResumenPendientesImprimible from '../../components/admin/ModalResumenPendientesImprimible.vue';
 
 const { showSuccessToast, showErrorToast, showInfoToast, showLoadingToast, updateToast } = useToasts();
 
@@ -494,8 +531,9 @@ const lastPaymentData = ref(null);
 const showFileUploader = ref(true);
 const cargarSinComprobante = ref(false);
 const justPaidSurgeryIds = ref(new Set());
-const selectedKpiPeriod = ref('current-month');
+const selectedKpiPeriod = ref('last-60-days');
 const activeKpiFilter = ref(null);
+const isModalImprimibleOpen = ref(false);
 
 // Estado de Paginación
 const currentPage = ref(1);
@@ -507,8 +545,10 @@ const isRegularizacionModalVisible = ref(false);
 const isSubmittingRegularizacion = ref(false);
 
 const kpiPeriodOptions = [
+  { value: 'last-60-days', label: 'Últimos 2 meses (60d)' },
   { value: 'current-month', label: 'Mes actual' },
   { value: 'last-30-days', label: 'Últimos 30 días' },
+  { value: 'last-90-days', label: 'Últimos 3 meses (90d)' },
   { value: 'previous-month', label: 'Mes anterior' },
   { value: 'all', label: 'Todos' },
   { value: 'custom', label: 'Personalizado' },
@@ -517,7 +557,7 @@ const kpiPeriodOptions = [
 const filters = reactive({
   searchTerm: '',
   selectedInstrumentador: 'todos',
-  period: 'current-month',
+  period: 'last-60-days',
   startDate: '',
   endDate: '',
   minAmount: null,
@@ -598,9 +638,37 @@ const isLast30DaysSurgery = (surgery) => {
   return surgeryDate >= startDate && surgeryDate <= today;
 };
 
+const isLast60DaysSurgery = (surgery) => {
+  const surgeryDate = getSurgeryDate(surgery);
+  if (!surgeryDate) return false;
+
+  const today = new Date();
+  const startDate = new Date(today);
+  startDate.setDate(today.getDate() - 60);
+  startDate.setHours(0, 0, 0, 0);
+  today.setHours(23, 59, 59, 999);
+
+  return surgeryDate >= startDate && surgeryDate <= today;
+};
+
+const isLast90DaysSurgery = (surgery) => {
+  const surgeryDate = getSurgeryDate(surgery);
+  if (!surgeryDate) return false;
+
+  const today = new Date();
+  const startDate = new Date(today);
+  startDate.setDate(today.getDate() - 90);
+  startDate.setHours(0, 0, 0, 0);
+  today.setHours(23, 59, 59, 999);
+
+  return surgeryDate >= startDate && surgeryDate <= today;
+};
+
 const isInSelectedKpiPeriod = (surgery) => {
   if (selectedKpiPeriod.value === 'all') return true;
+  if (selectedKpiPeriod.value === 'last-60-days') return isLast60DaysSurgery(surgery);
   if (selectedKpiPeriod.value === 'last-30-days') return isLast30DaysSurgery(surgery);
+  if (selectedKpiPeriod.value === 'last-90-days') return isLast90DaysSurgery(surgery);
   if (selectedKpiPeriod.value === 'previous-month') return isPreviousMonthSurgery(surgery);
   return isCurrentMonthSurgery(surgery);
 };
@@ -743,7 +811,9 @@ const selectedKpiPeriodLabel = computed(() => (
 ));
 
 const pendingKpiLabel = computed(() => {
+  if (selectedKpiPeriod.value === 'last-60-days') return 'Pendientes últimos 2 meses';
   if (selectedKpiPeriod.value === 'last-30-days') return 'Pendientes últimos 30 días';
+  if (selectedKpiPeriod.value === 'last-90-days') return 'Pendientes últimos 3 meses';
   if (selectedKpiPeriod.value === 'previous-month') return 'Pendientes mes anterior';
   if (selectedKpiPeriod.value === 'all') return 'Pendientes totales';
   return 'Pendientes del mes';
@@ -837,23 +907,65 @@ const fetchData = async () => {
     if (surgeries.length > 0) {
       const ids = surgeries.map(s => s.id).filter(Boolean);
       if (ids.length > 0) {
-        const { data: reportesData, error: reportesError } = await supabase
-          .from('reportes')
-          .select('id, created_at, fecha_envio')
-          .in('id', ids);
+        const [{ data: reportesData, error: reportesError }, { data: controlesData }] = await Promise.all([
+          supabase.from('reportes').select('id, created_at, fecha_envio').in('id', ids),
+          supabase.from('logistica_controles').select('cirugia_id, estado, observaciones, created_at').in('cirugia_id', ids)
+        ]);
 
         if (!reportesError && reportesData) {
           const reportesMap = new Map();
           reportesData.forEach(r => reportesMap.set(String(r.id), r));
 
+          const controlMap = new Map();
+          if (controlesData) {
+            controlesData.forEach(c => controlMap.set(String(c.cirugia_id), c));
+          }
+
+          const today = new Date();
           surgeries = surgeries.map(s => {
             const r = reportesMap.get(String(s.id));
             const fechaEnvio = r?.fecha_envio || s.fecha_envio || null;
+            const fechaCx = s.fecha_cirugia ? new Date(`${String(s.fecha_cirugia).split('T')[0]}T00:00:00`) : null;
+            const fechaEnvioDate = fechaEnvio ? new Date(fechaEnvio) : null;
+            
+            let diasAntiguedad = null;
+            if (fechaCx && !isNaN(fechaCx.getTime())) {
+              const diffMs = today.getTime() - fechaCx.getTime();
+              diasAntiguedad = Math.max(0, Math.floor(diffMs / (1000 * 60 * 60 * 24)));
+            }
+
+            let diasRetrasoEnvio = null;
+            if (fechaCx && fechaEnvioDate && !isNaN(fechaCx.getTime()) && !isNaN(fechaEnvioDate.getTime())) {
+              const diffMs = fechaEnvioDate.getTime() - fechaCx.getTime();
+              diasRetrasoEnvio = Math.max(0, Math.floor(diffMs / (1000 * 60 * 60 * 24)));
+            }
+
+            const control = controlMap.get(String(s.id));
+            const tieneControl = Boolean(control);
+            const rawEstado = (control?.estado || '').toLowerCase().trim();
+            const controlEstado = control?.estado || (tieneControl ? 'OK' : null);
+            const controlObservaciones = control?.observaciones || '';
+            const controlFecha = control?.created_at || null;
+
+            const esOk = tieneControl && (rawEstado === 'ok' || rawEstado === 'correcto');
+            const tieneProblemas = tieneControl && (rawEstado === 'problemas' || rawEstado === 'con problemas' || rawEstado === 'error');
+            const necesitaRevision = tieneControl && (rawEstado === 'revision' || rawEstado === 'necesita revision');
+
             return {
               ...s,
               fecha_envio: fechaEnvio,
               fecha_completada: fechaEnvio || s.fecha_completada || null,
               created_at: s.created_at || r?.created_at || null,
+              dias_antiguedad: diasAntiguedad,
+              dias_retraso_envio: diasRetrasoEnvio,
+              es_ficha_tardia: diasRetrasoEnvio !== null && diasRetrasoEnvio >= 7,
+              tiene_control: tieneControl,
+              control_estado: controlEstado,
+              control_observaciones: controlObservaciones,
+              control_fecha: controlFecha,
+              es_ok: esOk,
+              tiene_problemas: tieneProblemas,
+              necesita_revision: necesitaRevision
             };
           });
         }

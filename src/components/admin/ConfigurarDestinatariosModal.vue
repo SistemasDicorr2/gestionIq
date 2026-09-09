@@ -49,7 +49,7 @@
             </label>
           </div>
 
-          <div class="grid grid-cols-2 gap-3 pt-1">
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1">
             <div>
               <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
                 Día de la Semana
@@ -57,12 +57,12 @@
               <select 
                 v-model.number="schedule.dia" 
                 :disabled="!schedule.activo"
-                class="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-xs font-semibold text-slate-900 dark:text-slate-100 disabled:opacity-50"
+                class="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-2.5 py-2 text-xs font-semibold text-slate-900 dark:text-slate-100 disabled:opacity-50"
               >
                 <option :value="1">Lunes</option>
                 <option :value="2">Martes</option>
-                <option :value="3">Miércoles</option>
-                <option :value="4">Jueves (Recomendado)</option>
+                <option :value="3">Miércoles (Recomendado 15:00 hs)</option>
+                <option :value="4">Jueves</option>
                 <option :value="5">Viernes</option>
                 <option :value="6">Sábado</option>
                 <option :value="0">Domingo</option>
@@ -71,22 +71,37 @@
 
             <div>
               <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
-                Hora de Envío
+                Hora (ART)
               </label>
               <select 
                 v-model.number="schedule.hora" 
                 :disabled="!schedule.activo"
-                class="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-xs font-semibold text-slate-900 dark:text-slate-100 disabled:opacity-50"
+                class="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-2.5 py-2 text-xs font-semibold text-slate-900 dark:text-slate-100 disabled:opacity-50"
               >
                 <option v-for="h in hoursOptions" :key="h.value" :value="h.value">
                   {{ h.label }}
                 </option>
               </select>
             </div>
+
+            <div>
+              <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
+                Minuto
+              </label>
+              <select 
+                v-model.number="schedule.minuto" 
+                :disabled="!schedule.activo"
+                class="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-2.5 py-2 text-xs font-semibold text-slate-900 dark:text-slate-100 disabled:opacity-50"
+              >
+                <option v-for="m in minutesOptions" :key="m.value" :value="m.value">
+                  {{ m.label }}
+                </option>
+              </select>
+            </div>
           </div>
 
           <p class="text-[10px] text-blue-800 dark:text-blue-300 opacity-90 leading-tight">
-            ℹ️ El informe consolidará todas las fichas enviadas desde el sábado anterior a las 00:00 hs hasta el {{ getDayName(schedule.dia) }} a las {{ String(schedule.hora).padStart(2, '0') }}:00 hs.
+            ℹ️ El informe consolidará todas las fichas enviadas desde el sábado anterior a las 00:00 hs hasta el {{ getDayName(schedule.dia) }} a las {{ String(schedule.hora).padStart(2, '0') }}:{{ String(schedule.minuto).padStart(2, '0') }} hs.
           </p>
         </div>
 
@@ -189,27 +204,21 @@ const newEmail = ref('');
 const emailList = ref([]);
 
 const schedule = reactive({
-  dia: 4,      // 4 = Jueves
+  dia: 3,      // 3 = Miércoles
   hora: 15,    // 15:00 hs ART
   minuto: 0,
   activo: true
 });
 
-const hoursOptions = [
-  { value: 8, label: '08:00 hs' },
-  { value: 9, label: '09:00 hs' },
-  { value: 10, label: '10:00 hs' },
-  { value: 11, label: '11:00 hs' },
-  { value: 12, label: '12:00 hs' },
-  { value: 13, label: '13:00 hs' },
-  { value: 14, label: '14:00 hs' },
-  { value: 15, label: '15:00 hs (Por defecto)' },
-  { value: 16, label: '16:00 hs' },
-  { value: 17, label: '17:00 hs' },
-  { value: 18, label: '18:00 hs' },
-  { value: 19, label: '19:00 hs' },
-  { value: 20, label: '20:00 hs' }
-];
+const hoursOptions = Array.from({ length: 24 }, (_, i) => ({
+  value: i,
+  label: `${String(i).padStart(2, '0')} hs${i === 15 ? ' (Defecto)' : ''}`
+}));
+
+const minutesOptions = Array.from({ length: 60 }, (_, i) => ({
+  value: i,
+  label: `${String(i).padStart(2, '0')} min`
+}));
 
 const getDayName = (dayNum) => {
   const map = { 1: 'Lunes', 2: 'Martes', 3: 'Miércoles', 4: 'Jueves', 5: 'Viernes', 6: 'Sábado', 0: 'Domingo' };
@@ -382,13 +391,14 @@ const testReporteEmail = async () => {
     const fichasRowsHtml = fichas.map((f, idx) => {
       const bg = idx % 2 === 0 ? '#ffffff' : '#f8fafc';
       const num = String(idx + 1).padStart(2, '0');
+      const nombreInst = f.instrumentador_completado || f.instrumentador || '-';
       return `
         <tr bgcolor="${bg}">
           <td align="center" style="padding:10px 6px;border-bottom:1px solid #e2e8f0;font-size:10px;color:#94a3b8;font-weight:700;">${num}</td>
           <td style="padding:10px 8px;border-bottom:1px solid #e2e8f0;font-size:11px;font-weight:800;color:#0f172a;">${f.paciente || 'Sin especificar'}</td>
           <td style="padding:10px 8px;border-bottom:1px solid #e2e8f0;font-size:10px;color:#334155;">${f.medico || '-'}</td>
           <td style="padding:10px 8px;border-bottom:1px solid #e2e8f0;font-size:10px;color:#334155;">${f.lugar_cirugia || '-'}</td>
-          <td style="padding:10px 8px;border-bottom:1px solid #e2e8f0;font-size:10px;color:#475569;">${f.instrumentador || '-'}</td>
+          <td style="padding:10px 8px;border-bottom:1px solid #e2e8f0;font-size:10px;color:#475569;">${nombreInst}</td>
         </tr>
       `;
     }).join('');

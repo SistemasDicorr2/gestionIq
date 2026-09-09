@@ -3,54 +3,169 @@
   <div class="min-h-screen bg-slate-100 dark:bg-slate-950 font-sans text-slate-900 dark:text-slate-100 print:bg-white print:text-black print:min-h-0">
     
     <!-- Barra Superior Flotante de Acciones (Oculta al imprimir) -->
-    <header class="sticky top-0 z-50 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 p-4 shadow-sm print:hidden">
-      <div class="max-w-6xl mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div>
-          <div class="flex items-center gap-2">
-            <span class="text-xs font-black tracking-wider text-blue-600 dark:text-blue-400 uppercase">DISTRICORR · GESTIÓN IQ</span>
-            <span v-if="lote" class="px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-950 text-blue-800 dark:text-blue-300 text-[10px] font-mono font-bold">
-              LOTE INMUTABLE
+    <header class="sticky top-0 z-50 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 p-4 shadow-sm print:hidden">
+      <div class="max-w-6xl mx-auto flex flex-col gap-3">
+        
+        <!-- Fila Superior: Título y Botón Principal -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-black tracking-wider text-blue-600 dark:text-blue-400 uppercase">DISTRICORR · GESTIÓN IQ</span>
+              <span v-if="lote" class="px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-950 text-blue-800 dark:text-blue-300 text-[10px] font-mono font-bold">
+                LOTE INMUTABLE
+              </span>
+            </div>
+            <h1 class="text-lg sm:text-xl font-extrabold text-slate-900 dark:text-white mt-0.5">
+              Impresión de Fichas de Cirugía
+            </h1>
+            <p v-if="lote" class="text-xs text-slate-500 dark:text-slate-400">
+              Período: <strong>{{ formatDate(lote.periodo_desde) }}</strong> al <strong>{{ formatDate(lote.periodo_hasta) }}</strong> · {{ fichas.length }} Ficha(s) total
+            </p>
+          </div>
+
+          <div class="flex items-center gap-3 shrink-0">
+            <!-- Indicador de Carga de Recursos -->
+            <div v-if="!allLoaded && fichas.length > 0" class="text-xs text-amber-600 dark:text-amber-400 font-medium flex items-center gap-1.5 bg-amber-50 dark:bg-amber-950/40 px-3 py-1.5 rounded-xl border border-amber-200/80">
+              <svg class="animate-spin h-3.5 w-3.5 text-amber-600" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              <span>Cargando recursos...</span>
+            </div>
+
+            <!-- Botón de Impresión de Seleccionadas -->
+            <button 
+              @click="handlePrint" 
+              :disabled="!allLoaded || loading || selectedCount === 0"
+              :class="[
+                'px-5 py-2.5 rounded-xl font-extrabold text-xs sm:text-sm shadow-md transition-all flex items-center gap-2 cursor-pointer',
+                allLoaded && !loading && selectedCount > 0
+                  ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-blue-500/20 active:scale-95' 
+                  : 'bg-slate-200 dark:bg-slate-800 text-slate-400 dark:text-slate-600 cursor-not-allowed opacity-70'
+              ]"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+              </svg>
+              <span>Imprimir Seleccionadas ({{ selectedCount }} de {{ fichas.length }})</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Fila Inferior: Selección por Checkboxes de Estado de Control y Devolución -->
+        <div v-if="fichas.length > 0 && !loading" class="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-100 dark:border-slate-800/80 text-xs">
+          
+          <!-- Grupo de Checkboxes por Estado de Control y Devolución -->
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="text-slate-500 dark:text-slate-400 font-bold uppercase text-[10px] tracking-wider flex items-center gap-1 mr-1">
+              <span>📦</span>
+              <span>Control y Devolución:</span>
             </span>
+
+            <!-- Checkbox 🟢 Control OK -->
+            <label 
+              v-if="okCount > 0"
+              class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-bold border transition-all cursor-pointer select-none"
+              :class="isStateSelected('ok')
+                ? 'bg-emerald-50 text-emerald-800 border-emerald-300 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800 ring-1 ring-emerald-400/40' 
+                : isStateIndeterminate('ok')
+                  ? 'bg-emerald-50/50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/30 dark:text-emerald-400 dark:border-emerald-900'
+                  : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700'"
+            >
+              <input 
+                type="checkbox"
+                :checked="isStateSelected('ok')"
+                :indeterminate.prop="isStateIndeterminate('ok')"
+                @change="toggleStateGroup('ok', $event.target.checked)"
+                class="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 border-slate-300 dark:border-slate-600 cursor-pointer"
+              />
+              <span>🟢 Control OK ({{ okCount }})</span>
+            </label>
+
+            <!-- Checkbox 🔴 Con Problemas -->
+            <label 
+              v-if="problemasCount > 0"
+              class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-bold border transition-all cursor-pointer select-none"
+              :class="isStateSelected('problemas')
+                ? 'bg-red-50 text-red-800 border-red-300 dark:bg-red-950/60 dark:text-red-300 dark:border-red-800 ring-1 ring-red-400/40' 
+                : isStateIndeterminate('problemas')
+                  ? 'bg-red-50/50 text-red-700 border-red-200 dark:bg-red-950/30 dark:text-red-400 dark:border-red-900'
+                  : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700'"
+            >
+              <input 
+                type="checkbox"
+                :checked="isStateSelected('problemas')"
+                :indeterminate.prop="isStateIndeterminate('problemas')"
+                @change="toggleStateGroup('problemas', $event.target.checked)"
+                class="w-4 h-4 rounded text-red-600 focus:ring-red-500 border-slate-300 dark:border-slate-600 cursor-pointer"
+              />
+              <span>🔴 Con Problemas ({{ problemasCount }})</span>
+            </label>
+
+            <!-- Checkbox ⚠️ En Revisión -->
+            <label 
+              v-if="revisionCount > 0"
+              class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-bold border transition-all cursor-pointer select-none"
+              :class="isStateSelected('revision')
+                ? 'bg-amber-50 text-amber-800 border-amber-300 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-800 ring-1 ring-amber-400/40' 
+                : isStateIndeterminate('revision')
+                  ? 'bg-amber-50/50 text-amber-700 border-amber-200 dark:bg-amber-950/30 dark:text-amber-400 dark:border-amber-900'
+                  : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700'"
+            >
+              <input 
+                type="checkbox"
+                :checked="isStateSelected('revision')"
+                :indeterminate.prop="isStateIndeterminate('revision')"
+                @change="toggleStateGroup('revision', $event.target.checked)"
+                class="w-4 h-4 rounded text-amber-600 focus:ring-amber-500 border-slate-300 dark:border-slate-600 cursor-pointer"
+              />
+              <span>⚠️ En Revisión ({{ revisionCount }})</span>
+            </label>
+
+            <!-- Checkbox ⏳ Falta Control -->
+            <label 
+              v-if="pendingControlCount > 0"
+              class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-bold border transition-all cursor-pointer select-none"
+              :class="isStateSelected('sin_control')
+                ? 'bg-slate-100 text-slate-800 border-slate-300 dark:bg-slate-800 dark:text-slate-200 dark:border-slate-600 ring-1 ring-slate-400/40' 
+                : isStateIndeterminate('sin_control')
+                  ? 'bg-slate-50 text-slate-700 border-slate-200 dark:bg-slate-800/50 dark:text-slate-400'
+                  : 'bg-white text-slate-500 border-slate-200 hover:bg-slate-50 dark:bg-slate-900 dark:text-slate-400 dark:border-slate-800'"
+            >
+              <input 
+                type="checkbox"
+                :checked="isStateSelected('sin_control')"
+                :indeterminate.prop="isStateIndeterminate('sin_control')"
+                @change="toggleStateGroup('sin_control', $event.target.checked)"
+                class="w-4 h-4 rounded text-slate-600 focus:ring-slate-500 border-slate-300 dark:border-slate-600 cursor-pointer"
+              />
+              <span>⏳ Falta Control ({{ pendingControlCount }})</span>
+            </label>
           </div>
-          <h1 class="text-lg font-extrabold text-slate-900 dark:text-white mt-0.5">
-            Impresión Unificada de Fichas de Cirugía
-          </h1>
-          <p v-if="lote" class="text-xs text-slate-500 dark:text-slate-400">
-            Período: <strong>{{ formatDate(lote.periodo_desde) }}</strong> al <strong>{{ formatDate(lote.periodo_hasta) }}</strong> · {{ fichas.length }} Ficha(s)
-          </p>
+
+          <!-- Acciones Rápidas Masivas -->
+          <div class="flex items-center gap-2">
+            <button 
+              type="button"
+              @click="selectAll"
+              class="px-2.5 py-1 rounded-lg font-bold text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/50 transition-all cursor-pointer"
+            >
+              Seleccionar todas
+            </button>
+
+            <span class="text-slate-300 dark:text-slate-700">|</span>
+
+            <button 
+              type="button"
+              @click="deselectAll"
+              class="px-2.5 py-1 rounded-lg font-medium text-slate-500 hover:text-slate-700 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all cursor-pointer"
+            >
+              Limpiar selección
+            </button>
+          </div>
+
         </div>
 
-        <div class="flex items-center gap-3">
-          <!-- Indicador de Carga de Fuentes, Imágenes y Firmas -->
-          <div v-if="!allLoaded && fichas.length > 0" class="text-xs text-amber-600 dark:text-amber-400 font-medium flex items-center gap-1.5 bg-amber-50 dark:bg-amber-950/40 px-3 py-1.5 rounded-xl border border-amber-200/80">
-            <svg class="animate-spin h-3.5 w-3.5 text-amber-600" fill="none" viewBox="0 0 24 24">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-            <span>Cargando recursos e imágenes...</span>
-          </div>
-
-          <div v-else-if="allLoaded && fichas.length > 0" class="text-xs text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-1 bg-emerald-50 dark:bg-emerald-950/40 px-3 py-1.5 rounded-xl border border-emerald-200">
-            ✓ Listo para imprimir
-          </div>
-
-          <!-- Botón de Impresión Masiva -->
-          <button 
-            @click="handlePrint" 
-            :disabled="!allLoaded || loading"
-            :class="[
-              'px-5 py-2.5 rounded-xl font-extrabold text-xs sm:text-sm shadow-md transition-all flex items-center gap-2 cursor-pointer',
-              allLoaded && !loading
-                ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-blue-500/20 active:scale-95' 
-                : 'bg-slate-200 dark:bg-slate-800 text-slate-400 dark:text-slate-600 cursor-not-allowed opacity-70'
-            ]"
-          >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-            </svg>
-            <span>Imprimir todas las fichas</span>
-          </button>
-        </div>
       </div>
     </header>
 
@@ -72,15 +187,73 @@
       <p class="text-sm text-slate-500">Este lote no contiene fichas enviadas registradas.</p>
     </div>
 
-    <!-- Reutilización directa del componente canónico ReportPDF.vue (Fuente Única de Verdad Visual y de Datos) -->
+    <!-- Contenedor Principal de Fichas con Selector Individual -->
     <main v-else class="max-w-4xl mx-auto p-4 sm:p-6 space-y-8 print:space-y-0 print:p-0 print:m-0 print:max-w-none flex flex-col items-center print:block">
+      
       <div 
         v-for="(ficha, index) in fichas" 
         :key="ficha.id || index"
-        :class="['shadow-sm rounded-xl overflow-hidden print:shadow-none print:rounded-none', { 'page-break-card': index < fichas.length - 1 }]"
+        :class="[
+          'w-full shadow-sm rounded-xl overflow-hidden print:shadow-none print:rounded-none transition-all',
+          { 
+            'page-break-card': index < selectedFichas.length - 1,
+            'print:hidden hidden': !selectedIds.has(ficha.id),
+            'ring-2 ring-blue-500/20': selectedIds.has(ficha.id),
+            'opacity-60': !selectedIds.has(ficha.id)
+          }
+        ]"
       >
+        <!-- Encabezado de Control y Checkbox de Selección (Oculto al imprimir) -->
+        <div class="p-3 bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between print:hidden">
+          <label class="flex items-center gap-2.5 cursor-pointer select-none">
+            <input 
+              type="checkbox" 
+              :value="ficha.id"
+              :checked="selectedIds.has(ficha.id)"
+              @change="toggleSelectFicha(ficha.id)"
+              class="w-4 h-4 rounded text-blue-600 focus:ring-blue-500/20 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 cursor-pointer"
+            />
+            <span class="text-xs font-bold text-slate-900 dark:text-slate-100">
+              #{{ String(index + 1).padStart(2, '0') }} · {{ ficha.paciente || 'Sin especificar' }}
+            </span>
+            <span v-if="ficha.instrumentador_completado || ficha.instrumentador" class="text-xs text-slate-500 dark:text-slate-400">
+              ({{ ficha.instrumentador_completado || ficha.instrumentador }})
+            </span>
+          </label>
+
+          <div class="flex items-center gap-2">
+            <div v-if="ficha.es_ok" class="inline-flex items-center gap-1 text-[10px] font-extrabold text-emerald-700 bg-emerald-100 dark:bg-emerald-950/80 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800 px-2.5 py-0.5 rounded-full">
+              🟢 Control: OK
+            </div>
+            <div v-else-if="ficha.tiene_problemas" class="flex flex-col items-end">
+              <span class="inline-flex items-center gap-1 text-[10px] font-extrabold text-red-700 bg-red-100 dark:bg-red-950/80 dark:text-red-300 border border-red-300 dark:border-red-800 px-2.5 py-0.5 rounded-full">
+                🔴 Control: Con Problemas
+              </span>
+              <span v-if="ficha.control_observaciones" class="text-[10px] font-semibold text-red-600 dark:text-red-400 mt-0.5 max-w-xs truncate" :title="ficha.control_observaciones">
+                Obs: {{ ficha.control_observaciones }}
+              </span>
+            </div>
+            <div v-else-if="ficha.necesita_revision" class="flex flex-col items-end">
+              <span class="inline-flex items-center gap-1 text-[10px] font-extrabold text-amber-700 bg-amber-100 dark:bg-amber-950/80 dark:text-amber-300 border border-amber-300 dark:border-amber-800 px-2.5 py-0.5 rounded-full">
+                ⚠️ En Revisión
+              </span>
+              <span v-if="ficha.control_observaciones" class="text-[10px] font-medium text-amber-600 dark:text-amber-400 mt-0.5 max-w-xs truncate" :title="ficha.control_observaciones">
+                Obs: {{ ficha.control_observaciones }}
+              </span>
+            </div>
+            <span 
+              v-else 
+              class="inline-flex items-center gap-1 text-[10px] font-bold text-slate-700 bg-slate-100 dark:bg-slate-800 dark:text-slate-300 border border-slate-200 dark:border-slate-700 px-2 py-0.5 rounded-full"
+            >
+              ⏳ Falta control
+            </span>
+          </div>
+        </div>
+
+        <!-- Renderizado de la Ficha en PDF -->
         <ReportPDF :reporte="ficha" />
       </div>
+
     </main>
 
   </div>
@@ -99,9 +272,71 @@ const error = ref(null);
 
 const lote = ref(null);
 const fichas = ref([]);
+const selectedIds = ref(new Set());
 const assetsLoaded = ref(false);
 
 const allLoaded = computed(() => !loading.value && assetsLoaded.value);
+
+const selectedCount = computed(() => selectedIds.value.size);
+
+const okCount = computed(() => fichas.value.filter(f => f.es_ok).length);
+const problemasCount = computed(() => fichas.value.filter(f => f.tiene_problemas).length);
+const revisionCount = computed(() => fichas.value.filter(f => f.necesita_revision).length);
+const pendingControlCount = computed(() => fichas.value.filter(f => !f.tiene_control).length);
+
+const selectedFichas = computed(() => fichas.value.filter(f => selectedIds.value.has(f.id)));
+
+const getGroupFichas = (group) => {
+  if (group === 'ok') return fichas.value.filter(f => f.es_ok);
+  if (group === 'problemas') return fichas.value.filter(f => f.tiene_problemas);
+  if (group === 'revision') return fichas.value.filter(f => f.necesita_revision);
+  if (group === 'sin_control') return fichas.value.filter(f => !f.tiene_control);
+  return [];
+};
+
+const isStateSelected = (group) => {
+  const groupList = getGroupFichas(group);
+  if (groupList.length === 0) return false;
+  return groupList.every(f => selectedIds.value.has(f.id));
+};
+
+const isStateIndeterminate = (group) => {
+  const groupList = getGroupFichas(group);
+  if (groupList.length === 0) return false;
+  const countSelected = groupList.filter(f => selectedIds.value.has(f.id)).length;
+  return countSelected > 0 && countSelected < groupList.length;
+};
+
+const toggleStateGroup = (group, isChecked) => {
+  const groupList = getGroupFichas(group);
+  const newSet = new Set(selectedIds.value);
+  groupList.forEach(f => {
+    if (isChecked) {
+      newSet.add(f.id);
+    } else {
+      newSet.delete(f.id);
+    }
+  });
+  selectedIds.value = newSet;
+};
+
+const toggleSelectFicha = (id) => {
+  const newSet = new Set(selectedIds.value);
+  if (newSet.has(id)) {
+    newSet.delete(id);
+  } else {
+    newSet.add(id);
+  }
+  selectedIds.value = newSet;
+};
+
+const selectAll = () => {
+  selectedIds.value = new Set(fichas.value.map(f => f.id));
+};
+
+const deselectAll = () => {
+  selectedIds.value = new Set();
+};
 
 const preloadAssets = async () => {
   try {
@@ -152,9 +387,64 @@ const fetchLote = async () => {
 
     lote.value = data.lote;
     
-    // Normalizar la lista de fichas usando el mapper único
+    // 1. Normalizar fichas
     const rawFichas = data.fichas || [];
-    fichas.value = rawFichas.map(f => normalizeReport(f));
+    const normalized = rawFichas.map(f => normalizeReport(f));
+    const surgeryIds = normalized.map(f => f.id).filter(Boolean);
+
+    // 2. Consultar en lote el estado y observaciones de control de logística
+    const controlMap = new Map();
+    if (surgeryIds.length > 0) {
+      const { data: controlesData } = await supabase
+        .from('logistica_controles')
+        .select('cirugia_id, estado, observaciones, created_at')
+        .in('cirugia_id', surgeryIds);
+
+      if (controlesData) {
+        controlesData.forEach(c => controlMap.set(String(c.cirugia_id), c));
+      }
+    }
+
+    // 3. Enriquecer fichas con control de logística diferenciando ok, revision y problemas
+    const enriched = normalized.map(f => {
+      const control = controlMap.get(String(f.id));
+      const tieneControl = Boolean(control);
+      const rawEstado = (control?.estado || '').toLowerCase().trim();
+      const controlEstado = control?.estado || (tieneControl ? 'OK' : null);
+      const controlObservaciones = control?.observaciones || '';
+      const controlFecha = control?.created_at || null;
+
+      const esOk = tieneControl && (rawEstado === 'ok' || rawEstado === 'correcto');
+      const tieneProblemas = tieneControl && (rawEstado === 'problemas' || rawEstado === 'con problemas' || rawEstado === 'error');
+      const necesitaRevision = tieneControl && (rawEstado === 'revision' || rawEstado === 'necesita revision');
+
+      return {
+        ...f,
+        tiene_control: tieneControl,
+        control_estado: controlEstado,
+        control_observaciones: controlObservaciones,
+        control_fecha: controlFecha,
+        es_ok: esOk,
+        tiene_problemas: tieneProblemas,
+        necesita_revision: necesitaRevision
+      };
+    });
+
+    // 4. Priorizar fichas: las que tienen control OK van primero, luego problemas/revisión, luego sin control
+    enriched.sort((a, b) => {
+      const score = (item) => item.es_ok ? 3 : (item.tiene_problemas || item.necesita_revision) ? 2 : 1;
+      return score(b) - score(a);
+    });
+
+    fichas.value = enriched;
+
+    // 5. Preseleccionar automáticamente las fichas con control (o todas si aún no hay controles)
+    const controlledIds = enriched.filter(f => f.tiene_control).map(f => f.id);
+    if (controlledIds.length > 0) {
+      selectedIds.value = new Set(controlledIds);
+    } else {
+      selectedIds.value = new Set(enriched.map(f => f.id));
+    }
 
     await preloadAssets();
   } catch (err) {
@@ -164,8 +454,23 @@ const fetchLote = async () => {
   }
 };
 
-const handlePrint = () => {
-  if (!allLoaded.value) return;
+const handlePrint = async () => {
+  if (!allLoaded.value || selectedCount.value === 0) return;
+
+  // Registrar evento en el historial de PDFs para las fichas seleccionadas
+  const toPrint = selectedFichas.value;
+  if (toPrint && toPrint.length > 0) {
+    for (const ficha of toPrint) {
+      if (ficha.id) {
+        try {
+          await supabase.rpc('log_pdf_generation', { p_reporte_id: ficha.id });
+        } catch (err) {
+          console.warn(`[LoteView] No se pudo registrar historial PDF para la ficha ${ficha.id}:`, err);
+        }
+      }
+    }
+  }
+
   window.print();
 };
 
