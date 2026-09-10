@@ -30,15 +30,16 @@
       </div>
 
       <!-- Ordenamiento -->
-      <div class="w-full md:w-48">
+      <div class="w-full md:w-52">
         <label for="sort-by" class="filter-label">Ordenar por</label>
         <select 
           id="sort-by" 
           :value="modelValue.sortBy" 
           @change="update('sortBy', $event.target.value)" 
-          class="filter-input w-full cursor-pointer"
+          class="filter-input w-full cursor-pointer font-medium"
         >
           <option value="nombre_completo">👤 Nombre</option>
+          <option value="ultimo_ingreso">🕒 Último Ingreso</option>
           <option value="ivo_score">⭐ Mejor IVO</option>
           <option value="fichas_enviadas">📋 Más Fichas</option>
         </select>
@@ -51,14 +52,14 @@
           <button 
             @click="update('sortDir', 'desc')" 
             :class="['sort-button', { 'active': modelValue.sortDir === 'desc' }]"
-            title="Mayor a Menor"
+            title="Mayor a Menor / Más recientes"
           >
             ▼ Desc
           </button>
           <button 
             @click="update('sortDir', 'asc')" 
             :class="['sort-button', { 'active': modelValue.sortDir === 'asc' }]"
-            title="Menor a Mayor"
+            title="Menor a Mayor / Menos recientes"
           >
             ▲ Asc
           </button>
@@ -86,32 +87,56 @@
       </div>
     </div>
 
-    <!-- Filtros Avanzados (Colapsables o Rango IVO) -->
-    <div class="mt-3 pt-3 border-t border-slate-100 dark:border-slate-700/60 flex flex-wrap items-center gap-4 text-xs">
-      <span class="font-medium text-slate-500 dark:text-slate-400 flex items-center gap-1">
-        <FunnelIcon class="w-3.5 h-3.5" />
-        Filtro IVO:
-      </span>
+    <!-- Filtros Avanzados (Historial de Ingresos + Rango IVO) -->
+    <div class="mt-3 pt-3 border-t border-slate-100 dark:border-slate-700/60 flex flex-wrap items-center justify-between gap-4 text-xs">
+      <!-- Filtro Historial de Ingresos -->
       <div class="flex items-center gap-2">
-        <input 
-          id="min-ivo" 
-          type="number" 
-          step="0.5"
-          :value="modelValue.minIvo" 
-          @input="update('minIvo', $event.target.value)" 
-          placeholder="Mín score" 
-          class="filter-input-sm w-24"
+        <span class="font-semibold text-slate-600 dark:text-slate-300 flex items-center gap-1">
+          <ClockIcon class="w-3.5 h-3.5 text-amber-500" />
+          Historial de Ingresos:
+        </span>
+        <select 
+          id="filter-ingreso"
+          :value="modelValue.filtroIngreso || 'todos'" 
+          @change="update('filtroIngreso', $event.target.value)" 
+          class="filter-input-sm cursor-pointer font-medium bg-slate-50 dark:bg-slate-700"
         >
-        <span class="text-slate-400">—</span>
-        <input 
-          id="max-ivo" 
-          type="number" 
-          step="0.5"
-          :value="modelValue.maxIvo" 
-          @input="update('maxIvo', $event.target.value)" 
-          placeholder="Máx score" 
-          class="filter-input-sm w-24"
-        >
+          <option value="todos">Todos los instrumentadores</option>
+          <option value="con_ingresos">Con ingresos al portal</option>
+          <option value="24h">Últimas 24 horas</option>
+          <option value="7d">Últimos 7 días</option>
+          <option value="30d">Últimos 30 días</option>
+          <option value="sin_ingresos">Sin ingresos registrados</option>
+        </select>
+      </div>
+
+      <!-- Filtro Score IVO -->
+      <div class="flex items-center gap-2">
+        <span class="font-medium text-slate-500 dark:text-slate-400 flex items-center gap-1">
+          <FunnelIcon class="w-3.5 h-3.5" />
+          Filtro IVO:
+        </span>
+        <div class="flex items-center gap-1.5">
+          <input 
+            id="min-ivo" 
+            type="number" 
+            step="0.5"
+            :value="modelValue.minIvo" 
+            @input="update('minIvo', $event.target.value)" 
+            placeholder="Mín" 
+            class="filter-input-sm w-20"
+          >
+          <span class="text-slate-400">—</span>
+          <input 
+            id="max-ivo" 
+            type="number" 
+            step="0.5"
+            :value="modelValue.maxIvo" 
+            @input="update('maxIvo', $event.target.value)" 
+            placeholder="Máx" 
+            class="filter-input-sm w-20"
+          >
+        </div>
       </div>
     </div>
   </div>
@@ -123,7 +148,8 @@ import {
   MagnifyingGlassIcon, 
   ArrowDownTrayIcon, 
   FunnelIcon, 
-  XMarkIcon 
+  XMarkIcon,
+  ClockIcon
 } from '@heroicons/vue/24/outline';
 
 const props = defineProps({
@@ -144,6 +170,7 @@ const hasActiveFilters = computed(() => {
     props.modelValue.searchTerm || 
     props.modelValue.minIvo || 
     props.modelValue.maxIvo || 
+    (props.modelValue.filtroIngreso && props.modelValue.filtroIngreso !== 'todos') ||
     props.modelValue.sortBy !== 'nombre_completo' ||
     props.modelValue.sortDir !== 'asc'
   );
@@ -160,6 +187,7 @@ function clearFilters() {
     searchTerm: '',
     sortBy: 'nombre_completo',
     sortDir: 'asc',
+    filtroIngreso: 'todos',
     minIvo: '',
     maxIvo: '',
   });

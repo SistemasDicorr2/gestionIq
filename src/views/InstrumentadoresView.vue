@@ -158,6 +158,18 @@
                         <ArrowTopRightOnSquareIcon class="w-4 h-4" />
                       </button>
                     </div>
+
+                    <!-- Indicador visual de Último Ingreso -->
+                    <div class="mt-1.5 flex items-center justify-center gap-1" :title="formatFullDate(iq.ultimo_ingreso)">
+                      <span v-if="iq.ultimo_ingreso" class="inline-flex items-center gap-1 text-[11px] font-medium text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/50 px-2 py-0.5 rounded-full border border-amber-200/70 dark:border-amber-900/40">
+                        <ClockIcon class="w-3 h-3 text-amber-500 shrink-0" />
+                        <span>{{ formatRelativeTime(iq.ultimo_ingreso) }}</span>
+                        <span v-if="iq.total_ingresos > 1" class="text-[10px] opacity-75 font-bold">({{ iq.total_ingresos }})</span>
+                      </span>
+                      <span v-else class="text-[10px] text-slate-400 dark:text-slate-500">
+                        Sin ingresos
+                      </span>
+                    </div>
                   </td>
 
                   <!-- Acciones del Registro -->
@@ -241,7 +253,14 @@
                   <LinkIcon class="w-3.5 h-3.5 text-indigo-600" />
                   Acceso al Portal
                 </span>
-                <span v-if="iq.activity_token" class="text-[10px] text-emerald-600 font-bold">Activo</span>
+                <div class="flex items-center gap-1.5">
+                  <span v-if="iq.ultimo_ingreso" class="inline-flex items-center gap-1 text-[10px] font-semibold text-amber-700 dark:text-amber-300 bg-amber-100/90 dark:bg-amber-950/70 px-2 py-0.5 rounded-full border border-amber-200 dark:border-amber-800/60">
+                    <ClockIcon class="w-3 h-3 text-amber-600" />
+                    {{ formatRelativeTime(iq.ultimo_ingreso) }}
+                  </span>
+                  <span v-else class="text-[10px] text-slate-400 font-normal">Sin ingresos</span>
+                  <span v-if="iq.activity_token" class="text-[10px] text-emerald-600 font-bold">● Activo</span>
+                </div>
               </div>
               
               <div class="grid grid-cols-3 gap-2">
@@ -480,6 +499,7 @@ const filters = ref({
   searchTerm: '',
   sortBy: 'nombre_completo',
   sortDir: 'asc',
+  filtroIngreso: 'todos',
   minIvo: '',
   maxIvo: '',
 });
@@ -568,10 +588,38 @@ const fetchInstrumentadores = async () => {
       console.warn('No se pudo mapear IVO 2.0 unificado, utilizando valores por defecto', e);
     }
 
+    // Consultar el historial de accesos al portal para enriquecer con último ingreso y total accesos
+    let accessMap = new Map();
+    try {
+      const { data: logsData, error: logsError } = await supabase
+        .from('ficha_access_logs')
+        .select('dni, accessed_at')
+        .order('accessed_at', { ascending: false });
+
+      if (!logsError && logsData) {
+        logsData.forEach(log => {
+          const dniStr = String(log.dni || '').trim();
+          if (dniStr) {
+            if (!accessMap.has(dniStr)) {
+              accessMap.set(dniStr, {
+                ultimo_ingreso: log.accessed_at,
+                total_ingresos: 1
+              });
+            } else {
+              const current = accessMap.get(dniStr);
+              current.total_ingresos += 1;
+            }
+          }
+        });
+      }
+    } catch (e) {
+      console.warn('No se pudo consultar historial de accesos a portal:', e);
+    }
+
     const list = data || [];
-    // Enriquecer cada instrumentador con el score IVO 2.0 unificado
+    // Enriquecer cada instrumentador con score unificado e historial de ingresos
     instrumentadores.value = list.map(iq => {
-      const dniStr = String(iq.dni);
+      const dniStr = String(iq.dni || '').trim();
       let unifiedIvo = 0;
       if (rankingMap.has(dniStr)) {
         unifiedIvo = rankingMap.get(dniStr);
@@ -584,9 +632,13 @@ const fetchInstrumentadores = async () => {
         unifiedIvo = iq.ivo_score > 10 ? Math.min(10, (iq.ivo_score / 15) * 10) : iq.ivo_score;
       }
 
+      const accessInfo = accessMap.get(dniStr) || { ultimo_ingreso: null, total_ingresos: 0 };
+
       return {
         ...iq,
-        ivo_score: unifiedIvo
+        ivo_score: unifiedIvo,
+        ultimo_ingreso: accessInfo.ultimo_ingreso,
+        total_ingresos: accessInfo.total_ingresos
       };
     });
   } catch (err) {
@@ -751,7 +803,37 @@ const processedInstrumentadores = computed(() => {
   if (filters.value.maxIvo) {
     processed = processed.filter(iq => iq.ivo_score <= parseFloat(filters.value.maxIvo));
   }
+
+  // Filtro de Historial de Ingresos al Portal
+  if (filters.value.filtroIngreso && filters.value.filtroIngreso !== 'todos') {
+    const now = Date.now();
+    if (filters.value.filtroIngreso === 'con_ingresos') {
+      processed = processed.filter(iq => !!iq.ultimo_ingreso);
+    } else if (filters.value.filtroIngreso === 'sin_ingresos') {
+      processed = processed.filter(iq => !iq.ultimo_ingreso);
+    } else if (filters.value.filtroIngreso === '24h') {
+      const limit = now - 24 * 60 * 60 * 1000;
+      processed = processed.filter(iq => iq.ultimo_ingreso && new Date(iq.ultimo_ingreso).getTime() >= limit);
+    } else if (filters.value.filtroIngreso === '7d') {
+      const limit = now - 7 * 24 * 60 * 60 * 1000;
+      processed = processed.filter(iq => iq.ultimo_ingreso && new Date(iq.ultimo_ingreso).getTime() >= limit);
+    } else if (filters.value.filtroIngreso === '30d') {
+      const limit = now - 30 * 24 * 60 * 60 * 1000;
+      processed = processed.filter(iq => iq.ultimo_ingreso && new Date(iq.ultimo_ingreso).getTime() >= limit);
+    }
+  }
+
+  // Ordenamiento
   processed.sort((a, b) => {
+    if (filters.value.sortBy === 'ultimo_ingreso') {
+      const timeA = a.ultimo_ingreso ? new Date(a.ultimo_ingreso).getTime() : 0;
+      const timeB = b.ultimo_ingreso ? new Date(b.ultimo_ingreso).getTime() : 0;
+      if (timeA === timeB) {
+        return (a.nombre_completo || '').localeCompare(b.nombre_completo || '');
+      }
+      return filters.value.sortDir === 'asc' ? timeA - timeB : timeB - timeA;
+    }
+
     let valA = a[filters.value.sortBy];
     let valB = b[filters.value.sortBy];
     if (typeof valA === 'string') valA = valA.toLowerCase();
@@ -778,6 +860,36 @@ watch(filters, () => {
 
 const goToPage = (page) => {
   currentPage.value = page;
+};
+
+const formatRelativeTime = (isoString) => {
+  if (!isoString) return 'Sin ingresos';
+  const date = new Date(isoString);
+  if (isNaN(date.getTime())) return 'Sin ingresos';
+
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffMinutes = Math.floor(diffMs / (1000 * 60));
+  const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+  if (diffMinutes < 1) return 'Recién';
+  if (diffMinutes < 60) return `Hace ${diffMinutes}m`;
+  if (diffHours < 24) return `Hace ${diffHours}h`;
+  if (diffDays === 1) return 'Ayer';
+  if (diffDays < 7) return `Hace ${diffDays}d`;
+  if (diffDays < 30) return `Hace ${Math.floor(diffDays / 7)}sem`;
+  
+  return date.toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+};
+
+const formatFullDate = (isoString) => {
+  if (!isoString) return 'Sin ingresos registrados al portal';
+  const date = new Date(isoString);
+  if (isNaN(date.getTime())) return 'Sin ingresos registrados al portal';
+  const fecha = date.toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  const hora = date.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' });
+  return `Último ingreso: ${fecha} a las ${hora} hs`;
 };
 
 const getIvoBadgeClass = (score) => {
@@ -814,7 +926,9 @@ function handleExport() {
     'DNI': iq.dni,
     'Teléfono': iq.telefono || 'N/A',
     'Fichas Enviadas (Total)': iq.fichas_enviadas,
-    'IVO 2.0 (90 días)': parseFloat(iq.ivo_score.toFixed(2))
+    'IVO 2.0 (90 días)': parseFloat(iq.ivo_score.toFixed(2)),
+    'Último Ingreso al Portal': iq.ultimo_ingreso ? new Date(iq.ultimo_ingreso).toLocaleString('es-AR') : 'Sin ingresos',
+    'Total Ingresos Portal': iq.total_ingresos || 0
   }));
   const worksheet = XLSX.utils.json_to_sheet(dataToExport);
   const workbook = XLSX.utils.book_new();
