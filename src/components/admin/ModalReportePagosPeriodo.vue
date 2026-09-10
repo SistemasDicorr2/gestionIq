@@ -3,7 +3,7 @@
   <Transition name="fade">
     <div v-if="show" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-900/60 backdrop-blur-sm print:hidden">
       <div 
-        class="bg-white dark:bg-slate-900 rounded-2xl w-full max-w-3xl shadow-2xl border border-slate-200 dark:border-slate-800 flex flex-col max-h-[92vh] overflow-hidden animate-in fade-in zoom-in duration-150"
+        class="bg-white dark:bg-slate-900 rounded-2xl w-full max-w-4xl shadow-2xl border border-slate-200 dark:border-slate-800 flex flex-col max-h-[94vh] overflow-hidden animate-in fade-in zoom-in duration-150"
         @click.stop
       >
         <!-- Encabezado del Modal -->
@@ -36,68 +36,211 @@
         <!-- Cuerpo del Modal -->
         <main class="p-5 sm:p-6 overflow-y-auto space-y-6 flex-1 text-slate-700 dark:text-slate-300">
           
-          <!-- Selector de Filtros -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            
-            <!-- Selector de Período Preset -->
-            <div class="space-y-1.5">
+          <!-- SECCIÓN 1: Selección de Período -->
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
               <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider">
-                Período a Consultar:
+                1. Seleccionar Período:
               </label>
-              <select 
-                v-model="periodoPreset" 
-                @change="onPeriodoChange"
-                class="w-full p-2.5 text-xs rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white font-medium focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none"
-              >
-                <option value="esta-semana">Esta semana (Lunes a Domingo)</option>
-                <option value="semana-pasada">Semana anterior cerrada</option>
-                <option value="ultimos-30-dias">Últimos 30 días</option>
-                <option value="mes-actual">Mes actual</option>
-                <option value="mes-anterior">Mes anterior</option>
-                <option value="todos">Todo el historial (inicio a actualidad)</option>
-                <option value="personalizado">Personalizado (rango de fechas)</option>
-              </select>
+              <span class="text-xs font-semibold text-blue-600 dark:text-blue-400">
+                {{ periodoLabelFinal }}
+              </span>
             </div>
 
-            <!-- Selector de Instrumentador -->
-            <div class="space-y-1.5">
-              <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider">
-                Instrumentador Quirúrgico:
-              </label>
-              <select 
-                v-model="selectedDni" 
-                class="w-full p-2.5 text-xs rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white font-medium focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none"
+            <!-- Botones / Píldoras de Presets Rápidos -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              <button
+                type="button"
+                @click="setPeriodoPreset('semana-en-curso')"
+                :class="[
+                  'p-2.5 rounded-xl text-left border transition-all text-xs font-medium cursor-pointer',
+                  periodoPreset === 'semana-en-curso'
+                    ? 'bg-blue-50/80 dark:bg-blue-950/40 border-blue-400 dark:border-blue-600 text-blue-900 dark:text-blue-200 font-bold shadow-xs'
+                    : 'bg-white dark:bg-slate-800/80 border-slate-200 dark:border-slate-700 hover:border-slate-300'
+                ]"
               >
-                <option value="todos">Todos los instrumentadores</option>
-                <option v-for="inst in availableInstrumentadores" :key="inst.dni" :value="inst.dni">
-                  {{ inst.nombre }} (DNI: {{ inst.dni }})
-                </option>
-              </select>
+                <div class="text-[11px] font-bold">Semana en Curso</div>
+                <div class="text-[10px] text-slate-400 mt-0.5">Sábado pasado a Hoy</div>
+              </button>
+
+              <button
+                type="button"
+                @click="setPeriodoPreset('semana-anterior')"
+                :class="[
+                  'p-2.5 rounded-xl text-left border transition-all text-xs font-medium cursor-pointer',
+                  periodoPreset === 'semana-anterior'
+                    ? 'bg-blue-50/80 dark:bg-blue-950/40 border-blue-400 dark:border-blue-600 text-blue-900 dark:text-blue-200 font-bold shadow-xs'
+                    : 'bg-white dark:bg-slate-800/80 border-slate-200 dark:border-slate-700 hover:border-slate-300'
+                ]"
+              >
+                <div class="text-[11px] font-bold">Semana Anterior</div>
+                <div class="text-[10px] text-slate-400 mt-0.5">Sábado a Viernes</div>
+              </button>
+
+              <button
+                type="button"
+                @click="setPeriodoPreset('por-mes')"
+                :class="[
+                  'p-2.5 rounded-xl text-left border transition-all text-xs font-medium cursor-pointer',
+                  periodoPreset === 'por-mes'
+                    ? 'bg-blue-50/80 dark:bg-blue-950/40 border-blue-400 dark:border-blue-600 text-blue-900 dark:text-blue-200 font-bold shadow-xs'
+                    : 'bg-white dark:bg-slate-800/80 border-slate-200 dark:border-slate-700 hover:border-slate-300'
+                ]"
+              >
+                <div class="text-[11px] font-bold">Por Mes</div>
+                <div class="text-[10px] text-slate-400 mt-0.5">Mes calendario</div>
+              </button>
+
+              <button
+                type="button"
+                @click="setPeriodoPreset('personalizado')"
+                :class="[
+                  'p-2.5 rounded-xl text-left border transition-all text-xs font-medium cursor-pointer',
+                  periodoPreset === 'personalizado'
+                    ? 'bg-blue-50/80 dark:bg-blue-950/40 border-blue-400 dark:border-blue-600 text-blue-900 dark:text-blue-200 font-bold shadow-xs'
+                    : 'bg-white dark:bg-slate-800/80 border-slate-200 dark:border-slate-700 hover:border-slate-300'
+                ]"
+              >
+                <div class="text-[11px] font-bold">Personalizado</div>
+                <div class="text-[10px] text-slate-400 mt-0.5">Rango de fechas</div>
+              </button>
             </div>
 
+            <!-- Sub-panel según modo de período -->
+            <!-- Modo: Por Mes -->
+            <div v-if="periodoPreset === 'por-mes'" class="p-3.5 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700 flex flex-wrap items-center gap-3 animate-in fade-in duration-150">
+              <div class="flex-1 min-w-[140px] space-y-1">
+                <label class="block text-[10px] font-bold text-slate-500 uppercase">Mes:</label>
+                <select 
+                  v-model="selectedMonth" 
+                  @change="updateMonthRange"
+                  class="w-full p-2 text-xs rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-white font-semibold outline-none"
+                >
+                  <option v-for="(m, idx) in monthsList" :key="idx" :value="idx">
+                    {{ m }}
+                  </option>
+                </select>
+              </div>
+
+              <div class="w-28 space-y-1">
+                <label class="block text-[10px] font-bold text-slate-500 uppercase">Año:</label>
+                <select 
+                  v-model="selectedYear" 
+                  @change="updateMonthRange"
+                  class="w-full p-2 text-xs rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-white font-semibold outline-none"
+                >
+                  <option :value="2025">2025</option>
+                  <option :value="2026">2026</option>
+                  <option :value="2027">2027</option>
+                </select>
+              </div>
+
+              <div class="text-xs text-slate-500 dark:text-slate-400 pt-3">
+                Comprende desde el <strong class="text-slate-800 dark:text-white">{{ formatDate(customStartDate) }}</strong> hasta el <strong class="text-slate-800 dark:text-white">{{ formatDate(customEndDate) }}</strong>
+              </div>
+            </div>
+
+            <!-- Modo: Personalizado (Desde / Hasta) -->
+            <div v-if="periodoPreset === 'personalizado'" class="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3.5 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700 animate-in fade-in duration-150">
+              <div class="space-y-1">
+                <label class="block text-[10px] font-bold text-slate-500 uppercase">Fecha Desde:</label>
+                <input 
+                  type="date" 
+                  v-model="customStartDate" 
+                  class="w-full p-2 text-xs rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-white font-medium outline-none"
+                />
+              </div>
+              <div class="space-y-1">
+                <label class="block text-[10px] font-bold text-slate-500 uppercase">Fecha Hasta:</label>
+                <input 
+                  type="date" 
+                  v-model="customEndDate" 
+                  class="w-full p-2 text-xs rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-white font-medium outline-none"
+                />
+              </div>
+            </div>
           </div>
 
-          <!-- Rango Personalizado (si se seleccionó "personalizado") -->
-          <div v-if="periodoPreset === 'personalizado'" class="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700">
-            <div class="space-y-1">
-              <label class="block text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase">Fecha Desde:</label>
-              <input 
-                type="date" 
-                v-model="customStartDate" 
-                class="w-full p-2 text-xs rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-white font-medium outline-none"
-              />
+          <!-- SECCIÓN 2: Selección y Búsqueda de Instrumentadores -->
+          <div class="space-y-2.5">
+            <div class="flex items-center justify-between">
+              <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider">
+                2. Instrumentador Quirúrgico:
+              </label>
+              <span v-if="selectedDni !== 'todos'" class="text-xs font-semibold text-blue-600 dark:text-blue-400 flex items-center gap-1">
+                <span>Filtrando por instrumentador</span>
+                <button @click="selectedDni = 'todos'" class="text-[10px] px-1.5 py-0.5 bg-slate-200 dark:bg-slate-700 rounded-md hover:bg-slate-300 text-slate-700 dark:text-slate-200 cursor-pointer">✕ Limpiar</button>
+              </span>
             </div>
-            <div class="space-y-1">
-              <label class="block text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase">Fecha Hasta:</label>
-              <input 
-                type="date" 
-                v-model="customEndDate" 
-                class="w-full p-2 text-xs rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-white font-medium outline-none"
-              />
+
+            <!-- Buscador y Selector Refinado de Instrumentadores -->
+            <div class="border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-900 p-3 space-y-2 shadow-xs">
+              <!-- Input de búsqueda -->
+              <div class="relative">
+                <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 text-xs">🔍</span>
+                <input 
+                  type="text" 
+                  v-model="searchInstrumentador"
+                  placeholder="Buscar instrumentador por nombre o DNI..."
+                  class="w-full pl-8 pr-4 py-2 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50/60 dark:bg-slate-800 text-slate-900 dark:text-white outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                />
+              </div>
+
+              <!-- Lista de opciones seleccionables -->
+              <div class="max-h-40 overflow-y-auto space-y-1 pr-1">
+                <!-- Opción Todos -->
+                <button
+                  type="button"
+                  @click="selectedDni = 'todos'"
+                  :class="[
+                    'w-full text-left px-3 py-2 rounded-lg text-xs flex items-center justify-between transition-all cursor-pointer',
+                    selectedDni === 'todos'
+                      ? 'bg-blue-600 text-white font-bold shadow-xs'
+                      : 'hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200'
+                  ]"
+                >
+                  <div class="flex items-center gap-2">
+                    <span class="w-5 h-5 rounded-full flex items-center justify-center text-[10px]" :class="selectedDni === 'todos' ? 'bg-blue-700 text-white' : 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300'">👥</span>
+                    <span>Todos los instrumentadores</span>
+                  </div>
+                  <span class="text-[10px] opacity-80">({{ availableInstrumentadores.length }} profesionales)</span>
+                </button>
+
+                <!-- Listado filtrado de cada instrumentador -->
+                <button
+                  v-for="inst in filteredInstrumentadores"
+                  :key="inst.dni"
+                  type="button"
+                  @click="selectedDni = inst.dni"
+                  :class="[
+                    'w-full text-left px-3 py-2 rounded-lg text-xs flex items-center justify-between transition-all cursor-pointer',
+                    selectedDni === inst.dni
+                      ? 'bg-blue-600 text-white font-bold shadow-xs'
+                      : 'hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200'
+                  ]"
+                >
+                  <div class="flex items-center gap-2 truncate pr-2">
+                    <span class="w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold shrink-0" :class="selectedDni === inst.dni ? 'bg-blue-700 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700'">
+                      {{ inst.iniciales }}
+                    </span>
+                    <span class="truncate">{{ inst.nombre }}</span>
+                  </div>
+                  <div class="flex items-center gap-2 shrink-0 text-[10px]">
+                    <span :class="selectedDni === inst.dni ? 'text-blue-100' : 'text-slate-400'">DNI: {{ inst.dni }}</span>
+                    <span v-if="inst.ordenesEnPeriodo > 0" class="px-1.5 py-0.5 rounded-full text-[9px] font-bold" :class="selectedDni === inst.dni ? 'bg-blue-800 text-blue-100' : 'bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300'">
+                      {{ inst.ordenesEnPeriodo }} {{ inst.ordenesEnPeriodo === 1 ? 'pago' : 'pagos' }}
+                    </span>
+                  </div>
+                </button>
+
+                <div v-if="filteredInstrumentadores.length === 0" class="p-3 text-center text-xs text-slate-400">
+                  No se encontraron instrumentadores que coincidan con "{{ searchInstrumentador }}".
+                </div>
+              </div>
             </div>
           </div>
 
-          <!-- Tarjetas KPI de Resumen Previas a la Descarga -->
+          <!-- SECCIÓN 3: Tarjetas KPI Previas a la Descarga -->
           <div class="grid grid-cols-3 gap-3">
             <div class="p-3 bg-slate-50 dark:bg-slate-800/80 rounded-xl border border-slate-200/80 dark:border-slate-700 text-center">
               <span class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Órdenes / Pagos</span>
@@ -121,7 +264,7 @@
             </div>
           </div>
 
-          <!-- Previsualización de Órdenes a Incluir -->
+          <!-- SECCIÓN 4: Previsualización de Órdenes a Incluir -->
           <div class="space-y-2">
             <div class="flex items-center justify-between">
               <h3 class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
@@ -133,7 +276,7 @@
             </div>
 
             <div v-if="matchingOrders.length === 0" class="p-8 text-center bg-slate-50 dark:bg-slate-800/30 rounded-xl border border-slate-100 dark:border-slate-800 text-slate-400 text-xs">
-              No hay pagos u órdenes registradas en el período seleccionado.
+              No hay pagos u órdenes registradas para los filtros seleccionados.
             </div>
 
             <div v-else class="space-y-2.5 max-h-56 overflow-y-auto pr-1">
@@ -153,7 +296,7 @@
                     </span>
                   </div>
                   <div class="text-[11px] text-slate-600 dark:text-slate-300 font-medium mt-0.5">
-                    {{ orden.instrumentadores_nombres || 'Instrumentador no especificado' }}
+                    {{ getNombreInstrumentadorClean(orden) }}
                   </div>
                 </div>
 
@@ -217,88 +360,170 @@ const props = defineProps({
 
 const emit = defineEmits(['close']);
 
-const { generarReportePagos, generarReporteListadoCompletoPagos } = useReportePagosPDF();
+const { generarReporteListadoCompletoPagos } = useReportePagosPDF();
 const { showSuccessToast, showErrorToast } = useToasts();
 
-const periodoPreset = ref('esta-semana');
+const periodoPreset = ref('semana-en-curso');
 const selectedDni = ref('todos');
+const searchInstrumentador = ref('');
 const customStartDate = ref('');
 const customEndDate = ref('');
 const isGenerating = ref(false);
 
+const monthsList = [
+  'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+  'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+];
+
+const selectedMonth = ref(new Date().getMonth());
+const selectedYear = ref(new Date().getFullYear());
+
+// Catálogo limpio de instrumentadores desde la base de datos
+const dbInstrumentadoresMap = ref(new Map());
+
+const fetchInstrumentadoresDb = async () => {
+  try {
+    const { data, error } = await supabase
+      .from('instrumentadores')
+      .select('dni, nombre_completo, nombre')
+      .order('nombre_completo');
+
+    if (!error && data) {
+      const map = new Map();
+      data.forEach(item => {
+        const dniClean = String(item.dni || '').trim();
+        const nameClean = (item.nombre_completo || item.nombre || '').trim();
+        if (dniClean) {
+          map.set(dniClean, nameClean || `Instrumentador (${dniClean})`);
+        }
+      });
+      dbInstrumentadoresMap.value = map;
+    }
+  } catch (e) {
+    console.error('Error al cargar catalogo de instrumentadores:', e);
+  }
+};
+
+onMounted(() => {
+  fetchInstrumentadoresDb();
+  setPeriodoPreset('semana-en-curso');
+});
+
+watch(() => props.show, (val) => {
+  if (val) {
+    fetchInstrumentadoresDb();
+    setPeriodoPreset(periodoPreset.value || 'semana-en-curso');
+  }
+});
+
+// Obtener lista limpia de instrumentadores disponibles
 const availableInstrumentadores = computed(() => {
   const map = new Map();
+
   props.historial.forEach(orden => {
     let dnis = orden.instrumentadores_dnis || [];
-    let nombres = orden.instrumentadores_nombres || '';
-
     if (!Array.isArray(dnis) && dnis) dnis = [dnis];
-    if (Array.isArray(nombres)) nombres = nombres.join(', ');
 
     dnis.forEach(dni => {
-      const dniStr = String(dni).trim();
+      const dniStr = String(dni || '').trim();
       if (dniStr && !map.has(dniStr)) {
+        // Buscar primero en el mapa de DB limpio
+        let cleanName = dbInstrumentadoresMap.value.get(dniStr);
+        if (!cleanName) {
+          // Si no está en DB, extraer si es único
+          cleanName = `Instrumentador (${dniStr})`;
+        }
+
+        const initials = cleanName
+          .split(' ')
+          .filter(Boolean)
+          .map(w => w[0])
+          .slice(0, 2)
+          .join('')
+          .toUpperCase() || 'IQ';
+
         map.set(dniStr, {
           dni: dniStr,
-          nombre: nombres || `Instrumentador (${dniStr})`
+          nombre: cleanName,
+          iniciales: initials,
+          ordenesEnPeriodo: 0
         });
       }
     });
   });
-  return Array.from(map.values()).sort((a, b) => a.nombre.localeCompare(b.nombre));
+
+  // Calcular cantidad de órdenes en el período para cada uno
+  const result = Array.from(map.values());
+  result.forEach(inst => {
+    inst.ordenesEnPeriodo = matchingOrdersBase.value.filter(o => {
+      let dnis = o.instrumentadores_dnis || [];
+      if (!Array.isArray(dnis)) dnis = [dnis];
+      return dnis.some(d => String(d).trim() === inst.dni);
+    }).length;
+  });
+
+  return result.sort((a, b) => a.nombre.localeCompare(b.nombre));
 });
 
-const onPeriodoChange = () => {
+// Filtrar instrumentadores en el buscador del modal
+const filteredInstrumentadores = computed(() => {
+  const q = searchInstrumentador.value.trim().toLowerCase();
+  if (!q) return availableInstrumentadores.value;
+  return availableInstrumentadores.value.filter(i => 
+    i.nombre.toLowerCase().includes(q) || i.dni.includes(q)
+  );
+});
+
+// Función de preset de períodos
+const setPeriodoPreset = (type) => {
+  periodoPreset.value = type;
   const now = new Date();
-  if (periodoPreset.value === 'esta-semana') {
-    const day = now.getDay() || 7;
-    const monday = new Date(now);
-    monday.setDate(now.getDate() - day + 1);
-    const sunday = new Date(monday);
-    sunday.setDate(monday.getDate() + 6);
-    customStartDate.value = monday.toISOString().split('T')[0];
-    customEndDate.value = sunday.toISOString().split('T')[0];
-  } else if (periodoPreset.value === 'semana-pasada') {
-    const day = now.getDay() || 7;
-    const prevMonday = new Date(now);
-    prevMonday.setDate(now.getDate() - day - 6);
-    const prevSunday = new Date(prevMonday);
-    prevSunday.setDate(prevMonday.getDate() + 6);
-    customStartDate.value = prevMonday.toISOString().split('T')[0];
-    customEndDate.value = prevSunday.toISOString().split('T')[0];
-  } else if (periodoPreset.value === 'mes-actual') {
-    const start = new Date(now.getFullYear(), now.getMonth(), 1);
-    const end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-    customStartDate.value = start.toISOString().split('T')[0];
-    customEndDate.value = end.toISOString().split('T')[0];
-  } else if (periodoPreset.value === 'mes-anterior') {
-    const start = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-    const end = new Date(now.getFullYear(), now.getMonth(), 0);
-    customStartDate.value = start.toISOString().split('T')[0];
-    customEndDate.value = end.toISOString().split('T')[0];
-  } else if (periodoPreset.value === 'ultimos-30-dias') {
-    const start = new Date(now);
-    start.setDate(now.getDate() - 30);
-    customStartDate.value = start.toISOString().split('T')[0];
+
+  if (type === 'semana-en-curso') {
+    // Sábado pasado hasta hoy
+    const currentDay = now.getDay(); // 0 Dom, 1 Lun, ..., 6 Sab
+    const daysSinceSaturday = (currentDay + 1) % 7;
+    const saturday = new Date(now);
+    saturday.setDate(now.getDate() - daysSinceSaturday);
+
+    customStartDate.value = saturday.toISOString().split('T')[0];
     customEndDate.value = now.toISOString().split('T')[0];
-  } else if (periodoPreset.value === 'todos') {
-    customStartDate.value = '';
-    customEndDate.value = '';
+  } else if (type === 'semana-anterior') {
+    // Sábado de la semana anterior hasta el viernes pasado
+    const currentDay = now.getDay();
+    const daysSinceSaturday = (currentDay + 1) % 7;
+    const currentSaturday = new Date(now);
+    currentSaturday.setDate(now.getDate() - daysSinceSaturday);
+
+    const prevSaturday = new Date(currentSaturday);
+    prevSaturday.setDate(currentSaturday.getDate() - 7);
+
+    const prevFriday = new Date(currentSaturday);
+    prevFriday.setDate(currentSaturday.getDate() - 1);
+
+    customStartDate.value = prevSaturday.toISOString().split('T')[0];
+    customEndDate.value = prevFriday.toISOString().split('T')[0];
+  } else if (type === 'por-mes') {
+    updateMonthRange();
+  } else if (type === 'personalizado') {
+    // Mantiene las fechas actuales o por defecto mes actual
+    if (!customStartDate.value || !customEndDate.value) {
+      updateMonthRange();
+    }
   }
 };
 
-onMounted(onPeriodoChange);
+const updateMonthRange = () => {
+  const start = new Date(selectedYear.value, selectedMonth.value, 1);
+  const end = new Date(selectedYear.value, selectedMonth.value + 1, 0);
+  customStartDate.value = start.toISOString().split('T')[0];
+  customEndDate.value = end.toISOString().split('T')[0];
+};
 
-watch(() => props.show, (val) => {
-  if (val) {
-    onPeriodoChange();
-  }
-});
-
-const matchingOrders = computed(() => {
+// Filtrado de órdenes por período únicamente (para métricas base)
+const matchingOrdersBase = computed(() => {
   let list = props.historial || [];
 
-  // 1. Filtrar por rango de fecha de emisión
   if (customStartDate.value) {
     list = list.filter(o => {
       const d = (o.fecha_emision || '').substring(0, 10);
@@ -312,7 +537,13 @@ const matchingOrders = computed(() => {
     });
   }
 
-  // 2. Filtrar por instrumentador
+  return list;
+});
+
+// Filtrado de órdenes por período y por instrumentador seleccionado
+const matchingOrders = computed(() => {
+  let list = matchingOrdersBase.value;
+
   if (selectedDni.value !== 'todos') {
     list = list.filter(o => {
       let dnis = o.instrumentadores_dnis || [];
@@ -338,16 +569,30 @@ const totalMontoLiquidado = computed(() => {
 });
 
 const periodoLabelFinal = computed(() => {
-  if (periodoPreset.value === 'esta-semana') return 'Esta semana';
-  if (periodoPreset.value === 'semana-pasada') return 'Semana anterior cerrada';
-  if (periodoPreset.value === 'mes-actual') return 'Mes actual';
-  if (periodoPreset.value === 'mes-anterior') return 'Mes anterior';
-  if (periodoPreset.value === 'todos') return 'Período personalizado (inicio a actualidad)';
+  if (periodoPreset.value === 'semana-en-curso') {
+    return `Semana en curso (${formatDate(customStartDate.value)} al ${formatDate(customEndDate.value)})`;
+  }
+  if (periodoPreset.value === 'semana-anterior') {
+    return `Semana anterior (${formatDate(customStartDate.value)} al ${formatDate(customEndDate.value)})`;
+  }
+  if (periodoPreset.value === 'por-mes') {
+    return `${monthsList[selectedMonth.value]} ${selectedYear.value} (${formatDate(customStartDate.value)} al ${formatDate(customEndDate.value)})`;
+  }
   if (customStartDate.value && customEndDate.value) {
-    return `Período personalizado (${formatDate(customStartDate.value)} al ${formatDate(customEndDate.value)})`;
+    return `Rango personalizado (${formatDate(customStartDate.value)} al ${formatDate(customEndDate.value)})`;
   }
   return 'Período personalizado';
 });
+
+const getNombreInstrumentadorClean = (orden) => {
+  if (selectedDni.value !== 'todos') {
+    return dbInstrumentadoresMap.value.get(selectedDni.value) || `Instrumentador (${selectedDni.value})`;
+  }
+  let dnis = orden.instrumentadores_dnis || [];
+  if (!Array.isArray(dnis)) dnis = [dnis];
+  const names = dnis.map(d => dbInstrumentadoresMap.value.get(String(d).trim()) || d).filter(Boolean);
+  return names.length > 0 ? names.join(', ') : (orden.instrumentadores_nombres || 'Instrumentador');
+};
 
 const formatDate = (val) => {
   if (!val) return '-';
