@@ -236,23 +236,24 @@
             <!-- Botón / Badge de Nota de Recordatorio -->
             <div class="flex items-center">
               <!-- Si ya tiene nota cargada -->
-              <div 
+              <button 
                 v-if="getNota(ficha.id)"
+                type="button"
                 @click="abrirModalNota(ficha)"
-                class="group inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-50 dark:bg-amber-950/60 border border-amber-300 dark:border-amber-800 text-amber-900 dark:text-amber-200 text-[11px] font-semibold cursor-pointer hover:bg-amber-100 dark:hover:bg-amber-900/60 transition-all shadow-xs"
-                title="Hacé clic para ver o editar este recordatorio"
+                class="group inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-50 dark:bg-amber-950/70 border border-amber-300 dark:border-amber-800 text-amber-900 dark:text-amber-200 text-[11px] font-bold cursor-pointer hover:bg-amber-100 dark:hover:bg-amber-900/60 transition-all shadow-xs"
+                :title="`Nota actual: ${getNota(ficha.id)} (Hacé clic para ver o editar)`"
               >
                 <span class="text-xs">📌</span>
-                <span class="max-w-[140px] sm:max-w-[200px] truncate font-medium">{{ getNota(ficha.id) }}</span>
-                <span class="text-[10px] text-amber-600 dark:text-amber-400 group-hover:underline ml-0.5">✏️</span>
-              </div>
+                <span class="max-w-[120px] sm:max-w-[170px] truncate font-semibold">{{ getNota(ficha.id) }}</span>
+                <span class="text-[10px] opacity-75 group-hover:scale-110 transition-transform">✏️</span>
+              </button>
 
               <!-- Si aún no tiene nota -->
               <button
                 v-else
                 type="button"
                 @click="abrirModalNota(ficha)"
-                class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 text-[11px] font-medium transition-all cursor-pointer border border-slate-200 dark:border-slate-700"
+                class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 text-[11px] font-semibold transition-all cursor-pointer border border-slate-200 dark:border-slate-700 shadow-xs"
                 title="Agregar nota o recordatorio interno a este caso"
               >
                 <span>📝</span>
@@ -289,6 +290,24 @@
           </div>
         </div>
 
+        <!-- Mención Minimizada de Nota de Logística (Visible en la tarjeta de la cirugía) -->
+        <div 
+          v-if="getNota(ficha.id)"
+          @click="abrirModalNota(ficha)"
+          class="mx-3 sm:mx-4 my-2 px-3 py-2 rounded-xl bg-amber-50/90 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800/80 flex items-center justify-between gap-3 text-xs text-amber-950 dark:text-amber-200 cursor-pointer hover:bg-amber-100/90 dark:hover:bg-amber-900/60 transition-all shadow-xs print:hidden"
+          title="Hacé clic para ver el detalle completo o editar la nota"
+        >
+          <div class="flex items-center gap-2 overflow-hidden">
+            <span class="text-sm shrink-0">📌</span>
+            <span class="font-bold text-amber-900 dark:text-amber-300 shrink-0">Nota de Logística:</span>
+            <span class="truncate font-medium text-amber-800 dark:text-amber-200">"{{ getNota(ficha.id) }}"</span>
+          </div>
+          <span class="text-[11px] font-bold text-amber-700 dark:text-amber-400 hover:underline shrink-0 flex items-center gap-1">
+            <span>Ver / Editar</span>
+            <span>✏️</span>
+          </span>
+        </div>
+
         <!-- Renderizado de la Ficha en PDF -->
         <ReportPDF :reporte="ficha" />
       </div>
@@ -297,7 +316,7 @@
 
     <!-- Modal para Agregar / Editar Nota y Control de Logística -->
     <div v-if="activeNotaFicha" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs print:hidden">
-      <div class="bg-white dark:bg-slate-900 rounded-2xl max-w-md w-full p-5 shadow-2xl border border-slate-200 dark:border-slate-800 space-y-4 animate-in fade-in zoom-in duration-150">
+      <div class="bg-white dark:bg-slate-900 rounded-2xl max-w-lg w-full p-5 shadow-2xl border border-slate-200 dark:border-slate-800 space-y-4 animate-in fade-in zoom-in duration-150 max-h-[90vh] overflow-y-auto">
         <div class="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
           <div class="flex items-center gap-2">
             <span class="text-base">📦</span>
@@ -315,12 +334,40 @@
         </div>
 
         <div class="space-y-3">
+          <!-- Paciente e Instrumentador -->
           <div class="p-2.5 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-100 dark:border-slate-700/60">
             <p class="text-xs text-slate-700 dark:text-slate-200 font-bold">
               Paciente: {{ activeNotaFicha.paciente || 'Sin especificar' }}
             </p>
             <p v-if="activeNotaFicha.instrumentador_completado || activeNotaFicha.instrumentador" class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
               Instrumentador: {{ activeNotaFicha.instrumentador_completado || activeNotaFicha.instrumentador }}
+            </p>
+          </div>
+
+          <!-- Visualización Clara de la Última Nota Guardada -->
+          <div v-if="getNota(activeNotaFicha.id)" class="p-3 bg-amber-50 dark:bg-amber-950/40 rounded-xl border border-amber-200 dark:border-amber-800/80 space-y-1">
+            <div class="flex items-center justify-between text-[11px] font-bold text-amber-900 dark:text-amber-300">
+              <span class="flex items-center gap-1">
+                <span>📌</span>
+                <span>Última Nota / Control Registrado:</span>
+              </span>
+              <span v-if="activeNotaFicha.control_fecha" class="text-[10px] font-normal text-amber-700 dark:text-amber-400">
+                {{ formatDateTime(activeNotaFicha.control_fecha) }}
+              </span>
+            </div>
+            <p class="text-xs text-amber-950 dark:text-amber-100 font-medium whitespace-pre-wrap leading-relaxed bg-white/70 dark:bg-slate-900/60 p-2.5 rounded-lg border border-amber-200/60 dark:border-amber-900/40 shadow-xs">
+              {{ getNota(activeNotaFicha.id) }}
+            </p>
+          </div>
+
+          <!-- Observaciones Originales del Instrumentador (Contexto del Quirófano) -->
+          <div v-if="activeNotaFicha.observaciones" class="p-2.5 bg-blue-50/60 dark:bg-slate-800/60 rounded-xl border border-blue-100 dark:border-slate-700/60 space-y-1 text-xs">
+            <div class="flex items-center gap-1 font-bold text-[11px] text-blue-900 dark:text-blue-300">
+              <span>📋</span>
+              <span>Comentarios del Instrumentador en Quirófano:</span>
+            </div>
+            <p class="text-[11px] text-slate-700 dark:text-slate-300 italic whitespace-pre-wrap bg-white/60 dark:bg-slate-900/50 p-2 rounded-lg border border-blue-100 dark:border-slate-700/40">
+              "{{ activeNotaFicha.observaciones }}"
             </p>
           </div>
 
@@ -368,7 +415,7 @@
           <!-- Observaciones / Motivo -->
           <div>
             <label class="block text-[11px] font-bold text-slate-600 dark:text-slate-300 mb-1">
-              Motivo / Observación de Logística:
+              {{ getNota(activeNotaFicha.id) ? '✏️ Modificar o agregar a la nota:' : '✏️ Motivo / Observación de Logística:' }}
             </label>
             <textarea
               v-model="tempNotaTexto"
@@ -448,6 +495,15 @@ const activeNotaFicha = ref(null);
 const tempNotaTexto = ref('');
 const tempEstado = ref('problemas');
 const isSavingNota = ref(false);
+
+const formatDateTime = (isoString) => {
+  if (!isoString) return '';
+  const d = new Date(isoString);
+  if (isNaN(d.getTime())) return '';
+  const fecha = d.toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  const hora = d.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' });
+  return `${fecha} · ${hora} hs`;
+};
 
 const cargarNotas = () => {
   try {
