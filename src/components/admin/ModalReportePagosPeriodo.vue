@@ -40,7 +40,7 @@
           <div class="space-y-3">
             <div class="flex items-center justify-between">
               <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider">
-                1. Seleccionar Período:
+                1. Período a Consultar:
               </label>
               <span class="text-xs font-semibold text-blue-600 dark:text-blue-400">
                 {{ periodoLabelFinal }}
@@ -167,27 +167,36 @@
               <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider">
                 2. Instrumentador Quirúrgico:
               </label>
-              <span v-if="selectedDni !== 'todos'" class="text-xs font-semibold text-blue-600 dark:text-blue-400 flex items-center gap-1">
-                <span>Filtrando por instrumentador</span>
-                <button @click="selectedDni = 'todos'" class="text-[10px] px-1.5 py-0.5 bg-slate-200 dark:bg-slate-700 rounded-md hover:bg-slate-300 text-slate-700 dark:text-slate-200 cursor-pointer">✕ Limpiar</button>
-              </span>
+              <div v-if="selectedDni !== 'todos'" class="flex items-center gap-2">
+                <span class="text-xs font-semibold text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950 px-2.5 py-1 rounded-lg border border-blue-200 dark:border-blue-900 flex items-center gap-1.5 shadow-xs">
+                  <span>Filtrando por: <strong>{{ selectedInstrumentadorName }}</strong></span>
+                  <button @click="selectedDni = 'todos'" class="text-[11px] hover:text-red-500 font-bold ml-1 cursor-pointer" title="Quitar filtro">✕</button>
+                </span>
+              </div>
             </div>
 
             <!-- Buscador y Selector Refinado de Instrumentadores -->
             <div class="border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-900 p-3 space-y-2 shadow-xs">
-              <!-- Input de búsqueda -->
+              <!-- Input de búsqueda con botón de limpiar -->
               <div class="relative">
                 <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 text-xs">🔍</span>
                 <input 
                   type="text" 
                   v-model="searchInstrumentador"
                   placeholder="Buscar instrumentador por nombre o DNI..."
-                  class="w-full pl-8 pr-4 py-2 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50/60 dark:bg-slate-800 text-slate-900 dark:text-white outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                  class="w-full pl-8 pr-8 py-2 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50/60 dark:bg-slate-800 text-slate-900 dark:text-white outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                 />
+                <button
+                  v-if="searchInstrumentador"
+                  @click="searchInstrumentador = ''"
+                  class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 text-xs cursor-pointer"
+                >
+                  ✕
+                </button>
               </div>
 
               <!-- Lista de opciones seleccionables -->
-              <div class="max-h-40 overflow-y-auto space-y-1 pr-1">
+              <div class="max-h-44 overflow-y-auto space-y-1 pr-1">
                 <!-- Opción Todos -->
                 <button
                   type="button"
@@ -223,7 +232,7 @@
                     <span class="w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold shrink-0" :class="selectedDni === inst.dni ? 'bg-blue-700 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700'">
                       {{ inst.iniciales }}
                     </span>
-                    <span class="truncate">{{ inst.nombre }}</span>
+                    <span class="truncate font-semibold">{{ inst.nombre }}</span>
                   </div>
                   <div class="flex items-center gap-2 shrink-0 text-[10px]">
                     <span :class="selectedDni === inst.dni ? 'text-blue-100' : 'text-slate-400'">DNI: {{ inst.dni }}</span>
@@ -378,6 +387,31 @@ const monthsList = [
 const selectedMonth = ref(new Date().getMonth());
 const selectedYear = ref(new Date().getFullYear());
 
+// Helpers para parsear arreglos o cadenas delimitadas por comas
+const parseDnis = (dnisVal) => {
+  if (!dnisVal) return [];
+  if (Array.isArray(dnisVal)) {
+    return dnisVal.flatMap(d => typeof d === 'string' ? d.split(',') : [String(d)])
+      .map(s => String(s).trim()).filter(Boolean);
+  }
+  if (typeof dnisVal === 'string') {
+    return dnisVal.split(',').map(s => s.trim()).filter(Boolean);
+  }
+  return [String(dnisVal).trim()].filter(Boolean);
+};
+
+const parseNombres = (nombresVal) => {
+  if (!nombresVal) return [];
+  if (Array.isArray(nombresVal)) {
+    return nombresVal.flatMap(n => typeof n === 'string' ? n.split(',') : [String(n)])
+      .map(s => String(s).trim()).filter(Boolean);
+  }
+  if (typeof nombresVal === 'string') {
+    return nombresVal.split(',').map(s => s.trim()).filter(Boolean);
+  }
+  return [String(nombresVal).trim()].filter(Boolean);
+};
+
 // Catálogo limpio de instrumentadores desde la base de datos
 const dbInstrumentadoresMap = ref(new Map());
 
@@ -385,16 +419,15 @@ const fetchInstrumentadoresDb = async () => {
   try {
     const { data, error } = await supabase
       .from('instrumentadores')
-      .select('dni, nombre_completo, nombre')
-      .order('nombre_completo');
+      .select('dni, nombre_completo, nombre');
 
     if (!error && data) {
       const map = new Map();
       data.forEach(item => {
         const dniClean = String(item.dni || '').trim();
         const nameClean = (item.nombre_completo || item.nombre || '').trim();
-        if (dniClean) {
-          map.set(dniClean, nameClean || `Instrumentador (${dniClean})`);
+        if (dniClean && nameClean) {
+          map.set(dniClean, nameClean);
         }
       });
       dbInstrumentadoresMap.value = map;
@@ -416,21 +449,24 @@ watch(() => props.show, (val) => {
   }
 });
 
-// Obtener lista limpia de instrumentadores disponibles
+// Obtener lista limpia de instrumentadores disponibles emparejando por índice
 const availableInstrumentadores = computed(() => {
   const map = new Map();
 
   props.historial.forEach(orden => {
-    let dnis = orden.instrumentadores_dnis || [];
-    if (!Array.isArray(dnis) && dnis) dnis = [dnis];
+    const dnis = parseDnis(orden.instrumentadores_dnis);
+    const nombres = parseNombres(orden.instrumentadores_nombres);
 
-    dnis.forEach(dni => {
-      const dniStr = String(dni || '').trim();
+    dnis.forEach((dniStr, idx) => {
       if (dniStr && !map.has(dniStr)) {
-        // Buscar primero en el mapa de DB limpio
+        // 1. Buscar en DB map
         let cleanName = dbInstrumentadoresMap.value.get(dniStr);
+        // 2. Si no está en DB map, usar el nombre parseado correspondiente del historial
+        if (!cleanName && nombres[idx]) {
+          cleanName = nombres[idx];
+        }
+        // 3. Fallback limpio
         if (!cleanName) {
-          // Si no está en DB, extraer si es único
           cleanName = `Instrumentador (${dniStr})`;
         }
 
@@ -448,6 +484,19 @@ const availableInstrumentadores = computed(() => {
           iniciales: initials,
           ordenesEnPeriodo: 0
         });
+      } else if (dniStr && map.has(dniStr)) {
+        // Si antes tenía fallback y ahora encontramos el nombre real, actualizar
+        const existing = map.get(dniStr);
+        if (existing.nombre.startsWith('Instrumentador (') && nombres[idx]) {
+          existing.nombre = nombres[idx];
+          existing.iniciales = nombres[idx]
+            .split(' ')
+            .filter(Boolean)
+            .map(w => w[0])
+            .slice(0, 2)
+            .join('')
+            .toUpperCase() || 'IQ';
+        }
       }
     });
   });
@@ -456,13 +505,19 @@ const availableInstrumentadores = computed(() => {
   const result = Array.from(map.values());
   result.forEach(inst => {
     inst.ordenesEnPeriodo = matchingOrdersBase.value.filter(o => {
-      let dnis = o.instrumentadores_dnis || [];
-      if (!Array.isArray(dnis)) dnis = [dnis];
-      return dnis.some(d => String(d).trim() === inst.dni);
+      const dnis = parseDnis(o.instrumentadores_dnis);
+      return dnis.includes(inst.dni);
     }).length;
   });
 
   return result.sort((a, b) => a.nombre.localeCompare(b.nombre));
+});
+
+// Nombre del instrumentador seleccionado actualmente
+const selectedInstrumentadorName = computed(() => {
+  if (selectedDni.value === 'todos') return 'Todos';
+  const inst = availableInstrumentadores.value.find(i => i.dni === selectedDni.value);
+  return inst?.nombre || dbInstrumentadoresMap.value.get(selectedDni.value) || selectedDni.value;
 });
 
 // Filtrar instrumentadores en el buscador del modal
@@ -470,7 +525,7 @@ const filteredInstrumentadores = computed(() => {
   const q = searchInstrumentador.value.trim().toLowerCase();
   if (!q) return availableInstrumentadores.value;
   return availableInstrumentadores.value.filter(i => 
-    i.nombre.toLowerCase().includes(q) || i.dni.includes(q)
+    i.nombre.toLowerCase().includes(q) || String(i.dni).includes(q)
   );
 });
 
@@ -506,7 +561,6 @@ const setPeriodoPreset = (type) => {
   } else if (type === 'por-mes') {
     updateMonthRange();
   } else if (type === 'personalizado') {
-    // Mantiene las fechas actuales o por defecto mes actual
     if (!customStartDate.value || !customEndDate.value) {
       updateMonthRange();
     }
@@ -546,9 +600,8 @@ const matchingOrders = computed(() => {
 
   if (selectedDni.value !== 'todos') {
     list = list.filter(o => {
-      let dnis = o.instrumentadores_dnis || [];
-      if (!Array.isArray(dnis)) dnis = [dnis];
-      return dnis.some(d => String(d).trim() === String(selectedDni.value).trim());
+      const dnis = parseDnis(o.instrumentadores_dnis);
+      return dnis.includes(String(selectedDni.value).trim());
     });
   }
 
@@ -586,12 +639,15 @@ const periodoLabelFinal = computed(() => {
 
 const getNombreInstrumentadorClean = (orden) => {
   if (selectedDni.value !== 'todos') {
-    return dbInstrumentadoresMap.value.get(selectedDni.value) || `Instrumentador (${selectedDni.value})`;
+    const instObj = availableInstrumentadores.value.find(i => i.dni === selectedDni.value);
+    return instObj?.nombre || dbInstrumentadoresMap.value.get(selectedDni.value) || `Instrumentador (${selectedDni.value})`;
   }
-  let dnis = orden.instrumentadores_dnis || [];
-  if (!Array.isArray(dnis)) dnis = [dnis];
-  const names = dnis.map(d => dbInstrumentadoresMap.value.get(String(d).trim()) || d).filter(Boolean);
-  return names.length > 0 ? names.join(', ') : (orden.instrumentadores_nombres || 'Instrumentador');
+  const dnis = parseDnis(orden.instrumentadores_dnis);
+  const nombres = parseNombres(orden.instrumentadores_nombres);
+  const names = dnis.map((d, idx) => {
+    return dbInstrumentadoresMap.value.get(d) || nombres[idx] || d;
+  }).filter(Boolean);
+  return names.length > 0 ? names.join(', ') : 'Instrumentador';
 };
 
 const formatDate = (val) => {
