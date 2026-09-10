@@ -719,6 +719,34 @@ const fetchLote = async () => {
     const normalized = rawFichas.map(f => normalizeReport(f));
     const surgeryIds = normalized.map(f => f.id).filter(Boolean);
 
+    // 1.1 Fallback resiliente: Si tipo_cirugia no vino en la respuesta de la RPC (omisión en versión anterior de la función),
+    // consultar tipo_cirugia directamente desde la tabla reportes para las cirugías del lote
+    const missingTipoIds = normalized
+      .filter(f => !f.tipo_cirugia || f.tipo_cirugia === 'Sin especificar')
+      .map(f => f.id)
+      .filter(Boolean);
+
+    if (missingTipoIds.length > 0) {
+      try {
+        const { data: reportesData } = await supabase
+          .from('reportes')
+          .select('id, tipo_cirugia')
+          .in('id', missingTipoIds);
+
+        if (reportesData && reportesData.length > 0) {
+          const tipoMap = new Map(reportesData.map(r => [String(r.id), r.tipo_cirugia]));
+          normalized.forEach(f => {
+            const val = tipoMap.get(String(f.id));
+            if (val) {
+              f.tipo_cirugia = val;
+            }
+          });
+        }
+      } catch (tipoErr) {
+        console.warn('[LoteView] Fallback de tipo_cirugia no pudo completarse:', tipoErr);
+      }
+    }
+
     // 2. Consultar en lote el estado y observaciones de control de logística
     const controlMap = new Map();
     if (surgeryIds.length > 0) {

@@ -41,7 +41,7 @@ export const normalizeReport = (raw) => {
     id_cirugia: raw.id_cirugia || (raw.id ? `CX-${raw.id}` : 'N/A'),
     paciente: raw.paciente || raw.nombre_paciente || 'Sin especificar',
     medico: raw.medico || raw.medico_nombre || 'Sin especificar',
-    tipo_cirugia: raw.tipo_cirugia || raw.procedimiento || 'Sin especificar',
+    tipo_cirugia: raw.tipo_cirugia || raw.procedimiento || raw.patologia || raw.tipo || 'Sin especificar',
     fecha_cirugia: raw.fecha_cirugia || raw.fecha || null,
     lugar_cirugia: raw.lugar_cirugia || raw.institucion || 'Sin especificar',
     instrumentador_completado: raw.instrumentador_completado || raw.instrumentador_nombre || 'Sin especificar',

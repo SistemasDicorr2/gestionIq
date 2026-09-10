@@ -187,6 +187,7 @@ BEGIN
             'id_cirugia', r.id_cirugia,
             'paciente', r.paciente,
             'medico', r.medico,
+            'tipo_cirugia', r.tipo_cirugia,
             'lugar_cirugia', r.lugar_cirugia,
             'fecha_cirugia', r.fecha_cirugia,
             'fecha_envio', r.fecha_envio,
