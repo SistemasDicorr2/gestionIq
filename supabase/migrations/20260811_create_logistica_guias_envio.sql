@@ -22,12 +22,15 @@ CREATE TABLE IF NOT EXISTS public.logistica_guias_envio (
 -- Políticas RLS de Seguridad
 ALTER TABLE public.logistica_guias_envio ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Permitir lectura de guias a usuarios autenticados" ON public.logistica_guias_envio;
 CREATE POLICY "Permitir lectura de guias a usuarios autenticados" 
   ON public.logistica_guias_envio FOR SELECT 
   TO authenticated 
   USING (true);
 
+DROP POLICY IF EXISTS "Permitir insercion de guias a usuarios autenticados" ON public.logistica_guias_envio;
 CREATE POLICY "Permitir insercion de guias a usuarios autenticados" 
   ON public.logistica_guias_envio FOR INSERT 
   TO authenticated 
   WITH CHECK (true);
+

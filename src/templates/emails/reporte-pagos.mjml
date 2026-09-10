@@ -1,0 +1,144 @@
+<mjml lang="es">
+  <mj-head>
+    <mj-title>Reporte de Pagos — Districorr</mj-title>
+    <mj-preview>Resumen semanal de pagos y liquidaciones · Districorr Gestión IQ</mj-preview>
+    <mj-raw>
+      <meta name="color-scheme" content="light dark">
+      <meta name="supported-color-schemes" content="light dark">
+    </mj-raw>
+    <mj-font name="Inter" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" />
+    <mj-attributes>
+      <mj-all font-family="Inter, Arial, -apple-system, BlinkMacSystemFont, sans-serif" />
+      <mj-text font-size="14px" color="#334155" line-height="1.6" />
+      <mj-section padding="0px" />
+      <mj-column padding="0px" />
+    </mj-attributes>
+    <mj-style inline="inline">
+      .kpi-box {
+        background-color: #F8FAFC;
+        border: 1px solid #E2E8F0;
+        border-radius: 12px;
+        padding: 14px 12px;
+        text-align: center;
+      }
+      .attach-box {
+        background-color: #F8FAFC;
+        border: 1px solid #CBD5E1;
+        border-left: 4px solid #2563EB;
+        border-radius: 8px;
+        padding: 12px 16px;
+      }
+    </mj-style>
+    <mj-style>
+      @media (prefers-color-scheme: dark) {
+        .dark-bg { background-color: #0F172A !important; }
+        .dark-card { background-color: #1E293B !important; border-color: #334155 !important; }
+        .dark-text { color: #F1F5F9 !important; }
+        .dark-subtext { color: #94A3B8 !important; }
+      }
+    </mj-style>
+  </mj-head>
+  <mj-body background-color="#F1F5F9" width="600px">
+    
+    <!-- Top Accent Line -->
+    <mj-section padding="0px">
+      <mj-column width="100%">
+        <mj-divider border-width="4px" border-color="#2563EB" padding="0px" />
+      </mj-column>
+    </mj-section>
+
+    <!-- Header Section -->
+    <mj-section background-color="#0F172A" padding="24px 28px">
+      <mj-column width="100%">
+        <mj-text color="#38BDF8" font-size="11px" font-weight="800" letter-spacing="1px" padding="0 0 6px 0">
+          DISTRICORR &bull; GESTIÓN IQ
+        </mj-text>
+        <mj-text color="#FFFFFF" font-size="20px" font-weight="800" padding="0 0 4px 0">
+          Resumen Semanal de Pagos
+        </mj-text>
+        <mj-text color="#94A3B8" font-size="12px" padding="0">
+          Período: {{periodoLabel}}
+        </mj-text>
+      </mj-column>
+    </mj-section>
+
+    <!-- Main Content Card -->
+    <mj-section background-color="#FFFFFF" padding="28px 28px 20px 28px">
+      <mj-column width="100%">
+        <mj-text font-size="15px" color="#0F172A" font-weight="600" padding="0 0 12px 0">
+          Hola equipo,
+        </mj-text>
+        <mj-text font-size="14px" color="#475569" padding="0 0 20px 0">
+          Les compartimos el reporte consolidado de pagos y liquidaciones correspondiente a esta semana. A continuación, el resumen de la actividad registrada:
+        </mj-text>
+      </mj-column>
+    </mj-section>
+
+    <!-- 3 KPI Cards -->
+    <mj-section background-color="#FFFFFF" padding="0 24px 24px 24px">
+      <mj-column width="33.33%" padding="4px">
+        <mj-table padding="0">
+          <tr>
+            <td class="kpi-box" style="background-color:#F8FAFC; border:1px solid #E2E8F0; border-radius:12px; padding:14px 8px; text-align:center;">
+              <div style="font-size:10px; font-weight:700; color:#64748B; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px;">TOTAL LIQUIDADO</div>
+              <div style="font-size:17px; font-weight:800; color:#059669;">{{montoTotal}}</div>
+            </td>
+          </tr>
+        </mj-table>
+      </mj-column>
+      <mj-column width="33.33%" padding="4px">
+        <mj-table padding="0">
+          <tr>
+            <td class="kpi-box" style="background-color:#F8FAFC; border:1px solid #E2E8F0; border-radius:12px; padding:14px 8px; text-align:center;">
+              <div style="font-size:10px; font-weight:700; color:#64748B; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px;">ÓRDENES</div>
+              <div style="font-size:17px; font-weight:800; color:#0F172A;">{{totalOrdenes}}</div>
+            </td>
+          </tr>
+        </mj-table>
+      </mj-column>
+      <mj-column width="33.33%" padding="4px">
+        <mj-table padding="0">
+          <tr>
+            <td class="kpi-box" style="background-color:#F8FAFC; border:1px solid #E2E8F0; border-radius:12px; padding:14px 8px; text-align:center;">
+              <div style="font-size:10px; font-weight:700; color:#64748B; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px;">CIRUGÍAS</div>
+              <div style="font-size:17px; font-weight:800; color:#2563EB;">{{totalCirugias}}</div>
+            </td>
+          </tr>
+        </mj-table>
+      </mj-column>
+    </mj-section>
+
+    <!-- Attached PDF Callout -->
+    <mj-section background-color="#FFFFFF" padding="0 28px 28px 28px">
+      <mj-column width="100%">
+        <mj-table padding="0">
+          <tr>
+            <td class="attach-box" style="background-color:#F8FAFC; border:1px solid #E2E8F0; border-left:4px solid #2563EB; border-radius:8px; padding:12px 16px;">
+              <div style="font-size:13px; font-weight:700; color:#0F172A;">
+                📄 Archivo adjunto: <span style="color:#2563EB;">{{filename}}</span>
+              </div>
+              <div style="font-size:12px; color:#64748B; margin-top:3px;">
+                Incluye el detalle por cada instrumentador, cirugías, pacientes y comprobantes correspondientes.
+              </div>
+            </td>
+          </tr>
+        </mj-table>
+        <mj-text font-size="13px" color="#64748B" padding="20px 0 0 0">
+          Saludos cordiales,<br/>
+          <strong style="color:#0F172A;">Administración &bull; Districorr</strong>
+        </mj-text>
+      </mj-column>
+    </mj-section>
+
+    <!-- Footer -->
+    <mj-section background-color="#F1F5F9" padding="20px 28px">
+      <mj-column width="100%">
+        <mj-text align="center" font-size="11px" color="#94A3B8" line-height="1.5" padding="0">
+          Districorr &bull; Gestión IQ &bull; Sistema de Trazabilidad Quirúrgica<br/>
+          Este es un correo automático programado para el área administrativa y contable.
+        </mj-text>
+      </mj-column>
+    </mj-section>
+
+  </mj-body>
+</mjml>

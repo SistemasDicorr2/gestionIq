@@ -275,7 +275,7 @@ export function useReportePagosPDF() {
   };
 
   // Generar Reporte Consolidado con el Listado Completo de Pagos (Un solo PDF)
-  const generarReporteListadoCompletoPagos = ({ ordenesDetalladas, periodoLabel, instrumentadorFiltro = null }) => {
+  const generarReporteListadoCompletoPagos = ({ ordenesDetalladas, periodoLabel, instrumentadorFiltro = null, download = true }) => {
     if (!ordenesDetalladas || ordenesDetalladas.length === 0) return;
 
     const doc = new jsPDF('p', 'mm', 'a4');
@@ -635,72 +635,102 @@ export function useReportePagosPDF() {
       doc.text(`Página ${i} de ${pageCount}`, pageWidth - marginX, pageHeight - 8, { align: 'right' });
     }
 
-    // 9. Guardar PDF con nombre limpio y representativo
+    // 9. Guardar PDF con nombre limpio y representativo o retornar Base64
     const labelSanitized = periodoLabel.replace(/[^a-zA-Z0-9]/g, '_');
     const filename = `Reporte_Pagos_Consolidado_${labelSanitized}.pdf`;
-    doc.save(filename);
+    
+    if (download !== false) {
+      doc.save(filename);
+    }
+
+    const dataUri = doc.output('datauristring');
+    const base64 = dataUri.split(',')[1] || '';
+
+    return { doc, filename, base64 };
   };
 
-  const generarReporteOrdenIndividual = ({ instrumentador, liquidacion }) => {
+  const generarReporteOrdenIndividual = ({ instrumentador, liquidacion, download = true }) => {
     if (!liquidacion) return;
-    const refStr = liquidacion.orden_de_pago_id ? `#${liquidacion.orden_de_pago_id}` : 'Individual';
-    generarReportePagos({
-      instrumentador,
-      liquidaciones: [liquidacion],
-      periodoLabel: `Orden de Pago ${refStr}`
+    const refStr = liquidacion.orden_de_pago_id ? `Orden de Pago #${liquidacion.orden_de_pago_id}` : 'Comprobante Individual de Pago';
+    
+    // Adaptar estructura al formato de orden detallada
+    const mockOrden = {
+      id: liquidacion.orden_de_pago_id || 'Individual',
+      fecha_emision: liquidacion.fecha_pago,
+      monto_total: liquidacion.monto_total,
+      pagos_instrumentadores: [
+        {
+          instrumentador_nombre: instrumentador?.nombre_completo || instrumentador?.nombre || 'Instrumentador Quirúrgico',
+          instrumentador_dni: instrumentador?.dni || '-',
+          monto_total_instrumentador: liquidacion.monto_total,
+          cirugias: liquidacion.cirugias || (liquidacion.pacientes || []).map(p => ({ paciente: p }))
+        }
+      ]
+    };
+
+    return generarReporteListadoCompletoPagos({
+      ordenesDetalladas: [mockOrden],
+      periodoLabel: refStr,
+      instrumentadorFiltro: {
+        dni: instrumentador?.dni,
+        nombre: instrumentador?.nombre_completo || instrumentador?.nombre
+      },
+      download
     });
   };
 
-  const generarReporteDesdeDetalleOrden = (detalleOrden, dniFiltro = null) => {
+  const generarReporteDesdeDetalleOrden = (detalleOrden, dniFiltro = null, download = true) => {
     if (!detalleOrden) return;
     const pagos = detalleOrden.pagos_instrumentadores || detalleOrden.pagos || [];
     
-    // Si se especifica un DNI, filtrar solo ese
-    let targetPagos = pagos;
+    let targetInstFiltro = null;
     if (dniFiltro) {
-      targetPagos = pagos.filter(p => String(p.instrumentador_dni) === String(dniFiltro));
-    }
-
-    if (targetPagos.length === 0 && pagos.length > 0) {
-      targetPagos = pagos;
-    }
-
-    // Si hay 1 solo instrumentador objetivo
-    if (targetPagos.length === 1) {
-      const p = targetPagos[0];
-      const liquidacion = {
-        orden_de_pago_id: detalleOrden.id,
-        fecha_pago: detalleOrden.fecha_emision,
-        monto_total: p.monto_total_instrumentador,
-        cirugias: (p.cirugias || p.reportes || []).map(c => ({
-          paciente: c.paciente,
-          fecha_cirugia: c.fecha_cirugia,
-          monto: c.monto_final !== undefined ? c.monto_final : (c.monto_a_pagar || 0)
-        }))
+      const matchP = pagos.find(p => String(p.instrumentador_dni).trim() === String(dniFiltro).trim());
+      if (matchP) {
+        targetInstFiltro = {
+          dni: matchP.instrumentador_dni,
+          nombre: matchP.instrumentador_nombre
+        };
+      }
+    } else if (pagos.length === 1) {
+      targetInstFiltro = {
+        dni: pagos[0].instrumentador_dni,
+        nombre: pagos[0].instrumentador_nombre
       };
-      generarReporteOrdenIndividual({
-        instrumentador: {
-          nombre_completo: p.instrumentador_nombre,
-          dni: p.instrumentador_dni
-        },
-        liquidacion
-      });
-      return;
     }
 
-    // Si hay varios instrumentadores en esta orden de pago y no se especificó filtro,
-    // generar un reporte consolidado de esta orden con todos los pagos en 1 solo PDF
-    generarReporteListadoCompletoPagos({
+    return generarReporteListadoCompletoPagos({
       ordenesDetalladas: [detalleOrden],
-      periodoLabel: `Orden de Pago #${detalleOrden.id}`
+      periodoLabel: `Orden de Pago #${detalleOrden.id}`,
+      instrumentadorFiltro: targetInstFiltro,
+      download
     });
   };
 
-  const generarReporteConsolidadoPeriodo = ({ instrumentador, liquidaciones, periodoLabel }) => {
-    generarReportePagos({
-      instrumentador,
-      liquidaciones,
-      periodoLabel: periodoLabel || 'Período personalizado'
+  const generarReporteConsolidadoPeriodo = ({ instrumentador, liquidaciones, periodoLabel, download = true }) => {
+    // Si viene en formato de liquidaciones simples, adaptarlo al motor ejecutivo
+    const mockOrdenes = liquidaciones.map((l, idx) => ({
+      id: l.orden_de_pago_id || (idx + 1),
+      fecha_emision: l.fecha_pago,
+      monto_total: l.monto_total,
+      pagos_instrumentadores: [
+        {
+          instrumentador_nombre: instrumentador?.nombre_completo || instrumentador?.nombre || 'Instrumentador Quirúrgico',
+          instrumentador_dni: instrumentador?.dni || '-',
+          monto_total_instrumentador: l.monto_total,
+          cirugias: l.cirugias || (l.pacientes || []).map(p => ({ paciente: p }))
+        }
+      ]
+    }));
+
+    return generarReporteListadoCompletoPagos({
+      ordenesDetalladas: mockOrdenes,
+      periodoLabel: periodoLabel || 'Período personalizado',
+      instrumentadorFiltro: instrumentador ? {
+        dni: instrumentador.dni,
+        nombre: instrumentador.nombre_completo || instrumentador.nombre
+      } : null,
+      download
     });
   };
 

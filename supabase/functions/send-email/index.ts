@@ -77,7 +77,7 @@ serve(async (req) => {
     }
 
     // 3. Extracción de Parámetros del Body (Ignorando from y reply_to provistos por el frontend)
-    const { to, bcc, subject, html } = await req.json();
+    const { to, bcc, subject, html, attachments } = await req.json();
 
     if (!to || !subject || !html) {
       return new Response(
@@ -114,6 +114,14 @@ serve(async (req) => {
 
     if (bccRecipients && bccRecipients.length > 0) {
       resendPayload.bcc = bccRecipients;
+    }
+
+    // Soporte seguro para adjuntos (attachments)
+    if (attachments && Array.isArray(attachments) && attachments.length > 0) {
+      resendPayload.attachments = attachments.map((att: any) => ({
+        filename: att.filename || "archivo_adjunto.pdf",
+        content: att.content // Base64 string
+      }));
     }
 
     // 5. Envío hacia la API REST de Resend

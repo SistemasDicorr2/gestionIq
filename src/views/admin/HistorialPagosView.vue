@@ -1,20 +1,100 @@
 <!-- src/views/admin/HistorialPagosView.vue -->
 <template>
   <div class="p-4 sm:p-6 lg:p-8 bg-slate-50/30 dark:bg-slate-950/10 min-h-screen">
-    <div class="mb-8">
-      <h1 class="text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-100">Auditoría y Correcciones</h1>
-      <p class="text-slate-500 dark:text-slate-400 mt-1.5 text-sm sm:text-base">Auditá el historial de pagos y utilizá las herramientas para corregir errores de forma segura.</p>
+    <div class="mb-6">
+      <h1 class="text-3xl font-black tracking-tight text-slate-900 dark:text-slate-100">Auditoría y Correcciones</h1>
+      <p class="text-slate-500 dark:text-slate-400 mt-1 text-sm sm:text-base">Auditá el historial de pagos, detectá comprobantes faltantes y utilizá las herramientas para corregir de forma masiva o individual.</p>
+    </div>
+
+    <!-- TARJETAS KPI DE SALUD DE CONCILIACIONES -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5 mb-6">
+      <!-- Total Órdenes -->
+      <div class="p-4 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xs flex items-center justify-between">
+        <div>
+          <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Total Órdenes Registradas</span>
+          <span class="text-2xl font-black text-slate-900 dark:text-white font-mono mt-0.5 block">
+            {{ historial.length }}
+          </span>
+        </div>
+        <div class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-lg">
+          📜
+        </div>
+      </div>
+
+      <!-- Con Comprobante -->
+      <div class="p-4 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xs flex items-center justify-between">
+        <div>
+          <span class="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider block">Con Comprobante Digital</span>
+          <span class="text-2xl font-black text-emerald-700 dark:text-emerald-400 font-mono mt-0.5 block">
+            {{ totalWithReceipt }}
+          </span>
+        </div>
+        <div class="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-lg font-bold">
+          ✓
+        </div>
+      </div>
+
+      <!-- Sin Comprobante (Filtro Interactivo) -->
+      <div 
+        @click="toggleFilterOnlyMissing" 
+        :class="[
+          'p-4 rounded-2xl border transition cursor-pointer flex items-center justify-between shadow-2xs',
+          filterOnlyMissing 
+            ? 'bg-rose-50 dark:bg-rose-955/60 border-rose-400 dark:border-rose-700 ring-2 ring-rose-500/20' 
+            : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 hover:border-rose-300'
+        ]"
+      >
+        <div>
+          <div class="flex items-center gap-1.5">
+            <span class="text-[10px] font-bold text-rose-600 dark:text-rose-400 uppercase tracking-wider">Sin Comprobante Adjunto</span>
+            <span v-if="filterOnlyMissing" class="text-[9px] px-1.5 py-0.2 bg-rose-200 dark:bg-rose-900 text-rose-800 dark:text-rose-200 rounded-full font-bold">Filtrado Activo</span>
+          </div>
+          <span class="text-2xl font-black text-rose-700 dark:text-rose-400 font-mono mt-0.5 block">
+            {{ totalWithoutReceipt }}
+          </span>
+        </div>
+        <div class="w-10 h-10 rounded-xl bg-rose-50 dark:bg-rose-955 text-rose-600 dark:text-rose-400 flex items-center justify-center text-lg font-bold">
+          ⚠️
+        </div>
+      </div>
+    </div>
+
+    <!-- BANNER DE ALERTA DE ÚLTIMA CONCILIACIÓN CON COMPROBANTES FALTANTES -->
+    <div 
+      v-if="latestBatchMissingCount > 0 && activeTab === 'historial'" 
+      class="mb-6 p-4 rounded-2xl bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 text-white shadow-lg flex flex-col sm:flex-row sm:items-center justify-between gap-3 animate-in fade-in"
+    >
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center text-xl shrink-0">
+          ⚠️
+        </div>
+        <div>
+          <h3 class="text-sm font-black">
+            Última Conciliación: {{ latestBatchMissingCount }} {{ latestBatchMissingCount === 1 ? 'orden no tiene comprobante cargado' : 'órdenes no tienen comprobantes cargados' }}
+          </h3>
+          <p class="text-xs text-amber-100 font-medium">
+            Usá el Auto-Matcher masivo para subir todos los comprobantes juntos sin tener que buscarlos uno a uno.
+          </p>
+        </div>
+      </div>
+
+      <button 
+        @click="isModalAutoMatcherVisible = true" 
+        class="px-4 py-2 bg-white text-slate-900 hover:bg-amber-50 font-black text-xs rounded-xl shadow-md transition cursor-pointer self-end sm:self-auto shrink-0 flex items-center gap-1.5 active:scale-95"
+      >
+        <span>🧲 Auto-Vincular Comprobantes Masivo ➔</span>
+      </button>
     </div>
 
     <!-- Sistema de Pestañas y Acciones Principales -->
-    <div class="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div class="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
       <div class="p-1 bg-slate-100 dark:bg-slate-900/60 rounded-xl inline-flex gap-1.5 border border-slate-200/50 dark:border-slate-800/40 w-fit">
         <button
           @click="activeTab = 'historial'"
           :class="[
             'px-5 py-2 text-sm font-semibold rounded-lg transition-all duration-200 active:scale-95 cursor-pointer',
             activeTab === 'historial'
-              ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-50 shadow-sm border border-slate-200/40 dark:border-slate-700/30'
+              ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-50 shadow-sm border border-slate-200/40 dark:border-slate-700/30 font-extrabold'
               : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-205'
           ]"
         >
@@ -25,7 +105,7 @@
           :class="[
             'px-5 py-2 text-sm font-semibold rounded-lg transition-all duration-200 active:scale-95 cursor-pointer',
             activeTab === 'herramientas'
-              ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-50 shadow-sm border border-slate-200/40 dark:border-slate-700/30'
+              ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-50 shadow-sm border border-slate-200/40 dark:border-slate-700/30 font-extrabold'
               : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-205'
           ]"
         >
@@ -33,17 +113,39 @@
         </button>
       </div>
 
-      <!-- Botón de Reporte Ejecutivo por Período -->
-      <button 
-        type="button"
-        @click="isModalPeriodoVisible = true"
-        class="px-5 py-2.5 rounded-xl font-bold text-xs sm:text-sm bg-blue-600 hover:bg-blue-700 active:scale-95 text-white shadow-md shadow-blue-500/20 transition-all flex items-center gap-2 cursor-pointer w-fit"
-      >
-        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-        </svg>
-        <span>Generar Reporte por Período</span>
-      </button>
+      <!-- Acciones de Reportes y Automatización -->
+      <div class="flex items-center gap-2.5 flex-wrap">
+        <button 
+          type="button"
+          @click="isModalAutoMatcherVisible = true"
+          class="px-4 py-2.5 rounded-xl font-extrabold text-xs sm:text-sm bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white shadow-md shadow-indigo-500/20 transition-all flex items-center gap-1.5 cursor-pointer"
+          title="Emparejar y subir múltiples comprobantes bancarios en lote"
+        >
+          <span>🧲 Auto-Matcher Masivo</span>
+        </button>
+
+        <button 
+          type="button"
+          @click="isModalAutomatizacionVisible = true"
+          class="px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700/80 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 shadow-xs active:scale-95 transition-all flex items-center gap-2 cursor-pointer"
+          title="Configurar día, horario y destinatarios para el envío automático de reportes en PDF"
+        >
+          <span class="text-base">⚙️</span>
+          <span>Automatizar Reporte</span>
+        </button>
+
+        <!-- Botón de Reporte Ejecutivo por Período -->
+        <button 
+          type="button"
+          @click="isModalPeriodoVisible = true"
+          class="px-5 py-2.5 rounded-xl font-bold text-xs sm:text-sm bg-blue-600 hover:bg-blue-700 active:scale-95 text-white shadow-md shadow-blue-500/20 transition-all flex items-center gap-2 cursor-pointer"
+        >
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+          <span>Generar Reporte por Período</span>
+        </button>
+      </div>
     </div>
 
     <!-- Contenido de la Pestaña "Historial" -->
@@ -161,16 +263,23 @@
                           <path stroke-linecap="round" stroke-linejoin="round" d="M7.217 10.907a2.25 2.25 0 100 2.186m0-2.186l5.302 3.111m0 0a2.25 2.25 0 103.515 2.186m-3.515-2.186l-5.302-3.111m0 0a2.25 2.25 0 103.515-2.186m-3.515 2.186l5.302-3.111" />
                         </svg>
                       </button>
+                      <!-- Comprobante Bancario -->
                       <a v-if="orden.comprobante_object_key" 
                          :href="getComprobanteUrl(orden.comprobante_object_key)" 
                          target="_blank" 
                          rel="noopener noreferrer"
                          class="btn-icon-premium"
-                         title="Descargar Comprobante Bancario">
+                         title="Ver / Descargar Comprobante Bancario">
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244" />
                         </svg>
                       </a>
+                      <button v-else 
+                              @click="irACorregirComprobante(orden)"
+                              class="px-2.5 py-1 rounded-xl text-[11px] font-black text-rose-700 dark:text-rose-300 bg-rose-50 dark:bg-rose-955 border border-rose-200 dark:border-rose-900 hover:bg-rose-100 transition-all cursor-pointer flex items-center gap-1 shadow-2xs"
+                              title="Sin comprobante bancario adjunto (Haz clic para adjuntar)">
+                        <span>📎 Adjuntar</span>
+                      </button>
                     </div>
                   </td>
                 </tr>
@@ -183,13 +292,19 @@
 
     <!-- Contenido de la Pestaña "Herramientas" -->
     <div v-show="activeTab === 'herramientas'">
-      <CorrectionWorkspace />
+      <CorrectionWorkspace 
+        ref="correctionWorkspaceRef" 
+        @open-auto-matcher="isModalAutoMatcherVisible = true" 
+        @updated="fetchHistorial" 
+      />
     </div>
 
-    <OrdenDePagoDetalleModal
-      :is-visible="isModalVisible"
-      :orden-id="selectedOrdenId"
-      @close="closeModal"
+    <!-- Modal Auto-Matcher Masivo de Comprobantes -->
+    <AutoMatcherComprobantesModal
+      :show="isModalAutoMatcherVisible"
+      :orders="historial"
+      @close="isModalAutoMatcherVisible = false"
+      @updated="fetchHistorial"
     />
 
     <!-- Modal Reporte Ejecutivo por Período / Instrumentador -->
@@ -197,6 +312,12 @@
       :show="isModalPeriodoVisible"
       :historial="historial"
       @close="isModalPeriodoVisible = false"
+    />
+
+    <!-- Modal Configuración de Automatización Semanal de Pagos -->
+    <ConfigurarAutomatizacionPagosModal
+      :show="isModalAutomatizacionVisible"
+      @close="isModalAutomatizacionVisible = false"
     />
 
     <!-- Modal Compartir Enlace/Mensaje -->
@@ -285,7 +406,9 @@ import { useToasts } from '../../composables/useToasts';
 import { useReportePagosPDF } from '../../composables/useReportePagosPDF';
 import OrdenDePagoDetalleModal from '../../components/admin/OrdenDePagoDetalleModal.vue';
 import ModalReportePagosPeriodo from '../../components/admin/ModalReportePagosPeriodo.vue';
+import ConfigurarAutomatizacionPagosModal from '../../components/admin/ConfigurarAutomatizacionPagosModal.vue';
 import CorrectionWorkspace from '../../components/admin/corrections/CorrectionWorkspace.vue';
+import AutoMatcherComprobantesModal from '../../components/admin/corrections/AutoMatcherComprobantesModal.vue';
 
 const { showSuccessToast, showErrorToast } = useToasts();
 const { generarReporteDesdeDetalleOrden } = useReportePagosPDF();
@@ -296,10 +419,14 @@ const isLoading = ref(true);
 const error = ref(null);
 const isModalVisible = ref(false);
 const isModalPeriodoVisible = ref(false);
+const isModalAutomatizacionVisible = ref(false);
+const isModalAutoMatcherVisible = ref(false);
+const correctionWorkspaceRef = ref(null);
 const selectedOrdenId = ref(null);
 const dniFilter = ref('');
 const startDateFilter = ref('');
 const endDateFilter = ref('');
+const filterOnlyMissing = ref(false);
 
 // Estado de carga para PDFs
 const loadingPdfOrdenId = ref(null);
@@ -310,14 +437,42 @@ const isShareModalVisible = ref(false);
 const selectedOrdenForShare = ref(null);
 const shareInstrumentadores = ref([]);
 
+// Métricas de salud de comprobantes
+const totalWithReceipt = computed(() => {
+  return historial.value.filter(o => Boolean(o.comprobante_object_key)).length;
+});
+
+const totalWithoutReceipt = computed(() => {
+  return historial.value.filter(o => !o.comprobante_object_key).length;
+});
+
+const latestBatchMissingCount = computed(() => {
+  if (!historial.value || historial.value.length === 0) return 0;
+  const latestDateStr = historial.value[0]?.fecha_emision ? String(historial.value[0].fecha_emision).substring(0, 10) : null;
+  if (!latestDateStr) return 0;
+  return historial.value.filter(o => String(o.fecha_emision || '').substring(0, 10) === latestDateStr && !o.comprobante_object_key).length;
+});
+
+function toggleFilterOnlyMissing() {
+  filterOnlyMissing.value = !filterOnlyMissing.value;
+}
+
+function irACorregirComprobante(orden) {
+  activeTab.value = 'herramientas';
+  setTimeout(() => {
+    correctionWorkspaceRef.value?.selectOrder(orden);
+  }, 100);
+}
+
 const hasActiveFilters = computed(() => {
-  return Boolean(dniFilter.value.trim() || startDateFilter.value || endDateFilter.value);
+  return Boolean(dniFilter.value.trim() || startDateFilter.value || endDateFilter.value || filterOnlyMissing.value);
 });
 
 function clearFilters() {
   dniFilter.value = '';
   startDateFilter.value = '';
   endDateFilter.value = '';
+  filterOnlyMissing.value = false;
 }
 
 const filteredHistorial = computed(() => {
@@ -365,6 +520,10 @@ const filteredHistorial = computed(() => {
       const fechaStr = String(orden.fecha_emision).substring(0, 10);
       return fechaStr <= endDateFilter.value;
     });
+  }
+
+  if (filterOnlyMissing.value) {
+    items = items.filter(orden => !orden.comprobante_object_key);
   }
 
   return items;

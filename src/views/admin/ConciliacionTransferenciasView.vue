@@ -334,18 +334,47 @@
       <!-- TABLA PRINCIPAL DE COMPROBANTES CON BOTÓN DE CONCILIACIÓN AUTOMÁTICA EN LOTE -->
       <section v-if="files.length > 0" class="mb-6 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
         
-        <!-- Resumen y Acción de Lote en Cabecera de Tabla -->
+        <!-- Resumen y Acción de Lote en Cabecera de Tabla con Segmentación -->
         <div class="p-3 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between flex-wrap gap-2 bg-slate-100/70 dark:bg-slate-800/60">
           <div class="flex items-center gap-2 flex-wrap">
             <h2 class="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wide">
               Comprobantes ({{ files.length }})
             </h2>
-            <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-900 dark:bg-emerald-950 dark:text-emerald-200 font-black border border-emerald-300/60">
-              {{ autoConciliadosCount }} Asignados
-            </span>
-            <span v-if="excepcionesCount > 0" class="text-[10px] px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 dark:bg-amber-950 dark:text-amber-200 font-black border border-amber-300/60">
-              {{ excepcionesCount }} Pendientes
-            </span>
+
+            <!-- Segmentación y Filtros por Estado del Lote -->
+            <div class="flex items-center gap-1 p-0.5 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 text-[11px] font-extrabold shadow-2xs">
+              <button 
+                type="button"
+                @click="currentBatchFilter = 'todos'"
+                :class="['px-2.5 py-1 rounded-lg transition-all cursor-pointer', currentBatchFilter === 'todos' ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900']"
+              >
+                Todos ({{ files.length }})
+              </button>
+              <button 
+                type="button"
+                @click="currentBatchFilter = 'listos'"
+                :class="['px-2.5 py-1 rounded-lg transition-all cursor-pointer flex items-center gap-1', currentBatchFilter === 'listos' ? 'bg-emerald-600 text-white shadow-xs' : 'text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/40']"
+              >
+                <span>🟢 Listos 100%</span>
+                <span class="px-1.5 py-0.2 rounded-full bg-white/20 text-[10px] font-black">{{ readyFilesCount }}</span>
+              </button>
+              <button 
+                type="button"
+                @click="currentBatchFilter = 'parciales'"
+                :class="['px-2.5 py-1 rounded-lg transition-all cursor-pointer flex items-center gap-1', currentBatchFilter === 'parciales' ? 'bg-indigo-600 text-white shadow-xs' : 'text-indigo-700 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/40']"
+              >
+                <span>🟡 Con saldo</span>
+                <span class="px-1.5 py-0.2 rounded-full bg-white/20 text-[10px] font-black">{{ partialFilesCount }}</span>
+              </button>
+              <button 
+                type="button"
+                @click="currentBatchFilter = 'atencion'"
+                :class="['px-2.5 py-1 rounded-lg transition-all cursor-pointer flex items-center gap-1', currentBatchFilter === 'atencion' ? 'bg-amber-600 text-white shadow-xs' : 'text-amber-700 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/40']"
+              >
+                <span>🔴 Atención</span>
+                <span class="px-1.5 py-0.2 rounded-full bg-white/20 text-[10px] font-black">{{ attentionFilesCount }}</span>
+              </button>
+            </div>
           </div>
 
           <!-- BOTÓN DE CONCILIAR AUTOMÁTICOS EN LOTE -->
@@ -379,14 +408,18 @@
             </thead>
             <tbody class="divide-y divide-slate-200 dark:divide-slate-800">
               <tr 
-                v-for="item in files" 
+                v-for="item in filteredBatchFiles" 
                 :key="item.id"
                 :class="[
                   'transition-colors duration-150',
                   activeFileId === item.id 
                     ? 'bg-indigo-50/90 dark:bg-indigo-950/60 border-l-4 border-l-indigo-600 font-semibold' 
                     : 'hover:bg-slate-50 dark:hover:bg-slate-800/40',
-                  !item.matchedInstrumentador ? 'bg-amber-50/60 dark:bg-amber-955/20 border-l-4 border-l-amber-500' : ''
+                  item.isDuplicate 
+                    ? 'bg-rose-50/70 dark:bg-rose-955/30 border-l-4 border-l-rose-600' 
+                    : !item.matchedInstrumentador 
+                      ? 'bg-amber-50/60 dark:bg-amber-955/20 border-l-4 border-l-amber-500' 
+                      : ''
                 ]"
               >
                 <!-- Archivo -->
@@ -404,9 +437,25 @@
                       <span>👁️ Ver</span>
                     </button>
                   </div>
-                  <div class="flex items-center gap-1 mt-0.5">
+
+                  <!-- BADGES DE ESTADO Y DUPLICIDAD -->
+                  <div class="flex items-center gap-1 mt-1 flex-wrap">
                     <span v-if="item.isCached" class="text-[9px] px-1.5 py-0.2 rounded bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-mono font-bold">CACHE SHA-256</span>
+                    <span v-if="item.isAiCombined" class="text-[9px] px-1.5 py-0.2 rounded bg-teal-100 dark:bg-teal-950 text-teal-900 dark:text-teal-200 font-bold border border-teal-200 dark:border-teal-800" :title="`Combinación exacta calculada de ${item.aiCombinedCount} cirugías`">
+                      🧮 {{ item.aiCombinedCount }} CX combinadas
+                    </span>
+                    <span v-if="item.matchType === 'regla_aprendida'" class="text-[9px] px-1.5 py-0.2 rounded bg-indigo-100 dark:bg-indigo-950 text-indigo-900 dark:text-indigo-200 font-bold border border-indigo-200 dark:border-indigo-800" :title="`Cuenta vinculada por regla aprendida: ${item.titularAprendido || ''}`">
+                      🏷️ Titular aprendido
+                    </span>
                     <span v-if="item.observaciones" class="text-[9px] px-1.5 py-0.2 rounded bg-amber-100 dark:bg-amber-950 text-amber-900 dark:text-amber-200 font-bold" title="Tiene observaciones">📝 Nota</span>
+                  </div>
+
+                  <!-- ALERTA DE DUPLICIDAD VISUAL -->
+                  <div v-if="item.isDuplicate" class="mt-1.5 p-1 bg-rose-100 dark:bg-rose-955/80 border border-rose-300 dark:border-rose-800 text-rose-900 dark:text-rose-100 rounded-md text-[9px] font-black flex items-center gap-1">
+                    <span>⚠️</span>
+                    <span class="truncate">
+                      {{ item.duplicateOrderInfo?.tipo === 'mismo_lote' ? 'Duplicado en lote' : `Ya utilizado en OP #${item.duplicateOrderInfo?.id} (${formatDate(item.duplicateOrderInfo?.fecha)})` }}
+                    </span>
                   </div>
                 </td>
 
@@ -418,6 +467,9 @@
                     </span>
                     <span v-if="item.extractedData.destinatario_cuit_cuil" class="text-[11px] text-slate-600 dark:text-slate-300 font-mono font-bold block">
                       CUIT: {{ item.extractedData.destinatario_cuit_cuil }}
+                    </span>
+                    <span v-if="item.extractedData.concepto" class="text-[10px] text-slate-500 dark:text-slate-400 italic block truncate max-w-[190px]" :title="item.extractedData.concepto">
+                      Ref: {{ item.extractedData.concepto }}
                     </span>
                   </div>
                   <div v-else-if="item.status === 'processing'" class="flex items-center gap-2 py-0.5">
@@ -509,12 +561,12 @@
         <!-- VISTA MÓVIL (< 640px) -->
         <div class="block sm:hidden divide-y divide-slate-200 dark:divide-slate-800">
           <div 
-            v-for="item in files" 
+            v-for="item in filteredBatchFiles" 
             :key="item.id"
             :class="[
               'p-3 space-y-2 text-xs',
               activeFileId === item.id ? 'bg-indigo-50/80 dark:bg-indigo-955/40 border-l-4 border-l-indigo-600' : '',
-              !item.matchedInstrumentador ? 'bg-amber-50/60 dark:bg-amber-955/20 border-l-4 border-l-amber-500' : ''
+              item.isDuplicate ? 'bg-rose-50/80 dark:bg-rose-955/30 border-l-4 border-l-rose-600' : !item.matchedInstrumentador ? 'bg-amber-50/60 dark:bg-amber-955/20 border-l-4 border-l-amber-500' : ''
             ]"
           >
             <div class="flex items-center justify-between gap-2">
@@ -533,6 +585,23 @@
               </span>
             </div>
 
+            <!-- BADGES EN MÓVIL -->
+            <div class="flex items-center gap-1 flex-wrap">
+              <span v-if="item.isCached" class="text-[9px] px-1.5 py-0.2 rounded bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-mono font-bold">CACHE SHA-256</span>
+              <span v-if="item.isAiCombined" class="text-[9px] px-1.5 py-0.2 rounded bg-teal-100 dark:bg-teal-950 text-teal-900 dark:text-teal-200 font-bold border border-teal-200 dark:border-teal-800">
+                🧮 {{ item.aiCombinedCount }} CX combinadas
+              </span>
+              <span v-if="item.matchType === 'regla_aprendida'" class="text-[9px] px-1.5 py-0.2 rounded bg-indigo-100 dark:bg-indigo-950 text-indigo-900 dark:text-indigo-200 font-bold border border-indigo-200 dark:border-indigo-800">
+                🏷️ Titular aprendido
+              </span>
+            </div>
+
+            <!-- ALERTA DUPLICIDAD EN MÓVIL -->
+            <div v-if="item.isDuplicate" class="p-1.5 bg-rose-100 dark:bg-rose-955 border border-rose-300 dark:border-rose-800 text-rose-900 dark:text-rose-100 rounded-lg text-[10px] font-black flex items-center gap-1.5">
+              <span>⚠️</span>
+              <span>{{ item.duplicateOrderInfo?.tipo === 'mismo_lote' ? 'Duplicado en este lote' : `Ya utilizado en OP #${item.duplicateOrderInfo?.id} (${formatDate(item.duplicateOrderInfo?.fecha)})` }}</span>
+            </div>
+
             <div class="text-xs text-slate-700 dark:text-slate-300">
               <span class="font-black text-slate-900 dark:text-white block">
                 Destinatario: {{ item.extractedData?.destinatario_nombre || 'Sin datos' }}
@@ -540,10 +609,13 @@
               <span v-if="item.extractedData?.destinatario_cuit_cuil" class="text-[11px] font-mono text-slate-600 dark:text-slate-400 font-bold block">
                 CUIT: {{ item.extractedData.destinatario_cuit_cuil }}
               </span>
+              <span v-if="item.extractedData?.concepto" class="text-[10px] text-slate-500 italic block">
+                Ref: {{ item.extractedData.concepto }}
+              </span>
             </div>
 
             <div class="pt-1 flex flex-col gap-1.5">
-              <div v-if="item.matchedInstrumentador && item.matchedInstrumentador.dni && item.matchedInstrumentador.dni !== 'erp-match'" class="space-y-1 bg-emerald-50 dark:bg-emerald-950/60 p-2 rounded-lg border border-emerald-200 dark:border-emerald-800">
+              <div v-if="item.matchedInstrumentador && item.matchedInstrumentador.dni && item.matchedInstrumentador.dni !== 'erp-match'" class="space-y-1 bg-emerald-50 dark:bg-emerald-955/60 p-2 rounded-lg border border-emerald-200 dark:border-emerald-800">
                 <div class="flex items-center justify-between text-xs">
                   <span class="font-black text-emerald-900 dark:text-emerald-200">
                     ✓ {{ item.matchedInstrumentador.nombre }}
@@ -817,6 +889,19 @@
             </button>
 
             <button @click="showImputacionModal = false" class="text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 text-sm font-bold p-1 shrink-0">✕</button>
+          </div>
+        </div>
+
+        <!-- ALERTA DE DUPLICIDAD EN MODAL -->
+        <div v-if="activeFile.isDuplicate" class="p-2.5 bg-rose-100 dark:bg-rose-955/90 border-2 border-rose-400 dark:border-rose-700 text-rose-900 dark:text-rose-100 rounded-xl text-xs font-bold flex items-center gap-2 shadow-2xs shrink-0">
+          <span class="text-base shrink-0">⚠️</span>
+          <div class="space-y-0.5">
+            <span class="font-black text-rose-900 dark:text-rose-100 block">
+              ¡Atención! Comprobante detectado como duplicado
+            </span>
+            <span class="text-[11px] opacity-90 block">
+              {{ activeFile.duplicateOrderInfo?.tipo === 'mismo_lote' ? 'Este mismo número de operación ya existe en otro archivo del lote actual.' : `Este comprobante ya fue utilizado en la Orden de Pago #${activeFile.duplicateOrderInfo?.id} el ${formatDate(activeFile.duplicateOrderInfo?.fecha)}.` }}
+            </span>
           </div>
         </div>
 
@@ -1358,6 +1443,7 @@ import { supabase } from '../../services/supabase';
 import { useToast } from 'vue-toastification';
 import { useOrdenDePagoPDF } from '../../composables/useOrdenDePagoPDF';
 import { formatDate } from '../../utils/reportMapper';
+import { parsearComprobanteBancarioTexto, findExactSurgerySubset } from '../../utils/bancosArgentinosParser';
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
@@ -1439,6 +1525,10 @@ const getComprobanteFileUrl = (item) => {
   if (item.fileBase64) {
     const mime = item.type || (item.name?.toLowerCase().endsWith('.pdf') ? 'application/pdf' : 'image/jpeg');
     return `data:${mime};base64,${item.fileBase64}`;
+  }
+  if (item.uploadedObjectKey) {
+    const r2Url = import.meta.env.VITE_R2_PUBLIC_URL;
+    return `${r2Url}/${item.uploadedObjectKey}`;
   }
   return '';
 };
@@ -1711,20 +1801,54 @@ const filteredAvailableSurgeries = computed(() => {
   return available;
 });
 
+// FILTRO Y SEGMENTACIÓN DE ESTADO DEL LOTE
+const currentBatchFilter = ref('todos'); // 'todos' | 'listos' | 'parciales' | 'atencion'
 
+const isFileExactReady = (f) => {
+  if (f.isConfirmed || f.status !== 'success' || !f.matchedInstrumentador || f.isDuplicate) return false;
+  const recMap = reconciliationsMap.value[f.id];
+  const cirugiasList = recMap?.cirugias || [];
+  if (cirugiasList.length === 0) return false;
 
-// COMPROBANTES CON COINCIDENCIA AUTOMÁTICA LISTOS PARA CONCILIAR EN 1 CLIC
+  const transferMonto = Number(f.extractedData?.monto_transferido) || 0;
+  const asignadoMonto = cirugiasList.reduce((sum, c) => sum + (Number(c.parte1) || 0), 0);
+  return Math.abs(transferMonto - asignadoMonto) < 0.01;
+};
+
+const isFilePartial = (f) => {
+  if (f.status !== 'success' || !f.matchedInstrumentador) return false;
+  const recMap = reconciliationsMap.value[f.id];
+  const cirugiasList = recMap?.cirugias || [];
+  if (cirugiasList.length === 0) return false;
+  const transferMonto = Number(f.extractedData?.monto_transferido) || 0;
+  const asignadoMonto = cirugiasList.reduce((sum, c) => sum + (Number(c.parte1) || 0), 0);
+  return Math.abs(transferMonto - asignadoMonto) >= 0.01 || (f.saldoPendienteInterno && f.saldoPendienteInterno > 0);
+};
+
+const isFileAttention = (f) => {
+  return f.status === 'error' || !f.matchedInstrumentador || f.isDuplicate;
+};
+
+const readyFilesCount = computed(() => files.value.filter(isFileExactReady).length);
+const partialFilesCount = computed(() => files.value.filter(isFilePartial).length);
+const attentionFilesCount = computed(() => files.value.filter(isFileAttention).length);
+
+const filteredBatchFiles = computed(() => {
+  if (currentBatchFilter.value === 'listos') {
+    return files.value.filter(isFileExactReady);
+  }
+  if (currentBatchFilter.value === 'parciales') {
+    return files.value.filter(isFilePartial);
+  }
+  if (currentBatchFilter.value === 'atencion') {
+    return files.value.filter(isFileAttention);
+  }
+  return files.value;
+});
+
+// COMPROBANTES CON COINCIDENCIA AUTOMÁTICA LISTOS PARA CONCILIAR EN 1 CLIC (Excluye duplicados)
 const autoReadyFiles = computed(() => {
-  return files.value.filter(f => {
-    if (f.isConfirmed || f.status !== 'success' || !f.matchedInstrumentador) return false;
-    const recMap = reconciliationsMap.value[f.id];
-    const cirugiasList = recMap?.cirugias || [];
-    if (cirugiasList.length === 0) return false;
-
-    const transferMonto = Number(f.extractedData?.monto_transferido) || 0;
-    const asignadoMonto = cirugiasList.reduce((sum, c) => sum + (Number(c.parte1) || 0), 0);
-    return transferMonto - asignadoMonto === 0;
-  });
+  return files.value.filter(isFileExactReady);
 });
 
 // RESUMEN DE LOTE COMPLETO
@@ -1840,6 +1964,11 @@ const fetchConciliacionesHistorial = async () => {
 
     // Mostrar todas las órdenes de pago y liquidaciones del sistema
     historialConciliaciones.value = list;
+
+    // Re-evaluar duplicados en todos los archivos del lote en pantalla
+    files.value.forEach(f => {
+      checkDuplicateTransfer(f);
+    });
   } catch (err) {
     console.warn("Error cargando historial de conciliaciones:", err);
   } finally {
@@ -1987,12 +2116,29 @@ const confirmarLoteAutomatico = async () => {
 
   try {
     for (const fileItem of readyList) {
+      fileItem.isSubmitting = true;
+      fileItem.submittingError = null;
+
       const transferMonto = Number(fileItem.extractedData?.monto_transferido) || 0;
       const fileCirugias = reconciliationsMap.value[fileItem.id]?.cirugias || [];
 
+      // Subida automática y segura del comprobante bancario a R2
+      let objectKey = fileItem.uploadedObjectKey || null;
+      if (!objectKey) {
+        try {
+          objectKey = await uploadComprobanteToR2(fileItem);
+        } catch (uploadErr) {
+          fileItem.isSubmitting = false;
+          fileItem.submittingError = uploadErr.message;
+          console.error(`Error al subir comprobante para ${fileItem.name}:`, uploadErr);
+          toast.error(`No se pudo subir el comprobante de ${fileItem.name}: ${uploadErr.message}`);
+          continue; // No registrar la orden si no se pudo subir el comprobante
+        }
+      }
+
       const ordenDePago = {
         monto_total_general: transferMonto,
-        comprobante_object_key: null,
+        comprobante_object_key: objectKey,
         notas: `[CONCILIACIÓN DE PAGOS EN LOTE] ${fileItem.extractedData?.destinatario_nombre || ''} - Ref: ${fileItem.extractedData?.numero_operacion || 'Comprobante Conciliado'}`,
         pagos: [
           {
@@ -2007,14 +2153,20 @@ const confirmarLoteAutomatico = async () => {
       };
 
       const { error: rpcErr } = await supabase.rpc('registrar_orden_de_pago', { p_orden: ordenDePago });
+      fileItem.isSubmitting = false;
+
       if (!rpcErr) {
         fileItem.isConfirmed = true;
         fileItem.saldoPendienteInterno = 0;
+        fileItem.uploadedObjectKey = objectKey;
         successCount++;
+      } else {
+        fileItem.submittingError = rpcErr.message;
+        console.error(`Error RPC al registrar orden para ${fileItem.name}:`, rpcErr);
       }
     }
 
-    toast.success(`⚡ ¡Lote procesado! Se conciliarom ${successCount} comprobantes automáticamente.`);
+    toast.success(`⚡ ¡Lote procesado! Se conciliaron ${successCount} comprobantes con sus comprobantes adjuntos.`);
     saveDraftDebounced();
     fetchInitialData();
   } catch (err) {
@@ -2166,6 +2318,8 @@ const filteredInstrumentadoresOptions = computed(() => {
   );
 });
 
+const asociacionesBancariasList = ref([]);
+
 const selectInstrumentadorFromModal = async (inst) => {
   if (!targetInstFile.value) return;
 
@@ -2174,29 +2328,306 @@ const selectInstrumentadorFromModal = async (inst) => {
     nombre: inst.nombre
   };
 
+  // Re-evaluar duplicados por seguridad
+  checkDuplicateTransfer(targetInstFile.value);
+
+  // Auto vincular cirugías pendientes para este profesional si coinciden
+  autoMatchSurgeriesForFile(targetInstFile.value);
+
+  // Iniciar subida del comprobante a R2 en segundo plano
+  uploadComprobanteToR2(targetInstFile.value).catch(err => {
+    console.warn("Subida en segundo plano pendiente:", err);
+  });
+
   if (rememberAccountRule.value && targetInstFile.value.extractedData) {
     try {
       const cleanCuit = targetInstFile.value.extractedData.destinatario_cuit_cuil ? targetInstFile.value.extractedData.destinatario_cuit_cuil.replace(/\D/g, '') : null;
       const cleanAlias = targetInstFile.value.extractedData.destinatario_cbu_alias ? targetInstFile.value.extractedData.destinatario_cbu_alias.trim().toLowerCase() : null;
 
-      await supabase.from('conciliacion_asociaciones_bancarias').insert({
-        cuit_cuil: cleanCuit,
-        cbu_alias: cleanAlias,
-        titular_nombre: targetInstFile.value.extractedData.destinatario_nombre,
-        banco: targetInstFile.value.extractedData.destinatario_banco,
-        instrumentador_dni: inst.dni,
-        instrumentador_nombre: inst.nombre
-      });
+      if (cleanCuit || cleanAlias) {
+        const newAsoc = {
+          cuit_cuil: cleanCuit,
+          cbu_alias: cleanAlias,
+          titular_nombre: targetInstFile.value.extractedData.destinatario_nombre,
+          banco: targetInstFile.value.extractedData.destinatario_banco,
+          instrumentador_dni: inst.dni,
+          instrumentador_nombre: inst.nombre
+        };
 
-      toast.success(`Asociación guardada para ${inst.nombre}.`);
+        const existingIdx = asociacionesBancariasList.value.findIndex(a => 
+          (cleanCuit && a.cuit_cuil === cleanCuit) || (cleanAlias && a.cbu_alias === cleanAlias)
+        );
+
+        if (existingIdx >= 0) {
+          asociacionesBancariasList.value[existingIdx] = newAsoc;
+        } else {
+          asociacionesBancariasList.value.push(newAsoc);
+        }
+
+        await supabase.from('conciliacion_asociaciones_bancarias').upsert(newAsoc, { onConflict: 'cuit_cuil' });
+        toast.success(`Asociación de titular aprendida para ${inst.nombre}.`);
+      }
     } catch (e) {
-      console.warn("Error guardando asociación:", e);
+      console.warn("Error guardando asociación bancaria:", e);
     }
   }
 
   setActiveFile(targetInstFile.value);
   showInstSearchModal.value = false;
   targetInstFile.value = null;
+  saveDraftDebounced();
+};
+
+// EMPAREJAMIENTO CON REGLAS APRENDIDAS (TITULARES CRUZADOS)
+const tryMatchWithAsociacionesBancarias = (item) => {
+  if (item.matchedInstrumentador || !item.extractedData) return;
+  const cuit = item.extractedData.destinatario_cuit_cuil ? item.extractedData.destinatario_cuit_cuil.replace(/\D/g, '') : '';
+  const alias = item.extractedData.destinatario_cbu_alias ? item.extractedData.destinatario_cbu_alias.trim().toLowerCase() : '';
+
+  if (!cuit && !alias) return;
+
+  const found = asociacionesBancariasList.value.find(a => 
+    (cuit && a.cuit_cuil && a.cuit_cuil === cuit) ||
+    (alias && a.cbu_alias && a.cbu_alias.toLowerCase() === alias)
+  );
+
+  if (found && found.instrumentador_dni) {
+    item.matchedInstrumentador = {
+      dni: String(found.instrumentador_dni).replace(/\D/g, ''),
+      nombre: found.instrumentador_nombre || 'Instrumentador'
+    };
+    item.matchType = 'regla_aprendida';
+    item.titularAprendido = found.titular_nombre || item.extractedData.destinatario_nombre;
+  }
+};
+
+// NORMALIZACIÓN DE CÓDIGOS DE OPERACIÓN
+const normalizeOpCode = (code) => {
+  if (!code) return '';
+  return String(code).toLowerCase().replace(/^(op|operacion|nro|comp|trans|coelsa)[:\-\s]*/i, '').replace(/[\s\-_]/g, '');
+};
+
+// VERIFICAR DUPLICADOS EN HISTORIAL DE ÓRDENES Y LOTE ACTIVO
+const checkDuplicateTransfer = (fileItem) => {
+  if (!fileItem) return;
+  fileItem.isDuplicate = false;
+  fileItem.duplicateOrderInfo = null;
+
+  const rawOp = fileItem.extractedData?.numero_operacion ? String(fileItem.extractedData.numero_operacion).trim() : '';
+  const normOp = normalizeOpCode(rawOp);
+  const transferMonto = Number(fileItem.extractedData?.monto_transferido) || 0;
+  const cuit = fileItem.extractedData?.destinatario_cuit_cuil ? fileItem.extractedData.destinatario_cuit_cuil.replace(/\D/g, '') : '';
+  const fecha = fileItem.extractedData?.fecha_transferencia || '';
+
+  // 1. Chequeo contra el historial de órdenes de pago registradas en Supabase
+  if (historialConciliaciones.value && historialConciliaciones.value.length > 0) {
+    const found = historialConciliaciones.value.find(orden => {
+      const notas = String(orden.notas || '').toLowerCase();
+      const normNotas = normalizeOpCode(notas);
+      
+      // A. Coincidencia de código de operación normalizado
+      if (normOp && normOp.length >= 4 && (notas.includes(rawOp.toLowerCase()) || normNotas.includes(normOp))) {
+        return true;
+      }
+      
+      // B. Coincidencia por object_key si ya fue subido
+      if (fileItem.uploadedObjectKey && orden.comprobante_object_key && orden.comprobante_object_key === fileItem.uploadedObjectKey) {
+        return true;
+      }
+
+      return false;
+    });
+
+    if (found) {
+      fileItem.isDuplicate = true;
+      fileItem.duplicateOrderInfo = {
+        id: found.id,
+        fecha: found.fecha_emision,
+        tipo: 'historico'
+      };
+      return;
+    }
+  }
+
+  // 2. Chequeo contra duplicados dentro del mismo lote activo
+  const siblingDuplicate = files.value.find(other => {
+    if (other.id === fileItem.id) return false;
+    
+    // A. Mismo código de operación
+    const otherRawOp = other.extractedData?.numero_operacion ? String(other.extractedData.numero_operacion).trim() : '';
+    const otherNormOp = normalizeOpCode(otherRawOp);
+    if (normOp && otherNormOp && normOp.length >= 4 && normOp === otherNormOp) {
+      return true;
+    }
+
+    // B. Mismo CUIT + mismo monto exacto + misma fecha (transferencia gemela subida dos veces)
+    const otherCuit = other.extractedData?.destinatario_cuit_cuil ? other.extractedData.destinatario_cuit_cuil.replace(/\D/g, '') : '';
+    const otherMonto = Number(other.extractedData?.monto_transferido) || 0;
+    const otherFecha = other.extractedData?.fecha_transferencia || '';
+    if (cuit && otherCuit && cuit === otherCuit && transferMonto > 0 && Math.abs(transferMonto - otherMonto) < 0.01 && fecha && otherFecha && fecha === otherFecha) {
+      return true;
+    }
+
+    return false;
+  });
+
+  if (siblingDuplicate) {
+    fileItem.isDuplicate = true;
+    fileItem.duplicateOrderInfo = {
+      id: 'Lote actual',
+      fecha: new Date().toISOString(),
+      tipo: 'mismo_lote',
+      nombreArchivo: siblingDuplicate.name
+    };
+    return;
+  }
+};
+
+// CONVERTIR BASE64 A BLOB
+const base64ToBlob = (base64, mimeType = 'application/pdf') => {
+  const byteCharacters = atob(base64);
+  const byteNumbers = new Array(byteCharacters.length);
+  for (let i = 0; i < byteCharacters.length; i++) {
+    byteNumbers[i] = byteCharacters.charCodeAt(i);
+  }
+  const byteArray = new Uint8Array(byteNumbers);
+  return new Blob([byteArray], { type: mimeType });
+};
+
+// SUBIDA DIRECTA DE COMPROBANTE A CLOUDFLARE R2
+const uploadComprobanteToR2 = async (fileItem) => {
+  if (!fileItem) return null;
+  if (fileItem.uploadedObjectKey) return fileItem.uploadedObjectKey;
+
+  let fileBlob = fileItem.rawFile;
+  const fileName = fileItem.name || 'comprobante.pdf';
+  let ext = fileName.split('.').pop() || 'pdf';
+  ext = ext.toLowerCase();
+
+  let contentType = fileItem.type;
+  if (!contentType) {
+    if (ext === 'pdf') contentType = 'application/pdf';
+    else if (ext === 'png') contentType = 'image/png';
+    else if (ext === 'webp') contentType = 'image/webp';
+    else contentType = 'image/jpeg';
+  }
+
+  if (!fileBlob && fileItem.fileBase64) {
+    fileBlob = base64ToBlob(fileItem.fileBase64, contentType);
+  }
+
+  if (!fileBlob) {
+    console.warn(`No hay archivo ni base64 disponible para subir de ${fileName}`);
+    return null;
+  }
+
+  const baseName = crypto.randomUUID();
+
+  // 1. Obtener URL pre-firmada desde Supabase Edge Function
+  const { data: presignedData, error: presignedErr } = await supabase.functions.invoke('b2-presigned-url', {
+    body: {
+      area: 'comprobantes-pago',
+      owner: 'conciliacion',
+      contentType: contentType,
+      extension: ext,
+      isThumb: false,
+      baseName: baseName
+    }
+  });
+
+  if (presignedErr || !presignedData?.uploadUrl) {
+    throw new Error(presignedErr?.message || 'Error al obtener URL pre-firmada de almacenamiento R2.');
+  }
+
+  // 2. Transferir buffer de archivo a Cloudflare R2 vía HTTP PUT
+  const uploadResponse = await fetch(presignedData.uploadUrl, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': contentType
+    },
+    body: fileBlob
+  });
+
+  if (!uploadResponse.ok) {
+    throw new Error(`Fallo en la subida a almacenamiento R2 (${uploadResponse.status} ${uploadResponse.statusText})`);
+  }
+
+  fileItem.uploadedObjectKey = presignedData.objectKey;
+  saveDraftDebounced();
+  return presignedData.objectKey;
+};
+
+// AUTO-VINCULACIÓN INTELIGENTE DE CIRUGÍAS PENDIENTES CON SUBSET SUM
+const autoMatchSurgeriesForFile = (fileItem) => {
+  if (!fileItem || !fileItem.matchedInstrumentador || !fileItem.id) return;
+  if (!reconciliationsMap.value[fileItem.id]) {
+    reconciliationsMap.value[fileItem.id] = { cirugias: [] };
+  }
+
+  // Si ya tiene cirugías vinculadas, conservar selección actual
+  if (reconciliationsMap.value[fileItem.id].cirugias.length > 0) return;
+
+  const transferMonto = Number(fileItem.extractedData?.monto_transferido) || 0;
+  if (transferMonto <= 0) return;
+
+  const instSurgeries = allPendingSurgeries.value.filter(s => 
+    !s.esPagada && isSurgeryMatch(s, fileItem.matchedInstrumentador)
+  );
+
+  if (instSurgeries.length === 0) return;
+
+  const conceptoRef = fileItem.extractedData?.concepto || '';
+  const transferDate = fileItem.extractedData?.fecha_transferencia || null;
+
+  // 1. Algoritmo Subset Sum de Programación Dinámica: Encontrar combinación exacta de cirugías
+  const exactSubset = findExactSurgerySubset(instSurgeries, transferMonto, conceptoRef, transferDate);
+  if (exactSubset && exactSubset.length > 0) {
+    fileItem.isAiCombined = exactSubset.length > 1;
+    fileItem.aiCombinedCount = exactSubset.length;
+
+    exactSubset.forEach(s => {
+      const cxMonto = Number(s.monto_a_pagar || s.monto) || 0;
+      reconciliationsMap.value[fileItem.id].cirugias.push({
+        id: s.id,
+        paciente: s.paciente,
+        medico: s.medico,
+        lugar_cirugia: s.lugar_cirugia,
+        fecha_cirugia: s.fecha_cirugia,
+        totalCx: cxMonto,
+        esDividido: false,
+        parte1: cxMonto,
+        parte2: 0
+      });
+    });
+    fileItem.saldoPendienteInterno = 0;
+    saveDraftDebounced();
+    return;
+  }
+
+  // 2. Asignación secuencial (FIFO) cuando no existe combinación exacta (pagos parciales / saldos)
+  let remaining = transferMonto;
+  fileItem.isAiCombined = false;
+  fileItem.aiCombinedCount = 0;
+
+  for (const s of instSurgeries) {
+    if (remaining <= 0) break;
+    const cxMonto = Number(s.monto_a_pagar || s.monto) || 0;
+    const allocated = Math.min(remaining, cxMonto);
+    reconciliationsMap.value[fileItem.id].cirugias.push({
+      id: s.id,
+      paciente: s.paciente,
+      medico: s.medico,
+      lugar_cirugia: s.lugar_cirugia,
+      fecha_cirugia: s.fecha_cirugia,
+      totalCx: cxMonto,
+      esDividido: allocated < cxMonto,
+      parte1: allocated,
+      parte2: Math.max(0, cxMonto - allocated)
+    });
+    remaining -= allocated;
+  }
+
+  fileItem.saldoPendienteInterno = remaining > 0 ? remaining : 0;
   saveDraftDebounced();
 };
 
@@ -2223,6 +2654,7 @@ const saveDraftDebounced = () => {
         type: f.type,
         fileHash: f.fileHash,
         fileBase64: f.fileBase64 || '',
+        uploadedObjectKey: f.uploadedObjectKey || null,
         status: f.status,
         isConfirmed: f.isConfirmed || false,
         saldoPendienteInterno: f.saldoPendienteInterno || 0,
@@ -2230,6 +2662,9 @@ const saveDraftDebounced = () => {
         extractedData: f.extractedData,
         matchedInstrumentador: f.matchedInstrumentador,
         matchType: f.matchType,
+        titularAprendido: f.titularAprendido || '',
+        isDuplicate: f.isDuplicate || false,
+        duplicateOrderInfo: f.duplicateOrderInfo || null,
         selectedInstrumentadorDni: f.selectedInstrumentadorDni,
         isCached: f.isCached || false
       }));
@@ -2411,6 +2846,18 @@ const fetchInitialData = async () => {
     }
     instrumentadoresOptions.value = Object.values(mapInst);
 
+    // Cargar asociaciones bancarias aprendidas para titulares cruzados
+    try {
+      const { data: asocData } = await supabase
+        .from('conciliacion_asociaciones_bancarias')
+        .select('*');
+      if (asocData) {
+        asociacionesBancariasList.value = asocData;
+      }
+    } catch (asocErr) {
+      console.warn("No se pudieron cargar asociaciones bancarias:", asocErr);
+    }
+
     let combinedList = [];
 
     // 1. Fetch cirugías pendientes
@@ -2477,6 +2924,15 @@ const fetchInitialData = async () => {
     }
 
     allPendingSurgeries.value = combinedList;
+
+    // Re-evaluar duplicados, titulares aprendidos y cirugías
+    files.value.forEach(f => {
+      checkDuplicateTransfer(f);
+      tryMatchWithAsociacionesBancarias(f);
+      if (f.status === 'success' && f.matchedInstrumentador) {
+        autoMatchSurgeriesForFile(f);
+      }
+    });
   } catch (err) {
     console.warn("Error cargando datos iniciales:", err);
   }
@@ -2669,6 +3125,7 @@ const processMultipleFiles = async (rawFiles) => {
       size: rawFile.size,
       type: rawFile.type,
       fileHash: '',
+      uploadedObjectKey: null,
       isCached: false,
       isConfirmed: false,
       saldoPendienteInterno: 0,
@@ -2714,7 +3171,13 @@ const processSingleFileWithCacheAndIa = async (item) => {
       item.isCached = true;
       item.status = 'success';
 
+      checkDuplicateTransfer(item);
+      tryMatchWithAsociacionesBancarias(item);
       tryMatchWithLibroMayor(item);
+      if (item.matchedInstrumentador) {
+        autoMatchSurgeriesForFile(item);
+        uploadComprobanteToR2(item).catch(err => console.warn("Subida diferida a R2:", err));
+      }
       saveDraftDebounced();
       return;
     }
@@ -2738,7 +3201,13 @@ const processSingleFileWithCacheAndIa = async (item) => {
     item.matchType = data.matchType;
     item.status = 'success';
 
+    checkDuplicateTransfer(item);
+    tryMatchWithAsociacionesBancarias(item);
     tryMatchWithLibroMayor(item);
+    if (item.matchedInstrumentador) {
+      autoMatchSurgeriesForFile(item);
+      uploadComprobanteToR2(item).catch(err => console.warn("Subida diferida a R2:", err));
+    }
 
     try {
       await supabase.from('conciliacion_cache_comprobantes').upsert({
@@ -2802,6 +3271,10 @@ const reprocessMatchingWithLibroMayor = () => {
   files.value.forEach(item => {
     if (item.status === 'success') {
       tryMatchWithLibroMayor(item);
+      if (item.matchedInstrumentador) {
+        autoMatchSurgeriesForFile(item);
+        uploadComprobanteToR2(item).catch(err => console.warn("Subida diferida a R2:", err));
+      }
     }
   });
 };
@@ -2877,6 +3350,14 @@ const handleDividirToggle = (item) => {
 };
 
 const clearAllFiles = () => {
+  files.value.forEach(f => {
+    if (f._objectUrl) {
+      try {
+        URL.revokeObjectURL(f._objectUrl);
+        f._objectUrl = null;
+      } catch (e) {}
+    }
+  });
   files.value = [];
   activeFileId.value = null;
   reconciliationsMap.value = {};
@@ -2902,6 +3383,12 @@ const confirmarConciliacion = async () => {
 
   isSubmitting.value = true;
   try {
+    // 1. Subida segura y automática del comprobante a Cloudflare R2
+    let objectKey = activeFile.value?.uploadedObjectKey || null;
+    if (!objectKey && activeFile.value) {
+      objectKey = await uploadComprobanteToR2(activeFile.value);
+    }
+
     const notasConciliacion = [
       `[CONCILIACIÓN DE PAGOS] ${activeFile.value.extractedData?.destinatario_nombre || ''}`,
       `Ref Operación: ${activeFile.value.extractedData?.numero_operacion || 'Comprobante Conciliado'}`,
@@ -2911,7 +3398,7 @@ const confirmarConciliacion = async () => {
 
     const ordenDePago = {
       monto_total_general: activeAsignadoMonto.value,
-      comprobante_object_key: null,
+      comprobante_object_key: objectKey,
       notas: notasConciliacion,
       pagos: [
         {
@@ -2931,6 +3418,7 @@ const confirmarConciliacion = async () => {
     if (activeFile.value) {
       activeFile.value.isConfirmed = true;
       activeFile.value.saldoPendienteInterno = activeSaldoPendiente.value;
+      activeFile.value.uploadedObjectKey = objectKey;
     }
 
     toast.success(`🚀 ¡Conciliación confirmada para ${activeFile.value.matchedInstrumentador.nombre}! ${activeSaldoPendiente.value > 0 ? `(Queda saldo pendiente interno: $${formatNumber(activeSaldoPendiente.value)})` : ''}`);
@@ -2960,6 +3448,14 @@ onMounted(() => {
 
 onUnmounted(() => {
   window.removeEventListener('keydown', handleGlobalKeyDown);
+  files.value.forEach(f => {
+    if (f._objectUrl) {
+      try {
+        URL.revokeObjectURL(f._objectUrl);
+        f._objectUrl = null;
+      } catch (e) {}
+    }
+  });
 });
 </script>
 
