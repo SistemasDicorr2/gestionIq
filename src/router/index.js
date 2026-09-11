@@ -92,47 +92,53 @@ const routes = [
       { path: '', redirect: '/admin' },
       {
         path: 'resumen-operativo',
+        alias: ['/admin/resumen-operativo', 'admin/resumen-operativo'],
         name: 'ResumenOperativo',
         component: ResumenOperativoView,
         meta: { allowedRoles: ['admin'] }
       },
       { path: 'admin', name: 'Admin', component: AdminView, meta: { allowedRoles: ['admin'] } },
-      { path: 'estadisticas', name: 'Estadisticas', component: StatsView, meta: { allowedRoles: ['admin'] } },
-      { path: 'instrumentadores', name: 'Instrumentadores', component: InstrumentadoresView, meta: { allowedRoles: ['admin'] } },
-      { path: 'incidencias', name: 'Incidencias', component: IncidenciasView, meta: { allowedRoles: ['admin'] } },
-      { path: 'quejas', name: 'Quejas', component: QuejasView, meta: { allowedRoles: ['admin'] } },
-      { path: 'pedidos-especiales', name: 'PedidosEspeciales', component: PedidosEspecialesView, meta: { allowedRoles: ['admin'] } },
-      { path: 'notificaciones', name: 'Notificaciones', component: NotificationsView, meta: { allowedRoles: ['admin'] } },
-      { path: 'informe-semanal-seguimiento', name: 'InformeSemanalSeguimiento', component: InformeSemanalSeguimientoView, meta: { allowedRoles: ['admin'] } },
-      { path: 'logistica-control', name: 'LogisticaControl', component: LogisticaControl, meta: { allowedRoles: ['admin'] } },
-      { path: 'instrumentador-upload', name: 'InstrumentadorUpload', component: InstrumentadorUpload, meta: { allowedRoles: ['admin'] } },
-      { path: 'control-consumo', name: 'ControlConsumo', component: ConsumoView, meta: { allowedRoles: ['admin'] } },
+      { path: 'estadisticas', alias: ['/admin/estadisticas', 'admin/estadisticas'], name: 'Estadisticas', component: StatsView, meta: { allowedRoles: ['admin'] } },
+      { path: 'instrumentadores', alias: ['/admin/instrumentadores', 'admin/instrumentadores'], name: 'Instrumentadores', component: InstrumentadoresView, meta: { allowedRoles: ['admin'] } },
+      { path: 'incidencias', alias: ['/admin/incidencias', 'admin/incidencias'], name: 'Incidencias', component: IncidenciasView, meta: { allowedRoles: ['admin'] } },
+      { path: 'quejas', alias: ['/admin/quejas', 'admin/quejas'], name: 'Quejas', component: QuejasView, meta: { allowedRoles: ['admin'] } },
+      { path: 'pedidos-especiales', alias: ['/admin/pedidos-especiales', 'admin/pedidos-especiales'], name: 'PedidosEspeciales', component: PedidosEspecialesView, meta: { allowedRoles: ['admin'] } },
+      { path: 'notificaciones', alias: ['/admin/notificaciones', 'admin/notificaciones'], name: 'Notificaciones', component: NotificationsView, meta: { allowedRoles: ['admin'] } },
+      { path: 'informe-semanal-seguimiento', alias: ['/admin/informe-semanal-seguimiento', 'admin/informe-semanal-seguimiento'], name: 'InformeSemanalSeguimiento', component: InformeSemanalSeguimientoView, meta: { allowedRoles: ['admin'] } },
+      { path: 'logistica-control', alias: ['/admin/logistica-control', 'admin/logistica-control'], name: 'LogisticaControl', component: LogisticaControl, meta: { allowedRoles: ['admin'] } },
+      { path: 'instrumentador-upload', alias: ['/admin/instrumentador-upload', 'admin/instrumentador-upload'], name: 'InstrumentadorUpload', component: InstrumentadorUpload, meta: { allowedRoles: ['admin'] } },
+      { path: 'control-consumo', alias: ['/admin/control-consumo', 'admin/control-consumo'], name: 'ControlConsumo', component: ConsumoView, meta: { allowedRoles: ['admin'] } },
       {
         path: 'pagos',
+        alias: ['/admin/pagos', 'admin/pagos'],
         name: 'PagosDashboard',
         component: PagosDashboardView,
         meta: { allowedRoles: ['admin'] }
       },
       {
         path: 'conciliacion',
+        alias: ['/admin/conciliacion', 'admin/conciliacion'],
         name: 'ConciliacionTransferencias',
         component: ConciliacionTransferenciasView,
         meta: { allowedRoles: ['admin'] }
       },
       {
         path: 'historial-pagos',
+        alias: ['/admin/historial-pagos', 'admin/historial-pagos'],
         name: 'HistorialPagos',
         component: HistorialPagosView,
         meta: { allowedRoles: ['admin'] }
       },
       {
         path: 'configuracion',
+        alias: ['/admin/configuracion', 'admin/configuracion'],
         name: 'Configuracion',
         component: ConfigView,
         meta: { allowedRoles: ['admin'] }
       },
       {
         path: 'cajas-knowledge',
+        alias: ['/admin/cajas-knowledge', 'admin/cajas-knowledge'],
         name: 'CajasKnowledge',
         component: CajasKnowledgeView,
         meta: { allowedRoles: ['admin', 'coord'] }
@@ -178,6 +184,12 @@ const routes = [
         meta: { requiresAuth: true, allowedRoles: ['logistica', 'admin'] }
       }
     ]
+  },
+
+  // --- Ruta Catch-all (fallback seguro para URLs inexistentes, evita pantalla en blanco) ---
+  {
+    path: '/:pathMatch(.*)*',
+    redirect: '/admin'
   }
 ];
 
