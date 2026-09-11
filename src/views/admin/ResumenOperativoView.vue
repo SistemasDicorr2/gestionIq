@@ -67,12 +67,12 @@
           <span class="kpi-value text-emerald-700 dark:text-emerald-400">{{ totalCompletadas }}</span>
         </div>
         <div class="kpi-card bg-amber-50/40 border-amber-100 dark:bg-amber-950/10 dark:border-amber-950">
-          <span class="kpi-label">Fichas Pendientes</span>
-          <span class="kpi-value text-amber-700 dark:text-amber-400">{{ totalPendientes }}</span>
+          <span class="kpi-label">Pendientes en Curso</span>
+          <span class="kpi-value text-amber-700 dark:text-amber-400">{{ totalPendientesNormales }}</span>
         </div>
-        <div class="kpi-card bg-indigo-50/40 border-indigo-100 dark:bg-indigo-950/10 dark:border-indigo-950">
-          <span class="kpi-label">Tasa de Cierre</span>
-          <span class="kpi-value text-indigo-700 dark:text-indigo-400">{{ tasaCierre }}%</span>
+        <div class="kpi-card bg-purple-50/40 border-purple-200 dark:bg-purple-950/20 dark:border-purple-900/60">
+          <span class="kpi-label text-purple-700 dark:text-purple-300 font-bold">📦 Cajas Devueltas s/ Ficha</span>
+          <span class="kpi-value text-purple-800 dark:text-purple-300">{{ totalAnomaliasLogistica }}</span>
         </div>
       </div>
 
@@ -95,8 +95,9 @@
               <tr class="bg-slate-50 dark:bg-slate-800 text-slate-500 font-semibold uppercase tracking-wider text-xxs border-b border-slate-200 dark:border-slate-700">
                 <th class="px-4 py-2.5">Día / Fecha</th>
                 <th class="px-4 py-2.5 text-center">Cargadas</th>
-                <th class="px-4 py-2.5 text-center">Completadas (Firmadas)</th>
-                <th class="px-4 py-2.5 text-center">Pendientes</th>
+                <th class="px-4 py-2.5 text-center">Completadas</th>
+                <th class="px-4 py-2.5 text-center">Pendientes en Curso</th>
+                <th class="px-4 py-2.5 text-center">📦 Cajas Devueltas s/ Ficha</th>
                 <th class="px-4 py-2.5 text-right pr-6">Estado</th>
               </tr>
             </thead>
@@ -118,22 +119,29 @@
                 </td>
                 <td class="px-4 py-2.5 text-center font-bold text-slate-800 dark:text-slate-200">{{ day.cargadas }}</td>
                 <td class="px-4 py-2.5 text-center text-emerald-600 dark:text-emerald-400 font-bold">{{ day.completadas }}</td>
-                <td class="px-4 py-2.5 text-center text-amber-600 dark:text-amber-400 font-bold">{{ day.pendientes }}</td>
+                <td class="px-4 py-2.5 text-center text-amber-600 dark:text-amber-400 font-bold">{{ day.pendientesNormales }}</td>
+                <td class="px-4 py-2.5 text-center font-bold" :class="day.anomalias > 0 ? 'text-purple-600 dark:text-purple-400' : 'text-slate-400'">
+                  <span v-if="day.anomalias > 0" class="px-2 py-0.5 rounded-full bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 text-xs">
+                    {{ day.anomalias }}
+                  </span>
+                  <span v-else>0</span>
+                </td>
                 <td class="px-4 py-2.5 text-right pr-6">
                   <span v-if="day.cargadas === 0" class="text-slate-400 text-xxs">Sin actividad</span>
-                  <span v-else-if="day.pendientes === 0" class="badge-status bg-green-50 text-green-700 dark:bg-green-950/20 dark:text-green-400">Todo Completo</span>
-                  <span v-else class="badge-status bg-amber-50 text-amber-700 dark:bg-amber-955/20 dark:text-amber-400">{{ day.pendientes }} Pendientes</span>
+                  <span v-else-if="day.cargadas === day.completadas" class="badge-status bg-green-50 text-green-700 dark:bg-green-950/20 dark:text-green-400">Todo Completo</span>
+                  <span v-else-if="day.anomalias > 0" class="badge-status bg-purple-50 text-purple-700 dark:bg-purple-950/30 dark:text-purple-300 border border-purple-200 dark:border-purple-800">{{ day.anomalias }} Cajas Devueltas</span>
+                  <span v-else class="badge-status bg-amber-50 text-amber-700 dark:bg-amber-955/20 dark:text-amber-400">{{ day.pendientesNormales }} Pendientes</span>
                 </td>
               </tr>
               <tr v-if="dailyActivity.length === 0">
-                <td colspan="5" class="text-center py-6 text-slate-400">No hay rango de fechas seleccionado.</td>
+                <td colspan="6" class="text-center py-6 text-slate-400">No hay rango de fechas seleccionado.</td>
               </tr>
             </tbody>
           </table>
         </div>
       </section>
 
-      <!-- Panel de Control de Cierre de Semana (Pestañas) -->
+      <!-- Panel de Control de Cierre de Semana (Pestañas Segmentadas) -->
       <section class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
         
         <!-- Banner indicador de Filtro Activo por Día -->
@@ -145,7 +153,7 @@
                 Filtrado por el {{ formatDate(selectedDateFilter) }}
               </span>
               <span class="text-[10px] text-slate-400 block mt-0.5">
-                Mostrando {{ listCompletadas.length }} completadas y {{ listPendientes.length }} pendientes para esta fecha.
+                Mostrando {{ listCompletadas.length }} completadas, {{ listPendientes.length }} pendientes en curso y {{ listAnomaliasLogistica.length }} con cajas devueltas para esta fecha.
               </span>
             </div>
           </div>
@@ -158,7 +166,7 @@
         </div>
 
         <!-- Pestañas -->
-        <div class="border-b border-slate-200 dark:border-slate-800 flex bg-slate-50/50 dark:bg-slate-900/30 mt-1">
+        <div class="border-b border-slate-200 dark:border-slate-800 flex flex-wrap bg-slate-50/50 dark:bg-slate-900/30 mt-1">
           <button 
             @click="activeTab = 'completadas'" 
             :class="['tab-btn', activeTab === 'completadas' ? 'active' : '']"
@@ -168,13 +176,45 @@
               {{ listCompletadas.length }}
             </span>
           </button>
+          
           <button 
             @click="activeTab = 'pendientes'" 
             :class="['tab-btn', activeTab === 'pendientes' ? 'active' : '']"
           >
-            <span>Pendientes de Firma / Enlace</span>
+            <span>Pendientes en Curso</span>
             <span class="tab-badge bg-amber-100 text-amber-800 dark:bg-amber-950/40 dark:text-amber-400">
               {{ listPendientes.length }}
+            </span>
+          </button>
+
+          <!-- NUEVA PESTAÑA 3: Cajas Devueltas sin Ficha / Técnico a Identificar -->
+          <button 
+            @click="activeTab = 'devolucion_sin_ficha'" 
+            :class="[
+              'tab-btn relative', 
+              activeTab === 'devolucion_sin_ficha' 
+                ? 'border-purple-600 text-purple-700 dark:border-purple-400 dark:text-purple-300 font-black' 
+                : 'text-slate-500 hover:text-purple-700 dark:hover:text-purple-300'
+            ]"
+          >
+            <span class="flex items-center gap-1.5">
+              <span>📦</span>
+              <span>Cajas Devueltas sin Ficha / Técnico</span>
+            </span>
+            <span 
+              :class="[
+                'tab-badge font-black',
+                listAnomaliasLogistica.length > 0 
+                  ? 'bg-purple-100 text-purple-900 dark:bg-purple-950 dark:text-purple-200 border border-purple-300 dark:border-purple-700' 
+                  : 'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400'
+              ]"
+            >
+              {{ listAnomaliasLogistica.length }}
+            </span>
+            <!-- Indicador visual sutil si hay casos para atender -->
+            <span v-if="listAnomaliasLogistica.length > 0" class="flex h-2 w-2 relative">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-2 w-2 bg-purple-600"></span>
             </span>
           </button>
         </div>
@@ -240,14 +280,14 @@
               </div>
             </div>
 
-            <!-- Pestaña 2: Pendientes -->
-            <div v-else key="tab-pend" class="space-y-4">
+            <!-- Pestaña 2: Pendientes en Curso -->
+            <div v-else-if="activeTab === 'pendientes'" key="tab-pend" class="space-y-4">
               <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                <p class="text-xs text-slate-500">Estas cirugías siguen pendientes de firma. Podés copiar el link o enviarlo por WhatsApp para reclamar.</p>
+                <p class="text-xs text-slate-500">Estas cirugías siguen pendientes de firma y aún no registran retorno/devolución física de cajas. Podés copiar el enlace para reclamar.</p>
                 <button 
                   @click="printList('pendientes')" 
                   class="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold rounded-lg text-xs flex items-center justify-center gap-1.5 border border-slate-200 dark:border-slate-700 shadow-xs cursor-pointer transition active:scale-95 whitespace-nowrap self-end sm:self-auto"
-                  title="Imprimir lista de cirugías pendientes"
+                  title="Imprimir lista de cirugías pendientes en curso"
                 >
                   <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
@@ -326,10 +366,220 @@
                 </table>
               </div>
             </div>
+
+            <!-- PESTAÑA 3: Cajas Devueltas sin Ficha / Técnico a Identificar -->
+            <div v-else-if="activeTab === 'devolucion_sin_ficha'" key="tab-anomalias" class="space-y-4">
+              
+              <!-- Banner Explicativo de Trazabilidad -->
+              <div class="p-4 bg-purple-50/70 dark:bg-purple-950/30 border border-purple-200/80 dark:border-purple-900/60 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
+                <div class="flex items-start gap-3">
+                  <span class="text-2xl mt-0.5">📦</span>
+                  <div>
+                    <h4 class="text-xs sm:text-sm font-extrabold text-purple-950 dark:text-purple-200">
+                      Cirugías con Retorno/Devolución de Cajas pero Ficha Pendiente
+                    </h4>
+                    <p class="text-xs text-purple-800/90 dark:text-purple-300/80 mt-0.5 leading-relaxed">
+                      Estas cirugías ya tuvieron entrega y retiro o control de consumo en depósito, lo que confirma que ocurrieron. Podés consultar las fotos del remito para identificar quién asistió o marcar el caso como <em>Solo Material</em>.
+                    </p>
+                  </div>
+                </div>
+
+                <div class="flex items-center gap-2 shrink-0 self-end sm:self-center">
+                  <button 
+                    @click="showCajasModal = true" 
+                    class="px-3 py-2 bg-white dark:bg-slate-800 hover:bg-purple-50 dark:hover:bg-purple-950/40 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800 font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 shadow-xs active:scale-95 transition-all cursor-pointer"
+                    title="Configurar programación y destinatarios para este reporte por correo"
+                  >
+                    <span>✉️</span>
+                    <span>Configurar Alerta por Email</span>
+                  </button>
+
+                  <button 
+                    @click="printList('devolucion_sin_ficha')" 
+                    class="px-3 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 shadow-sm active:scale-95 transition-all cursor-pointer"
+                    title="Imprimir lista de cirugías con devolución pendiente de ficha"
+                  >
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                    </svg>
+                    <span>Imprimir Listado</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Listado de Anomalías -->
+              <div class="overflow-x-auto border border-slate-100 dark:border-slate-800 rounded-xl">
+                <table class="w-full text-left border-collapse text-xs md:text-sm">
+                  <thead>
+                    <tr class="bg-purple-50/40 dark:bg-purple-950/20 text-slate-600 dark:text-slate-300 font-semibold uppercase tracking-wider text-xxs border-b border-purple-200/60 dark:border-purple-900/40">
+                      <th class="px-4 py-3">Fecha Cx</th>
+                      <th class="px-4 py-3">Paciente / Sanatorio</th>
+                      <th class="px-4 py-3">Médico</th>
+                      <th class="px-4 py-3">Control y Devolución</th>
+                      <th class="px-4 py-3">Técnico / Ficha</th>
+                      <th class="px-4 py-3">Evidencias / Remito</th>
+                      <th class="px-4 py-3 text-right pr-6">Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                    <tr v-for="rep in listAnomaliasLogistica" :key="rep.id" class="hover:bg-purple-50/20 dark:hover:bg-purple-950/10 transition-colors">
+                      
+                      <!-- Fecha y Antigüedad -->
+                      <td class="px-4 py-3 text-slate-700 dark:text-slate-300 whitespace-nowrap">
+                        <div class="font-bold">{{ formatDate(rep.fecha_cirugia) }}</div>
+                        <span v-if="rep.dias_antiguedad > 0" class="text-[10px] font-semibold text-slate-400">
+                          hace {{ rep.dias_antiguedad }} día{{ rep.dias_antiguedad > 1 ? 's' : '' }}
+                        </span>
+                      </td>
+
+                      <!-- Paciente e Institución -->
+                      <td class="px-4 py-3">
+                        <div class="font-extrabold text-slate-900 dark:text-white">{{ rep.paciente }}</div>
+                        <div class="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-1 mt-0.5">
+                          <span>🏥 {{ rep.lugar_cirugia || 'Lugar sin especificar' }}</span>
+                          <span class="text-slate-300 dark:text-slate-600">·</span>
+                          <span class="font-mono font-bold text-slate-400">{{ rep.id_cirugia }}</span>
+                        </div>
+                      </td>
+
+                      <!-- Médico -->
+                      <td class="px-4 py-3 text-slate-700 dark:text-slate-300 font-medium">
+                        {{ rep.medico || '—' }}
+                      </td>
+
+                      <!-- Control y Devolución -->
+                      <td class="px-4 py-3">
+                        <div v-if="rep.tiene_control">
+                          <span 
+                            :class="[
+                              'inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold',
+                              rep.control_estado === 'ok' ? 'bg-emerald-50 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800' :
+                              rep.control_estado === 'problemas' ? 'bg-rose-50 text-rose-800 dark:bg-rose-950/60 dark:text-rose-300 border border-rose-200 dark:border-rose-800' :
+                              'bg-amber-50 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-200 dark:border-amber-800'
+                            ]"
+                          >
+                            <span>{{ rep.control_estado === 'ok' ? '🟢 Control OK' : rep.control_estado === 'problemas' ? '🔴 Con Problemas' : '⚠️ En Revisión' }}</span>
+                          </span>
+                          <p v-if="rep.control_observaciones" class="text-[10px] text-slate-500 dark:text-slate-400 mt-1 italic max-w-xs truncate" :title="rep.control_observaciones">
+                            "{{ rep.control_observaciones }}"
+                          </p>
+                        </div>
+                        <div v-else-if="rep.tiene_entrega && rep.tiene_retiro" class="space-y-1">
+                          <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-blue-800 dark:bg-blue-950 dark:text-blue-300 border border-blue-200 dark:border-blue-900">
+                            📦 Retirada por chofer
+                          </span>
+                          <p class="text-[10px] text-slate-400">Entrega + Retiro registrados</p>
+                        </div>
+                        <div v-else>
+                          <span class="text-xs text-slate-400">Sin control</span>
+                        </div>
+                      </td>
+
+                      <!-- Técnico / Ficha -->
+                      <td class="px-4 py-3">
+                        <div v-if="rep.instrumentador || rep.instrumentador_completado">
+                          <span class="font-bold text-slate-800 dark:text-slate-200 block text-xs">
+                            {{ rep.instrumentador_completado || rep.instrumentador }}
+                          </span>
+                          <span class="inline-block mt-0.5 px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300 text-[10px] font-bold border border-amber-200/60">
+                            ⚠️ Ficha no completada
+                          </span>
+                        </div>
+                        <div v-else>
+                          <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-purple-100 text-purple-800 dark:bg-purple-950 dark:text-purple-300 text-[11px] font-black border border-purple-200 dark:border-purple-800">
+                            ❓ Técnico no asignado
+                          </span>
+                        </div>
+                      </td>
+
+                      <!-- Evidencias / Remito -->
+                      <td class="px-4 py-3 whitespace-nowrap">
+                        <div v-if="rep.control_photos && rep.control_photos.length > 0" class="flex items-center gap-2">
+                          <button 
+                            @click="openLightbox(rep.control_photos)"
+                            class="px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 flex items-center gap-1.5 shadow-xs cursor-pointer active:scale-95 transition-all"
+                            title="Ver fotos del remito o parte quirúrgico"
+                          >
+                            <span>📷</span>
+                            <span>Ver Remito ({{ rep.control_photos.length }})</span>
+                          </button>
+                        </div>
+                        <span v-else class="text-slate-400 text-xs italic">
+                          Sin fotos
+                        </span>
+                      </td>
+
+                      <!-- Acciones -->
+                      <td class="px-4 py-3 text-right pr-6 whitespace-nowrap space-x-1.5">
+                        
+                        <!-- Botón Regularizar / Asignar en Drawer -->
+                        <button 
+                          @click="openDrawer(rep)" 
+                          class="px-2.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg text-xs shadow-xs active:scale-95 transition-all inline-flex items-center gap-1 cursor-pointer"
+                          title="Abrir detalles para identificar al instrumentador o editar"
+                        >
+                          <span>👤</span>
+                          <span>Identificar / Editar</span>
+                        </button>
+
+                        <!-- Botón Solo Material -->
+                        <button 
+                          @click="marcarSoloMaterial(rep)" 
+                          class="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-lg text-xs border border-slate-200 dark:border-slate-700 active:scale-95 transition-all inline-flex items-center gap-1 cursor-pointer"
+                          title="Marcar como entrega sin asistencia técnica requerida"
+                        >
+                          <span>📦</span>
+                          <span>Solo Material</span>
+                        </button>
+
+                        <!-- Botón Copiar Link (si tiene) -->
+                        <button 
+                          v-if="rep.short_code"
+                          @click="copyLink(rep)" 
+                          class="p-1.5 rounded-lg bg-blue-50 text-blue-600 border border-blue-200 hover:bg-blue-100 dark:bg-blue-950/20 dark:text-blue-400 dark:border-blue-900/60 shadow-xs active:scale-95 transition-all inline-flex items-center justify-center cursor-pointer"
+                          title="Copiar enlace de firma"
+                        >
+                          <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                          </svg>
+                        </button>
+
+                        <!-- Botón WhatsApp (si tiene) -->
+                        <button 
+                          v-if="rep.short_code"
+                          @click="shareOnWhatsApp(rep)" 
+                          class="p-1.5 rounded-lg bg-green-50 text-green-600 border border-green-200 hover:bg-green-100 dark:bg-green-955/20 dark:text-green-400 dark:border-green-900/60 shadow-xs active:scale-95 transition-all inline-flex items-center justify-center cursor-pointer"
+                          title="Reclamar por WhatsApp"
+                        >
+                          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.487 5.235 3.487 8.413.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01s-.521.074-.792.372c-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.626.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
+                          </svg>
+                        </button>
+                      </td>
+                    </tr>
+                    <tr v-if="listAnomaliasLogistica.length === 0">
+                      <td colspan="7" class="text-center py-12 text-slate-400">
+                        <span class="text-2xl block mb-2">🎉</span>
+                        No hay cirugías con cajas devueltas pendientes de identificación en este período.
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
           </Transition>
         </div>
       </section>
     </div>
+
+    <!-- Visor de Fotos Interactivo (Lightbox para Remitos) -->
+    <VueEasyLightbox
+      :visible="isLightboxOpen"
+      :imgs="lightboxImages"
+      :index="activePhotoIndex"
+      @hide="closeLightbox"
+    />
 
     <!-- Modal Explicativo de Bienvenida (Una Sola Vez) -->
     <Transition name="fade">
@@ -363,8 +613,8 @@
                 <span><strong>Listo para Validar:</strong> Revisá en segundos las fichas que ya están en estado <em>Enviado</em> y abrí sus detalles para imprimirlas directamente en PDF.</span>
               </li>
               <li class="flex items-start gap-2.5">
-                <span class="text-emerald-500 font-bold">✓</span>
-                <span><strong>Reclamo de Firmas:</strong> Ubicá al instante qué cirugías siguen pendientes y reclamá la firma al instrumentador asignado copiando el link o enviando un mensaje directo por WhatsApp.</span>
+                <span class="text-purple-500 font-bold">✓</span>
+                <span><strong>Cajas Devueltas s/ Ficha:</strong> Detectá cirugías que volvieron de sanatorio sin técnico confirmado, revisá las fotos del remito o marcalas como <em>Solo Material</em>.</span>
               </li>
             </ul>
           </div>
@@ -380,6 +630,12 @@
         </div>
       </div>
     </Transition>
+
+    <!-- Modal Configuración Alerta Cajas Devueltas -->
+    <ConfigurarReporteCajasDevueltasModal 
+      :show="showCajasModal" 
+      @close="showCajasModal = false" 
+    />
 
     <!-- Componente Reutilizable: ReportDrawer -->
     <ReportDrawer 
@@ -398,7 +654,9 @@ import { useToast } from 'vue-toastification';
 import ReportDrawer from '../../components/ReportDrawer.vue';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import VueEasyLightbox from 'vue-easy-lightbox';
 import ConfigurarDestinatariosModal from '../../components/admin/ConfigurarDestinatariosModal.vue';
+import ConfigurarReporteCajasDevueltasModal from '../../components/admin/ConfigurarReporteCajasDevueltasModal.vue';
 
 const toast = useToast();
 const headerConfig = inject('header-config', null);
@@ -408,6 +666,7 @@ const error = ref(null);
 const reportes = ref([]);
 const showWelcomeModal = ref(false);
 const showConfigModal = ref(false);
+const showCajasModal = ref(false);
 
 const filters = ref({
   from: '',
@@ -417,6 +676,22 @@ const filters = ref({
 const activePeriod = ref('this-week');
 const activeTab = ref('completadas');
 const selectedDateFilter = ref(null);
+
+// Lightbox state para evidencias/remitos
+const isLightboxOpen = ref(false);
+const lightboxImages = ref([]);
+const activePhotoIndex = ref(0);
+
+const openLightbox = (photos, startIndex = 0) => {
+  if (!photos || photos.length === 0) return;
+  lightboxImages.value = photos.map(p => p.url || p);
+  activePhotoIndex.value = startIndex;
+  isLightboxOpen.value = true;
+};
+
+const closeLightbox = () => {
+  isLightboxOpen.value = false;
+};
 
 // Drawer State
 const isDrawerVisible = ref(false);
@@ -445,13 +720,15 @@ const toggleDateFilter = (dateStr) => {
   }
 };
 
-// KPIs
+// KPIs y Clasificadores
 const isEnviado = (estado) => (estado || '').toString().trim().toLowerCase() === 'enviado';
 const isPendiente = (estado) => (estado || '').toString().trim().toLowerCase() === 'pendiente';
 
 const totalCargadas = computed(() => reportes.value.length);
 const totalCompletadas = computed(() => reportes.value.filter(r => isEnviado(r.estado)).length);
-const totalPendientes = computed(() => reportes.value.filter(r => isPendiente(r.estado)).length);
+const totalAnomaliasLogistica = computed(() => reportes.value.filter(r => isPendiente(r.estado) && r.es_anomalia_logistica).length);
+const totalPendientesNormales = computed(() => reportes.value.filter(r => isPendiente(r.estado) && !r.es_anomalia_logistica).length);
+
 const tasaCierre = computed(() => {
   if (totalCargadas.value === 0) return 0;
   return Math.round((totalCompletadas.value / totalCargadas.value) * 100);
@@ -467,7 +744,15 @@ const listCompletadas = computed(() => {
 });
 
 const listPendientes = computed(() => {
-  let list = reportes.value.filter(r => isPendiente(r.estado));
+  let list = reportes.value.filter(r => isPendiente(r.estado) && !r.es_anomalia_logistica);
+  if (selectedDateFilter.value) {
+    list = list.filter(r => r.fecha_cirugia === selectedDateFilter.value);
+  }
+  return list;
+});
+
+const listAnomaliasLogistica = computed(() => {
+  let list = reportes.value.filter(r => isPendiente(r.estado) && r.es_anomalia_logistica);
   if (selectedDateFilter.value) {
     list = list.filter(r => r.fecha_cirugia === selectedDateFilter.value);
   }
@@ -520,9 +805,8 @@ const setPeriod = (period) => {
 const fetchReportes = async () => {
   loading.value = true;
   error.value = null;
-  selectedDateFilter.value = null; // Limpiar al refrescar filtros
+  selectedDateFilter.value = null;
   
-  // Si las fechas cambian manualmente por fuera de los preestablecidos
   if (activePeriod.value !== 'custom') {
     const expected = getPeriodRange(activePeriod.value);
     if (expected && (expected.from !== filters.value.from || expected.to !== filters.value.to)) {
@@ -533,7 +817,7 @@ const fetchReportes = async () => {
   try {
     const { data, error: fetchError } = await supabase
       .from('reportes')
-      .select('id, id_cirugia, paciente, medico, lugar_cirugia, fecha_cirugia, estado, instrumentador, instrumentador_completado, instrumentador_dni, consumo_realizado')
+      .select('id, id_cirugia, paciente, medico, lugar_cirugia, fecha_cirugia, estado, instrumentador, instrumentador_completado, instrumentador_dni, consumo_realizado, observaciones')
       .gte('fecha_cirugia', filters.value.from)
       .lte('fecha_cirugia', filters.value.to)
       .order('fecha_cirugia', { ascending: true });
@@ -542,23 +826,92 @@ const fetchReportes = async () => {
 
     if (data && data.length > 0) {
       const ids = data.map(r => r.id);
-      const { data: linksData, error: linksError } = await supabase
-        .from('short_links')
-        .select('reporte_id, short_code, created_at')
-        .in('reporte_id', ids);
+      const R2_PUBLIC_URL = import.meta.env.VITE_R2_PUBLIC_URL;
+
+      // Consultas concurrentes en paralelo: Enlaces, Controles con Evidencias y Movimientos de Logística
+      const [linksResult, controlesResult, movimientosResult] = await Promise.all([
+        supabase
+          .from('short_links')
+          .select('reporte_id, short_code, created_at')
+          .in('reporte_id', ids),
+        supabase
+          .from('logistica_controles_con_evidencias')
+          .select('*')
+          .in('cirugia_id', ids),
+        supabase
+          .from('logistica_informe_movimientos')
+          .select('reporte_id, tipo_movimiento, cantidad_cajas, cantidad_bultos, destino, observaciones, created_at')
+          .in('reporte_id', ids)
+      ]);
 
       const linksMap = {};
-      if (!linksError && linksData) {
-        linksData.forEach(link => {
+      if (!linksResult.error && linksResult.data) {
+        linksResult.data.forEach(link => {
           linksMap[link.reporte_id] = link;
         });
       }
 
-      reportes.value = data.map(r => ({
-        ...r,
-        short_code: linksMap[r.id]?.short_code || null,
-        fecha_link_generado: linksMap[r.id]?.created_at || null
-      }));
+      const controlesMap = {};
+      if (!controlesResult.error && controlesResult.data) {
+        controlesResult.data.forEach(ctrl => {
+          const processedPhotos = (ctrl.photos || []).map(p => ({
+            ...p,
+            url: p.object_key ? `${R2_PUBLIC_URL}/${p.object_key}` : '',
+            caption: p.file_name || 'Evidencia de control'
+          }));
+          controlesMap[ctrl.cirugia_id] = {
+            ...ctrl,
+            photos: processedPhotos
+          };
+        });
+      }
+
+      const movimientosMap = {};
+      if (!movimientosResult.error && movimientosResult.data) {
+        movimientosResult.data.forEach(mov => {
+          if (!movimientosMap[mov.reporte_id]) {
+            movimientosMap[mov.reporte_id] = [];
+          }
+          movimientosMap[mov.reporte_id].push(mov);
+        });
+      }
+
+      const today = new Date();
+
+      reportes.value = data.map(r => {
+        const ctrl = controlesMap[r.id] || null;
+        const movs = movimientosMap[r.id] || [];
+
+        const tieneEntrega = movs.some(m => m.tipo_movimiento === 'Entrega de cajas');
+        const tieneRetiro = movs.some(m => ['Retiro de cajas', 'Traslado a Central'].includes(m.tipo_movimiento));
+
+        const tieneControl = Boolean(ctrl);
+        const rawEstado = (ctrl?.estado || '').toLowerCase().trim();
+
+        // Cálculo de días de antigüedad
+        const d = new Date(`${String(r.fecha_cirugia).split('T')[0]}T00:00:00`);
+        const diasAntiguedad = !isNaN(d.getTime())
+          ? Math.max(0, Math.floor((today.getTime() - d.getTime()) / (1000 * 60 * 60 * 24)))
+          : 0;
+
+        // Es anomalía logística si está pendiente pero ya tiene control de devolución o entrega+retiro
+        const esAnomalia = isPendiente(r.estado) && (tieneControl || (tieneEntrega && tieneRetiro));
+
+        return {
+          ...r,
+          short_code: linksMap[r.id]?.short_code || null,
+          fecha_link_generado: linksMap[r.id]?.created_at || null,
+          tiene_control: tieneControl,
+          control_estado: rawEstado || (tieneControl ? 'ok' : null),
+          control_observaciones: ctrl?.observaciones || '',
+          control_fecha: ctrl?.created_at || ctrl?.fecha_retiro || null,
+          control_photos: ctrl?.photos || [],
+          tiene_entrega: tieneEntrega,
+          tiene_retiro: tieneRetiro,
+          dias_antiguedad: diasAntiguedad,
+          es_anomalia_logistica: esAnomalia
+        };
+      });
     } else {
       reportes.value = [];
     }
@@ -613,13 +966,17 @@ const dailyActivity = computed(() => {
     const dateStr = toInputDate(day);
     const dayReports = reportes.value.filter(r => r.fecha_cirugia === dateStr);
     const cargadas = dayReports.length;
-    const completadas = dayReports.filter(r => r.estado === 'Enviado').length;
+    const completadas = dayReports.filter(r => isEnviado(r.estado)).length;
+    const anomalias = dayReports.filter(r => isPendiente(r.estado) && r.es_anomalia_logistica).length;
+    const pendientesNormales = dayReports.filter(r => isPendiente(r.estado) && !r.es_anomalia_logistica).length;
 
     return {
       dateStr,
       formattedDate: day.toLocaleDateString('es-AR', { weekday: 'long', day: '2-digit', month: '2-digit' }),
       cargadas,
       completadas,
+      anomalias,
+      pendientesNormales,
       pendientes: cargadas - completadas
     };
   }).reverse();
@@ -627,8 +984,38 @@ const dailyActivity = computed(() => {
 
 const formatDate = (dateString) => {
   if (!dateString) return '—';
-  const [year, month, day] = dateString.split('-');
+  const clean = String(dateString).split('T')[0];
+  const [year, month, day] = clean.split('-');
   return `${day}/${month}/${year}`;
+};
+
+// Marcar como "Solo Material / Sin Asistencia Técnica"
+const marcarSoloMaterial = async (rep) => {
+  const confirmMsg = `¿Deseas marcar la cirugía de ${rep.paciente || 'esta cirugía'} como "Solo Entrega de Material (Sin Técnico)"?\n\nEsto dejará constancia en las observaciones y regularizará la trazabilidad.`;
+  if (!window.confirm(confirmMsg)) return;
+
+  try {
+    const notaMaterial = '[Logística] Entrega de material sin asistencia técnica requerida (Solo Material).';
+    const nuevaObs = rep.observaciones 
+      ? `${rep.observaciones.trim()}\n${notaMaterial}`
+      : notaMaterial;
+
+    const { error: updateError } = await supabase
+      .from('reportes')
+      .update({
+        instrumentador: 'Sin Asistencia Técnica (Solo Material)',
+        observaciones: nuevaObs
+      })
+      .eq('id', rep.id);
+
+    if (updateError) throw updateError;
+
+    toast.success(`Cirugía de ${rep.paciente} regularizada como Solo Material.`);
+    await fetchReportes();
+  } catch (err) {
+    console.error('Error al marcar solo material:', err);
+    toast.error('No se pudo actualizar el registro: ' + err.message);
+  }
 };
 
 // Acciones de Copia Rápida y WhatsApp
@@ -652,8 +1039,23 @@ const shareOnWhatsApp = (rep) => {
 };
 
 const printList = (type) => {
-  const isCompletadas = type === 'completadas';
-  const list = isCompletadas ? listCompletadas.value : listPendientes.value;
+  let list = [];
+  let title = '';
+  let color = [16, 185, 129]; // default emerald
+
+  if (type === 'completadas') {
+    list = listCompletadas.value;
+    title = 'Listas para Validar / Imprimir (Fichas Firmadas)';
+    color = [16, 185, 129];
+  } else if (type === 'devolucion_sin_ficha') {
+    list = listAnomaliasLogistica.value;
+    title = 'Cirugías con Cajas Devueltas Pendientes de Ficha / Técnico';
+    color = [147, 51, 234]; // Purple
+  } else {
+    list = listPendientes.value;
+    title = 'Cirugías Pendientes en Curso';
+    color = [245, 158, 11]; // Amber
+  }
 
   if (list.length === 0) {
     toast.info("No hay datos en la lista para imprimir.");
@@ -662,7 +1064,6 @@ const printList = (type) => {
 
   try {
     const doc = new jsPDF({ orientation: 'landscape' });
-    const title = isCompletadas ? 'Listas para Validar / Imprimir (Fichas Firmadas)' : 'Pendientes de Firma / Enlace';
     const periodText = `Período: ${formatDate(filters.value.from)} al ${formatDate(filters.value.to)}`;
     const filterText = selectedDateFilter.value ? `Filtro Día: ${formatDate(selectedDateFilter.value)}` : '';
 
@@ -672,16 +1073,18 @@ const printList = (type) => {
     doc.setFontSize(9);
     doc.setTextColor(100);
     doc.text(`${periodText}${filterText ? ' | ' + filterText : ''}`, 14, 22);
-
     doc.setTextColor(0);
 
-    const headers = ['Fecha', 'ID Cirugía', 'Paciente', 'Médico', isCompletadas ? 'Instrumentador' : 'Técnico Asignado', 'Lugar / Clínica'];
+    const headers = ['Fecha', 'ID Cirugía', 'Paciente', 'Médico', 'Estado Devolución / Logística', 'Técnico / Ficha', 'Lugar / Clínica'];
     const body = list.map(r => [
       formatDate(r.fecha_cirugia),
-      r.id_cirugia,
-      r.paciente,
-      r.medico,
-      isCompletadas ? (r.instrumentador_completado || r.instrumentador || '—') : (r.instrumentador || 'Sin técnico asignado'),
+      r.id_cirugia || '—',
+      r.paciente || 'Sin especificar',
+      r.medico || '—',
+      r.control_estado ? `Control: ${r.control_estado.toUpperCase()}` : (r.tiene_entrega && r.tiene_retiro ? 'Entrega + Retiro OK' : 'Pendiente'),
+      type === 'completadas' 
+        ? (r.instrumentador_completado || r.instrumentador || '—') 
+        : (r.instrumentador || 'Sin técnico asignado'),
       r.lugar_cirugia || '—'
     ]);
 
@@ -690,15 +1093,16 @@ const printList = (type) => {
       head: [headers],
       body: body,
       theme: 'striped',
-      headStyles: { fillColor: isCompletadas ? [16, 185, 129] : [245, 158, 11] }, // Emerald (Completas) o Amber (Pendientes)
+      headStyles: { fillColor: color },
       styles: { fontSize: 8, cellPadding: 3 },
       columnStyles: {
-        0: { cellWidth: 25 }, // Fecha
-        1: { cellWidth: 25 }, // ID Cirugía
-        2: { cellWidth: 65 }, // Paciente
-        3: { cellWidth: 55 }, // Médico
-        4: { cellWidth: 55 }, // Instrumentador / Técnico
-        5: { cellWidth: 70 }  // Clínica
+        0: { cellWidth: 22 }, // Fecha
+        1: { cellWidth: 22 }, // ID Cirugía
+        2: { cellWidth: 50 }, // Paciente
+        3: { cellWidth: 40 }, // Médico
+        4: { cellWidth: 45 }, // Logística / Devolución
+        5: { cellWidth: 45 }, // Técnico
+        6: { cellWidth: 45 }  // Clínica
       }
     });
 

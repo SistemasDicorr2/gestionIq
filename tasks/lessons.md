@@ -1,5 +1,19 @@
 # Lessons Learned - Gestión IQ
 
+## 2026-09-11 — Separación Estricta de Reportes Automatizados (Single Responsibility)
+
+### Corrección recibida
+El usuario indicó: "el send resumen operativo no deberiamos modificar, volve a la version anterior, deberiamos crear otro send automatico para no mezclar agua y aceite".
+
+### Patrón detectado
+Se intentó fusionar dos dominios operativos distintos (Pagos Semanales de Fichas Enviadas vs. Anomalías de Trazabilidad Logística de Fichas Pendientes con Cajas Devueltas) en un único script de Edge Function y un solo modal de configuración.
+
+### Regla nueva
+1. **Nunca mezclar flujos de dominios dispares ("No mezclar agua y aceite"):** Cada reporte automático por correo debe tener su propia Edge Function dedicada (e.g. `send-resumen-operativo-semanal` para pagos vs. `send-reporte-cajas-sin-ficha` para trazabilidad logística).
+2. **Modales de configuración independientes:** Cada reporte programable debe contar con su propio modal de destinatarios, horarios y pruebas en frontend (`ConfigurarDestinatariosModal` vs. `ConfigurarReporteCajasDevueltasModal`), permitiendo a la empresa configurar diferentes destinatarios (e.g., contabilidad para pagos vs. logística/supervisión médica para anomalías de cajas).
+
+---
+
 ## 2026-08-31 — Módulo de Conciliación de Transferencias (UX/UI y Persistencia)
 
 ### Correcciones aplicadas y Patrones Detectados
