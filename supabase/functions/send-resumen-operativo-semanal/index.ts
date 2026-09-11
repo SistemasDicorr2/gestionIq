@@ -88,30 +88,7 @@ serve(async (req) => {
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
     const { desdeIso, hastaIso, semanaKey } = getPeriodRange();
 
-    // 1. Invocación Idempotente de RPC para generar o consultar el lote inmutable
-    const { data: rpcLoteResult } = await supabase.rpc('generar_o_consultar_lote_semanal', {
-      p_desde: desdeIso,
-      p_hasta: hastaIso,
-      p_semana_key: semanaKey
-    });
-
-    const token = rpcLoteResult?.token || '';
-    const printLoteUrl = `${appBaseUrl}/resumen-operativo/lote/${token}`;
-    const pagosDashboardUrl = `${appBaseUrl}/admin/pagos`;
-
-    // 2. Obtener lista de destinatarios configurables
-    let toEmails: string[] = DEFAULT_EMAILS;
-    const { data: configData } = await supabase
-      .from('resumen_operativo_config')
-      .select('value')
-      .eq('key', 'emails_destinatarios')
-      .single();
-
-    if (configData && Array.isArray(configData.value) && configData.value.length > 0) {
-      toEmails = configData.value;
-    }
-
-    // 3. Consultar todas las cirugías en estado ENVIADO pendientes de pago
+    // 1. Consultar todas las cirugías en estado ENVIADO pendientes de pago
     const { data: pendingSurgeriesRaw, error: rpcError } = await supabase.rpc('get_todas_cirugias_pendientes');
     if (rpcError) {
       throw new Error(`Error en RPC get_todas_cirugias_pendientes: ${rpcError.message}`);
@@ -119,7 +96,7 @@ serve(async (req) => {
 
     const allPending = pendingSurgeriesRaw || [];
 
-    // 4. Filtrar cirugías dentro de los últimos 2 meses (60 días)
+    // 2. Filtrar cirugías dentro de los últimos 2 meses (60 días)
     const today = new Date();
     const sixtyDaysAgo = new Date(today);
     sixtyDaysAgo.setDate(today.getDate() - 60);
@@ -132,6 +109,34 @@ serve(async (req) => {
     });
 
     const surgeryIds = pending60Days.map((s: any) => s.id).filter(Boolean);
+
+    // 3. Invocación Idempotente de RPC para generar o consultar el lote inmutable con los IDs exactos del reporte
+    const { data: rpcLoteResult, error: rpcLoteError } = await supabase.rpc('generar_o_consultar_lote_semanal', {
+      p_desde: desdeIso,
+      p_hasta: hastaIso,
+      p_semana_key: semanaKey,
+      p_reporte_ids: surgeryIds
+    });
+
+    if (rpcLoteError) {
+      console.warn("Aviso al invocar generar_o_consultar_lote_semanal con p_reporte_ids:", rpcLoteError.message);
+    }
+
+    const token = rpcLoteResult?.token || '';
+    const printLoteUrl = `${appBaseUrl}/resumen-operativo/lote/${token}`;
+    const pagosDashboardUrl = `${appBaseUrl}/admin/pagos`;
+
+    // 4. Obtener lista de destinatarios configurables
+    let toEmails: string[] = DEFAULT_EMAILS;
+    const { data: configData } = await supabase
+      .from('resumen_operativo_config')
+      .select('value')
+      .eq('key', 'emails_destinatarios')
+      .single();
+
+    if (configData && Array.isArray(configData.value) && configData.value.length > 0) {
+      toEmails = configData.value;
+    }
 
     // 5. Consultar en lote los controles de logística con estado y observaciones
     const controlMap = new Map();

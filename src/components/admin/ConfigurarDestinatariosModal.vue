@@ -367,17 +367,33 @@ const testReporteEmail = async () => {
     const day = String(saturdayDate.getUTCDate()).padStart(2, '0');
     const semanaKey = `TEST_${year}-${month}-${day}_${Date.now()}`;
 
-    // 3. Generar lote inmutable en la base de datos vía RPC
+    // 3. Consultar cirugías pendientes de los últimos 60 días
+    const { data: pendingSurgeriesRaw } = await supabase.rpc('get_todas_cirugias_pendientes');
+    const allPending = pendingSurgeriesRaw || [];
+    const today = new Date();
+    const sixtyDaysAgo = new Date(today);
+    sixtyDaysAgo.setDate(today.getDate() - 60);
+    sixtyDaysAgo.setHours(0, 0, 0, 0);
+
+    const pending60Days = allPending.filter((s) => {
+      if (!s.fecha_cirugia) return false;
+      const d = new Date(`${String(s.fecha_cirugia).split('T')[0]}T00:00:00`);
+      return !isNaN(d.getTime()) && d >= sixtyDaysAgo;
+    });
+    const surgeryIds = pending60Days.map((s) => s.id).filter(Boolean);
+
+    // 4. Generar lote inmutable en la base de datos vía RPC
     const { data: rpcResult, error: rpcErr } = await supabase.rpc('generar_o_consultar_lote_semanal', {
       p_desde: desdeIso,
       p_hasta: hastaIso,
-      p_semana_key: semanaKey
+      p_semana_key: semanaKey,
+      p_reporte_ids: surgeryIds
     });
 
     if (rpcErr) throw rpcErr;
     const token = rpcResult.token;
 
-    // 4. Armar el HTML del correo e invocar el servicio unificado de Resend
+    // 5. Armar el HTML del correo e invocar el servicio unificado de Resend
     const appBaseUrl = window.location.origin;
     const printLoteUrl = `${appBaseUrl}/resumen-operativo/lote/${token}`;
 
