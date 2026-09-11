@@ -1,7 +1,7 @@
 <!-- src/components/admin/ConfigurarDestinatariosModal.vue -->
 <template>
   <div v-if="show" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-4 overflow-y-auto">
-    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-5 animate-scaleUp">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl max-w-4xl w-full p-6 shadow-2xl space-y-5 animate-scaleUp my-auto">
       
       <!-- Encabezado Modal -->
       <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
@@ -13,100 +13,144 @@
           <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
             Las direcciones listadas recibirán el reporte automático
             <span v-if="schedule.activo" class="font-bold text-blue-600 dark:text-blue-400">
-              cada {{ getDayName(schedule.dia) }} a las {{ String(schedule.hora).padStart(2, '0') }}:00 hs (ART)
+              cada {{ getDayName(schedule.dia) }} a las {{ String(schedule.hora).padStart(2, '0') }}:{{ String(schedule.minuto).padStart(2, '0') }} hs (ART)
             </span>
             <span v-else class="font-bold text-amber-600 dark:text-amber-400">
               (Envío automático pausado)
             </span>.
           </p>
         </div>
-        <button @click="$emit('close')" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1 text-xl font-bold cursor-pointer">
+        <button @click="$emit('close')" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1.5 text-xl font-bold rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer">
           ✕
         </button>
       </div>
 
       <!-- Estado de Carga -->
-      <div v-if="loading" class="py-8 text-center text-xs text-slate-400">
+      <div v-if="loading" class="py-12 text-center text-xs text-slate-400">
         Cargando configuración...
       </div>
 
-      <div v-else class="space-y-5">
+      <!-- Contenido en 2 Columnas (Horizontal) -->
+      <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-5 items-start">
         
-        <!-- SECCIÓN 1: HORARIO Y DÍA DE ENVÍO AUTOMÁTICO -->
-        <div class="p-4 bg-blue-50/60 dark:bg-blue-950/30 rounded-xl border border-blue-200/80 dark:border-blue-900/60 space-y-3">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-extrabold text-blue-950 dark:text-blue-200 flex items-center gap-1.5">
-              <span>⏰</span>
-              <span>Horario de Envío Automático (ART UTC-3)</span>
-            </span>
-            
-            <label class="relative inline-flex items-center cursor-pointer">
-              <input type="checkbox" v-model="schedule.activo" class="sr-only peer" />
-              <div class="w-9 h-5 bg-slate-300 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
-              <span class="ml-2 text-xs font-bold text-slate-700 dark:text-slate-300">
-                {{ schedule.activo ? 'Activo' : 'Pausado' }}
+        <!-- COLUMNA IZQUIERDA: HORARIO Y DÍA + CIRUGÍAS OMITIDAS -->
+        <div class="space-y-4">
+          <!-- SECCIÓN 1: HORARIO Y DÍA DE ENVÍO AUTOMÁTICO -->
+          <div class="p-4 bg-blue-50/60 dark:bg-blue-950/30 rounded-xl border border-blue-200/80 dark:border-blue-900/60 space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-extrabold text-blue-950 dark:text-blue-200 flex items-center gap-1.5">
+                <span>⏰</span>
+                <span>Horario de Envío Automático (ART UTC-3)</span>
               </span>
-            </label>
+              
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" v-model="schedule.activo" class="sr-only peer" />
+                <div class="w-9 h-5 bg-slate-300 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
+                <span class="ml-2 text-xs font-bold text-slate-700 dark:text-slate-300">
+                  {{ schedule.activo ? 'Activo' : 'Pausado' }}
+                </span>
+              </label>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1">
+              <div>
+                <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
+                  Día
+                </label>
+                <select 
+                  v-model.number="schedule.dia" 
+                  :disabled="!schedule.activo"
+                  class="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-2 py-2 text-xs font-semibold text-slate-900 dark:text-slate-100 disabled:opacity-50"
+                >
+                  <option :value="1">Lunes</option>
+                  <option :value="2">Martes</option>
+                  <option :value="3">Miércoles</option>
+                  <option :value="4">Jueves</option>
+                  <option :value="5">Viernes</option>
+                  <option :value="6">Sábado</option>
+                  <option :value="0">Domingo</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
+                  Hora (ART)
+                </label>
+                <select 
+                  v-model.number="schedule.hora" 
+                  :disabled="!schedule.activo"
+                  class="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-2 py-2 text-xs font-semibold text-slate-900 dark:text-slate-100 disabled:opacity-50"
+                >
+                  <option v-for="h in hoursOptions" :key="h.value" :value="h.value">
+                    {{ h.label }}
+                  </option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
+                  Minuto
+                </label>
+                <select 
+                  v-model.number="schedule.minuto" 
+                  :disabled="!schedule.activo"
+                  class="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-2 py-2 text-xs font-semibold text-slate-900 dark:text-slate-100 disabled:opacity-50"
+                >
+                  <option v-for="m in minutesOptions" :key="m.value" :value="m.value">
+                    {{ m.label }}
+                  </option>
+                </select>
+              </div>
+            </div>
+
+            <p class="text-[10px] text-blue-800 dark:text-blue-300 opacity-90 leading-tight">
+              ℹ️ El informe consolidará todas las fichas enviadas desde el sábado anterior a las 00:00 hs hasta el {{ getDayName(schedule.dia) }} a las {{ String(schedule.hora).padStart(2, '0') }}:{{ String(schedule.minuto).padStart(2, '0') }} hs.
+            </p>
           </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1">
-            <div>
-              <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
-                Día de la Semana
-              </label>
-              <select 
-                v-model.number="schedule.dia" 
-                :disabled="!schedule.activo"
-                class="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-2.5 py-2 text-xs font-semibold text-slate-900 dark:text-slate-100 disabled:opacity-50"
-              >
-                <option :value="1">Lunes</option>
-                <option :value="2">Martes</option>
-                <option :value="3">Miércoles (Recomendado 15:00 hs)</option>
-                <option :value="4">Jueves</option>
-                <option :value="5">Viernes</option>
-                <option :value="6">Sábado</option>
-                <option :value="0">Domingo</option>
-              </select>
+          <!-- SECCIÓN 3: CIRUGÍAS OMITIDAS DE PRÓXIMOS REPORTES -->
+          <div v-if="omitidasList.length > 0" class="p-3.5 bg-rose-50/50 dark:bg-rose-950/20 rounded-xl border border-rose-200/80 dark:border-rose-900/60">
+            <div class="flex items-center justify-between mb-2">
+              <div class="flex items-center gap-1.5">
+                <span class="text-sm">🚫</span>
+                <h4 class="text-[11px] font-black text-rose-900 dark:text-rose-300 uppercase tracking-wider">
+                  Cirugías Omitidas ({{ omitidasList.length }})
+                </h4>
+              </div>
+              <span class="text-[9px] text-rose-700 dark:text-rose-400 font-medium">
+                No se incluirán en el reporte
+              </span>
             </div>
 
-            <div>
-              <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
-                Hora (ART)
-              </label>
-              <select 
-                v-model.number="schedule.hora" 
-                :disabled="!schedule.activo"
-                class="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-2.5 py-2 text-xs font-semibold text-slate-900 dark:text-slate-100 disabled:opacity-50"
+            <div class="space-y-1.5 max-h-40 overflow-y-auto pr-1">
+              <div 
+                v-for="item in omitidasList" 
+                :key="item.id" 
+                class="flex items-center justify-between p-2 bg-white dark:bg-slate-900 rounded-lg border border-rose-200/60 dark:border-rose-900/40 text-xs shadow-2xs"
               >
-                <option v-for="h in hoursOptions" :key="h.value" :value="h.value">
-                  {{ h.label }}
-                </option>
-              </select>
-            </div>
-
-            <div>
-              <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
-                Minuto
-              </label>
-              <select 
-                v-model.number="schedule.minuto" 
-                :disabled="!schedule.activo"
-                class="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-2.5 py-2 text-xs font-semibold text-slate-900 dark:text-slate-100 disabled:opacity-50"
-              >
-                <option v-for="m in minutesOptions" :key="m.value" :value="m.value">
-                  {{ m.label }}
-                </option>
-              </select>
+                <div class="flex flex-col truncate mr-2">
+                  <span class="font-bold text-slate-900 dark:text-white text-[11px] truncate">
+                    #{{ item.id }} · {{ item.paciente || 'Sin especificar' }}
+                  </span>
+                  <span class="text-[9px] text-slate-500 dark:text-slate-400 truncate">
+                    {{ item.fecha_cirugia ? `Fecha Cx: ${item.fecha_cirugia}` : '' }} 
+                    {{ item.motivo ? `· Obs: ${item.motivo}` : '' }}
+                  </span>
+                </div>
+                <button 
+                  type="button" 
+                  @click="reincorporarCirugia(item.id)" 
+                  class="shrink-0 px-2 py-1 text-[10px] font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 border border-emerald-300 dark:border-emerald-800 rounded-md transition cursor-pointer"
+                >
+                  🔄 Reincorporar
+                </button>
+              </div>
             </div>
           </div>
-
-          <p class="text-[10px] text-blue-800 dark:text-blue-300 opacity-90 leading-tight">
-            ℹ️ El informe consolidará todas las fichas enviadas desde el sábado anterior a las 00:00 hs hasta el {{ getDayName(schedule.dia) }} a las {{ String(schedule.hora).padStart(2, '0') }}:{{ String(schedule.minuto).padStart(2, '0') }} hs.
-          </p>
         </div>
 
-        <!-- SECCIÓN 2: LISTA DE DESTINATARIOS -->
-        <div class="space-y-3">
+        <!-- COLUMNA DERECHA: DESTINATARIOS -->
+        <div class="space-y-3 flex flex-col h-full">
           <label class="block text-xs font-extrabold text-slate-800 dark:text-slate-200">
             ✉️ Destinatarios del Correo
           </label>
@@ -116,81 +160,42 @@
               v-model="newEmail" 
               type="email" 
               placeholder="ejemplo@districorr.com.ar" 
-              class="flex-1 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-3.5 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              class="flex-1 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             <button 
               type="submit" 
               :disabled="!newEmail.trim()"
-              class="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-xs font-bold rounded-xl transition cursor-pointer"
+              class="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-xs font-bold rounded-xl transition cursor-pointer shrink-0"
             >
               + Añadir
             </button>
           </form>
 
           <!-- Lista de Emails Registrados -->
-          <div class="space-y-2 max-h-48 overflow-y-auto pr-1">
+          <div class="space-y-2 flex-1 max-h-72 overflow-y-auto pr-1">
             <div 
               v-for="(email, idx) in emailList" 
               :key="idx" 
               class="flex items-center justify-between p-2.5 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200/80 dark:border-slate-700 text-xs font-semibold text-slate-800 dark:text-slate-200"
             >
-              <div class="flex items-center gap-2">
-                <span class="text-slate-400 text-sm">✉️</span>
-                <span>{{ email }}</span>
+              <div class="flex items-center gap-2 truncate mr-2">
+                <span class="text-slate-400 text-xs shrink-0">✉️</span>
+                <span class="truncate">{{ email }}</span>
               </div>
               <button 
                 @click="removeEmail(idx)" 
-                class="text-red-500 hover:text-red-700 text-xs font-bold px-2 py-1 rounded hover:bg-red-50 dark:hover:bg-red-950/40 transition cursor-pointer"
+                class="text-rose-500 hover:text-rose-700 text-xs font-bold px-2 py-0.5 rounded hover:bg-rose-50 dark:hover:bg-rose-950/40 transition cursor-pointer shrink-0"
               >
                 Quitar
               </button>
             </div>
 
-            <div v-if="emailList.length === 0" class="text-center py-4 text-xs text-slate-400 italic">
+            <div v-if="emailList.length === 0" class="text-center py-6 text-xs text-slate-400 italic">
               No hay destinatarios registrados.
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- Sección 3: Cirugías Omitidas de los Reportes Semanales -->
-      <div v-if="omitidasList.length > 0" class="p-4 bg-rose-50/50 dark:bg-rose-950/20 rounded-2xl border border-rose-200/80 dark:border-rose-900/60">
-        <div class="flex items-center justify-between mb-2.5">
-          <div class="flex items-center gap-2">
-            <span class="text-base">🚫</span>
-            <h3 class="text-xs font-black text-rose-900 dark:text-rose-300 uppercase tracking-wider">
-              Cirugías Omitidas de Próximos Reportes ({{ omitidasList.length }})
-            </h3>
-          </div>
-          <span class="text-[10px] text-rose-700 dark:text-rose-400 font-medium">
-            Estas cirugías no se enviarán por correo ni entrarán al lote
-          </span>
-        </div>
-
-        <div class="space-y-2 max-h-40 overflow-y-auto pr-1">
-          <div 
-            v-for="item in omitidasList" 
-            :key="item.id" 
-            class="flex items-center justify-between p-2.5 bg-white dark:bg-slate-900 rounded-xl border border-rose-200/60 dark:border-rose-900/40 text-xs shadow-xs"
-          >
-            <div class="flex flex-col">
-              <span class="font-bold text-slate-900 dark:text-white">
-                #{{ item.id }} · {{ item.paciente || 'Sin especificar' }}
-              </span>
-              <span class="text-[10px] text-slate-500 dark:text-slate-400">
-                {{ item.fecha_cirugia ? `Fecha Cx: ${item.fecha_cirugia}` : '' }} 
-                {{ item.motivo ? `· Obs: ${item.motivo}` : '' }}
-              </span>
-            </div>
-            <button 
-              type="button" 
-              @click="reincorporarCirugia(item.id)" 
-              class="px-2.5 py-1 text-[11px] font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 border border-emerald-300 dark:border-emerald-800 rounded-lg transition cursor-pointer"
-            >
-              🔄 Reincorporar
-            </button>
-          </div>
-        </div>
       </div>
 
       <!-- Acciones del Modal -->
