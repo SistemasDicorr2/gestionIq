@@ -441,7 +441,7 @@
 
               <!-- ACCIÓN CONTEXTUAL ÚNICA: TRAER DESDE UNA ENTREGA -->
               <button 
-                v-if="builder.tipo_movimiento === 'Retiro de cajas' && !selectedCirugia" 
+                v-if="['Retiro de cajas', 'Traslado a Central'].includes(builder.tipo_movimiento) && !selectedCirugia" 
                 type="button" 
                 @click="openBuscarEntregasModal" 
                 class="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-extrabold text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/70 hover:bg-blue-100 dark:hover:bg-blue-900 rounded-lg border border-blue-200 dark:border-blue-800 transition-all cursor-pointer active:scale-95 shadow-2xs"
@@ -995,7 +995,7 @@
         <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
           <div class="space-y-0.5">
             <h3 class="text-sm font-black text-slate-900 dark:text-white flex items-center gap-1.5">
-              <span>📦</span> Seleccionar Entrega Previa para Retiro
+              <span>📦</span> Seleccionar Entrega Previa para {{ builder.tipo_movimiento === 'Traslado a Central' ? 'Traslado' : 'Retiro' }}
             </h3>
             <p class="text-[11px] text-slate-500 dark:text-slate-400">
               Prioriza por código de cirugía / remito o sanatorio
@@ -1450,7 +1450,7 @@ const builder = reactive({
 const selectTipoMovimiento = (val) => {
   builder.tipo_movimiento = val;
   builder.detalle_incidencia_o_gestion = '';
-  if (val !== 'Retiro de cajas') {
+  if (!['Retiro de cajas', 'Traslado a Central'].includes(val)) {
     builder.movimiento_origen_id = null;
     builder.entrega_origen_info = null;
     searchEntregaResults.value = [];
@@ -1547,13 +1547,14 @@ const selectEntregaParaRetiro = (entrega) => {
   }
 
   if (entrega.observaciones_entrega) {
-    builder.observaciones = `[Retiro de entrega: ${entrega.observaciones_entrega}]`;
+    const accionTexto = builder.tipo_movimiento === 'Traslado a Central' ? 'Traslado' : 'Retiro';
+    builder.observaciones = `[${accionTexto} de entrega: ${entrega.observaciones_entrega}]`;
   }
 
   showBuscarEntregasModal.value = false;
   showDropdown.value = false;
   searchEntregaResults.value = [];
-  toast.success('Datos de la entrega cargados. Ajustá cantidades de cajas/bultos si el retiro es parcial.');
+  toast.success('Datos de la entrega cargados. Ajustá cantidades de cajas/bultos si el movimiento es parcial.');
 };
 
 const clearEntregaOrigen = () => {
@@ -1602,9 +1603,9 @@ const onSearchInput = () => {
         }));
       })();
 
-      // 2. Si es Retiro de Cajas, buscar concurrentemente entregas previas para retiro
+      // 2. Si es Retiro de Cajas o Traslado a Central, buscar concurrentemente entregas previas
       const entregasPromise = (async () => {
-        if (builder.tipo_movimiento !== 'Retiro de cajas') return [];
+        if (!['Retiro de cajas', 'Traslado a Central'].includes(builder.tipo_movimiento)) return [];
         try {
           const { data, error } = await supabase.rpc('buscar_entregas_para_retiro', {
             p_busqueda: query,
@@ -1750,8 +1751,8 @@ const addMovementToList = () => {
   const movItem = {
     id: movementId,
     tempId: movementId,
-    movimiento_origen_id: (builder.tipo_movimiento === 'Retiro de cajas' && builder.movimiento_origen_id) ? builder.movimiento_origen_id : null,
-    entrega_origen_info: (builder.tipo_movimiento === 'Retiro de cajas' && builder.entrega_origen_info) ? { ...builder.entrega_origen_info } : null,
+    movimiento_origen_id: (['Retiro de cajas', 'Traslado a Central'].includes(builder.tipo_movimiento) && builder.movimiento_origen_id) ? builder.movimiento_origen_id : null,
+    entrega_origen_info: (['Retiro de cajas', 'Traslado a Central'].includes(builder.tipo_movimiento) && builder.entrega_origen_info) ? { ...builder.entrega_origen_info } : null,
     tipo_movimiento: builder.tipo_movimiento,
     reporte_id: reporteIdVal,
     id_cirugia_snapshot: idCirugiaSnapVal,
@@ -1760,7 +1761,7 @@ const addMovementToList = () => {
     medico_snapshot: medicoVal || null,
     institucion_snapshot: institucionVal || null,
     fecha_cirugia_snapshot: fechaCirugiaVal || null,
-    destino: (builder.tipo_movimiento === 'Retiro de cajas' && builder.trasladado_a_central) ? 'Central' : pacienteVal,
+    destino: (builder.tipo_movimiento === 'Traslado a Central' || (builder.tipo_movimiento === 'Retiro de cajas' && builder.trasladado_a_central)) ? 'Central' : pacienteVal,
     cantidad_cajas: builder.cantidad_cajas || 0,
     cantidad_bultos: builder.cantidad_bultos || 0,
     observaciones: finalObs || null,
@@ -2399,7 +2400,7 @@ const saveDraftInternal = async (isSilent = false, reason = 'user_mutation', for
 
       return {
         id: stableId,
-        movimiento_origen_id: (m.tipo_movimiento === 'Retiro de cajas' && m.movimiento_origen_id) ? m.movimiento_origen_id : null,
+        movimiento_origen_id: (['Retiro de cajas', 'Traslado a Central'].includes(m.tipo_movimiento) && m.movimiento_origen_id) ? m.movimiento_origen_id : null,
         reporte_id: (m.reporte_id && String(m.reporte_id).trim() !== '') ? m.reporte_id : null,
         id_cirugia_snapshot: (m.id_cirugia_snapshot && String(m.id_cirugia_snapshot).trim() !== '') ? m.id_cirugia_snapshot : null,
         cliente_snapshot: (m.cliente_snapshot && String(m.cliente_snapshot).trim() !== '') ? m.cliente_snapshot : null,

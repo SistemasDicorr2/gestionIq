@@ -275,8 +275,8 @@ BEGIN
             -- Validación de movimiento_origen_id
             v_origen_id := NULLIF(v_elem ->> 'movimiento_origen_id', '')::UUID;
             IF v_origen_id IS NOT NULL THEN
-                IF v_tipo <> 'Retiro de cajas' THEN
-                    RAISE EXCEPTION 'El campo movimiento_origen_id solo está permitido en movimientos de tipo "Retiro de cajas".';
+                IF v_tipo NOT IN ('Retiro de cajas', 'Traslado a Central') THEN
+                    RAISE EXCEPTION 'El campo movimiento_origen_id solo está permitido en movimientos de tipo "Retiro de cajas" o "Traslado a Central".';
                 END IF;
 
                 SELECT m.tipo_movimiento, inf.estado
@@ -527,7 +527,7 @@ BEGIN
             MIN(m.id_cirugia_snapshot) AS cx_sample
         FROM public.logistica_informe_movimientos m
         WHERE m.informe_id = p_informe_id
-          AND m.tipo_movimiento = 'Retiro de cajas'
+          AND m.tipo_movimiento IN ('Retiro de cajas', 'Traslado a Central')
           AND m.movimiento_origen_id IS NOT NULL
         GROUP BY m.movimiento_origen_id
         ORDER BY m.movimiento_origen_id ASC
