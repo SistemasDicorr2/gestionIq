@@ -479,101 +479,258 @@ const testReporteEmail = async () => {
     if (rpcErr) throw rpcErr;
     const token = rpcResult.token;
 
-    // 5. Armar el HTML del correo e invocar el servicio unificado de Resend
+    // 5. Consultar en lote los controles de logística con estado y observaciones
+    const controlMap = new Map();
+    if (surgeryIds.length > 0) {
+      const { data: controlesData } = await supabase
+        .from('logistica_controles')
+        .select('cirugia_id, estado, observaciones, created_at')
+        .in('cirugia_id', surgeryIds);
+
+      if (controlesData) {
+        controlesData.forEach(c => controlMap.set(String(c.cirugia_id), c));
+      }
+    }
+
+    const formatDateTimeART = (isoStr) => {
+      if (!isoStr) return '-';
+      try {
+        const d = new Date(isoStr);
+        return d.toLocaleString('es-AR', {
+          day: '2-digit',
+          month: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit',
+          timeZone: 'America/Argentina/Buenos_Aires'
+        }) + ' hs';
+      } catch {
+        return isoStr;
+      }
+    };
+
+    const formatDateOnly = (dateStr) => {
+      if (!dateStr) return '-';
+      const clean = String(dateStr).split('T')[0];
+      const parts = clean.split('-');
+      if (parts.length === 3) return `${parts[2]}/${parts[1]}/${parts[0]}`;
+      return dateStr;
+    };
+
+    // 6. Enriquecer con cálculo de antigüedad, estado de control y problemas
+    const enrichedSurgeries = pending60Days.map((s) => {
+      const d = new Date(`${String(s.fecha_cirugia).split('T')[0]}T00:00:00`);
+      const diasAntiguedad = !isNaN(d.getTime())
+        ? Math.max(0, Math.floor((today.getTime() - d.getTime()) / (1000 * 60 * 60 * 24)))
+        : 0;
+
+      const control = controlMap.get(String(s.id));
+      const tieneControl = Boolean(control);
+      const rawEstado = (control?.estado || '').toLowerCase().trim();
+      const controlEstado = control?.estado || (tieneControl ? 'OK' : null);
+      const controlObservaciones = control?.observaciones || '';
+      const controlFecha = control?.created_at || null;
+
+      const esOk = tieneControl && (rawEstado === 'ok' || rawEstado === 'correcto');
+      const tieneProblemas = tieneControl && (rawEstado === 'problemas' || rawEstado === 'con problemas' || rawEstado === 'error');
+      const necesitaRevision = tieneControl && (rawEstado === 'revision' || rawEstado === 'necesita revision');
+
+      return {
+        ...s,
+        dias_antiguedad: diasAntiguedad,
+        tiene_control: tieneControl,
+        control_estado: controlEstado,
+        control_observaciones: controlObservaciones,
+        control_fecha: controlFecha,
+        es_ok: esOk,
+        tiene_problemas: tieneProblemas,
+        necesita_revision: necesitaRevision,
+        apto_para_pago: esOk
+      };
+    });
+
+    // Ordenar: primero las OK (listas para pago), luego las con problemas/revisión, y al final las sin control
+    enrichedSurgeries.sort((a, b) => {
+      const score = (item) => item.es_ok ? 3 : (item.tiene_problemas || item.necesita_revision) ? 2 : 1;
+      if (score(b) !== score(a)) return score(b) - score(a);
+      return b.dias_antiguedad - a.dias_antiguedad;
+    });
+
+    // Métricas de resumen
+    const totalCount = enrichedSurgeries.length;
+    const totalListasParaPago = enrichedSurgeries.filter((s) => s.es_ok).length;
+    const totalProblemas = enrichedSurgeries.filter((s) => s.tiene_problemas).length;
+    const totalFaltaControl = enrichedSurgeries.filter((s) => !s.tiene_control).length;
+    const totalInst = new Set(enrichedSurgeries.map((s) => s.instrumentador_nombre || s.instrumentador).filter(Boolean)).size;
+
+    const fechaHoyStr = formatDateOnly(today.toISOString());
     const appBaseUrl = window.location.origin;
     const printLoteUrl = `${appBaseUrl}/resumen-operativo/lote/${token}`;
+    const pagosDashboardUrl = `${appBaseUrl}/admin/pagos`;
 
-    const { data: loteDetalle } = await supabase.rpc('obtener_lote_por_token', { p_token: token });
-    const fichas = loteDetalle?.fichas || [];
-    const stats = rpcResult.stats || {};
-
-    const fechaDesdeStr = `${String(saturdayDate.getUTCDate()).padStart(2, '0')}/${String(saturdayDate.getUTCMonth() + 1).padStart(2, '0')}/${saturdayDate.getUTCFullYear()}`;
-    const fechaHastaStr = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()}`;
-
-    const fichasRowsHtml = fichas.map((f, idx) => {
+    // 7. Construcción de filas de la Tabla Única Unificada
+    const rowsHtml = enrichedSurgeries.map((s, idx) => {
       const bg = idx % 2 === 0 ? '#ffffff' : '#f8fafc';
       const num = String(idx + 1).padStart(2, '0');
-      const nombreInst = f.instrumentador_completado || f.instrumentador || '-';
+      const nombreInst = s.instrumentador_nombre || s.instrumentador || '-';
+      const fechaCx = formatDateOnly(s.fecha_cirugia);
+
+      // Badge de Antigüedad
+      const badgeAntiguedad = s.dias_antiguedad >= 21
+        ? `<span style="color:#b91c1c;font-weight:800;background:#fee2e2;padding:2px 6px;border-radius:4px;font-size:10px;">${s.dias_antiguedad}d</span>`
+        : s.dias_antiguedad >= 14
+        ? `<span style="color:#b45309;font-weight:700;background:#fef3c7;padding:2px 6px;border-radius:4px;font-size:10px;">${s.dias_antiguedad}d</span>`
+        : `<span style="color:#475569;background:#f1f5f9;padding:2px 6px;border-radius:4px;font-size:10px;">${s.dias_antiguedad}d</span>`;
+
+      // Badge y detalle de Control de Logística
+      let badgeControl = '';
+      if (s.es_ok) {
+        badgeControl = `
+          <div><strong style="color:#059669;font-size:11px;">🟢 OK (Devolución)</strong></div>
+          <div style="font-size:9px;color:#64748b;margin-top:1px;">${formatDateTimeART(s.control_fecha)}</div>
+        `;
+      } else if (s.tiene_problemas) {
+        badgeControl = `
+          <div><span style="color:#dc2626;font-weight:800;background:#fee2e2;border:1px solid #fecaca;padding:2px 6px;border-radius:4px;font-size:10px;">🔴 Con Problemas</span></div>
+          ${s.control_observaciones ? `<div style="font-size:9px;color:#b91c1c;margin-top:2px;font-weight:600;">Obs: ${s.control_observaciones}</div>` : ''}
+          <div style="font-size:9px;color:#64748b;margin-top:1px;">${formatDateTimeART(s.control_fecha)}</div>
+        `;
+      } else if (s.necesita_revision) {
+        badgeControl = `
+          <div><span style="color:#b45309;font-weight:800;background:#fef3c7;border:1px solid #fde68a;padding:2px 6px;border-radius:4px;font-size:10px;">⚠️ En Revisión</span></div>
+          ${s.control_observaciones ? `<div style="font-size:9px;color:#92400e;margin-top:2px;font-weight:600;">Obs: ${s.control_observaciones}</div>` : ''}
+          <div style="font-size:9px;color:#64748b;margin-top:1px;">${formatDateTimeART(s.control_fecha)}</div>
+        `;
+      } else {
+        badgeControl = `<span style="color:#b45309;font-weight:700;background:#fffbeb;border:1px solid #fde68a;padding:2px 6px;border-radius:4px;font-size:10px;">⏳ Falta control</span>`;
+      }
+
+      // Estado de Pago
+      let badgeEstadoPago = '';
+      if (s.es_ok || s.tiene_problemas || s.necesita_revision) {
+        badgeEstadoPago = `<span style="color:#047857;font-weight:800;background:#d1fae5;padding:2px 6px;border-radius:4px;font-size:10px;">✅ Listo para pago</span>`;
+      } else {
+        badgeEstadoPago = `<span style="color:#b45309;font-weight:700;background:#fef3c7;padding:2px 6px;border-radius:4px;font-size:10px;">⏳ Falta control</span>`;
+      }
+
       return `
         <tr bgcolor="${bg}">
           <td align="center" style="padding:10px 6px;border-bottom:1px solid #e2e8f0;font-size:10px;color:#94a3b8;font-weight:700;">${num}</td>
-          <td style="padding:10px 8px;border-bottom:1px solid #e2e8f0;font-size:11px;font-weight:800;color:#0f172a;">${f.paciente || 'Sin especificar'}</td>
-          <td style="padding:10px 8px;border-bottom:1px solid #e2e8f0;font-size:10px;color:#334155;">${f.medico || '-'}</td>
-          <td style="padding:10px 8px;border-bottom:1px solid #e2e8f0;font-size:10px;color:#334155;">${f.lugar_cirugia || '-'}</td>
-          <td style="padding:10px 8px;border-bottom:1px solid #e2e8f0;font-size:10px;color:#475569;">${nombreInst}</td>
+          <td style="padding:10px 8px;border-bottom:1px solid #e2e8f0;">
+            <div style="font-size:11px;font-weight:800;color:#0f172a;">${s.paciente || 'Sin especificar'}</div>
+            <div style="font-size:10px;color:#64748b;margin-top:1px;">Cx: ${fechaCx}</div>
+          </td>
+          <td style="padding:10px 8px;border-bottom:1px solid #e2e8f0;font-size:11px;color:#334155;font-weight:600;">
+            ${nombreInst}
+          </td>
+          <td style="padding:10px 8px;border-bottom:1px solid #e2e8f0;">
+            ${badgeControl}
+          </td>
+          <td align="center" style="padding:10px 6px;border-bottom:1px solid #e2e8f0;">
+            ${badgeAntiguedad}
+          </td>
+          <td align="center" style="padding:10px 8px;border-bottom:1px solid #e2e8f0;">
+            ${badgeEstadoPago}
+          </td>
         </tr>
       `;
     }).join('');
 
+    // 8. Construcción del Email HTML Ejecutivo Unificado
     const emailHtml = `
       <!DOCTYPE html>
       <html>
-      <head><meta charset="utf-8"><title>Resumen Operativo Semanal</title></head>
+      <head>
+        <meta charset="utf-8">
+        <title>Reporte de Cirugías Enviadas Pendientes de Pago (Prueba)</title>
+      </head>
       <body style="margin:0;padding:0;background-color:#eef2f7;font-family:Arial,Helvetica,sans-serif;">
         <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color:#eef2f7;padding:20px 10px;">
           <tr>
             <td align="center">
-              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width:680px;background:#ffffff;border-radius:16px;overflow:hidden;border:1px solid #dfe6ef;">
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width:720px;background:#ffffff;border-radius:16px;overflow:hidden;border:1px solid #dfe6ef;">
                 <tr><td height="4" style="background:#2563eb;"></td></tr>
+                
+                <!-- Header -->
                 <tr>
                   <td style="padding:24px 28px;border-bottom:1px solid #f1f5f9;">
                     <div style="font-size:12px;font-weight:800;color:#2563eb;letter-spacing:0.5px;">DISTRICORR · GESTIÓN IQ</div>
-                    <h1 style="margin:6px 0 0 0;font-size:20px;font-weight:800;color:#0f172a;">Resumen Operativo Semanal de Fichas (Prueba)</h1>
+                    <h1 style="margin:6px 0 0 0;font-size:20px;font-weight:800;color:#0f172a;">Reporte Semanal de Pagos Pendientes (Prueba)</h1>
                     <p style="margin:4px 0 0 0;font-size:12px;color:#64748b;">
-                      Período: <strong>${fechaDesdeStr} 00:00 hs</strong> al <strong>${fechaHastaStr} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')} hs</strong>
+                      Período evaluado: <strong>Últimos 2 Meses (60 días)</strong> · Emitido el ${fechaHoyStr} a las ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')} hs
                     </p>
                   </td>
                 </tr>
+
+                <!-- Tarjetas de Resumen Ejecutivo -->
                 <tr>
-                  <td style="padding:20px 28px;background:#f8fafc;">
+                  <td style="padding:20px 28px;background:#f8fafc;border-bottom:1px solid #e2e8f0;">
                     <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
                       <tr>
-                        <td width="33%" style="padding:10px;background:#ffffff;border:1px solid #e2e8f0;border-radius:12px;text-align:center;">
-                          <div style="font-size:22px;font-weight:800;color:#2563eb;">${stats.total_fichas || 0}</div>
-                          <div style="font-size:9px;font-weight:700;color:#94a3b8;text-transform:uppercase;margin-top:2px;">FICHAS ENVIADAS</div>
+                        <td width="25%" style="padding:10px;background:#ffffff;border:1px solid #e2e8f0;border-radius:12px;text-align:center;">
+                          <div style="font-size:20px;font-weight:800;color:#2563eb;">${totalCount}</div>
+                          <div style="font-size:8px;font-weight:700;color:#94a3b8;text-transform:uppercase;margin-top:2px;">TOTAL ENVIADAS</div>
                         </td>
                         <td width="5"></td>
-                        <td width="33%" style="padding:10px;background:#ffffff;border:1px solid #e2e8f0;border-radius:12px;text-align:center;">
-                          <div style="font-size:22px;font-weight:800;color:#4f46e5;">${stats.total_instrumentadores || 0}</div>
-                          <div style="font-size:9px;font-weight:700;color:#94a3b8;text-transform:uppercase;margin-top:2px;">INSTRUMENTADORES</div>
+                        <td width="25%" style="padding:10px;background:#ffffff;border:1px solid #bbf7d0;border-radius:12px;text-align:center;">
+                          <div style="font-size:20px;font-weight:800;color:#059669;">${totalListasParaPago}</div>
+                          <div style="font-size:8px;font-weight:700;color:#059669;text-transform:uppercase;margin-top:2px;">LISTAS PARA PAGO</div>
                         </td>
                         <td width="5"></td>
-                        <td width="33%" style="padding:10px;background:#ffffff;border:1px solid #e2e8f0;border-radius:12px;text-align:center;">
-                          <div style="font-size:22px;font-weight:800;color:#059669;">${stats.total_instituciones || 0}</div>
-                          <div style="font-size:9px;font-weight:700;color:#94a3b8;text-transform:uppercase;margin-top:2px;">INSTITUCIONES</div>
+                        <td width="25%" style="padding:10px;background:#ffffff;border:1px solid ${totalProblemas > 0 ? '#fecaca' : '#fde68a'};border-radius:12px;text-align:center;">
+                          <div style="font-size:20px;font-weight:800;color:${totalProblemas > 0 ? '#dc2626' : '#b45309'};">${totalProblemas > 0 ? totalProblemas : totalFaltaControl}</div>
+                          <div style="font-size:8px;font-weight:700;color:${totalProblemas > 0 ? '#b91c1c' : '#b45309'};text-transform:uppercase;margin-top:2px;">${totalProblemas > 0 ? 'CON PROBLEMAS' : 'FALTA CONTROL'}</div>
+                        </td>
+                        <td width="5"></td>
+                        <td width="25%" style="padding:10px;background:#ffffff;border:1px solid #e2e8f0;border-radius:12px;text-align:center;">
+                          <div style="font-size:20px;font-weight:800;color:#4f46e5;">${totalInst}</div>
+                          <div style="font-size:8px;font-weight:700;color:#94a3b8;text-transform:uppercase;margin-top:2px;">PROFESIONALES</div>
                         </td>
                       </tr>
                     </table>
 
-                    <div style="margin-top:20px;text-align:center;">
-                      <a href="${printLoteUrl}" target="_blank" style="display:inline-block;padding:14px 28px;background-color:#2563eb;color:#ffffff;font-size:13px;font-weight:800;text-decoration:none;border-radius:10px;box-shadow:0 4px 12px rgba(37,99,235,0.25);">
-                        📄 Abrir e Imprimir Todas las Fichas (PDF)
+                    <!-- Botón Principal: Abrir e Imprimir Fichas Público -->
+                    <div style="margin-top:16px;text-align:center;">
+                      <a href="${printLoteUrl}" target="_blank" style="display:inline-block;padding:12px 28px;background-color:#2563eb;color:#ffffff;font-size:13px;font-weight:800;text-decoration:none;border-radius:10px;box-shadow:0 4px 12px rgba(37,99,235,0.25);">
+                        📄 Abrir e Imprimir Fichas de Cirugía (PDF)
+                      </a>
+                    </div>
+
+                    <div style="margin-top:8px;text-align:center;">
+                      <a href="${pagosDashboardUrl}" target="_blank" style="font-size:11px;color:#64748b;text-decoration:underline;">
+                        O ingresar a la Estación de Pagos Rápidos ›
                       </a>
                     </div>
                   </td>
                 </tr>
+
+                <!-- TABLA ÚNICA UNIFICADA -->
                 <tr>
                   <td style="padding:20px 28px;">
-                    <div style="font-size:12px;font-weight:800;color:#0f172a;margin-bottom:10px;">Detalle de Fichas del Lote Inmutable</div>
+                    <div style="font-size:12px;font-weight:800;color:#0f172a;margin-bottom:10px;">
+                      📋 Detalle de Cirugías Enviadas Pendientes de Pago
+                    </div>
                     <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="border-collapse:collapse;border:1px solid #e2e8f0;border-radius:8px;overflow:hidden;">
                       <thead>
                         <tr bgcolor="#142033" style="color:#ffffff;font-size:9px;text-transform:uppercase;">
                           <th style="padding:8px 6px;text-align:center;">#</th>
-                          <th style="padding:8px;text-align:left;">Paciente</th>
-                          <th style="padding:8px;text-align:left;">Médico</th>
-                          <th style="padding:8px;text-align:left;">Institución</th>
+                          <th style="padding:8px;text-align:left;">Paciente / Fecha Cx</th>
                           <th style="padding:8px;text-align:left;">Instrumentador</th>
+                          <th style="padding:8px;text-align:left;">📦 Control Devolución</th>
+                          <th style="padding:8px 6px;text-align:center;">Antigüedad</th>
+                          <th style="padding:8px;text-align:center;">Estado</th>
                         </tr>
                       </thead>
                       <tbody>
-                        ${fichasRowsHtml || '<tr><td colspan="5" align="center" style="padding:15px;font-size:11px;color:#94a3b8;">No se registraron fichas enviadas en este período.</td></tr>'}
+                        ${rowsHtml || '<tr><td colspan="6" align="center" style="padding:15px;font-size:11px;color:#94a3b8;">¡Excelente! No hay cirugías enviadas pendientes de pago en los últimos 2 meses.</td></tr>'}
                       </tbody>
                     </table>
                   </td>
                 </tr>
+
+                <!-- Footer -->
                 <tr>
                   <td style="padding:14px 28px;background:#0f172a;color:#94a3b8;font-size:10px;text-align:center;">
-                    DISTRICORR · Gestión IQ — Reporte Automático Semanal.
+                    DISTRICORR · Gestión IQ — Reporte Automático Semanal (Prueba).
                   </td>
                 </tr>
               </table>
@@ -586,7 +743,7 @@ const testReporteEmail = async () => {
 
     const resendResp = await sendEmailWithResend({
       to: targetEmails,
-      subject: `📋 Resumen Operativo Semanal (Prueba - ${fechaDesdeStr} al ${fechaHastaStr})`,
+      subject: `📋 Reporte Semanal de Pagos Pendientes (Prueba - ${fechaHoyStr})`,
       html: emailHtml
     });
 
