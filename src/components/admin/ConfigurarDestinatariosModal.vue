@@ -461,6 +461,7 @@ const testReporteEmail = async () => {
 
     const pending60Days = allPending.filter((s) => {
       if (!s.fecha_cirugia) return false;
+      if (s.pago_id) return false; // Excluir si ya fue pagada
       if (omitidosIds.has(String(s.id))) return false;
       const d = new Date(`${String(s.fecha_cirugia).split('T')[0]}T00:00:00`);
       return !isNaN(d.getTime()) && d >= sixtyDaysAgo;

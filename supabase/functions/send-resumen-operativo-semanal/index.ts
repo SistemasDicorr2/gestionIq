@@ -116,6 +116,7 @@ serve(async (req) => {
 
     const pending60Days = allPending.filter((s: any) => {
       if (!s.fecha_cirugia) return false;
+      if (s.pago_id) return false; // Excluir si ya tiene pago asignado
       if (omitidosIds.has(String(s.id))) return false;
       const d = new Date(`${String(s.fecha_cirugia).split('T')[0]}T00:00:00`);
       return !isNaN(d.getTime()) && d >= sixtyDaysAgo;

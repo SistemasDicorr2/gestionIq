@@ -40,16 +40,17 @@ BEGIN
             MAX(COALESCE(r.fecha_cirugia::timestamptz, r.fecha_envio)) AS max_fecha
         INTO v_reportes
         FROM public.reportes r
-        WHERE r.id = ANY(p_reporte_ids);
+        WHERE r.id = ANY(p_reporte_ids)
+          AND r.pago_id IS NULL;
 
-        v_final_ids := p_reporte_ids;
+        v_final_ids := COALESCE(v_reportes.ids, p_reporte_ids);
         v_total_fichas := COALESCE(v_reportes.total_fichas, array_length(p_reporte_ids, 1));
         v_total_inst := COALESCE(v_reportes.total_inst, 0);
         v_total_lugares := COALESCE(v_reportes.total_lugares, 0);
         v_min_fecha := COALESCE(v_reportes.min_fecha, p_desde);
         v_max_fecha := COALESCE(v_reportes.max_fecha, p_hasta);
     ELSE
-        -- Fallback: Consultar por rango de fechas de envío
+        -- Fallback: Consultar por rango de fechas de envío (solo no pagadas)
         SELECT 
             COALESCE(array_agg(r.id), '{}'::BIGINT[]) AS ids,
             COUNT(r.id) AS total_fichas,
@@ -60,6 +61,7 @@ BEGIN
         INTO v_reportes
         FROM public.reportes r
         WHERE LOWER(TRIM(r.estado)) = 'enviado'
+          AND r.pago_id IS NULL
           AND r.fecha_envio >= p_desde
           AND r.fecha_envio <= p_hasta;
 
@@ -191,6 +193,7 @@ BEGIN
             'fecha_cirugia', r.fecha_cirugia,
             'fecha_envio', r.fecha_envio,
             'estado', r.estado,
+            'pago_id', r.pago_id,
             'instrumentador', r.instrumentador,
             'instrumentador_completado', r.instrumentador_completado,
             'instrumentador_dni', r.instrumentador_dni,
@@ -216,6 +219,7 @@ BEGIN
         OR (
             (v_lote.reporte_ids IS NULL OR array_length(v_lote.reporte_ids, 1) = 0)
             AND LOWER(TRIM(r.estado)) = 'enviado'
+            AND r.pago_id IS NULL
             AND r.fecha_envio >= v_lote.periodo_desde
             AND r.fecha_envio <= v_lote.periodo_hasta
         )
