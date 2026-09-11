@@ -692,9 +692,6 @@
             <div>
               <div class="flex items-center justify-between mb-1">
                 <label class="block text-xs font-bold text-slate-700 dark:text-slate-300">Observaciones / Notas Específicas</label>
-                <span v-if="activeDictationField === 'builder_observaciones'" class="inline-flex items-center gap-1.5 text-[10px] font-bold text-rose-600 dark:text-rose-400 animate-pulse">
-                  <span class="w-2 h-2 rounded-full bg-rose-500"></span> Escuchando...
-                </span>
               </div>
               <div class="relative">
                 <input 
@@ -718,6 +715,21 @@
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/></svg>
                 </button>
               </div>
+              
+              <!-- Feedback activo con comandos -->
+              <div v-if="activeDictationField === 'builder_observaciones'" class="flex flex-wrap items-center justify-between gap-2 p-2 mt-1.5 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 rounded-xl text-xs text-rose-800 dark:text-rose-200 animate-fadeIn">
+                <div class="flex items-center gap-2">
+                  <span class="relative flex h-2.5 w-2.5">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-600"></span>
+                  </span>
+                  <span class="font-extrabold text-[11px]">Micrófono continuo activo.</span>
+                  <span class="text-[10px] text-rose-700/80 dark:text-rose-300 hidden sm:inline">Podés decir "coma", "punto", "punto y aparte".</span>
+                </div>
+                <button type="button" @click="stopVoiceDictation" class="px-2.5 py-1 bg-rose-600 hover:bg-rose-700 text-white font-black text-[11px] rounded-lg shadow-2xs active:scale-95 cursor-pointer">
+                  ✓ Listo
+                </button>
+              </div>
             </div>
 
             <!-- Toggle Pendiente -->
@@ -732,9 +744,6 @@
             <div v-if="builder.tiene_pendiente" class="p-3.5 bg-amber-50/90 dark:bg-amber-950/40 rounded-xl border border-amber-200 dark:border-amber-900/60 space-y-2 animate-fadeIn">
               <div class="flex items-center justify-between">
                 <label class="block text-xs font-bold text-amber-900 dark:text-amber-300">Detalle del Pendiente *</label>
-                <span v-if="activeDictationField === 'builder_detalle_pendiente'" class="inline-flex items-center gap-1.5 text-[10px] font-bold text-rose-600 dark:text-rose-400 animate-pulse">
-                  <span class="w-2 h-2 rounded-full bg-rose-500"></span> Escuchando...
-                </span>
               </div>
               <div class="relative">
                 <input 
@@ -755,6 +764,20 @@
                   :title="activeDictationField === 'builder_detalle_pendiente' ? 'Detener dictado por voz' : 'Dictar detalle pendiente por voz'"
                 >
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/></svg>
+                </button>
+              </div>
+
+              <!-- Feedback activo pendiente -->
+              <div v-if="activeDictationField === 'builder_detalle_pendiente'" class="flex flex-wrap items-center justify-between gap-2 p-2 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 rounded-xl text-xs text-rose-800 dark:text-rose-200 animate-fadeIn">
+                <div class="flex items-center gap-2">
+                  <span class="relative flex h-2.5 w-2.5">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-600"></span>
+                  </span>
+                  <span class="font-extrabold text-[11px]">Micrófono continuo activo.</span>
+                </div>
+                <button type="button" @click="stopVoiceDictation" class="px-2.5 py-1 bg-rose-600 hover:bg-rose-700 text-white font-black text-[11px] rounded-lg shadow-2xs active:scale-95 cursor-pointer">
+                  ✓ Listo
                 </button>
               </div>
             </div>
@@ -937,9 +960,6 @@
             <label class="block text-xs font-bold text-slate-700 dark:text-slate-300">
               Observaciones Generales del Informe (Opcional)
             </label>
-            <span v-if="activeDictationField === 'informe_observacion_general'" class="inline-flex items-center gap-1.5 text-[10px] font-bold text-rose-600 dark:text-rose-400 animate-pulse">
-              <span class="w-2 h-2 rounded-full bg-rose-500"></span> Escuchando...
-            </span>
           </div>
           <div class="relative">
             <input 
@@ -960,6 +980,21 @@
               :title="activeDictationField === 'informe_observacion_general' ? 'Detener dictado por voz' : 'Dictar observación general por voz'"
             >
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/></svg>
+            </button>
+          </div>
+
+          <!-- Feedback activo general -->
+          <div v-if="activeDictationField === 'informe_observacion_general'" class="flex flex-wrap items-center justify-between gap-2 p-2 mt-1.5 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 rounded-xl text-xs text-rose-800 dark:text-rose-200 animate-fadeIn">
+            <div class="flex items-center gap-2">
+              <span class="relative flex h-2.5 w-2.5">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-600"></span>
+              </span>
+              <span class="font-extrabold text-[11px]">Micrófono continuo activo.</span>
+              <span class="text-[10px] text-rose-700/80 dark:text-rose-300 hidden sm:inline">Podés decir "coma", "punto", "punto y aparte".</span>
+            </div>
+            <button type="button" @click="stopVoiceDictation" class="px-2.5 py-1 bg-rose-600 hover:bg-rose-700 text-white font-black text-[11px] rounded-lg shadow-2xs active:scale-95 cursor-pointer">
+              ✓ Listo
             </button>
           </div>
         </div>
@@ -1523,11 +1558,57 @@ const selectTipoMovimiento = (val) => {
   isTipoCollapsed.value = true;
 };
 
-// --- DICTADO POR VOZ (SPEECH RECOGNITION NATIVO) ---
+// --- DICTADO POR VOZ AVANZADO (SPEECH RECOGNITION MEJORADO) ---
 const activeDictationField = ref(null); // 'builder_observaciones' | 'builder_detalle_pendiente' | 'informe_observacion_general'
 let recognitionInstance = null;
+let userRequestedStop = false;
+let sessionBaseText = '';
+let sessionFinalAccumulated = '';
+
+const formatSpokenText = (raw) => {
+  if (!raw) return '';
+  let text = raw;
+  // 1. Comandos de puntuación comunes en dictado en español
+  text = text.replace(/\b(punto y aparte|punto aparte|nueva línea|nuevo renglón)\b/gi, '.\n');
+  text = text.replace(/\b(punto y seguido|punto seguido)\b/gi, '. ');
+  text = text.replace(/\b(dos puntos)\b/gi, ': ');
+  text = text.replace(/\b(punto y coma)\b/gi, '; ');
+  text = text.replace(/\b(coma)\b/gi, ', ');
+  text = text.replace(/\b(punto)\b/gi, '. ');
+  text = text.replace(/\b(signo de interrogación|cerrar interrogación)\b/gi, '? ');
+  text = text.replace(/\b(abrir interrogación)\b/gi, ' ¿');
+  text = text.replace(/\b(signo de exclamación|cerrar exclamación)\b/gi, '! ');
+  text = text.replace(/\b(abrir exclamación)\b/gi, ' ¡');
+
+  // 2. Limpieza de espaciados alrededor de puntuación
+  text = text.replace(/\s+([.,;:?!])/g, '$1');
+  text = text.replace(/([.,;:?!])([^\s\n0-9])/g, '$1 $2');
+  text = text.replace(/[ \t]+/g, ' ');
+
+  // 3. Capitalización inteligente de inicio de oración y tras punto/salto de línea
+  text = text.replace(/(^\s*|[.\n]\s*)([a-záéíóúüñ])/gi, (_, sep, char) => sep + char.toUpperCase());
+  return text;
+};
+
+const updateTargetFieldValue = (targetField, text) => {
+  if (targetField === 'builder_observaciones') {
+    builder.observaciones = text;
+  } else if (targetField === 'builder_detalle_pendiente') {
+    builder.detalle_pendiente = text;
+  } else if (targetField === 'informe_observacion_general') {
+    informe.observacion_general = text;
+  }
+};
+
+const getTargetFieldValue = (targetField) => {
+  if (targetField === 'builder_observaciones') return builder.observaciones || '';
+  if (targetField === 'builder_detalle_pendiente') return builder.detalle_pendiente || '';
+  if (targetField === 'informe_observacion_general') return informe.observacion_general || '';
+  return '';
+};
 
 const stopVoiceDictation = () => {
+  userRequestedStop = true;
   if (recognitionInstance) {
     try {
       recognitionInstance.onend = null;
@@ -1539,20 +1620,12 @@ const stopVoiceDictation = () => {
   activeDictationField.value = null;
 };
 
-const toggleVoiceDictation = (targetField) => {
-  if (activeDictationField.value === targetField) {
-    stopVoiceDictation();
-    toast.info('Dictado por voz finalizado.');
-    return;
-  }
-
+const startRecognitionSession = (targetField) => {
   const SpeechRecognition = typeof window !== 'undefined' && (window.SpeechRecognition || window.webkitSpeechRecognition);
   if (!SpeechRecognition) {
     toast.warning('Tu navegador no soporta dictado directo. Podés usar el micrófono integrado en el teclado de tu celular o computadora.');
     return;
   }
-
-  stopVoiceDictation();
 
   try {
     const recognition = new SpeechRecognition();
@@ -1561,58 +1634,85 @@ const toggleVoiceDictation = (targetField) => {
     recognition.interimResults = true;
     recognition.maxAlternatives = 1;
 
-    let baseText = '';
-    if (targetField === 'builder_observaciones') baseText = builder.observaciones ? builder.observaciones.trim() : '';
-    else if (targetField === 'builder_detalle_pendiente') baseText = builder.detalle_pendiente ? builder.detalle_pendiente.trim() : '';
-    else if (targetField === 'informe_observacion_general') baseText = informe.observacion_general ? informe.observacion_general.trim() : '';
-
-    activeDictationField.value = targetField;
-    recognitionInstance = recognition;
-
     recognition.onresult = (event) => {
-      let fullTranscript = '';
-      for (let i = 0; i < event.results.length; ++i) {
-        fullTranscript += event.results[i][0].transcript;
+      let currentFinal = '';
+      let currentInterim = '';
+
+      for (let i = event.resultIndex; i < event.results.length; ++i) {
+        const item = event.results[i];
+        if (item.isFinal) {
+          currentFinal += item[0].transcript + ' ';
+        } else {
+          currentInterim += item[0].transcript;
+        }
       }
 
-      const spoken = fullTranscript.trim();
-      if (!spoken) return;
-
-      const combined = baseText ? `${baseText} ${spoken}` : spoken;
-
-      if (targetField === 'builder_observaciones') {
-        builder.observaciones = combined;
-      } else if (targetField === 'builder_detalle_pendiente') {
-        builder.detalle_pendiente = combined;
-      } else if (targetField === 'informe_observacion_general') {
-        informe.observacion_general = combined;
+      if (currentFinal) {
+        sessionFinalAccumulated += formatSpokenText(currentFinal);
       }
+
+      const totalSpoken = (sessionFinalAccumulated + (currentInterim ? ' ' + currentInterim : '')).trim();
+      if (!totalSpoken) return;
+
+      const formattedTotal = formatSpokenText(totalSpoken);
+      const combined = sessionBaseText ? `${sessionBaseText} ${formattedTotal}` : formattedTotal;
+      updateTargetFieldValue(targetField, combined);
     };
 
     recognition.onerror = (event) => {
       console.warn('SpeechRecognition error:', event.error);
       if (event.error === 'not-allowed') {
         toast.error('Permiso de micrófono denegado. Habilitalo en los ajustes de tu navegador.');
-      } else if (event.error !== 'no-speech') {
-        toast.warning(`Dictado por voz: ${event.error}`);
+        stopVoiceDictation();
+      } else if (event.error === 'no-speech') {
+        // Silencio temporal normal: mantener activo
+      } else if (event.error !== 'aborted') {
+        console.debug('Aviso menor de reconocimiento:', event.error);
       }
-      stopVoiceDictation();
     };
 
     recognition.onend = () => {
-      if (activeDictationField.value === targetField) {
-        activeDictationField.value = null;
-        recognitionInstance = null;
+      // Auto-reinicio continuo si el usuario no solicitó detener
+      if (!userRequestedStop && activeDictationField.value === targetField) {
+        try {
+          recognitionInstance = null;
+          setTimeout(() => {
+            if (!userRequestedStop && activeDictationField.value === targetField) {
+              startRecognitionSession(targetField);
+            }
+          }, 150);
+        } catch (reErr) {
+          console.debug('Error reiniciando sesión de audio:', reErr);
+          stopVoiceDictation();
+        }
+      } else {
+        stopVoiceDictation();
       }
     };
 
+    recognitionInstance = recognition;
     recognition.start();
-    toast.info('🎙️ Micrófono activado. Hablá para dictar...');
   } catch (err) {
-    console.error('Error al iniciar dictado:', err);
-    toast.error('No se pudo activar el micrófono.');
+    console.error('Error al iniciar SpeechRecognition:', err);
     stopVoiceDictation();
   }
+};
+
+const toggleVoiceDictation = (targetField) => {
+  if (activeDictationField.value === targetField) {
+    stopVoiceDictation();
+    toast.info('Dictado finalizado y aplicado.');
+    return;
+  }
+
+  stopVoiceDictation();
+  userRequestedStop = false;
+  activeDictationField.value = targetField;
+  sessionBaseText = getTargetFieldValue(targetField).trim();
+  sessionFinalAccumulated = '';
+
+  startRecognitionSession(targetField);
+  toast.info('🎙️ Micrófono continuo activado. Hablá libremente (podés decir "coma", "punto", "punto y aparte").');
 };
 
 // --- MÉTODOS DE BÚSQUEDA Y VINCULACIÓN ENTREGA -> RETIRO ---
