@@ -1,7 +1,11 @@
 -- Migration: 20260911_align_resumen_operativo_lote_pending_surgeries.sql
 -- Alinea la generación del lote inmutable con la lista de cirugías pendientes consolidadas en el reporte semanal
 
--- 1. Actualización de generar_o_consultar_lote_semanal para aceptar p_reporte_ids opcional
+-- 1. Eliminar versiones anteriores de la función para evitar conflictos de sobrecarga (42725)
+DROP FUNCTION IF EXISTS public.generar_o_consultar_lote_semanal(TIMESTAMPTZ, TIMESTAMPTZ, TEXT);
+DROP FUNCTION IF EXISTS public.generar_o_consultar_lote_semanal(TIMESTAMPTZ, TIMESTAMPTZ, TEXT, BIGINT[]);
+
+-- 2. Creación de generar_o_consultar_lote_semanal con parámetro opcional p_reporte_ids
 CREATE OR REPLACE FUNCTION public.generar_o_consultar_lote_semanal(
     p_desde TIMESTAMPTZ,
     p_hasta TIMESTAMPTZ,
@@ -239,5 +243,5 @@ END;
 $$;
 
 -- Permisos de Ejecución
-GRANT EXECUTE ON FUNCTION public.generar_o_consultar_lote_semanal TO authenticated, anon, service_role;
-GRANT EXECUTE ON FUNCTION public.obtener_lote_por_token TO authenticated, anon, service_role;
+GRANT EXECUTE ON FUNCTION public.generar_o_consultar_lote_semanal(TIMESTAMPTZ, TIMESTAMPTZ, TEXT, BIGINT[]) TO authenticated, anon, service_role;
+GRANT EXECUTE ON FUNCTION public.obtener_lote_por_token(TEXT) TO authenticated, anon, service_role;
