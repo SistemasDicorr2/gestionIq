@@ -690,14 +690,34 @@
           <!-- PASO 4: OBSERVACIONES Y PENDIENTES -->
           <div class="space-y-3 pt-1">
             <div>
-              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Observaciones / Notas Específicas</label>
-              <input 
-                v-model="builder.observaciones" 
-                type="text" 
-                placeholder="Detalles sobre esta entrega o retiro (opcional)..." 
-                @keyup.enter="addMovementToList"
-                class="w-full px-3.5 py-3 sm:py-2.5 text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl font-medium focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:outline-none dark:text-white placeholder:text-slate-400 min-h-[44px]"
-              />
+              <div class="flex items-center justify-between mb-1">
+                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300">Observaciones / Notas Específicas</label>
+                <span v-if="activeDictationField === 'builder_observaciones'" class="inline-flex items-center gap-1.5 text-[10px] font-bold text-rose-600 dark:text-rose-400 animate-pulse">
+                  <span class="w-2 h-2 rounded-full bg-rose-500"></span> Escuchando...
+                </span>
+              </div>
+              <div class="relative">
+                <input 
+                  v-model="builder.observaciones" 
+                  type="text" 
+                  placeholder="Detalles sobre esta entrega o retiro (opcional)..." 
+                  @keyup.enter="addMovementToList"
+                  class="w-full pl-3.5 pr-12 py-3 sm:py-2.5 text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl font-medium focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:outline-none dark:text-white placeholder:text-slate-400 min-h-[44px]"
+                />
+                <button
+                  type="button"
+                  @click="toggleVoiceDictation('builder_observaciones')"
+                  :class="[
+                    'absolute right-1.5 top-1/2 -translate-y-1/2 p-2 rounded-lg transition-all flex items-center justify-center cursor-pointer min-h-[36px] min-w-[36px]',
+                    activeDictationField === 'builder_observaciones'
+                      ? 'bg-rose-500 text-white animate-pulse shadow-md'
+                      : 'text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+                  ]"
+                  :title="activeDictationField === 'builder_observaciones' ? 'Detener dictado por voz' : 'Dictar observaciones por voz'"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/></svg>
+                </button>
+              </div>
             </div>
 
             <!-- Toggle Pendiente -->
@@ -710,8 +730,33 @@
             </div>
 
             <div v-if="builder.tiene_pendiente" class="p-3.5 bg-amber-50/90 dark:bg-amber-950/40 rounded-xl border border-amber-200 dark:border-amber-900/60 space-y-2 animate-fadeIn">
-              <label class="block text-xs font-bold text-amber-900 dark:text-amber-300">Detalle del Pendiente *</label>
-              <input v-model="builder.detalle_pendiente" type="text" placeholder="Ej: 1 caja pendiente de retiro por quirófano ocupado" class="w-full px-3 py-2.5 text-xs bg-white dark:bg-slate-900 border border-amber-300 dark:border-amber-800 rounded-lg focus:outline-none dark:text-white" />
+              <div class="flex items-center justify-between">
+                <label class="block text-xs font-bold text-amber-900 dark:text-amber-300">Detalle del Pendiente *</label>
+                <span v-if="activeDictationField === 'builder_detalle_pendiente'" class="inline-flex items-center gap-1.5 text-[10px] font-bold text-rose-600 dark:text-rose-400 animate-pulse">
+                  <span class="w-2 h-2 rounded-full bg-rose-500"></span> Escuchando...
+                </span>
+              </div>
+              <div class="relative">
+                <input 
+                  v-model="builder.detalle_pendiente" 
+                  type="text" 
+                  placeholder="Ej: 1 caja pendiente de retiro por quirófano ocupado" 
+                  class="w-full pl-3 pr-11 py-2.5 text-xs bg-white dark:bg-slate-900 border border-amber-300 dark:border-amber-800 rounded-lg focus:outline-none dark:text-white" 
+                />
+                <button
+                  type="button"
+                  @click="toggleVoiceDictation('builder_detalle_pendiente')"
+                  :class="[
+                    'absolute right-1.5 top-1/2 -translate-y-1/2 p-1.5 rounded-md transition-all flex items-center justify-center cursor-pointer min-h-[32px] min-w-[32px]',
+                    activeDictationField === 'builder_detalle_pendiente'
+                      ? 'bg-rose-500 text-white animate-pulse shadow-xs'
+                      : 'text-amber-600/80 hover:text-amber-700 hover:bg-amber-100/50 dark:hover:bg-amber-900/30'
+                  ]"
+                  :title="activeDictationField === 'builder_detalle_pendiente' ? 'Detener dictado por voz' : 'Dictar detalle pendiente por voz'"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/></svg>
+                </button>
+              </div>
             </div>
           </div>
 
@@ -888,15 +933,35 @@
 
         <!-- Observaciones Generales -->
         <div class="pt-2">
-          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-            Observaciones Generales del Informe (Opcional)
-          </label>
-          <input 
-            v-model="informe.observacion_general" 
-            type="text" 
-            placeholder="Aclaraciones generales para la jornada..." 
-            class="w-full px-3.5 py-3 sm:py-2.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-medium focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:outline-none dark:text-white min-h-[44px]"
-          />
+          <div class="flex items-center justify-between mb-1">
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300">
+              Observaciones Generales del Informe (Opcional)
+            </label>
+            <span v-if="activeDictationField === 'informe_observacion_general'" class="inline-flex items-center gap-1.5 text-[10px] font-bold text-rose-600 dark:text-rose-400 animate-pulse">
+              <span class="w-2 h-2 rounded-full bg-rose-500"></span> Escuchando...
+            </span>
+          </div>
+          <div class="relative">
+            <input 
+              v-model="informe.observacion_general" 
+              type="text" 
+              placeholder="Aclaraciones generales para la jornada..." 
+              class="w-full pl-3.5 pr-12 py-3 sm:py-2.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-medium focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:outline-none dark:text-white min-h-[44px]"
+            />
+            <button
+              type="button"
+              @click="toggleVoiceDictation('informe_observacion_general')"
+              :class="[
+                'absolute right-1.5 top-1/2 -translate-y-1/2 p-2 rounded-lg transition-all flex items-center justify-center cursor-pointer min-h-[36px] min-w-[36px]',
+                activeDictationField === 'informe_observacion_general'
+                  ? 'bg-rose-500 text-white animate-pulse shadow-md'
+                  : 'text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+              ]"
+              :title="activeDictationField === 'informe_observacion_general' ? 'Detener dictado por voz' : 'Dictar observación general por voz'"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/></svg>
+            </button>
+          </div>
         </div>
 
         <!-- TARJETA LIMPIA DE CIERRE DE JORNADA AL FINAL DEL CONTENIDO -->
@@ -1456,6 +1521,98 @@ const selectTipoMovimiento = (val) => {
     searchEntregaResults.value = [];
   }
   isTipoCollapsed.value = true;
+};
+
+// --- DICTADO POR VOZ (SPEECH RECOGNITION NATIVO) ---
+const activeDictationField = ref(null); // 'builder_observaciones' | 'builder_detalle_pendiente' | 'informe_observacion_general'
+let recognitionInstance = null;
+
+const stopVoiceDictation = () => {
+  if (recognitionInstance) {
+    try {
+      recognitionInstance.onend = null;
+      recognitionInstance.onerror = null;
+      recognitionInstance.stop();
+    } catch (_) {}
+    recognitionInstance = null;
+  }
+  activeDictationField.value = null;
+};
+
+const toggleVoiceDictation = (targetField) => {
+  if (activeDictationField.value === targetField) {
+    stopVoiceDictation();
+    toast.info('Dictado por voz finalizado.');
+    return;
+  }
+
+  const SpeechRecognition = typeof window !== 'undefined' && (window.SpeechRecognition || window.webkitSpeechRecognition);
+  if (!SpeechRecognition) {
+    toast.warning('Tu navegador no soporta dictado directo. Podés usar el micrófono integrado en el teclado de tu celular o computadora.');
+    return;
+  }
+
+  stopVoiceDictation();
+
+  try {
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'es-AR';
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.maxAlternatives = 1;
+
+    let baseText = '';
+    if (targetField === 'builder_observaciones') baseText = builder.observaciones ? builder.observaciones.trim() : '';
+    else if (targetField === 'builder_detalle_pendiente') baseText = builder.detalle_pendiente ? builder.detalle_pendiente.trim() : '';
+    else if (targetField === 'informe_observacion_general') baseText = informe.observacion_general ? informe.observacion_general.trim() : '';
+
+    activeDictationField.value = targetField;
+    recognitionInstance = recognition;
+
+    recognition.onresult = (event) => {
+      let fullTranscript = '';
+      for (let i = 0; i < event.results.length; ++i) {
+        fullTranscript += event.results[i][0].transcript;
+      }
+
+      const spoken = fullTranscript.trim();
+      if (!spoken) return;
+
+      const combined = baseText ? `${baseText} ${spoken}` : spoken;
+
+      if (targetField === 'builder_observaciones') {
+        builder.observaciones = combined;
+      } else if (targetField === 'builder_detalle_pendiente') {
+        builder.detalle_pendiente = combined;
+      } else if (targetField === 'informe_observacion_general') {
+        informe.observacion_general = combined;
+      }
+    };
+
+    recognition.onerror = (event) => {
+      console.warn('SpeechRecognition error:', event.error);
+      if (event.error === 'not-allowed') {
+        toast.error('Permiso de micrófono denegado. Habilitalo en los ajustes de tu navegador.');
+      } else if (event.error !== 'no-speech') {
+        toast.warning(`Dictado por voz: ${event.error}`);
+      }
+      stopVoiceDictation();
+    };
+
+    recognition.onend = () => {
+      if (activeDictationField.value === targetField) {
+        activeDictationField.value = null;
+        recognitionInstance = null;
+      }
+    };
+
+    recognition.start();
+    toast.info('🎙️ Micrófono activado. Hablá para dictar...');
+  } catch (err) {
+    console.error('Error al iniciar dictado:', err);
+    toast.error('No se pudo activar el micrófono.');
+    stopVoiceDictation();
+  }
 };
 
 // --- MÉTODOS DE BÚSQUEDA Y VINCULACIÓN ENTREGA -> RETIRO ---
@@ -2326,6 +2483,7 @@ onMounted(async () => {
 });
 
 onUnmounted(() => {
+  stopVoiceDictation();
   clearTimeout(autoSaveTimer);
   window.removeEventListener('visibilitychange', handleVisibilityChange);
   window.removeEventListener('beforeunload', handleBeforeUnload);
