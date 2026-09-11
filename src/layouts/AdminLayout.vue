@@ -96,6 +96,28 @@
         </div>
       </header>
 
+      <!-- Banner Persistente de Actualización Disponible -->
+      <div 
+        v-if="hasUpdate" 
+        class="bg-blue-600 dark:bg-blue-700 text-white px-4 py-2.5 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-md z-30 shrink-0 border-b border-blue-500 animate-fadeIn"
+      >
+        <div class="flex items-center gap-2.5 text-xs sm:text-sm">
+          <span class="text-base sm:text-lg flex-shrink-0">🚀</span>
+          <span>
+            <strong class="font-extrabold">Nueva actualización disponible.</strong> Publicamos una nueva versión de Gestión IQ. Recargá la página para aplicar los cambios.
+          </span>
+        </div>
+        <div class="flex items-center gap-2 shrink-0">
+          <button 
+            @click="reloadApp" 
+            class="px-3.5 py-1.5 bg-white text-blue-700 hover:bg-blue-50 font-black text-xs rounded-lg shadow-sm transition-all active:scale-95 cursor-pointer flex items-center gap-1.5"
+          >
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+            <span>Recargar ahora</span>
+          </button>
+        </div>
+      </div>
+
       <!-- Área de Trabajo Principal (Único contenedor con Scroll) -->
       <main class="flex-1 overflow-x-hidden overflow-y-auto p-3 sm:p-5 lg:p-6 custom-scrollbar">
         <router-view />
@@ -117,9 +139,13 @@ import { useRouter } from 'vue-router';
 import { useToast } from 'vue-toastification';
 import { onClickOutside } from '@vueuse/core';
 import { supabase } from '../services/supabase.js';
+import { useVersionCheck } from '../composables/useVersionCheck.js';
 import Sidebar from '../components/Sidebar.vue';
 import ReportDrawer from '../components/ReportDrawer.vue';
 import NotificationDropdown from '../components/NotificationDropdown.vue';
+
+// Control de versión y actualización en tiempo real
+const { hasUpdate, reloadApp } = useVersionCheck();
 
 // Lucide Icons
 import { 
