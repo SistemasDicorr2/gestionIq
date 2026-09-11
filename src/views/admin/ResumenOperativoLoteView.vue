@@ -54,6 +54,39 @@
           </div>
         </div>
 
+        <!-- Barra de Búsqueda Rápida (Oculta al imprimir) -->
+        <div v-if="fichas.length > 0 && !loading" class="pt-2 border-t border-slate-100 dark:border-slate-800/80">
+          <div class="relative flex items-center">
+            <span class="absolute left-3 text-slate-400 dark:text-slate-500 text-sm pointer-events-none">🔍</span>
+            <input 
+              v-model="searchQuery"
+              type="text"
+              placeholder="Buscar por paciente, médico, lugar, instrumentador, tipo de cirugía o ID..."
+              class="w-full pl-9 pr-8 py-2 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl text-xs sm:text-sm text-slate-800 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all shadow-xs"
+            />
+            <button 
+              v-if="searchQuery" 
+              @click="searchQuery = ''"
+              type="button"
+              class="absolute right-2.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xs font-bold p-1 rounded-md cursor-pointer"
+              title="Limpiar búsqueda"
+            >
+              ✕
+            </button>
+          </div>
+          <div v-if="searchQuery.trim()" class="text-[11px] text-slate-500 dark:text-slate-400 mt-1 pl-1 flex items-center justify-between">
+            <span>
+              Mostrando <strong>{{ displayedFichas.length }}</strong> de {{ fichas.length }} fichas para "<em>{{ searchQuery }}</em>"
+            </span>
+            <button 
+              @click="searchQuery = ''"
+              class="text-blue-600 dark:text-blue-400 font-bold hover:underline cursor-pointer"
+            >
+              Ver todas
+            </button>
+          </div>
+        </div>
+
         <!-- Fila Inferior: Selección por Checkboxes de Estado de Control y Devolución -->
         <div v-if="fichas.length > 0 && !loading" class="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-100 dark:border-slate-800/80 text-xs">
           
@@ -201,13 +234,137 @@
     <!-- Contenedor Principal de Fichas con Selector Individual -->
     <main v-else class="max-w-4xl mx-auto p-4 sm:p-6 space-y-8 print:space-y-0 print:p-0 print:m-0 print:max-w-none flex flex-col items-center print:block">
       
+      <!-- ========================================================================= -->
+      <!-- HOJA 1 DE IMPRESIÓN: ÍNDICE Y RESUMEN GENERAL (Visible solo al imprimir)   -->
+      <!-- ========================================================================= -->
+      <section class="hidden print:block w-full bg-white text-black p-8 page-break-card">
+        <div class="space-y-6">
+          <!-- Cabecera de la Hoja de Índice -->
+          <div class="flex items-start justify-between border-b-2 border-slate-900 pb-4">
+            <div class="flex items-center gap-3">
+              <img src="/2.svg" alt="Districorr Logo" class="h-12 w-auto object-contain" />
+              <div>
+                <h1 class="text-xl font-black tracking-tight text-slate-900 uppercase">DISTRICORR · GESTIÓN IQ</h1>
+                <p class="text-xs font-bold text-slate-600 uppercase tracking-widest">Resumen Operativo · Índice y Control de Fichas</p>
+              </div>
+            </div>
+            <div class="text-right text-xs text-slate-600">
+              <p class="font-bold text-slate-900">Período:</p>
+              <p v-if="lote">{{ formatDate(lote.periodo_desde) }} al {{ formatDate(lote.periodo_hasta) }}</p>
+              <p class="text-[10px] text-slate-500 mt-0.5">Emisión: {{ new Date().toLocaleDateString('es-AR') }}</p>
+            </div>
+          </div>
+
+          <!-- Métricas Resumen -->
+          <div class="grid grid-cols-4 gap-3">
+            <div class="p-3 border border-slate-300 rounded-lg bg-slate-50 text-center">
+              <span class="block text-xl font-black text-slate-900">{{ selectedFichas.length }}</span>
+              <span class="text-[10px] font-bold text-slate-600 uppercase tracking-wider">Total Seleccionadas</span>
+            </div>
+            <div class="p-3 border border-emerald-300 rounded-lg bg-emerald-50 text-center">
+              <span class="block text-xl font-black text-emerald-800">{{ selectedFichas.filter(f => f.es_ok).length }}</span>
+              <span class="text-[10px] font-bold text-emerald-700 uppercase tracking-wider">Control OK</span>
+            </div>
+            <div class="p-3 border border-rose-300 rounded-lg bg-rose-50 text-center">
+              <span class="block text-xl font-black text-rose-800">{{ selectedFichas.filter(f => f.tiene_problemas).length }}</span>
+              <span class="text-[10px] font-bold text-rose-700 uppercase tracking-wider">Con Problemas</span>
+            </div>
+            <div class="p-3 border border-amber-300 rounded-lg bg-amber-50 text-center">
+              <span class="block text-xl font-black text-amber-800">{{ selectedFichas.filter(f => f.necesita_revision).length }}</span>
+              <span class="text-[10px] font-bold text-amber-700 uppercase tracking-wider">En Revisión</span>
+            </div>
+          </div>
+
+          <!-- Tabla de Índice Detallado -->
+          <div>
+            <h2 class="text-xs font-black uppercase tracking-wider text-slate-800 mb-2">
+              Listado de Fichas Adjuntas ({{ selectedFichas.length }} en este documento)
+            </h2>
+            <table class="w-full text-[10px] border-collapse border border-slate-300">
+              <thead>
+                <tr class="bg-slate-100 text-slate-800 border-b border-slate-300 uppercase font-black text-left">
+                  <th class="p-2 border-r border-slate-300 w-8 text-center">#</th>
+                  <th class="p-2 border-r border-slate-300">Paciente</th>
+                  <th class="p-2 border-r border-slate-300 w-16">Fecha Cx</th>
+                  <th class="p-2 border-r border-slate-300">Médico</th>
+                  <th class="p-2 border-r border-slate-300">Tipo de Cirugía</th>
+                  <th class="p-2 border-r border-slate-300">Institución</th>
+                  <th class="p-2 border-r border-slate-300">Instrumentador</th>
+                  <th class="p-2 border-r border-slate-300 w-20 text-center">Control</th>
+                  <th class="p-2">Obs / Nota Logística</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-200">
+                <tr 
+                  v-for="(ficha, idx) in selectedFichas" 
+                  :key="ficha.id || idx"
+                  class="even:bg-slate-50/60"
+                >
+                  <td class="p-2 border-r border-slate-300 font-bold text-center text-slate-600">
+                    {{ String(idx + 1).padStart(2, '0') }}
+                  </td>
+                  <td class="p-2 border-r border-slate-300 font-bold text-slate-900">
+                    {{ ficha.paciente || 'Sin especificar' }}
+                  </td>
+                  <td class="p-2 border-r border-slate-300 text-slate-700">
+                    {{ formatDate(ficha.fecha_cirugia) }}
+                  </td>
+                  <td class="p-2 border-r border-slate-300 text-slate-700">
+                    {{ ficha.medico || '-' }}
+                  </td>
+                  <td class="p-2 border-r border-slate-300 text-slate-700">
+                    {{ ficha.tipo_cirugia || '-' }}
+                  </td>
+                  <td class="p-2 border-r border-slate-300 text-slate-700">
+                    {{ ficha.institucion || '-' }}
+                  </td>
+                  <td class="p-2 border-r border-slate-300 text-slate-700">
+                    {{ ficha.instrumentador_completado || ficha.instrumentador || '-' }}
+                  </td>
+                  <td class="p-2 border-r border-slate-300 text-center">
+                    <span v-if="ficha.es_ok" class="font-bold text-emerald-700">OK</span>
+                    <span v-else-if="ficha.tiene_problemas" class="font-bold text-rose-700">Problemas</span>
+                    <span v-else-if="ficha.necesita_revision" class="font-bold text-amber-700">Revisión</span>
+                    <span v-else class="text-slate-400 font-medium">S/C</span>
+                  </td>
+                  <td class="p-2 text-slate-600 italic">
+                    {{ ficha.control_observaciones || getNota(ficha.id) || '-' }}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Pie de la Hoja de Índice -->
+          <div class="pt-4 border-t border-slate-200 flex justify-between items-center text-[9px] text-slate-500">
+            <span>Gestión IQ · Trazabilidad y Logística Quirúrgica</span>
+            <span>Total: {{ selectedFichas.length }} ficha(s) adjunta(s) en las páginas siguientes</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Mensaje cuando el filtro de búsqueda no da resultados -->
+      <div v-if="displayedFichas.length === 0" class="w-full my-8 p-8 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-center space-y-2 print:hidden">
+        <p class="text-2xl">🔍</p>
+        <h3 class="text-sm font-bold text-slate-800 dark:text-slate-200">No se encontraron fichas</h3>
+        <p class="text-xs text-slate-500">No hay coincidencias para "{{ searchQuery }}".</p>
+        <button 
+          @click="searchQuery = ''"
+          type="button"
+          class="mt-2 px-3 py-1.5 rounded-lg text-xs font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/60 hover:bg-blue-100 transition cursor-pointer"
+        >
+          Limpiar búsqueda
+        </button>
+      </div>
+
+      <!-- Tarjetas de Cirugías -->
       <div 
-        v-for="(ficha, index) in fichas" 
+        v-for="(ficha, index) in displayedFichas" 
         :key="ficha.id || index"
         :class="[
           'w-full shadow-sm rounded-xl overflow-hidden print:shadow-none print:rounded-none transition-all',
           { 
-            'page-break-card': index < selectedFichas.length - 1,
+            'page-break-card': true,
             'print:hidden hidden': !selectedIds.has(ficha.id),
             'ring-2 ring-blue-500/20': selectedIds.has(ficha.id),
             'opacity-60': !selectedIds.has(ficha.id)
@@ -288,15 +445,26 @@
               ⏳ Falta control
             </span>
 
-            <!-- Badge / Botón Omitida en Reportes -->
+            <!-- Botón / Badge Omitir de Reportes Directo -->
             <button
               v-if="omitidasMap.has(String(ficha.id))"
               type="button"
               @click="toggleOmitirRapido(ficha)"
-              class="inline-flex items-center gap-1 text-[10px] font-extrabold text-rose-700 bg-rose-100 dark:bg-rose-950/80 dark:text-rose-300 border border-rose-300 dark:border-rose-800 px-2.5 py-0.5 rounded-full hover:bg-rose-200 dark:hover:bg-rose-900/60 transition cursor-pointer shadow-xs"
-              title="Cirugía excluida de los reportes semanales. Hacé clic para reincorporar"
+              class="inline-flex items-center gap-1 text-[10px] font-extrabold text-rose-700 bg-rose-100 dark:bg-rose-950/80 dark:text-rose-300 border border-rose-300 dark:border-rose-800 px-2 py-1 rounded-lg hover:bg-rose-200 dark:hover:bg-rose-900/60 transition cursor-pointer shadow-xs"
+              title="Esta cirugía está excluida de los próximos reportes semanales. Hacé clic para reincorporarla"
             >
-              🚫 Omitida en Reportes
+              <span>🚫 Omitida en Reportes</span>
+              <span class="text-[9px] underline opacity-80">(Reincorporar)</span>
+            </button>
+            <button
+              v-else
+              type="button"
+              @click="toggleOmitirRapido(ficha)"
+              class="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-white dark:bg-slate-800 hover:bg-rose-50 dark:hover:bg-rose-950/50 text-slate-500 hover:text-rose-600 dark:text-slate-400 dark:hover:text-rose-300 text-[11px] font-semibold transition-all cursor-pointer border border-slate-200 dark:border-slate-700 shadow-xs"
+              title="Omitir esta cirugía en los próximos resúmenes operativos"
+            >
+              <span class="text-xs">🚫</span>
+              <span class="text-[10px] font-bold">Omitir de reportes</span>
             </button>
           </div>
         </div>
@@ -518,6 +686,23 @@ const lote = ref(null);
 const fichas = ref([]);
 const selectedIds = ref(new Set());
 const assetsLoaded = ref(false);
+const searchQuery = ref('');
+
+// Fichas filtradas según la búsqueda rápida
+const displayedFichas = computed(() => {
+  const q = searchQuery.value.trim().toLowerCase();
+  if (!q) return fichas.value;
+  return fichas.value.filter(f => {
+    const paciente = (f.paciente || '').toLowerCase();
+    const medico = (f.medico || '').toLowerCase();
+    const inst = (f.institucion || f.lugar_cirugia || '').toLowerCase();
+    const tipo = (f.tipo_cirugia || '').toLowerCase();
+    const instrum = (f.instrumentador_completado || f.instrumentador || '').toLowerCase();
+    const obs = (f.control_observaciones || f.observaciones || '').toLowerCase();
+    const id = String(f.id || f.id_cirugia || '');
+    return paciente.includes(q) || medico.includes(q) || inst.includes(q) || tipo.includes(q) || instrum.includes(q) || obs.includes(q) || id.includes(q);
+  });
+});
 
 // Notas y Controles de Logística
 const STORAGE_KEY_NOTAS = 'giq_lote_notas_recordatorios';
