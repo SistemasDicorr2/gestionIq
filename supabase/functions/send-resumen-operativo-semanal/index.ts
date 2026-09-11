@@ -88,7 +88,19 @@ serve(async (req) => {
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
     const { desdeIso, hastaIso, semanaKey } = getPeriodRange();
 
-    // 1. Consultar todas las cirugías en estado ENVIADO pendientes de pago
+    // 1. Obtener lista de cirugías omitidas de los resúmenes operativos
+    const { data: omitidasConfig } = await supabase
+      .from('resumen_operativo_config')
+      .select('value')
+      .eq('key', 'cirugias_omitidas')
+      .maybeSingle();
+
+    const omitidasList: any[] = (omitidasConfig && Array.isArray(omitidasConfig.value))
+      ? omitidasConfig.value
+      : [];
+    const omitidosIds = new Set(omitidasList.map((item: any) => String(item.id || item)));
+
+    // 2. Consultar todas las cirugías en estado ENVIADO pendientes de pago
     const { data: pendingSurgeriesRaw, error: rpcError } = await supabase.rpc('get_todas_cirugias_pendientes');
     if (rpcError) {
       throw new Error(`Error en RPC get_todas_cirugias_pendientes: ${rpcError.message}`);
@@ -96,7 +108,7 @@ serve(async (req) => {
 
     const allPending = pendingSurgeriesRaw || [];
 
-    // 2. Filtrar cirugías dentro de los últimos 2 meses (60 días)
+    // 3. Filtrar cirugías dentro de los últimos 2 meses (60 días) y que NO hayan sido omitidas
     const today = new Date();
     const sixtyDaysAgo = new Date(today);
     sixtyDaysAgo.setDate(today.getDate() - 60);
@@ -104,6 +116,7 @@ serve(async (req) => {
 
     const pending60Days = allPending.filter((s: any) => {
       if (!s.fecha_cirugia) return false;
+      if (omitidosIds.has(String(s.id))) return false;
       const d = new Date(`${String(s.fecha_cirugia).split('T')[0]}T00:00:00`);
       return !isNaN(d.getTime()) && d >= sixtyDaysAgo;
     });

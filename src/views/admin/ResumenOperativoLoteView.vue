@@ -287,6 +287,17 @@
             >
               ⏳ Falta control
             </span>
+
+            <!-- Badge / Botón Omitida en Reportes -->
+            <button
+              v-if="omitidasMap.has(String(ficha.id))"
+              type="button"
+              @click="toggleOmitirRapido(ficha)"
+              class="inline-flex items-center gap-1 text-[10px] font-extrabold text-rose-700 bg-rose-100 dark:bg-rose-950/80 dark:text-rose-300 border border-rose-300 dark:border-rose-800 px-2.5 py-0.5 rounded-full hover:bg-rose-200 dark:hover:bg-rose-900/60 transition cursor-pointer shadow-xs"
+              title="Cirugía excluida de los reportes semanales. Hacé clic para reincorporar"
+            >
+              🚫 Omitida en Reportes
+            </button>
           </div>
         </div>
 
@@ -429,6 +440,26 @@
               <span>Esta nota se guarda en Logística Interna y se comparte con todo el equipo.</span>
             </p>
           </div>
+
+          <!-- Checkbox Omitir de Próximos Reportes -->
+          <div class="pt-2.5 border-t border-slate-200/70 dark:border-slate-800">
+            <label class="flex items-start gap-2.5 cursor-pointer select-none">
+              <input 
+                type="checkbox" 
+                v-model="tempOmitir"
+                class="w-4 h-4 mt-0.5 rounded text-rose-600 focus:ring-rose-500 border-slate-300 dark:border-slate-600 cursor-pointer"
+              />
+              <div class="flex flex-col">
+                <span class="text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
+                  <span>🚫</span>
+                  <span>Omitir esta cirugía en los próximos resúmenes operativos</span>
+                </span>
+                <span class="text-[10px] text-slate-400 dark:text-slate-500">
+                  No se incluirá en los futuros correos semanales automáticos ni entrará al lote.
+                </span>
+              </div>
+            </label>
+          </div>
         </div>
 
         <div class="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-800">
@@ -494,7 +525,9 @@ const notasMap = ref({});
 const activeNotaFicha = ref(null);
 const tempNotaTexto = ref('');
 const tempEstado = ref('problemas');
+const tempOmitir = ref(false);
 const isSavingNota = ref(false);
+const omitidasMap = ref(new Map());
 
 const formatDateTime = (isoString) => {
   if (!isoString) return '';
@@ -516,6 +549,82 @@ const cargarNotas = () => {
   }
 };
 
+const fetchOmitidas = async () => {
+  try {
+    const { data } = await supabase
+      .from('resumen_operativo_config')
+      .select('value')
+      .eq('key', 'cirugias_omitidas')
+      .maybeSingle();
+
+    if (data && Array.isArray(data.value)) {
+      const map = new Map();
+      data.value.forEach(item => map.set(String(item.id || item), item));
+      omitidasMap.value = map;
+    }
+  } catch (err) {
+    console.warn('[LoteView] No se pudo cargar lista de cirugías omitidas:', err);
+  }
+};
+
+const toggleOmitirRapido = async (ficha) => {
+  const fichaId = String(ficha.id);
+  const isCurrentlyOmitted = omitidasMap.value.has(fichaId);
+  const shouldOmit = !isCurrentlyOmitted;
+
+  try {
+    const { error: rpcErr } = await supabase.rpc('toggle_omitir_cirugia_resumen', {
+      p_cirugia_id: ficha.id,
+      p_omitir: shouldOmit,
+      p_motivo: ficha.control_observaciones || '',
+      p_paciente: ficha.paciente || '',
+      p_fecha_cirugia: ficha.fecha_cirugia || ''
+    });
+
+    if (rpcErr) {
+      // Fallback directo a resumen_operativo_config
+      const rawList = Array.from(omitidasMap.value.values());
+      let updatedList = [];
+      if (shouldOmit) {
+        updatedList = [...rawList.filter(i => String(i.id) !== fichaId), {
+          id: ficha.id,
+          paciente: ficha.paciente || 'Sin especificar',
+          fecha_cirugia: ficha.fecha_cirugia || '',
+          motivo: ficha.control_observaciones || '',
+          omitido_at: new Date().toISOString()
+        }];
+      } else {
+        updatedList = rawList.filter(i => String(i.id) !== fichaId);
+      }
+
+      await supabase
+        .from('resumen_operativo_config')
+        .upsert({
+          key: 'cirugias_omitidas',
+          value: updatedList,
+          updated_at: new Date().toISOString()
+        });
+    }
+
+    const updated = new Map(omitidasMap.value);
+    if (shouldOmit) {
+      updated.set(fichaId, {
+        id: ficha.id,
+        paciente: ficha.paciente,
+        fecha_cirugia: ficha.fecha_cirugia,
+        motivo: ficha.control_observaciones,
+        omitido_at: new Date().toISOString()
+      });
+    } else {
+      updated.delete(fichaId);
+    }
+    omitidasMap.value = updated;
+  } catch (err) {
+    console.error('[LoteView] Error al alternar omisión:', err);
+    alert('No se pudo actualizar omisión: ' + err.message);
+  }
+};
+
 const getNota = (fichaId) => {
   const f = fichas.value.find(item => String(item.id) === String(fichaId));
   return f?.control_observaciones || notasMap.value[String(fichaId)] || '';
@@ -524,6 +633,7 @@ const getNota = (fichaId) => {
 const abrirModalNota = (ficha) => {
   activeNotaFicha.value = ficha;
   tempNotaTexto.value = ficha.control_observaciones || getNota(ficha.id) || '';
+  tempOmitir.value = omitidasMap.value.has(String(ficha.id));
   
   if (ficha.es_ok) {
     tempEstado.value = 'ok';
@@ -538,6 +648,7 @@ const cerrarModalNota = () => {
   activeNotaFicha.value = null;
   tempNotaTexto.value = '';
   tempEstado.value = 'problemas';
+  tempOmitir.value = false;
   isSavingNota.value = false;
 };
 
@@ -604,6 +715,60 @@ const guardarNota = async () => {
       localStorage.setItem(STORAGE_KEY_NOTAS, JSON.stringify(updated));
     } catch (e) {
       console.warn('[LoteView] Error al persistir nota local:', e);
+    }
+
+    // 4. Actualizar estado de omisión si fue modificado en el modal
+    const isCurrentlyOmitted = omitidasMap.value.has(fichaId);
+    if (tempOmitir.value !== isCurrentlyOmitted) {
+      try {
+        const { error: rpcErr } = await supabase.rpc('toggle_omitir_cirugia_resumen', {
+          p_cirugia_id: activeNotaFicha.value.id,
+          p_omitir: tempOmitir.value,
+          p_motivo: texto,
+          p_paciente: activeNotaFicha.value.paciente || '',
+          p_fecha_cirugia: activeNotaFicha.value.fecha_cirugia || ''
+        });
+
+        if (rpcErr) {
+          const rawList = Array.from(omitidasMap.value.values());
+          let updatedList = [];
+          if (tempOmitir.value) {
+            updatedList = [...rawList.filter(i => String(i.id) !== fichaId), {
+              id: activeNotaFicha.value.id,
+              paciente: activeNotaFicha.value.paciente || 'Sin especificar',
+              fecha_cirugia: activeNotaFicha.value.fecha_cirugia || '',
+              motivo: texto,
+              omitido_at: new Date().toISOString()
+            }];
+          } else {
+            updatedList = rawList.filter(i => String(i.id) !== fichaId);
+          }
+
+          await supabase
+            .from('resumen_operativo_config')
+            .upsert({
+              key: 'cirugias_omitidas',
+              value: updatedList,
+              updated_at: new Date().toISOString()
+            });
+        }
+      } catch (omitErr) {
+        console.warn('[LoteView] Fallback en toggle_omitir_cirugia_resumen:', omitErr);
+      }
+
+      const updatedOmit = new Map(omitidasMap.value);
+      if (tempOmitir.value) {
+        updatedOmit.set(fichaId, {
+          id: activeNotaFicha.value.id,
+          paciente: activeNotaFicha.value.paciente,
+          fecha_cirugia: activeNotaFicha.value.fecha_cirugia,
+          motivo: texto,
+          omitido_at: new Date().toISOString()
+        });
+      } else {
+        updatedOmit.delete(fichaId);
+      }
+      omitidasMap.value = updatedOmit;
     }
 
     cerrarModalNota();
@@ -857,6 +1022,7 @@ const fetchLote = async () => {
       selectedIds.value = new Set(enriched.map(f => f.id));
     }
 
+    await fetchOmitidas();
     await preloadAssets();
   } catch (err) {
     error.value = err.message;

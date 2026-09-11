@@ -153,6 +153,46 @@
         </div>
       </div>
 
+      <!-- Sección 3: Cirugías Omitidas de los Reportes Semanales -->
+      <div v-if="omitidasList.length > 0" class="p-4 bg-rose-50/50 dark:bg-rose-950/20 rounded-2xl border border-rose-200/80 dark:border-rose-900/60">
+        <div class="flex items-center justify-between mb-2.5">
+          <div class="flex items-center gap-2">
+            <span class="text-base">🚫</span>
+            <h3 class="text-xs font-black text-rose-900 dark:text-rose-300 uppercase tracking-wider">
+              Cirugías Omitidas de Próximos Reportes ({{ omitidasList.length }})
+            </h3>
+          </div>
+          <span class="text-[10px] text-rose-700 dark:text-rose-400 font-medium">
+            Estas cirugías no se enviarán por correo ni entrarán al lote
+          </span>
+        </div>
+
+        <div class="space-y-2 max-h-40 overflow-y-auto pr-1">
+          <div 
+            v-for="item in omitidasList" 
+            :key="item.id" 
+            class="flex items-center justify-between p-2.5 bg-white dark:bg-slate-900 rounded-xl border border-rose-200/60 dark:border-rose-900/40 text-xs shadow-xs"
+          >
+            <div class="flex flex-col">
+              <span class="font-bold text-slate-900 dark:text-white">
+                #{{ item.id }} · {{ item.paciente || 'Sin especificar' }}
+              </span>
+              <span class="text-[10px] text-slate-500 dark:text-slate-400">
+                {{ item.fecha_cirugia ? `Fecha Cx: ${item.fecha_cirugia}` : '' }} 
+                {{ item.motivo ? `· Obs: ${item.motivo}` : '' }}
+              </span>
+            </div>
+            <button 
+              type="button" 
+              @click="reincorporarCirugia(item.id)" 
+              class="px-2.5 py-1 text-[11px] font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 border border-emerald-300 dark:border-emerald-800 rounded-lg transition cursor-pointer"
+            >
+              🔄 Reincorporar
+            </button>
+          </div>
+        </div>
+      </div>
+
       <!-- Acciones del Modal -->
       <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
         <button 
@@ -202,6 +242,7 @@ const saving = ref(false);
 const testing = ref(false);
 const newEmail = ref('');
 const emailList = ref([]);
+const omitidasList = ref([]);
 
 const schedule = reactive({
   dia: 3,      // 3 = Miércoles
@@ -256,10 +297,51 @@ const fetchConfig = async () => {
       schedule.minuto = scheduleData.value.minuto ?? 0;
       schedule.activo = scheduleData.value.activo ?? true;
     }
+
+    // 3. Obtener cirugías omitidas
+    const { data: omitidasData } = await supabase
+      .from('resumen_operativo_config')
+      .select('value')
+      .eq('key', 'cirugias_omitidas')
+      .single();
+
+    if (omitidasData && Array.isArray(omitidasData.value)) {
+      omitidasList.value = omitidasData.value;
+    } else {
+      omitidasList.value = [];
+    }
   } catch (err) {
     toast.error("Error al cargar configuración: " + err.message);
   } finally {
     loading.value = false;
+  }
+};
+
+const reincorporarCirugia = async (cirugiaId) => {
+  try {
+    const { error } = await supabase.rpc('toggle_omitir_cirugia_resumen', {
+      p_cirugia_id: cirugiaId,
+      p_omitir: false
+    });
+
+    if (error) {
+      // Fallback: eliminar directamente de resumen_operativo_config
+      const updated = omitidasList.value.filter(item => String(item.id) !== String(cirugiaId));
+      await supabase
+        .from('resumen_operativo_config')
+        .upsert({
+          key: 'cirugias_omitidas',
+          value: updated,
+          updated_at: new Date().toISOString()
+        });
+      omitidasList.value = updated;
+    } else {
+      omitidasList.value = omitidasList.value.filter(item => String(item.id) !== String(cirugiaId));
+    }
+
+    toast.success("Cirugía reincorporada a los próximos resúmenes operativos.");
+  } catch (err) {
+    toast.error("Error al reincorporar cirugía: " + err.message);
   }
 };
 
@@ -367,7 +449,7 @@ const testReporteEmail = async () => {
     const day = String(saturdayDate.getUTCDate()).padStart(2, '0');
     const semanaKey = `TEST_${year}-${month}-${day}_${Date.now()}`;
 
-    // 3. Consultar cirugías pendientes de los últimos 60 días
+    // 3. Consultar cirugías pendientes de los últimos 60 días excluyendo omitidas
     const { data: pendingSurgeriesRaw } = await supabase.rpc('get_todas_cirugias_pendientes');
     const allPending = pendingSurgeriesRaw || [];
     const today = new Date();
@@ -375,8 +457,11 @@ const testReporteEmail = async () => {
     sixtyDaysAgo.setDate(today.getDate() - 60);
     sixtyDaysAgo.setHours(0, 0, 0, 0);
 
+    const omitidosIds = new Set(omitidasList.value.map(item => String(item.id || item)));
+
     const pending60Days = allPending.filter((s) => {
       if (!s.fecha_cirugia) return false;
+      if (omitidosIds.has(String(s.id))) return false;
       const d = new Date(`${String(s.fecha_cirugia).split('T')[0]}T00:00:00`);
       return !isNaN(d.getTime()) && d >= sixtyDaysAgo;
     });
