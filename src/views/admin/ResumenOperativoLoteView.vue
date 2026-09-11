@@ -235,111 +235,147 @@
     <main v-else class="max-w-4xl mx-auto p-4 sm:p-6 space-y-8 print:space-y-0 print:p-0 print:m-0 print:max-w-none flex flex-col items-center print:block">
       
       <!-- ========================================================================= -->
-      <!-- HOJA 1 DE IMPRESIÓN: ÍNDICE Y RESUMEN GENERAL (Visible solo al imprimir)   -->
+      <!-- HOJA 1 DE IMPRESIÓN: CHECKLIST DE ENTREGA A PAGOS (Visible solo al imprimir) -->
       <!-- ========================================================================= -->
-      <section class="hidden print:block w-full bg-white text-black p-8 page-break-card">
-        <div class="space-y-6">
-          <!-- Cabecera de la Hoja de Índice -->
-          <div class="flex items-start justify-between border-b-2 border-slate-900 pb-4">
-            <div class="flex items-center gap-3">
-              <img src="/2.svg" alt="Districorr Logo" class="h-12 w-auto object-contain" />
+      <section class="hidden print:block w-full bg-white text-black p-4 page-break-card">
+        <div class="space-y-3">
+          
+          <!-- Cabecera Compacta del Checklist -->
+          <div class="flex items-center justify-between border-b-2 border-slate-900 pb-2">
+            <div class="flex items-center gap-2.5">
+              <img src="/2.svg" alt="Districorr Logo" class="h-8 w-auto object-contain" />
               <div>
-                <h1 class="text-xl font-black tracking-tight text-slate-900 uppercase">DISTRICORR · GESTIÓN IQ</h1>
-                <p class="text-xs font-bold text-slate-600 uppercase tracking-widest">Resumen Operativo · Índice y Control de Fichas</p>
+                <h1 class="text-sm font-black tracking-tight text-slate-900 uppercase leading-none">
+                  DISTRICORR · CHECKLIST DE ENTREGA A PAGOS
+                </h1>
+                <p class="text-[9px] font-bold text-slate-600 uppercase tracking-wider mt-0.5">
+                  Control y Rendición de Fichas Físicas para Liquidación
+                </p>
               </div>
             </div>
-            <div class="text-right text-xs text-slate-600">
-              <p class="font-bold text-slate-900">Período:</p>
-              <p v-if="lote">{{ formatDate(lote.periodo_desde) }} al {{ formatDate(lote.periodo_hasta) }}</p>
-              <p class="text-[10px] text-slate-500 mt-0.5">Emisión: {{ new Date().toLocaleDateString('es-AR') }}</p>
+            <div class="text-right text-[9px] text-slate-600 leading-tight">
+              <p><strong class="text-slate-900">Período:</strong> <span v-if="lote">{{ formatDate(lote.periodo_desde) }} al {{ formatDate(lote.periodo_hasta) }}</span></p>
+              <p class="text-slate-500 mt-0.5">Fecha de Entrega: {{ new Date().toLocaleDateString('es-AR') }} · {{ selectedFichas.length }} Fichas</p>
             </div>
           </div>
 
-          <!-- Métricas Resumen -->
-          <div class="grid grid-cols-4 gap-3">
-            <div class="p-3 border border-slate-300 rounded-lg bg-slate-50 text-center">
-              <span class="block text-xl font-black text-slate-900">{{ selectedFichas.length }}</span>
-              <span class="text-[10px] font-bold text-slate-600 uppercase tracking-wider">Total Seleccionadas</span>
+          <!-- Tira Horizontal de Métricas Compactas -->
+          <div class="flex items-center justify-between bg-slate-50 border border-slate-300 rounded-lg px-3 py-1.5 text-[9px]">
+            <div class="flex items-center gap-1">
+              <span class="text-slate-500 font-bold uppercase">Total a Rendir:</span>
+              <span class="font-black text-slate-900 text-xs">{{ selectedFichas.length }}</span>
             </div>
-            <div class="p-3 border border-emerald-300 rounded-lg bg-emerald-50 text-center">
-              <span class="block text-xl font-black text-emerald-800">{{ selectedFichas.filter(f => f.es_ok).length }}</span>
-              <span class="text-[10px] font-bold text-emerald-700 uppercase tracking-wider">Control OK</span>
+            <div class="h-3 w-px bg-slate-300"></div>
+            <div class="flex items-center gap-1">
+              <span class="text-emerald-700 font-bold">🟢 Control OK:</span>
+              <span class="font-black text-emerald-800 text-xs">{{ selectedFichas.filter(f => f.es_ok).length }}</span>
             </div>
-            <div class="p-3 border border-rose-300 rounded-lg bg-rose-50 text-center">
-              <span class="block text-xl font-black text-rose-800">{{ selectedFichas.filter(f => f.tiene_problemas).length }}</span>
-              <span class="text-[10px] font-bold text-rose-700 uppercase tracking-wider">Con Problemas</span>
+            <div class="h-3 w-px bg-slate-300"></div>
+            <div class="flex items-center gap-1">
+              <span class="text-rose-700 font-bold">🔴 Con Problemas:</span>
+              <span class="font-black text-rose-800 text-xs">{{ selectedFichas.filter(f => f.tiene_problemas).length }}</span>
             </div>
-            <div class="p-3 border border-amber-300 rounded-lg bg-amber-50 text-center">
-              <span class="block text-xl font-black text-amber-800">{{ selectedFichas.filter(f => f.necesita_revision).length }}</span>
-              <span class="text-[10px] font-bold text-amber-700 uppercase tracking-wider">En Revisión</span>
+            <div class="h-3 w-px bg-slate-300"></div>
+            <div class="flex items-center gap-1">
+              <span class="text-amber-700 font-bold">⚠️ En Revisión:</span>
+              <span class="font-black text-amber-800 text-xs">{{ selectedFichas.filter(f => f.necesita_revision).length }}</span>
+            </div>
+            <div class="h-3 w-px bg-slate-300"></div>
+            <div class="flex items-center gap-1">
+              <span class="text-slate-500 font-bold">⏳ Sin Control:</span>
+              <span class="font-black text-slate-700 text-xs">{{ selectedFichas.filter(f => !f.tiene_control).length }}</span>
             </div>
           </div>
 
-          <!-- Tabla de Índice Detallado -->
+          <!-- Tabla Checklist Ultra-Compacta -->
           <div>
-            <h2 class="text-xs font-black uppercase tracking-wider text-slate-800 mb-2">
-              Listado de Fichas Adjuntas ({{ selectedFichas.length }} en este documento)
-            </h2>
-            <table class="w-full text-[10px] border-collapse border border-slate-300">
+            <table class="w-full text-[8.5px] border-collapse border border-slate-300 leading-tight">
               <thead>
                 <tr class="bg-slate-100 text-slate-800 border-b border-slate-300 uppercase font-black text-left">
-                  <th class="p-2 border-r border-slate-300 w-8 text-center">#</th>
-                  <th class="p-2 border-r border-slate-300">Paciente</th>
-                  <th class="p-2 border-r border-slate-300 w-16">Fecha Cx</th>
-                  <th class="p-2 border-r border-slate-300">Médico</th>
-                  <th class="p-2 border-r border-slate-300">Tipo de Cirugía</th>
-                  <th class="p-2 border-r border-slate-300">Institución</th>
-                  <th class="p-2 border-r border-slate-300">Instrumentador</th>
-                  <th class="p-2 border-r border-slate-300 w-20 text-center">Control</th>
-                  <th class="p-2">Obs / Nota Logística</th>
+                  <th class="p-1 border-r border-slate-300 w-6 text-center">✓</th>
+                  <th class="p-1 border-r border-slate-300 w-6 text-center">#</th>
+                  <th class="p-1 border-r border-slate-300 min-w-[110px]">Paciente</th>
+                  <th class="p-1 border-r border-slate-300 w-14 text-center">Fecha Cx</th>
+                  <th class="p-1 border-r border-slate-300 min-w-[90px]">Instrumentador</th>
+                  <th class="p-1 border-r border-slate-300">Médico / Tipo de Cirugía</th>
+                  <th class="p-1 border-r border-slate-300 min-w-[80px]">Institución</th>
+                  <th class="p-1 border-r border-slate-300 w-14 text-center">Control</th>
+                  <th class="p-1 border-r border-slate-300 min-w-[80px]">Obs / Notas</th>
+                  <th class="p-1 w-12 text-center">VºBº Pagos</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-slate-200">
                 <tr 
                   v-for="(ficha, idx) in selectedFichas" 
                   :key="ficha.id || idx"
-                  class="even:bg-slate-50/60"
+                  class="even:bg-slate-50/50"
                 >
-                  <td class="p-2 border-r border-slate-300 font-bold text-center text-slate-600">
+                  <!-- Casilla de Verificación / Checkbox Físico -->
+                  <td class="p-1 border-r border-slate-300 text-center">
+                    <span class="inline-block w-3 h-3 border border-slate-400 rounded-xs bg-white"></span>
+                  </td>
+                  <td class="p-1 border-r border-slate-300 font-bold text-center text-slate-500">
                     {{ String(idx + 1).padStart(2, '0') }}
                   </td>
-                  <td class="p-2 border-r border-slate-300 font-bold text-slate-900">
+                  <td class="p-1 border-r border-slate-300 font-extrabold text-slate-900">
                     {{ ficha.paciente || 'Sin especificar' }}
                   </td>
-                  <td class="p-2 border-r border-slate-300 text-slate-700">
+                  <td class="p-1 border-r border-slate-300 text-center text-slate-700 font-mono">
                     {{ formatDate(ficha.fecha_cirugia) }}
                   </td>
-                  <td class="p-2 border-r border-slate-300 text-slate-700">
-                    {{ ficha.medico || '-' }}
-                  </td>
-                  <td class="p-2 border-r border-slate-300 text-slate-700">
-                    {{ ficha.tipo_cirugia || '-' }}
-                  </td>
-                  <td class="p-2 border-r border-slate-300 text-slate-700">
-                    {{ ficha.institucion || '-' }}
-                  </td>
-                  <td class="p-2 border-r border-slate-300 text-slate-700">
+                  <td class="p-1 border-r border-slate-300 text-slate-800 font-semibold">
                     {{ ficha.instrumentador_completado || ficha.instrumentador || '-' }}
                   </td>
-                  <td class="p-2 border-r border-slate-300 text-center">
-                    <span v-if="ficha.es_ok" class="font-bold text-emerald-700">OK</span>
-                    <span v-else-if="ficha.tiene_problemas" class="font-bold text-rose-700">Problemas</span>
-                    <span v-else-if="ficha.necesita_revision" class="font-bold text-amber-700">Revisión</span>
+                  <td class="p-1 border-r border-slate-300 text-slate-700">
+                    <span class="font-semibold text-slate-900">{{ ficha.medico || '-' }}</span>
+                    <span v-if="ficha.tipo_cirugia" class="text-slate-500 ml-1">· {{ ficha.tipo_cirugia }}</span>
+                  </td>
+                  <td class="p-1 border-r border-slate-300 text-slate-600">
+                    {{ ficha.institucion || '-' }}
+                  </td>
+                  <td class="p-1 border-r border-slate-300 text-center">
+                    <span v-if="ficha.es_ok" class="font-extrabold text-emerald-700">OK</span>
+                    <span v-else-if="ficha.tiene_problemas" class="font-extrabold text-rose-700">Problemas</span>
+                    <span v-else-if="ficha.necesita_revision" class="font-extrabold text-amber-700">Revisión</span>
                     <span v-else class="text-slate-400 font-medium">S/C</span>
                   </td>
-                  <td class="p-2 text-slate-600 italic">
+                  <td class="p-1 border-r border-slate-300 text-slate-600 italic">
                     {{ ficha.control_observaciones || getNota(ficha.id) || '-' }}
+                  </td>
+                  <!-- Casilla para Visto Bueno de Pagos -->
+                  <td class="p-1 text-center">
+                    <span class="inline-block w-3 h-3 border border-slate-400 rounded-xs bg-white"></span>
                   </td>
                 </tr>
               </tbody>
             </table>
           </div>
 
-          <!-- Pie de la Hoja de Índice -->
-          <div class="pt-4 border-t border-slate-200 flex justify-between items-center text-[9px] text-slate-500">
-            <span>Gestión IQ · Trazabilidad y Logística Quirúrgica</span>
-            <span>Total: {{ selectedFichas.length }} ficha(s) adjunta(s) en las páginas siguientes</span>
+          <!-- Bloque de Firmas y Entrega para el Área de Pagos -->
+          <div class="pt-3 border-t border-slate-300 grid grid-cols-2 gap-6 text-[8.5px] text-slate-700">
+            <div class="border border-slate-200 rounded-lg p-2 bg-slate-50/50 space-y-3">
+              <p class="font-bold text-slate-900 uppercase tracking-wider text-[8px]">Entregado por (Logística / Operaciones):</p>
+              <div class="space-y-1.5 pt-1">
+                <p>Nombre y Apellido: ___________________________________</p>
+                <p>Firma y Fecha: _______________________________________</p>
+              </div>
+            </div>
+
+            <div class="border border-slate-200 rounded-lg p-2 bg-slate-50/50 space-y-3">
+              <p class="font-bold text-slate-900 uppercase tracking-wider text-[8px]">Recibido por (Administración / Área de Pagos):</p>
+              <div class="space-y-1.5 pt-1">
+                <p>Responsable Receptor: ________________________________</p>
+                <p>Firma de Conformidad: ________________________________</p>
+              </div>
+            </div>
           </div>
+
+          <!-- Pie del Documento -->
+          <div class="flex justify-between items-center text-[7.5px] text-slate-400 pt-0.5">
+            <span>Gestión IQ · Trazabilidad Quirúrgica Districorr</span>
+            <span>Total: {{ selectedFichas.length }} fichas para procesar en pagos</span>
+          </div>
+
         </div>
       </section>
 
