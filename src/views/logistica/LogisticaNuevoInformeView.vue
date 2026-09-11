@@ -514,32 +514,72 @@
                 <svg class="w-4 h-4 text-slate-400 absolute left-3 top-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
               </div>
 
-              <!-- Dropdown de Resultados -->
+              <!-- Dropdown de Resultados Unificado (Entregas Previas + Cirugías) -->
               <div 
-                v-if="showDropdown && (isSearching || searchResults.length > 0)" 
-                class="absolute z-30 left-0 right-0 top-full mt-1 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-xl max-h-60 overflow-y-auto p-1.5 space-y-1"
+                v-if="showDropdown && (isSearching || searchResults.length > 0 || searchEntregaResults.length > 0)" 
+                class="absolute z-30 left-0 right-0 top-full mt-1 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-xl max-h-72 overflow-y-auto p-1.5 space-y-2 animate-fadeIn"
               >
                 <div v-if="isSearching" class="p-3 text-center text-xs text-slate-400">
                   Buscando en la base de datos...
                 </div>
 
                 <template v-else>
-                  <div 
-                    v-for="item in searchResults" 
-                    :key="item.id"
-                    @click="selectCirugia(item)"
-                    class="p-2.5 rounded-lg hover:bg-blue-50 dark:hover:bg-slate-700 cursor-pointer transition-colors space-y-1 border border-transparent hover:border-blue-200 dark:hover:border-slate-600"
-                  >
-                    <div class="flex items-center justify-between text-xs font-bold text-slate-900 dark:text-white">
-                      <span>{{ item.paciente || 'Paciente sin nombre' }}</span>
-                      <span class="font-mono text-[10px] px-1.5 py-0.5 rounded bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 font-bold">
-                        {{ item.id_cirugia }}
-                      </span>
+                  <!-- SECCIÓN 1: Entregas Previas Encontradas (Ideal para Retiros) -->
+                  <div v-if="searchEntregaResults.length > 0" class="space-y-1">
+                    <div class="px-2 py-1 text-[10px] font-black uppercase tracking-wider text-blue-700 dark:text-blue-300 bg-blue-50/80 dark:bg-blue-950/60 rounded flex items-center justify-between">
+                      <span class="flex items-center gap-1">📦 Entregas Previas Registradas</span>
+                      <span class="text-[9px] font-bold">Vincular entrega</span>
                     </div>
-                    <div class="flex gap-2 text-[11px] text-slate-500 dark:text-slate-400 flex-wrap">
-                      <span v-if="item.cliente">Cliente: {{ item.cliente }}</span>
-                      <span v-if="item.medico">Médico: {{ item.medico }}</span>
-                      <span v-if="item.institucion">Lugar: {{ item.institucion }}</span>
+
+                    <div 
+                      v-for="e in searchEntregaResults" 
+                      :key="'ent-' + e.id"
+                      @click="selectEntregaParaRetiro(e)"
+                      class="p-2.5 rounded-lg bg-blue-50/40 hover:bg-blue-100/70 dark:bg-blue-950/30 dark:hover:bg-blue-900/50 cursor-pointer transition-colors space-y-1 border border-blue-200/60 dark:border-blue-800/60"
+                    >
+                      <div class="flex items-center justify-between text-xs font-bold text-slate-900 dark:text-white">
+                        <span>{{ e.paciente_snapshot || 'Paciente sin nombre' }}</span>
+                        <span v-if="e.id_cirugia_snapshot" class="font-mono text-[10px] px-1.5 py-0.5 rounded bg-blue-200 dark:bg-blue-900 text-blue-900 dark:text-blue-100 font-bold">
+                          {{ e.id_cirugia_snapshot }}
+                        </span>
+                      </div>
+                      <div class="flex gap-2 text-[11px] text-slate-600 dark:text-slate-300 flex-wrap">
+                        <span v-if="e.institucion_snapshot">📍 {{ e.institucion_snapshot }}</span>
+                        <span v-if="e.medico_snapshot">👨‍⚕️ {{ e.medico_snapshot }}</span>
+                        <span v-if="e.fecha_informe">📅 {{ formatDate(e.fecha_informe) }}</span>
+                      </div>
+                      <div class="flex items-center justify-between text-[11px] text-blue-800 dark:text-blue-300 pt-0.5 font-semibold">
+                        <span>Entregadas: {{ e.cantidad_cajas_entregadas || e.cantidad_cajas || 1 }} cajas</span>
+                        <span v-if="e.saldo_cajas_pendiente !== null && e.saldo_cajas_pendiente !== undefined" class="text-emerald-700 dark:text-emerald-400 font-bold">
+                          Saldo: {{ e.saldo_cajas_pendiente }} cajas
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- SECCIÓN 2: Cirugías Programadas -->
+                  <div v-if="searchResults.length > 0" class="space-y-1">
+                    <div v-if="searchEntregaResults.length > 0" class="px-2 py-1 text-[10px] font-black uppercase tracking-wider text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-800/80 rounded flex items-center gap-1">
+                      <span>🏥 Cirugías Programadas</span>
+                    </div>
+
+                    <div 
+                      v-for="item in searchResults" 
+                      :key="'cx-' + item.id"
+                      @click="selectCirugia(item)"
+                      class="p-2.5 rounded-lg hover:bg-blue-50 dark:hover:bg-slate-700 cursor-pointer transition-colors space-y-1 border border-transparent hover:border-blue-200 dark:hover:border-slate-600"
+                    >
+                      <div class="flex items-center justify-between text-xs font-bold text-slate-900 dark:text-white">
+                        <span>{{ item.paciente || 'Paciente sin nombre' }}</span>
+                        <span class="font-mono text-[10px] px-1.5 py-0.5 rounded bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 font-bold">
+                          {{ item.id_cirugia }}
+                        </span>
+                      </div>
+                      <div class="flex gap-2 text-[11px] text-slate-500 dark:text-slate-400 flex-wrap">
+                        <span v-if="item.cliente">Cliente: {{ item.cliente }}</span>
+                        <span v-if="item.medico">Médico: {{ item.medico }}</span>
+                        <span v-if="item.institucion">Lugar: {{ item.institucion }}</span>
+                      </div>
                     </div>
                   </div>
                 </template>
@@ -1380,6 +1420,7 @@ const tipoChips = [
 
 const searchQuery = ref('');
 const searchResults = ref([]);
+const searchEntregaResults = ref([]);
 const isSearching = ref(false);
 const showDropdown = ref(false);
 const selectedCirugia = ref(null);
@@ -1412,6 +1453,7 @@ const selectTipoMovimiento = (val) => {
   if (val !== 'Retiro de cajas') {
     builder.movimiento_origen_id = null;
     builder.entrega_origen_info = null;
+    searchEntregaResults.value = [];
   }
   isTipoCollapsed.value = true;
 };
@@ -1436,10 +1478,35 @@ const searchEntregasPendientes = async (query = '') => {
     isSearchingEntregas.value = true;
     const { data, error } = await supabase.rpc('buscar_entregas_para_retiro', {
       p_busqueda: query.trim() || null,
-      p_zona: informe.zona || null
+      p_zona: null // Búsqueda amplia sin restringir por zona para encontrar cualquier entrega
     });
-    if (error) throw error;
-    entregasResults.value = data || [];
+    if (error) {
+      // Fallback directo sobre logistica_informe_movimientos
+      const { data: fbEntregas } = await supabase
+        .from('logistica_informe_movimientos')
+        .select('id, informe_id, id_cirugia_snapshot, paciente_snapshot, medico_snapshot, institucion_snapshot, cantidad_cajas, cantidad_bultos, trazabilidad_activa, created_at, logistica_informes_diarios(fecha, estado, zona)')
+        .eq('tipo_movimiento', 'Entrega de cajas')
+        .ilike('paciente_snapshot', `%${query.trim()}%`)
+        .limit(20);
+
+      entregasResults.value = (fbEntregas || []).map(e => ({
+        id: e.id,
+        informe_id: e.informe_id,
+        fecha_informe: e.logistica_informes_diarios?.fecha,
+        zona_informe: e.logistica_informes_diarios?.zona,
+        id_cirugia_snapshot: e.id_cirugia_snapshot,
+        paciente_snapshot: e.paciente_snapshot,
+        medico_snapshot: e.medico_snapshot,
+        institucion_snapshot: e.institucion_snapshot,
+        cantidad_cajas_entregadas: e.cantidad_cajas,
+        cantidad_bultos_entregados: e.cantidad_bultos,
+        saldo_cajas_pendiente: e.cantidad_cajas,
+        saldo_bultos_pendiente: e.cantidad_bultos,
+        trazabilidad_activa: e.trazabilidad_activa
+      }));
+    } else {
+      entregasResults.value = data || [];
+    }
   } catch (err) {
     console.error('Error al buscar entregas previas:', err);
     toast.error('Error al buscar entregas: ' + (err.message || 'Error inesperado'));
@@ -1463,20 +1530,20 @@ const selectEntregaParaRetiro = (entrega) => {
   builder.movimiento_origen_id = entrega.id;
   builder.entrega_origen_info = {
     id: entrega.id,
-    cantidad_cajas: entrega.cantidad_cajas_entregadas,
-    cantidad_bultos: entrega.cantidad_bultos_entregados,
+    cantidad_cajas: entrega.cantidad_cajas_entregadas || entrega.cantidad_cajas || 1,
+    cantidad_bultos: entrega.cantidad_bultos_entregados || entrega.cantidad_bultos || 0,
     saldo_cajas: entrega.saldo_cajas_pendiente,
     saldo_bultos: entrega.saldo_bultos_pendiente,
     fecha: entrega.fecha_informe,
     trazabilidad_activa: entrega.trazabilidad_activa
   };
 
-  if (entrega.trazabilidad_activa && entrega.saldo_cajas_pendiente !== null) {
+  if (entrega.trazabilidad_activa && entrega.saldo_cajas_pendiente !== null && entrega.saldo_cajas_pendiente !== undefined) {
     builder.cantidad_cajas = entrega.saldo_cajas_pendiente;
     builder.cantidad_bultos = entrega.saldo_bultos_pendiente ?? 1;
   } else {
-    builder.cantidad_cajas = entrega.cantidad_cajas_entregadas || 1;
-    builder.cantidad_bultos = entrega.cantidad_bultos_entregados || 1;
+    builder.cantidad_cajas = entrega.cantidad_cajas_entregadas || entrega.cantidad_cajas || 1;
+    builder.cantidad_bultos = entrega.cantidad_bultos_entregados || entrega.cantidad_bultos || 1;
   }
 
   if (entrega.observaciones_entrega) {
@@ -1484,12 +1551,15 @@ const selectEntregaParaRetiro = (entrega) => {
   }
 
   showBuscarEntregasModal.value = false;
+  showDropdown.value = false;
+  searchEntregaResults.value = [];
   toast.success('Datos de la entrega cargados. Ajustá cantidades de cajas/bultos si el retiro es parcial.');
 };
 
 const clearEntregaOrigen = () => {
   builder.movimiento_origen_id = null;
   builder.entrega_origen_info = null;
+  searchEntregaResults.value = [];
   clearSelectedCirugia();
 };
 
@@ -1497,26 +1567,31 @@ let searchTimeout = null;
 const onSearchInput = () => {
   showDropdown.value = true;
   clearTimeout(searchTimeout);
-  if (!searchQuery.value.trim()) {
+  const query = searchQuery.value.trim();
+  if (!query) {
     searchResults.value = [];
+    searchEntregaResults.value = [];
     return;
   }
 
   searchTimeout = setTimeout(async () => {
     try {
       isSearching.value = true;
-      const { data, error } = await supabase.rpc('buscar_cirugias_logistica', {
-        p_busqueda: searchQuery.value.trim()
-      });
 
-      if (error) {
+      // 1. Buscar cirugías programadas (reportes)
+      const cirugiaPromise = (async () => {
+        try {
+          const { data, error } = await supabase.rpc('buscar_cirugias_logistica', { p_busqueda: query });
+          if (!error && data) return data;
+        } catch (_) {}
+
         const { data: fbData } = await supabase
           .from('reportes')
           .select('id, id_cirugia, cliente, paciente, medico, lugar_cirugia, fecha_cirugia')
-          .or(`paciente.ilike.%${searchQuery.value}%,medico.ilike.%${searchQuery.value}%,cliente.ilike.%${searchQuery.value}%,id_cirugia.ilike.%${searchQuery.value}%`)
+          .or(`paciente.ilike.%${query}%,medico.ilike.%${query}%,cliente.ilike.%${query}%,id_cirugia.ilike.%${query}%`)
           .limit(10);
 
-        searchResults.value = (fbData || []).map(r => ({
+        return (fbData || []).map(r => ({
           id: r.id,
           id_cirugia: r.id_cirugia,
           cliente: r.cliente,
@@ -1525,15 +1600,53 @@ const onSearchInput = () => {
           institucion: r.lugar_cirugia,
           fecha_cirugia: r.fecha_cirugia
         }));
-      } else {
-        searchResults.value = data || [];
-      }
+      })();
+
+      // 2. Si es Retiro de Cajas, buscar concurrentemente entregas previas para retiro
+      const entregasPromise = (async () => {
+        if (builder.tipo_movimiento !== 'Retiro de cajas') return [];
+        try {
+          const { data, error } = await supabase.rpc('buscar_entregas_para_retiro', {
+            p_busqueda: query,
+            p_zona: null
+          });
+          if (!error && data && data.length > 0) return data;
+        } catch (_) {}
+
+        // Fallback directo sobre entregas de movimientos
+        const { data: fbEntregas } = await supabase
+          .from('logistica_informe_movimientos')
+          .select('id, informe_id, id_cirugia_snapshot, paciente_snapshot, medico_snapshot, institucion_snapshot, cantidad_cajas, cantidad_bultos, trazabilidad_activa, created_at, logistica_informes_diarios(fecha, estado, zona)')
+          .eq('tipo_movimiento', 'Entrega de cajas')
+          .or(`paciente_snapshot.ilike.%${query}%,medico_snapshot.ilike.%${query}%,id_cirugia_snapshot.ilike.%${query}%,institucion_snapshot.ilike.%${query}%`)
+          .limit(10);
+
+        return (fbEntregas || []).map(e => ({
+          id: e.id,
+          informe_id: e.informe_id,
+          fecha_informe: e.logistica_informes_diarios?.fecha,
+          zona_informe: e.logistica_informes_diarios?.zona,
+          id_cirugia_snapshot: e.id_cirugia_snapshot,
+          paciente_snapshot: e.paciente_snapshot,
+          medico_snapshot: e.medico_snapshot,
+          institucion_snapshot: e.institucion_snapshot,
+          cantidad_cajas_entregadas: e.cantidad_cajas,
+          cantidad_bultos_entregados: e.cantidad_bultos,
+          saldo_cajas_pendiente: e.cantidad_cajas,
+          saldo_bultos_pendiente: e.cantidad_bultos,
+          trazabilidad_activa: e.trazabilidad_activa
+        }));
+      })();
+
+      const [cxRes, entRes] = await Promise.all([cirugiaPromise, entregasPromise]);
+      searchResults.value = cxRes || [];
+      searchEntregaResults.value = entRes || [];
     } catch (err) {
-      console.error(err);
+      console.error('Error en búsqueda de paciente:', err);
     } finally {
       isSearching.value = false;
     }
-  }, 250);
+  }, 200);
 };
 
 const selectCirugia = (cirugia) => {
