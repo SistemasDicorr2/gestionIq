@@ -90,6 +90,107 @@
     </div>
 
     <template v-else>
+      <!-- Banner de Modo Supervisión para Administradores -->
+      <div 
+        v-if="isAdminViewingOtherDraft" 
+        class="p-4 rounded-2xl border transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xs animate-fadeIn"
+        :class="adminEditEnabled ? 'bg-amber-50 dark:bg-amber-950/40 border-amber-300 dark:border-amber-800' : 'bg-indigo-50/90 dark:bg-indigo-950/40 border-indigo-200 dark:border-indigo-800'"
+      >
+        <div class="flex items-center gap-3">
+          <span class="text-xl">{{ adminEditEnabled ? '⚠️' : '👁️' }}</span>
+          <div>
+            <h3 class="text-xs font-black uppercase tracking-wider" :class="adminEditEnabled ? 'text-amber-900 dark:text-amber-300' : 'text-indigo-900 dark:text-indigo-300'">
+              {{ adminEditEnabled ? 'Edición Administrativa Habilitada' : 'Modo Supervisión (Solo Lectura)' }}
+            </h3>
+            <p class="text-[11px]" :class="adminEditEnabled ? 'text-amber-800/90 dark:text-amber-400' : 'text-indigo-800/90 dark:text-indigo-400'">
+              {{ adminEditEnabled ? `Estás editando el borrador de ${informe.responsable_nombre}. Los cambios se sincronizarán en la base de datos.` : `Visualizando el borrador de ${informe.responsable_nombre}. El autoguardado está desactivado para no interferir con la sesión del operario.` }}
+            </p>
+          </div>
+        </div>
+
+        <button 
+          type="button" 
+          @click="toggleAdminEdit"
+          class="px-3 py-1.5 rounded-xl text-xs font-extrabold border transition-all cursor-pointer shadow-2xs active:scale-95 shrink-0"
+          :class="adminEditEnabled ? 'bg-white dark:bg-slate-900 text-amber-800 border-amber-300 hover:bg-amber-100' : 'bg-indigo-600 hover:bg-indigo-700 text-white border-transparent'"
+        >
+          {{ adminEditEnabled ? 'Volver a Solo Lectura' : 'Habilitar Edición' }}
+        </button>
+      </div>
+
+      <!-- Banner de Conflicto de Versiones / Sesiones Concurrentes -->
+      <div 
+        v-if="hydrationState === 'conflict'" 
+        class="p-4 rounded-2xl bg-rose-50 dark:bg-rose-950/50 border border-rose-300 dark:border-rose-800 shadow-sm space-y-3 animate-fadeIn"
+      >
+        <div class="flex items-start gap-3">
+          <span class="text-2xl">⚠️</span>
+          <div class="space-y-1">
+            <div class="flex items-center gap-2">
+              <h3 class="text-xs font-black uppercase tracking-wider text-rose-900 dark:text-rose-200">
+                Conflicto de Concurrencia de Borrador
+              </h3>
+              <span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-rose-200 dark:bg-rose-900 text-rose-900 dark:text-rose-200">
+                Autoguardado Pausado
+              </span>
+            </div>
+            <p class="text-xs text-rose-800/90 dark:text-rose-300 leading-relaxed">
+              Este borrador fue modificado en otra sesión (Versión del servidor: <strong>v{{ remoteVersion || '?' }}</strong>, Versión local en tu navegador: <strong>v{{ baseVersion || '?' }}</strong>). Para proteger tus datos y evitar sobreescrituras accidentales, el autoguardado está detenido.
+            </p>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap items-center justify-end gap-2 pt-1 border-t border-rose-200/80 dark:border-rose-900/60">
+          <button 
+            type="button" 
+            @click="resolveConflictKeepRemote" 
+            class="px-3.5 py-2 text-xs font-bold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-xl border border-slate-300 dark:border-slate-600 transition-all cursor-pointer shadow-2xs active:scale-95"
+          >
+            Usar versión del Servidor
+          </button>
+          <button 
+            v-if="hasLocalBackupToRestore" 
+            type="button" 
+            @click="resolveConflictUseLocal" 
+            class="px-3.5 py-2 text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 rounded-xl transition-all cursor-pointer shadow-2xs active:scale-95"
+          >
+            Sobrescribir con mi copia Local
+          </button>
+        </div>
+      </div>
+
+      <!-- Banner de Respaldo Local Recuperado Pendiente de Sincronización -->
+      <div 
+        v-if="hasPendingLocalSync && hydrationState === 'ready'" 
+        class="p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-800 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 animate-fadeIn"
+      >
+        <div class="flex items-center gap-3">
+          <span class="text-xl">📁</span>
+          <div class="space-y-0.5">
+            <div class="flex items-center gap-2">
+              <h3 class="text-xs font-black uppercase tracking-wider text-amber-900 dark:text-amber-300">
+                Copia local recuperada
+              </h3>
+              <span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-amber-200 dark:bg-amber-900 text-amber-900 dark:text-amber-200">
+                Pendiente de sincronizar
+              </span>
+            </div>
+            <p class="text-xs text-amber-800/90 dark:text-amber-400">
+              Se recuperaron cambios no sincronizados guardados en este dispositivo (v{{ baseVersion }}).
+            </p>
+          </div>
+        </div>
+
+        <button 
+          type="button" 
+          @click="syncPendingLocalBackupNow" 
+          :disabled="isSaving"
+          class="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white font-extrabold text-xs rounded-xl shadow-2xs transition-all cursor-pointer active:scale-95 disabled:opacity-50 shrink-0"
+        >
+          {{ isSaving ? 'Sincronizando...' : 'Sincronizar ahora' }}
+        </button>
+      </div>
+
       <!-- PANEL DESPLEGABLE DE BORRADORES (SE MUESTRA SOLO AL SOLICITAR CAMBIAR BORRADOR) -->
       <div 
         v-if="showDraftSelector && userDrafts.length > 0" 
@@ -333,9 +434,46 @@
 
           <!-- PASO 2: BÚSQUEDA PACIENTE / CIRUGÍA -->
           <div class="space-y-2 relative">
-            <label class="block text-xs font-bold text-slate-800 dark:text-slate-200">
-              2. Buscar Paciente / Cirugía Asignada *
-            </label>
+            <div class="flex items-center justify-between">
+              <label class="block text-xs font-bold text-slate-800 dark:text-slate-200">
+                2. Buscar Paciente / Cirugía Asignada *
+              </label>
+
+              <!-- ACCIÓN CONTEXTUAL ÚNICA: TRAER DESDE UNA ENTREGA -->
+              <button 
+                v-if="builder.tipo_movimiento === 'Retiro de cajas' && !selectedCirugia" 
+                type="button" 
+                @click="openBuscarEntregasModal" 
+                class="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-extrabold text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/70 hover:bg-blue-100 dark:hover:bg-blue-900 rounded-lg border border-blue-200 dark:border-blue-800 transition-all cursor-pointer active:scale-95 shadow-2xs"
+              >
+                <span>📦 Traer desde una entrega</span>
+              </button>
+            </div>
+
+            <!-- Badge Informativo de Entrega Vinculada -->
+            <div 
+              v-if="builder.entrega_origen_info" 
+              class="p-3 bg-blue-50/90 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 rounded-xl text-xs space-y-1.5 animate-fadeIn"
+            >
+              <div class="flex items-center justify-between">
+                <span class="font-extrabold text-blue-950 dark:text-blue-100 flex items-center gap-1.5">
+                  <span>🔗</span> Vinculado a Entrega Previa
+                </span>
+                <button type="button" @click="clearEntregaOrigen" class="text-[11px] font-bold text-rose-600 hover:underline cursor-pointer">
+                  Desvincular
+                </button>
+              </div>
+              <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-blue-800 dark:text-blue-300">
+                <span>Entregado: <strong>{{ builder.entrega_origen_info.cantidad_cajas }} cajas, {{ builder.entrega_origen_info.cantidad_bultos }} bultos</strong></span>
+                <span v-if="builder.entrega_origen_info.fecha">Fecha: {{ formatDate(builder.entrega_origen_info.fecha) }}</span>
+                <span v-if="builder.entrega_origen_info.trazabilidad_activa && builder.entrega_origen_info.saldo_cajas !== null" class="font-bold text-emerald-700 dark:text-emerald-400">
+                  Saldo disponible: {{ builder.entrega_origen_info.saldo_cajas }} cajas
+                </span>
+                <span v-else class="text-slate-500 dark:text-slate-400 font-medium">
+                  (Antecedente de referencia)
+                </span>
+              </div>
+            </div>
             
             <!-- Cirugía Seleccionada -->
             <div v-if="selectedCirugia" class="flex items-center justify-between p-3.5 bg-blue-50/90 dark:bg-blue-950/60 rounded-xl border border-blue-200 dark:border-blue-800 text-xs">
@@ -747,16 +885,16 @@
               <button 
                 type="button" 
                 @click="saveDraftManual" 
-                :disabled="isSaving || isSending || editingIndex !== null"
+                :disabled="isSaving || isSending || editingIndex !== null || (isAdminViewingOtherDraft && !adminEditEnabled)"
                 class="px-4 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-extrabold text-xs rounded-xl transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-1 cursor-pointer min-h-[44px]"
               >
-                <span>Guardar Borrador</span>
+                <span>{{ (isAdminViewingOtherDraft && !adminEditEnabled) ? 'Supervisión Activa' : 'Guardar Borrador' }}</span>
               </button>
 
               <button 
                 type="button" 
                 @click="openResumenModal" 
-                :disabled="movimientos.length === 0 || isSending || editingIndex !== null"
+                :disabled="movimientos.length === 0 || isSending || editingIndex !== null || (isAdminViewingOtherDraft && !adminEditEnabled)"
                 class="px-5 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs rounded-xl shadow-md transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer active:scale-95 min-h-[44px]"
               >
                 <span>Finalizar Informe</span>
@@ -810,6 +948,72 @@
       @continue="showDraftOptionsModal = false"
       @start-new="startNewCleanReport"
     />
+
+    <!-- Modal Buscar Entregas para Retiro -->
+    <div v-if="showBuscarEntregasModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-xs animate-fadeIn">
+      <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 shadow-2xl max-w-lg w-full border border-slate-200 dark:border-slate-800 space-y-4 max-h-[85vh] flex flex-col">
+        <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+          <div class="space-y-0.5">
+            <h3 class="text-sm font-black text-slate-900 dark:text-white flex items-center gap-1.5">
+              <span>📦</span> Seleccionar Entrega Previa para Retiro
+            </h3>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400">
+              Prioriza por código de cirugía / remito o sanatorio
+            </p>
+          </div>
+          <button type="button" @click="showBuscarEntregasModal = false" class="text-slate-400 hover:text-slate-600 text-lg leading-none cursor-pointer">
+            ✕
+          </button>
+        </div>
+
+        <div class="relative">
+          <input 
+            v-model="entregaSearchQuery" 
+            type="text" 
+            placeholder="Buscar por código CX-, remito, sanatorio o paciente..." 
+            @input="onEntregaSearchInput"
+            class="w-full pl-9 pr-4 py-2.5 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:outline-none dark:text-white"
+          />
+          <svg class="w-4 h-4 text-slate-400 absolute left-3 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        </div>
+
+        <div class="flex-1 overflow-y-auto space-y-2 pr-1 min-h-[180px]">
+          <div v-if="isSearchingEntregas" class="py-8 text-center text-xs text-slate-400 animate-pulse">
+            Buscando entregas registradas...
+          </div>
+          <div v-else-if="entregasResults.length === 0" class="py-8 text-center text-xs text-slate-400">
+            No se encontraron entregas con el criterio ingresado.
+          </div>
+          <div 
+            v-else 
+            v-for="e in entregasResults" 
+            :key="e.id"
+            @click="selectEntregaParaRetiro(e)"
+            class="p-3 bg-slate-50 dark:bg-slate-800/60 hover:bg-blue-50 dark:hover:bg-blue-950/40 border border-slate-200 dark:border-slate-700 hover:border-blue-300 dark:hover:border-blue-700 rounded-xl cursor-pointer transition-all space-y-1.5"
+          >
+            <div class="flex items-center justify-between text-xs font-bold">
+              <span class="text-slate-900 dark:text-white">{{ e.paciente_snapshot || 'Paciente sin nombre' }}</span>
+              <span v-if="e.id_cirugia_snapshot" class="font-mono text-[10px] px-2 py-0.5 rounded bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                {{ e.id_cirugia_snapshot }}
+              </span>
+            </div>
+            <div class="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400">
+              <span>📍 {{ e.institucion_snapshot || 'Lugar no especificado' }}</span>
+              <span>📅 {{ formatDate(e.fecha_informe) }}</span>
+            </div>
+            <div class="flex items-center justify-between text-[11px] pt-1 border-t border-slate-200/60 dark:border-slate-700/60">
+              <span>Entregado: <strong>{{ e.cantidad_cajas_entregadas }} cajas, {{ e.cantidad_bultos_entregados }} bultos</strong></span>
+              <span v-if="e.trazabilidad_activa && e.saldo_cajas_pendiente !== null" class="font-bold text-emerald-700 dark:text-emerald-400">
+                Saldo: {{ e.saldo_cajas_pendiente }} cajas
+              </span>
+              <span v-else class="text-slate-400">
+                (Antecedente)
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -833,6 +1037,56 @@ const showResumenModal = ref(false);
 const showDeleteDraftModal = ref(false);
 const showDraftOptionsModal = ref(false);
 
+// --- ESTADOS DE CONTROL DE CONCURRENCIA, HIDRATACIÓN Y TRAZABILIDAD ---
+const hydrationState = ref('pending'); // 'pending' | 'hydrating' | 'ready' | 'conflict'
+const stateSource = ref('nuevo'); // 'remoto' | 'local_restored' | 'nuevo'
+const baseVersion = ref(1); // Versión base local con la que se están registrando cambios
+const remoteVersion = ref(null); // Última versión confirmada en el servidor
+const conflictData = ref(null); // Datos del conflicto si ocurre
+const hasLocalBackupToRestore = computed(() => !!conflictData.value?.local);
+const hasPendingLocalSync = ref(false); // Indica si hay una copia local restaurada pendiente de subir
+const saveTriggerReason = ref('');
+
+const deletedMovementIds = ref([]); // Cola de IDs eliminados para sincronización explícita
+const showBuscarEntregasModal = ref(false);
+const entregasResults = ref([]);
+const isSearchingEntregas = ref(false);
+const entregaSearchQuery = ref('');
+
+const currentSessionUserId = ref('');
+const currentUserRole = ref('logistica');
+
+const isAdminViewingOtherDraft = computed(() => {
+  return currentUserRole.value === 'admin' && !!informe.responsable_user_id && informe.responsable_user_id !== currentSessionUserId.value;
+});
+const adminEditEnabled = ref(false);
+
+const toggleAdminEdit = () => {
+  adminEditEnabled.value = !adminEditEnabled.value;
+  if (adminEditEnabled.value) {
+    toast.warning('Edición administrativa habilitada. Tené precaución al modificar datos del operario.');
+  } else {
+    toast.info('Modo supervisión activado (Solo Lectura).');
+  }
+};
+
+// Logger estructurado para auditoría temporal de ciclos de vida y guardados
+const logDraftTrace = (action, details = {}) => {
+  const trace = {
+    action,
+    timestamp: new Date().toISOString(),
+    stateSource: stateSource.value,
+    hydrationState: hydrationState.value,
+    informe_id: informe.id,
+    baseVersion: baseVersion.value,
+    remoteVersion: remoteVersion.value,
+    movimientosCount: movimientos.value.length,
+    saveTriggerReason: saveTriggerReason.value,
+    ...details
+  };
+  console.log(`%c[Logística Draft Trace] ${action}`, 'color: #0284c7; font-weight: bold;', trace);
+};
+
 const enviadoExistente = ref(null);
 const movimientoFilter = ref('todos');
 
@@ -848,9 +1102,11 @@ const autoSaveStatus = ref('idle'); // 'idle' | 'saving' | 'saved' | 'error'
 const lastSaveTime = ref('');
 
 const autoSaveMessage = computed(() => {
+  if (hydrationState.value === 'conflict') return 'Pausado por Conflicto';
+  if (isAdminViewingOtherDraft.value && !adminEditEnabled.value) return 'Supervisión (Solo Lectura)';
   if (autoSaveStatus.value === 'saving') return 'Sincronizando borrador...';
   if (autoSaveStatus.value === 'saved') return lastSaveTime.value ? `Autoguardado ${lastSaveTime.value}` : 'Autoguardado OK';
-  if (autoSaveStatus.value === 'error') return 'Error de autoguardado';
+  if (autoSaveStatus.value === 'error') return 'Error de sincronización';
   return 'Borrador sin cambios';
 });
 
@@ -863,7 +1119,8 @@ const informe = reactive({
   responsable_nombre: '',
   zona: 'Formosa',
   observacion_general: '',
-  estado: 'borrador'
+  estado: 'borrador',
+  version: 1
 });
 
 const movimientos = ref([]);
@@ -898,7 +1155,7 @@ const moveMovementUp = (idx) => {
   movimientos.value[idx - 1] = temp;
   if (editingIndex.value === idx) editingIndex.value = idx - 1;
   else if (editingIndex.value === idx - 1) editingIndex.value = idx;
-  scheduleAutoSave();
+  scheduleAutoSave(1200, 'reorder_movement');
 };
 
 const moveMovementDown = (idx) => {
@@ -908,7 +1165,7 @@ const moveMovementDown = (idx) => {
   movimientos.value[idx + 1] = temp;
   if (editingIndex.value === idx) editingIndex.value = idx + 1;
   else if (editingIndex.value === idx + 1) editingIndex.value = idx;
-  scheduleAutoSave();
+  scheduleAutoSave(1200, 'reorder_movement');
 };
 
 const filteredMovimientos = computed(() => {
@@ -929,17 +1186,22 @@ const filterCounts = computed(() => {
   return { total, entregas, retiros, incidencias, otros };
 });
 
-// --- RESPALDO Y RECUPERACIÓN LOCAL (localStorage) ---
+// --- RESPALDO Y RECUPERACIÓN LOCAL (localStorage) CON BASE_VERSION Y DELETED_IDS ---
 const saveLocalBackup = () => {
-  if (loading.value || !informe.responsable_user_id || informe.estado === 'enviado') return;
+  if (loading.value || hydrationState.value !== 'ready' || !informe.responsable_user_id || informe.estado === 'enviado') return;
+  if (isAdminViewingOtherDraft.value && !adminEditEnabled.value) return;
   try {
     const backupKey = `logistica_draft_backup_${informe.responsable_user_id}_${informe.fecha}`;
     const payload = {
+      informe_id: informe.id,
+      baseVersion: baseVersion.value,
       informe: { ...informe },
       movimientos: movimientos.value,
+      deletedMovementIds: deletedMovementIds.value,
       updatedAt: Date.now()
     };
     localStorage.setItem(backupKey, JSON.stringify(payload));
+    logDraftTrace('saveLocalBackup', { baseVersion: baseVersion.value, count: movimientos.value.length, deletedCount: deletedMovementIds.value.length });
   } catch (err) {
     console.warn('No se pudo escribir el respaldo local:', err);
   }
@@ -948,53 +1210,98 @@ const saveLocalBackup = () => {
 const clearLocalBackup = () => {
   if (!informe.responsable_user_id || !informe.fecha) return;
   try {
+    deletedMovementIds.value = [];
     const backupKey = `logistica_draft_backup_${informe.responsable_user_id}_${informe.fecha}`;
     localStorage.removeItem(backupKey);
+    logDraftTrace('clearLocalBackup', { key: backupKey });
   } catch (err) {
     console.warn('Error al limpiar respaldo local:', err);
   }
 };
 
-const restoreLocalBackupIfNewer = (dbMovsCount, dbUpdatedAt) => {
-  if (!informe.responsable_user_id || !informe.fecha) return false;
+const readLocalBackup = (userId, fecha) => {
+  if (!userId || !fecha) return null;
   try {
-    const backupKey = `logistica_draft_backup_${informe.responsable_user_id}_${informe.fecha}`;
+    const backupKey = `logistica_draft_backup_${userId}_${fecha}`;
     const raw = localStorage.getItem(backupKey);
-    if (!raw) return false;
+    if (!raw) return null;
     const backup = JSON.parse(raw);
-    if (!backup || !Array.isArray(backup.movimientos)) return false;
-
-    const dbTime = dbUpdatedAt ? new Date(dbUpdatedAt).getTime() : 0;
-    if (backup.movimientos.length > dbMovsCount || (backup.updatedAt && backup.updatedAt > dbTime + 3000)) {
-      movimientos.value = backup.movimientos;
-      if (backup.informe?.observacion_general) {
-        informe.observacion_general = backup.informe.observacion_general;
-      }
-      autoSaveStatus.value = 'saved';
-      lastSaveTime.value = 'Dispositivo';
-      toast.info('📁 Se restauraron datos no sincronizados desde tu dispositivo.', { timeout: 3500 });
-      return true;
+    if (!backup || !Array.isArray(backup.movimientos)) return null;
+    if (backup.deletedMovementIds && Array.isArray(backup.deletedMovementIds)) {
+      deletedMovementIds.value = [...backup.deletedMovementIds];
     }
+    return backup;
   } catch (err) {
-    console.warn('Error al verificar respaldo local:', err);
+    console.warn('Error al leer respaldo local:', err);
+    return null;
   }
-  return false;
+};
+
+// Resoluciones de conflicto por el usuario
+const resolveConflictKeepRemote = () => {
+  baseVersion.value = remoteVersion.value || 1;
+  conflictData.value = null;
+  hydrationState.value = 'ready';
+  autoSaveStatus.value = 'saved';
+  saveLocalBackup();
+  toast.success('Se adoptó la versión del servidor.');
+  logDraftTrace('conflict_resolved_keep_remote', { baseVersion: baseVersion.value });
+};
+
+const resolveConflictUseLocal = async () => {
+  if (!conflictData.value?.local) return;
+  const loc = conflictData.value.local;
+  movimientos.value = loc.movimientos || [];
+  if (loc.informe?.observacion_general) {
+    informe.observacion_general = loc.informe.observacion_general;
+  }
+  conflictData.value = null;
+  hydrationState.value = 'ready';
+  toast.info('Sincronizando copia local al servidor...');
+  logDraftTrace('conflict_resolved_use_local_force');
+  await saveDraftInternal(false, 'conflict_override_local', true);
+};
+
+const syncPendingLocalBackupNow = async () => {
+  clearTimeout(autoSaveTimer);
+  logDraftTrace('manual_sync_local_restored_requested', { baseVersion: baseVersion.value });
+  const success = await saveDraftInternal(false, 'manual_sync_local_restored');
+  if (success) {
+    hasPendingLocalSync.value = false;
+    stateSource.value = 'remoto';
+  }
 };
 
 onBeforeRouteLeave(async (to, from, next) => {
-  if (informe.estado === 'enviado' || isSending.value || isDeletingDraft.value) {
+  if (informe.estado === 'enviado' || isSending.value || isDeletingDraft.value || (isAdminViewingOtherDraft.value && !adminEditEnabled.value)) {
     next();
     return;
   }
 
+  // 1. Guardar siempre respaldo local de inmediato antes de cualquier delay o red
   saveLocalBackup();
   clearTimeout(autoSaveTimer);
 
-  if (movimientos.value.length > 0 || informe.observacion_general.trim()) {
+  // 2. Si hay un guardado en curso, esperar un máximo de 1000ms
+  let waitCount = 0;
+  while (isSavingInternal && waitCount < 10) {
+    await new Promise(r => setTimeout(r, 100));
+    waitCount++;
+  }
+
+  // 3. Si está listo y tiene contenido, sincronizar con límite estricto de 2000ms
+  if (hydrationState.value === 'ready' && (movimientos.value.length > 0 || informe.observacion_general.trim())) {
     try {
-      await saveDraftInternal(true);
+      const savePromise = saveDraftInternal(true, 'route_leave');
+      const timeoutPromise = new Promise(resolve => setTimeout(() => resolve('timeout'), 2000));
+      const res = await Promise.race([savePromise, timeoutPromise]);
+      if (res === 'timeout') {
+        console.warn('onBeforeRouteLeave superó el límite de 2000ms. La navegación continúa conservando el respaldo local intacto.');
+        saveLocalBackup();
+      }
     } catch (err) {
-      console.warn('Sincronización en salida de ruta:', err);
+      console.warn('Sincronización en salida de ruta falló o fue interrumpida:', err);
+      saveLocalBackup();
     }
   }
   next();
@@ -1003,9 +1310,11 @@ onBeforeRouteLeave(async (to, from, next) => {
 const handleVisibilityChange = () => {
   if (document.visibilityState === 'hidden') {
     saveLocalBackup();
-    if (!loading.value && informe.responsable_user_id && informe.estado !== 'enviado') {
-      if (movimientos.value.length > 0 || informe.observacion_general.trim()) {
-        saveDraftInternal(true);
+    if (!loading.value && hydrationState.value === 'ready' && informe.responsable_user_id && informe.estado !== 'enviado') {
+      if (!isAdminViewingOtherDraft.value || adminEditEnabled.value) {
+        if (movimientos.value.length > 0 || informe.observacion_general.trim()) {
+          saveDraftInternal(true, 'visibility_hidden');
+        }
       }
     }
   }
@@ -1020,32 +1329,39 @@ let isSavingInternal = false;
 let hasPendingSave = false;
 let autoSaveTimer = null;
 
-const scheduleAutoSave = (delayMs = 1200) => {
-  if (loading.value || isSending.value || isDeletingDraft.value || informe.estado === 'enviado' || !informe.responsable_user_id) return;
+const scheduleAutoSave = (delayMs = 1200, reason = 'user_mutation') => {
+  // Guardia estricta: Autoguardado completamente desactivado durante hidratación o conflicto
+  if (loading.value || hydrationState.value !== 'ready' || isSending.value || isDeletingDraft.value || informe.estado === 'enviado' || !informe.responsable_user_id) return;
+  if (isAdminViewingOtherDraft.value && !adminEditEnabled.value) return;
 
   // 1. Respaldo local ultra-rápido en dispositivo (0ms)
   saveLocalBackup();
 
-  // No programar autoguardado a la nube de un informe nuevo limpio sin movimientos ni observaciones
+  // No programar autoguardado de un informe nuevo limpio sin movimientos ni observaciones
   if (!informe.id && movimientos.value.length === 0 && !informe.observacion_general.trim()) return;
 
   autoSaveStatus.value = 'saving';
+  saveTriggerReason.value = reason;
   clearTimeout(autoSaveTimer);
   autoSaveTimer = setTimeout(async () => {
-    await saveDraftInternal(true);
+    await saveDraftInternal(true, reason);
   }, delayMs);
 };
 
-// Watcher defensivo profundo para autoguardado ante cualquier cambio de estado
+// Watcher reactivo profundo: solo se activa tras finalizar la hidratación
 watch(
-  () => [informe.fecha, informe.zona, informe.observacion_general, movimientos.value.length],
+  [
+    () => informe.fecha,
+    () => informe.zona,
+    () => informe.observacion_general,
+    () => movimientos.value
+  ],
   ([newFecha], [oldFecha]) => {
-    if (newFecha !== oldFecha) {
+    if (hydrationState.value !== 'ready') return;
+    if (newFecha && oldFecha && newFecha !== oldFecha) {
       checkEnviadoForDate(newFecha);
     }
-    if (!loading.value) {
-      scheduleAutoSave();
-    }
+    scheduleAutoSave(1200, 'watcher_mutation');
   },
   { deep: true }
 );
@@ -1085,13 +1401,96 @@ const builder = reactive({
   cantidad_bultos: 1,
   observaciones: '',
   tiene_pendiente: false,
-  detalle_pendiente: ''
+  detalle_pendiente: '',
+  movimiento_origen_id: null,
+  entrega_origen_info: null
 });
 
 const selectTipoMovimiento = (val) => {
   builder.tipo_movimiento = val;
   builder.detalle_incidencia_o_gestion = '';
+  if (val !== 'Retiro de cajas') {
+    builder.movimiento_origen_id = null;
+    builder.entrega_origen_info = null;
+  }
   isTipoCollapsed.value = true;
+};
+
+// --- MÉTODOS DE BÚSQUEDA Y VINCULACIÓN ENTREGA -> RETIRO ---
+let entregaSearchTimeout = null;
+const openBuscarEntregasModal = () => {
+  showBuscarEntregasModal.value = true;
+  entregaSearchQuery.value = '';
+  searchEntregasPendientes('');
+};
+
+const onEntregaSearchInput = () => {
+  clearTimeout(entregaSearchTimeout);
+  entregaSearchTimeout = setTimeout(() => {
+    searchEntregasPendientes(entregaSearchQuery.value);
+  }, 250);
+};
+
+const searchEntregasPendientes = async (query = '') => {
+  try {
+    isSearchingEntregas.value = true;
+    const { data, error } = await supabase.rpc('buscar_entregas_para_retiro', {
+      p_busqueda: query.trim() || null,
+      p_zona: informe.zona || null
+    });
+    if (error) throw error;
+    entregasResults.value = data || [];
+  } catch (err) {
+    console.error('Error al buscar entregas previas:', err);
+    toast.error('Error al buscar entregas: ' + (err.message || 'Error inesperado'));
+  } finally {
+    isSearchingEntregas.value = false;
+  }
+};
+
+const selectEntregaParaRetiro = (entrega) => {
+  if (!entrega) return;
+  selectedCirugia.value = {
+    id: entrega.reporte_id || null,
+    id_cirugia: entrega.id_cirugia_snapshot || 'CX-ENTREGA',
+    paciente: entrega.paciente_snapshot || '',
+    medico: entrega.medico_snapshot || '',
+    institucion: entrega.institucion_snapshot || '',
+    cliente: entrega.cliente_snapshot || '',
+    fecha_cirugia: entrega.fecha_cirugia_snapshot || null
+  };
+
+  builder.movimiento_origen_id = entrega.id;
+  builder.entrega_origen_info = {
+    id: entrega.id,
+    cantidad_cajas: entrega.cantidad_cajas_entregadas,
+    cantidad_bultos: entrega.cantidad_bultos_entregados,
+    saldo_cajas: entrega.saldo_cajas_pendiente,
+    saldo_bultos: entrega.saldo_bultos_pendiente,
+    fecha: entrega.fecha_informe,
+    trazabilidad_activa: entrega.trazabilidad_activa
+  };
+
+  if (entrega.trazabilidad_activa && entrega.saldo_cajas_pendiente !== null) {
+    builder.cantidad_cajas = entrega.saldo_cajas_pendiente;
+    builder.cantidad_bultos = entrega.saldo_bultos_pendiente ?? 1;
+  } else {
+    builder.cantidad_cajas = entrega.cantidad_cajas_entregadas || 1;
+    builder.cantidad_bultos = entrega.cantidad_bultos_entregados || 1;
+  }
+
+  if (entrega.observaciones_entrega) {
+    builder.observaciones = `[Retiro de entrega: ${entrega.observaciones_entrega}]`;
+  }
+
+  showBuscarEntregasModal.value = false;
+  toast.success('Datos de la entrega cargados. Ajustá cantidades de cajas/bultos si el retiro es parcial.');
+};
+
+const clearEntregaOrigen = () => {
+  builder.movimiento_origen_id = null;
+  builder.entrega_origen_info = null;
+  clearSelectedCirugia();
 };
 
 let searchTimeout = null;
@@ -1231,8 +1630,15 @@ const addMovementToList = () => {
       : `[${builder.tipo_movimiento}: ${builder.detalle_incidencia_o_gestion.trim()}]`;
   }
 
+  const movementId = (editingIndex.value !== null && movimientos.value[editingIndex.value]?.id)
+    ? movimientos.value[editingIndex.value].id
+    : crypto.randomUUID();
+
   const movItem = {
-    tempId: editingIndex.value !== null ? movimientos.value[editingIndex.value].tempId : Date.now() + Math.random(),
+    id: movementId,
+    tempId: movementId,
+    movimiento_origen_id: (builder.tipo_movimiento === 'Retiro de cajas' && builder.movimiento_origen_id) ? builder.movimiento_origen_id : null,
+    entrega_origen_info: (builder.tipo_movimiento === 'Retiro de cajas' && builder.entrega_origen_info) ? { ...builder.entrega_origen_info } : null,
     tipo_movimiento: builder.tipo_movimiento,
     reporte_id: reporteIdVal,
     id_cirugia_snapshot: idCirugiaSnapVal,
@@ -1269,8 +1675,10 @@ const addMovementToList = () => {
   builder.trasladado_a_central = false;
   builder.tiene_pendiente = false;
   builder.detalle_pendiente = '';
+  builder.movimiento_origen_id = null;
+  builder.entrega_origen_info = null;
 
-  scheduleAutoSave();
+  scheduleAutoSave(1200, 'add_movement');
 };
 
 const editMovement = (index) => {
@@ -1284,6 +1692,8 @@ const editMovement = (index) => {
   builder.observaciones = mov.observaciones || '';
   builder.tiene_pendiente = !!mov.tiene_pendiente;
   builder.detalle_pendiente = mov.detalle_pendiente || '';
+  builder.movimiento_origen_id = mov.movimiento_origen_id || null;
+  builder.entrega_origen_info = mov.entrega_origen_info || null;
 
   if (mov.reporte_id || mov.id_cirugia_snapshot) {
     selectedCirugia.value = {
@@ -1310,14 +1720,23 @@ const cancelEditMovement = () => {
   builder.detalle_incidencia_o_gestion = '';
   builder.tiene_pendiente = false;
   builder.detalle_pendiente = '';
+  builder.movimiento_origen_id = null;
+  builder.entrega_origen_info = null;
 };
 
 const deleteMovimiento = (index) => {
   if (editingIndex.value === index) {
     cancelEditMovement();
   }
+  const mov = movimientos.value[index];
+  if (mov && mov.id) {
+    if (!deletedMovementIds.value.includes(mov.id)) {
+      deletedMovementIds.value.push(mov.id);
+    }
+  }
   movimientos.value.splice(index, 1);
-  scheduleAutoSave();
+  saveLocalBackup();
+  scheduleAutoSave(1200, 'delete_movement');
 };
 
 const summaryStats = computed(() => ({
@@ -1336,7 +1755,7 @@ const fetchUserDrafts = async (userId) => {
   try {
     const { data: rawDrafts } = await supabase
       .from('logistica_informes_diarios')
-      .select('id, fecha, zona, observacion_general, created_at, updated_at')
+      .select('id, fecha, zona, observacion_general, version, created_at, updated_at')
       .eq('responsable_user_id', userId)
       .eq('estado', 'borrador')
       .order('created_at', { ascending: false });
@@ -1346,7 +1765,6 @@ const fetchUserDrafts = async (userId) => {
       return;
     }
 
-    // Filtrar borradores activos que contengan movimientos o que tengan observación no vacía
     const activeDrafts = [];
     for (const draft of rawDrafts) {
       const { count } = await supabase
@@ -1379,6 +1797,9 @@ const loadDraftData = async (draftId) => {
   if (error || !existing) throw new Error('No se encontró el borrador especificado.');
 
   Object.assign(informe, existing);
+  informe.version = existing.version || 1;
+  baseVersion.value = existing.version || 1;
+  remoteVersion.value = existing.version || 1;
 
   const { data: movs } = await supabase
     .from('logistica_informe_movimientos')
@@ -1386,17 +1807,27 @@ const loadDraftData = async (draftId) => {
     .eq('informe_id', existing.id)
     .order('orden', { ascending: true });
 
-  movimientos.value = (movs || []).map(m => ({ ...m, tempId: m.id }));
+  movimientos.value = (movs || []).map(m => ({
+    ...m,
+    id: m.id,
+    tempId: m.id
+  }));
   autoSaveStatus.value = 'saved';
+  stateSource.value = 'remoto';
+  hasPendingLocalSync.value = false;
+  hydrationState.value = 'ready';
 
-  // Respaldo local y recuperación de emergencias
-  restoreLocalBackupIfNewer(movimientos.value.length, existing.updated_at || existing.created_at);
+  if (!isAdminViewingOtherDraft.value || adminEditEnabled.value) {
+    saveLocalBackup();
+  }
+  logDraftTrace('loadDraftData_completed', { version: baseVersion.value, count: movimientos.value.length });
 };
 
 const switchDraft = async (draftId) => {
   if (informe.id === draftId) return;
   try {
     loading.value = true;
+    hydrationState.value = 'hydrating';
     editingIndex.value = null;
     await loadDraftData(draftId);
     toast.info('Borrador cargado correctamente.');
@@ -1417,13 +1848,22 @@ const startNewCleanReport = () => {
   informe.observacion_general = '';
   informe.zona = 'Formosa';
   informe.estado = 'borrador';
+  informe.version = 1;
+  baseVersion.value = 1;
+  remoteVersion.value = null;
   movimientos.value = [];
+  deletedMovementIds.value = [];
   autoSaveStatus.value = 'idle';
+  stateSource.value = 'nuevo';
+  hasPendingLocalSync.value = false;
+  hydrationState.value = 'ready';
+  conflictData.value = null;
   showDraftSelector.value = false;
   showDraftOptionsModal.value = false;
   clearSelectedCirugia();
   showManualForm.value = false;
   clearTimeout(autoSaveTimer);
+  logDraftTrace('startNewCleanReport');
 };
 
 const deleteCurrentDraft = async () => {
@@ -1434,27 +1874,25 @@ const deleteCurrentDraft = async () => {
     clearLocalBackup();
     const draftIdToDelete = informe.id;
 
-    // 1. Eliminar movimientos asociados (Permitido por Grant DELETE en movimientos)
-    await supabase.from('logistica_informe_movimientos').delete().eq('informe_id', draftIdToDelete);
+    // 1. Descarte atómico mediante RPC sin requerir escrituras directas sobre tablas
+    const { data: rpcRes, error: rpcErr } = await supabase.rpc('descartar_borrador_informe_logistica', {
+      p_informe_id: draftIdToDelete
+    });
 
-    // 2. Intentar eliminar registro principal del borrador
-    const { error: deleteErr } = await supabase.from('logistica_informes_diarios').delete().eq('id', draftIdToDelete);
-    if (deleteErr) {
-      console.warn('DELETE no permitido por RLS/Grant en logistica_informes_diarios, limpiando borrador:', deleteErr);
-      const { error: updateErr } = await supabase
-        .from('logistica_informes_diarios')
-        .update({ observacion_general: null })
-        .eq('id', draftIdToDelete);
-      if (updateErr) console.warn('Error en fallback update:', updateErr);
+    if (rpcErr) {
+      // Fallback transitorio si la RPC no estuviese aún disponible en cache
+      console.warn('RPC descartar_borrador_informe_logistica no disponible, intentando fallback:', rpcErr);
+      await supabase.from('logistica_informe_movimientos').delete().eq('informe_id', draftIdToDelete);
+      await supabase.from('logistica_informes_diarios').delete().eq('id', draftIdToDelete);
     }
 
     toast.success('Borrador descartado correctamente.');
     showDeleteDraftModal.value = false;
     
-    // 3. Actualizar la lista de borradores activos del usuario (filtrará el borrador descartado)
+    // 2. Actualizar la lista de borradores activos del usuario
     await fetchUserDrafts(informe.responsable_user_id);
     
-    // 4. Cambiar al siguiente borrador válido o iniciar un reporte nuevo y limpio
+    // 3. Cambiar al siguiente borrador válido o iniciar un reporte nuevo y limpio
     if (userDrafts.value.length > 0) {
       await loadDraftData(userDrafts.value[0].id);
     } else {
@@ -1467,14 +1905,126 @@ const deleteCurrentDraft = async () => {
   }
 };
 
+// Reconciliación de identidad para respaldos antiguos con el servidor
+const isValidUUID = (val) => {
+  return typeof val === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(val);
+};
+
+// Reconciliación estricta de identidad para respaldos antiguos
+// Reglas:
+// 1. Conserva incondicionalmente todo UUID válido existente.
+// 2. Prohibido vincular por índice de array.
+// 3. Prohibido vincular por coincidencia de campos ausentes/nulos iguales.
+// 4. Prohibido vincular únicamente por (paciente + tipo).
+// 5. Permite vincular ítems sin UUID únicamente si existe un identificador estructural fuerte e inequívoco (reporte_id o id_cirugia_snapshot no genérico con coincidencia 1 a 1 única).
+// 6. Si existe ambigüedad (movimientos repetidos, sin código o IDs dudosos), marca hasAmbiguousIdentity = true, protege los datos en memoria y pausa la sincronización para resolución del usuario.
+const reconcileLocalWithRemoteMovements = (localMovs = [], remoteMovs = []) => {
+  const resolved = [];
+  const remoteUsedIds = new Set();
+  const localSeenIds = new Set();
+  let hasAmbiguity = false;
+
+  for (let i = 0; i < localMovs.length; i++) {
+    const loc = localMovs[i];
+
+    // Regla 1: Conservar UUID válido existente verificando ausencia de duplicación interna
+    if (isValidUUID(loc.id)) {
+      if (localSeenIds.has(loc.id)) {
+        // UUID duplicado detectado en el respaldo local: generar nuevo UUID y marcar ambigüedad
+        hasAmbiguity = true;
+        const freshId = crypto.randomUUID();
+        resolved.push({
+          ...loc,
+          id: freshId,
+          tempId: freshId
+        });
+        continue;
+      }
+      localSeenIds.add(loc.id);
+      const matchedRemote = remoteMovs.find(r => r.id === loc.id);
+      if (matchedRemote) {
+        remoteUsedIds.add(matchedRemote.id);
+      }
+      resolved.push({
+        ...loc,
+        id: loc.id,
+        tempId: loc.id
+      });
+      continue;
+    }
+
+    // Si no tiene UUID válido:
+    // Buscar si existe un identificador estructural fuerte e inequívoco
+    const hasUniqueReporteId = loc.reporte_id && Number(loc.reporte_id) > 0;
+    const hasUniqueCirugiaCode = loc.id_cirugia_snapshot && 
+      typeof loc.id_cirugia_snapshot === 'string' && 
+      loc.id_cirugia_snapshot.trim() !== '' && 
+      loc.id_cirugia_snapshot !== 'CX-MANUAL' && 
+      loc.id_cirugia_snapshot !== 'CX-ENTREGA';
+
+    let matchedRemote = null;
+
+    if (hasUniqueReporteId || hasUniqueCirugiaCode) {
+      const candidates = remoteMovs.filter(r => {
+        if (remoteUsedIds.has(r.id)) return false;
+        if (hasUniqueReporteId && r.reporte_id && Number(r.reporte_id) === Number(loc.reporte_id)) return true;
+        if (hasUniqueCirugiaCode && r.id_cirugia_snapshot && r.id_cirugia_snapshot.trim() === loc.id_cirugia_snapshot.trim()) return true;
+        return false;
+      });
+
+      const localDuplicates = localMovs.filter(l => {
+        if (hasUniqueReporteId && l.reporte_id && Number(l.reporte_id) === Number(loc.reporte_id)) return true;
+        if (hasUniqueCirugiaCode && l.id_cirugia_snapshot && l.id_cirugia_snapshot.trim() === loc.id_cirugia_snapshot.trim()) return true;
+        return false;
+      });
+
+      // Solo vincular si la correspondencia es 1 a 1 inequívoca y del mismo tipo de movimiento
+      if (candidates.length === 1 && localDuplicates.length === 1 && candidates[0].tipo_movimiento === loc.tipo_movimiento) {
+        matchedRemote = candidates[0];
+      } else if (candidates.length > 1 || localDuplicates.length > 1) {
+        // Múltiples movimientos distintos de una misma cirugía: NO vincular a ciegas, proteger y pausar
+        hasAmbiguity = true;
+      }
+    }
+
+    if (matchedRemote) {
+      remoteUsedIds.add(matchedRemote.id);
+      resolved.push({
+        ...loc,
+        id: matchedRemote.id,
+        tempId: matchedRemote.id
+      });
+    } else {
+      if (remoteMovs.length > 0) {
+        hasAmbiguity = true;
+      }
+      const stableId = crypto.randomUUID();
+      resolved.push({
+        ...loc,
+        id: stableId,
+        tempId: stableId
+      });
+    }
+  }
+
+  return {
+    movimientos: resolved,
+    hasAmbiguousIdentity: hasAmbiguity
+  };
+};
+
 onMounted(async () => {
   try {
     loading.value = true;
+    hydrationState.value = 'hydrating';
     window.addEventListener('visibilitychange', handleVisibilityChange);
     window.addEventListener('beforeunload', handleBeforeUnload);
 
     const { data: { session } } = await supabase.auth.getSession();
     if (!session?.user) return;
+
+    currentSessionUserId.value = session.user.id;
+    currentUserRole.value = session.user.app_metadata?.role || session.user.user_metadata?.role || 'logistica';
 
     informe.responsable_user_id = session.user.id;
     informe.responsable_nombre = session.user.user_metadata?.nombre_completo 
@@ -1491,13 +2041,169 @@ onMounted(async () => {
     const targetInformeId = route.params.id || route.query.id;
     const isExplicitNew = route.query.mode === 'new';
 
+    let draftToLoadId = null;
     if (targetInformeId) {
-      await loadDraftData(targetInformeId);
+      draftToLoadId = targetInformeId;
     } else if (!isExplicitNew && userDrafts.value.length > 0) {
-      await loadDraftData(userDrafts.value[0].id);
+      draftToLoadId = userDrafts.value[0].id;
+    }
+
+    let remoteDraft = null;
+    let remoteMovs = [];
+
+    if (draftToLoadId) {
+      const { data: existing, error } = await supabase
+        .from('logistica_informes_diarios')
+        .select('*')
+        .eq('id', draftToLoadId)
+        .maybeSingle();
+
+      if (existing && !error) {
+        remoteDraft = existing;
+        const { data: movs } = await supabase
+          .from('logistica_informe_movimientos')
+          .select('*')
+          .eq('informe_id', existing.id)
+          .order('orden', { ascending: true });
+        remoteMovs = (movs || []).map(m => ({ ...m, tempId: m.id, id: m.id }));
+      }
+    }
+
+    // Leer respaldo local
+    const localBackup = (!isAdminViewingOtherDraft.value && !isExplicitNew)
+      ? readLocalBackup(session.user.id, remoteDraft?.fecha || informe.fecha)
+      : null;
+
+    logDraftTrace('hydration_inspecting', {
+      hasRemote: !!remoteDraft,
+      remoteVersion: remoteDraft?.version,
+      hasLocal: !!localBackup,
+      localBaseVersion: localBackup?.baseVersion
+    });
+
+    // --- ÁRBOL DE DECISIÓN DE HIDRATACIÓN ---
+    if (!remoteDraft && !localBackup) {
+      // Caso 1: Nuevo borrador limpio
+      stateSource.value = 'nuevo';
+      baseVersion.value = 1;
+      remoteVersion.value = null;
+      hydrationState.value = 'ready';
+      logDraftTrace('hydration_resolved', { resolution: 'nuevo_limpio' });
+    } else if (remoteDraft && !localBackup) {
+      // Caso 2: Solo servidor remoto
+      Object.assign(informe, remoteDraft);
+      informe.version = remoteDraft.version || 1;
+      baseVersion.value = remoteDraft.version || 1;
+      remoteVersion.value = remoteDraft.version || 1;
+      movimientos.value = remoteMovs;
+      stateSource.value = 'remoto';
+      autoSaveStatus.value = 'saved';
+      hydrationState.value = 'ready';
+      saveLocalBackup();
+      logDraftTrace('hydration_resolved', { resolution: 'solo_remoto' });
+    } else if (!remoteDraft && localBackup) {
+      // Caso 3: Respaldo local huérfano sin registro en servidor
+      if (localBackup.movimientos.length > 0 || localBackup.informe?.observacion_general?.trim()) {
+        const reconResult = reconcileLocalWithRemoteMovements(localBackup.movimientos, []);
+        movimientos.value = reconResult.movimientos;
+        if (localBackup.informe?.observacion_general) {
+          informe.observacion_general = localBackup.informe.observacion_general;
+        }
+        if (localBackup.informe?.zona) {
+          informe.zona = localBackup.informe.zona;
+        }
+        baseVersion.value = localBackup.baseVersion || 1;
+        remoteVersion.value = null;
+        stateSource.value = 'local_restored';
+        hasPendingLocalSync.value = true;
+        autoSaveStatus.value = 'saved';
+        lastSaveTime.value = 'Dispositivo';
+        hydrationState.value = 'ready';
+        toast.info('📁 Se restauró tu borrador no sincronizado desde este dispositivo.', { timeout: 3500 });
+        logDraftTrace('hydration_resolved', { resolution: 'local_huerfano' });
+      } else {
+        stateSource.value = 'nuevo';
+        hasPendingLocalSync.value = false;
+        baseVersion.value = 1;
+        remoteVersion.value = null;
+        hydrationState.value = 'ready';
+      }
+    } else {
+      // Caso 4: Existen ambos (Remoto y Local)
+      const remVer = remoteDraft.version || 1;
+      const locVer = localBackup.baseVersion || 1;
+      remoteVersion.value = remVer;
+
+      if (locVer === remVer) {
+        const dbTime = remoteDraft.updated_at ? new Date(remoteDraft.updated_at).getTime() : 0;
+        const locTime = localBackup.updatedAt || 0;
+
+        if (locTime > dbTime + 3000 && localBackup.movimientos.length >= remoteMovs.length) {
+          Object.assign(informe, remoteDraft);
+          const reconResult = reconcileLocalWithRemoteMovements(localBackup.movimientos, remoteMovs);
+          movimientos.value = reconResult.movimientos;
+
+          if (localBackup.informe?.observacion_general) {
+            informe.observacion_general = localBackup.informe.observacion_general;
+          }
+          baseVersion.value = locVer;
+          stateSource.value = 'local_restored';
+
+          if (reconResult.hasAmbiguousIdentity) {
+            hasPendingLocalSync.value = false;
+            hydrationState.value = 'conflict';
+            conflictData.value = { local: localBackup, remote: remoteDraft, reason: 'ambiguous_identity' };
+            autoSaveStatus.value = 'error';
+            toast.warning('⚠️ Identidad de movimientos ambigua en el respaldo local. Autoguardado pausado para evitar duplicados.', { timeout: 8000 });
+            logDraftTrace('hydration_resolved', { resolution: 'local_ambiguous_paused' });
+          } else {
+            hasPendingLocalSync.value = true;
+            autoSaveStatus.value = 'saved';
+            lastSaveTime.value = 'Dispositivo';
+            hydrationState.value = 'ready';
+            toast.info('📁 Se restauraron cambios locales pendientes de sincronizar.', { timeout: 3500 });
+            logDraftTrace('hydration_resolved', { resolution: 'local_mismo_version_mas_reciente' });
+          }
+        } else {
+          Object.assign(informe, remoteDraft);
+          movimientos.value = remoteMovs;
+          baseVersion.value = remVer;
+          stateSource.value = 'remoto';
+          hasPendingLocalSync.value = false;
+          autoSaveStatus.value = 'saved';
+          hydrationState.value = 'ready';
+          saveLocalBackup();
+          logDraftTrace('hydration_resolved', { resolution: 'remoto_prevalece' });
+        }
+      } else {
+        // Conflicto de versiones: el servidor avanzó o el local quedó en una versión vieja
+        Object.assign(informe, remoteDraft);
+        movimientos.value = remoteMovs;
+        baseVersion.value = locVer;
+        remoteVersion.value = remVer;
+        stateSource.value = 'remoto';
+        hasPendingLocalSync.value = false;
+        hydrationState.value = 'conflict';
+        conflictData.value = { local: localBackup, remote: remoteDraft };
+        logDraftTrace('hydration_conflict_detected', { localVersion: locVer, remoteVersion: remVer });
+      }
     }
 
     await checkEnviadoForDate(informe.fecha);
+
+    // Si se restauró una copia local más reciente y no hay conflicto de ambigüedad, realizar intento controlado
+    if (stateSource.value === 'local_restored' && hydrationState.value === 'ready' && (!isAdminViewingOtherDraft.value || adminEditEnabled.value)) {
+      logDraftTrace('hydration_controlled_sync_attempt', { baseVersion: baseVersion.value });
+      try {
+        const synced = await saveDraftInternal(true, 'hydration_local_restored_sync');
+        if (synced) {
+          hasPendingLocalSync.value = false;
+          stateSource.value = 'remoto';
+        }
+      } catch (syncErr) {
+        console.warn('Intento controlado de sincronización post-hidratación:', syncErr);
+      }
+    }
   } catch (err) {
     toast.error('Error al inicializar el informe: ' + err.message);
   } finally {
@@ -1512,9 +2218,25 @@ onUnmounted(() => {
   saveLocalBackup();
 });
 
-// Guardado seguro con bloqueo mutex, cola de reintento y respaldo local
-const saveDraftInternal = async (isSilent = false) => {
+// Guardado seguro con bloqueo mutex, cola de reintento, respaldo local y RPC atómica
+const saveDraftInternal = async (isSilent = false, reason = 'user_mutation', forceOverride = false) => {
+  // Guardia estricta: No guardar si la hidratación no está lista o si hay conflicto activo
+  if (hydrationState.value !== 'ready') {
+    logDraftTrace('saveDraftInternal_aborted_not_ready', { hydrationState: hydrationState.value, reason });
+    if (!isSilent) {
+      toast.warning('Hay un conflicto de versión o sincronización pendiente. Resolvé el estado antes de guardar.');
+    }
+    return false;
+  }
   if (!informe.responsable_user_id) return false;
+  if (isAdminViewingOtherDraft.value && !adminEditEnabled.value) return false;
+
+  // Nunca sincronizar un estado vacío inicial sin ID, sin movimientos y sin observaciones
+  if (!informe.id && movimientos.value.length === 0 && !informe.observacion_general.trim()) {
+    logDraftTrace('saveDraftInternal_aborted_empty_state', { reason });
+    return false;
+  }
+
   if (isSavingInternal) {
     hasPendingSave = true;
     return true;
@@ -1524,117 +2246,113 @@ const saveDraftInternal = async (isSilent = false) => {
     isSavingInternal = true;
     isSaving.value = true;
     autoSaveStatus.value = 'saving';
+    saveTriggerReason.value = reason;
     saveLocalBackup();
 
-    if (informe.id) {
-      const { error } = await supabase
-        .from('logistica_informes_diarios')
-        .update({
-          fecha: informe.fecha,
-          zona: informe.zona,
-          observacion_general: informe.observacion_general
-        })
-        .eq('id', informe.id);
+    logDraftTrace('saveDraftInternal_invoking_rpc', {
+      reason,
+      p_expected_version: forceOverride ? null : baseVersion.value,
+      movimientosCount: movimientos.value.length
+    });
 
-      if (error) throw error;
-    } else {
-      // Prevenir violación de constraint único (fecha, responsable_user_id)
-      const { data: existingForDate } = await supabase
-        .from('logistica_informes_diarios')
-        .select('id, estado')
-        .eq('responsable_user_id', informe.responsable_user_id)
-        .eq('fecha', informe.fecha)
-        .maybeSingle();
+    const validDbTipos = [
+      'Entrega de cajas',
+      'Retiro de cajas',
+      'Esterilización',
+      'Devolución de implantes',
+      'Entrega o retiro de documentación',
+      'Traslado interno',
+      'Traslado a Central',
+      'Otra gestión',
+      'Incidencia'
+    ];
 
-      if (existingForDate && existingForDate.estado === 'borrador') {
-        informe.id = existingForDate.id;
-        const { error: updateErr } = await supabase
-          .from('logistica_informes_diarios')
-          .update({
-            fecha: informe.fecha,
-            zona: informe.zona,
-            observacion_general: informe.observacion_general
-          })
-          .eq('id', informe.id);
+    const deletedIdsToSend = [...deletedMovementIds.value];
 
-        if (updateErr) throw updateErr;
-      } else {
-        const { data, error } = await supabase
-          .from('logistica_informes_diarios')
-          .insert({
-            fecha: informe.fecha,
-            responsable_user_id: informe.responsable_user_id,
-            responsable_nombre: informe.responsable_nombre,
-            zona: informe.zona,
-            observacion_general: informe.observacion_general,
-            estado: 'borrador'
-          })
-          .select()
-          .single();
+    const movimientosPayload = movimientos.value.map((m, idx) => {
+      let rawTipo = m.tipo_movimiento || 'Otra gestión';
+      let safeTipo = validDbTipos.includes(rawTipo) ? rawTipo : 'Otra gestión';
+      let safeObs = m.observaciones || '';
 
-        if (error) throw error;
-        informe.id = data.id;
+      if (!validDbTipos.includes(rawTipo)) {
+        if (!safeObs.includes(`[${rawTipo}]`)) {
+          safeObs = safeObs ? `[${rawTipo}] ${safeObs}` : `[${rawTipo}]`;
+        }
       }
-    }
 
-    if (informe.id) {
-      const { error: deleteErr } = await supabase.from('logistica_informe_movimientos').delete().eq('informe_id', informe.id);
-      if (deleteErr) throw deleteErr;
+      const stableId = (m.id && typeof m.id === 'string' && m.id.length > 20) ? m.id : crypto.randomUUID();
+      m.id = stableId;
+      m.tempId = stableId;
 
-      if (movimientos.value.length > 0) {
-        const validDbTipos = [
-          'Entrega de cajas',
-          'Retiro de cajas',
-          'Devolución de implantes',
-          'Entrega o retiro de documentación',
-          'Traslado interno',
-          'Otra gestión',
-          'Incidencia'
-        ];
+      return {
+        id: stableId,
+        movimiento_origen_id: (m.tipo_movimiento === 'Retiro de cajas' && m.movimiento_origen_id) ? m.movimiento_origen_id : null,
+        reporte_id: (m.reporte_id && String(m.reporte_id).trim() !== '') ? m.reporte_id : null,
+        id_cirugia_snapshot: (m.id_cirugia_snapshot && String(m.id_cirugia_snapshot).trim() !== '') ? m.id_cirugia_snapshot : null,
+        cliente_snapshot: (m.cliente_snapshot && String(m.cliente_snapshot).trim() !== '') ? m.cliente_snapshot : null,
+        tipo_movimiento: safeTipo,
+        paciente_snapshot: m.paciente_snapshot || 'Sin especificar',
+        medico_snapshot: (m.medico_snapshot && String(m.medico_snapshot).trim() !== '') ? m.medico_snapshot : null,
+        institucion_snapshot: (m.institucion_snapshot && String(m.institucion_snapshot).trim() !== '') ? m.institucion_snapshot : null,
+        fecha_cirugia_snapshot: (m.fecha_cirugia_snapshot && String(m.fecha_cirugia_snapshot).trim() !== '') ? m.fecha_cirugia_snapshot : null,
+        destino: m.destino || m.paciente_snapshot || 'Central',
+        cantidad_cajas: Number(m.cantidad_cajas) || 0,
+        cantidad_bultos: Number(m.cantidad_bultos) || 0,
+        resultado: m.resultado || null,
+        tiene_pendiente: !!m.tiene_pendiente,
+        cantidad_pendiente: m.tiene_pendiente ? 1 : 0,
+        detalle_pendiente: m.tiene_pendiente ? (m.detalle_pendiente || null) : null,
+        motivo_pendiente: m.motivo_pendiente || null,
+        observaciones: safeObs || null,
+        orden: idx
+      };
+    });
 
-        const payload = movimientos.value.map((m, idx) => {
-          let rawTipo = m.tipo_movimiento || 'Otra gestión';
-          let safeTipo = validDbTipos.includes(rawTipo) ? rawTipo : 'Otra gestión';
-          let safeObs = m.observaciones || '';
+    const { data: result, error: rpcErr } = await supabase.rpc('guardar_borrador_informe_logistica', {
+      p_informe_id: informe.id || null,
+      p_fecha: informe.fecha,
+      p_responsable_user_id: informe.responsable_user_id,
+      p_responsable_nombre: informe.responsable_nombre,
+      p_zona: informe.zona || 'Formosa',
+      p_observacion_general: informe.observacion_general || null,
+      p_movimientos: movimientosPayload,
+      p_expected_version: forceOverride ? null : (baseVersion.value || null),
+      p_deleted_movement_ids: deletedIdsToSend
+    });
 
-          if (!validDbTipos.includes(rawTipo)) {
-            if (!safeObs.includes(`[${rawTipo}]`)) {
-              safeObs = safeObs ? `[${rawTipo}] ${safeObs}` : `[${rawTipo}]`;
-            }
-          }
+    if (rpcErr) throw rpcErr;
 
-          return {
-            informe_id: informe.id,
-            reporte_id: (m.reporte_id && String(m.reporte_id).trim() !== '') ? m.reporte_id : null,
-            id_cirugia_snapshot: (m.id_cirugia_snapshot && String(m.id_cirugia_snapshot).trim() !== '') ? m.id_cirugia_snapshot : null,
-            cliente_snapshot: (m.cliente_snapshot && String(m.cliente_snapshot).trim() !== '') ? m.cliente_snapshot : null,
-            tipo_movimiento: safeTipo,
-            paciente_snapshot: m.paciente_snapshot || null,
-            medico_snapshot: (m.medico_snapshot && String(m.medico_snapshot).trim() !== '') ? m.medico_snapshot : null,
-            institucion_snapshot: (m.institucion_snapshot && String(m.institucion_snapshot).trim() !== '') ? m.institucion_snapshot : null,
-            fecha_cirugia_snapshot: (m.fecha_cirugia_snapshot && String(m.fecha_cirugia_snapshot).trim() !== '') ? m.fecha_cirugia_snapshot : null,
-            destino: m.destino || m.paciente_snapshot || 'Central',
-            cantidad_cajas: Number(m.cantidad_cajas) || 0,
-            cantidad_bultos: Number(m.cantidad_bultos) || 0,
-            resultado: m.resultado || null,
-            tiene_pendiente: !!m.tiene_pendiente,
-            cantidad_pendiente: m.tiene_pendiente ? 1 : 0,
-            detalle_pendiente: m.tiene_pendiente ? (m.detalle_pendiente || null) : null,
-            motivo_pendiente: m.motivo_pendiente || null,
-            observaciones: safeObs || null,
-            orden: idx
-          };
-        });
-
-        const { error: insertErr } = await supabase.from('logistica_informe_movimientos').insert(payload);
-        if (insertErr) throw insertErr;
+    if (result) {
+      if (result.conflict) {
+        autoSaveStatus.value = 'error';
+        hydrationState.value = 'conflict';
+        remoteVersion.value = result.current_version;
+        conflictData.value = { remoteVersion: result.current_version };
+        toast.error(`⚠️ Conflicto: Este borrador fue modificado en otra sesión (Servidor en v${result.current_version}). Autoguardado pausado.`, { timeout: 7000 });
+        logDraftTrace('saveDraftInternal_conflict_returned', { current_version: result.current_version });
+        return false;
       }
+      if (!result.success) {
+        throw new Error(result.error || 'Error al guardar borrador');
+      }
+
+      informe.id = result.informe_id;
+      informe.version = result.version;
+      baseVersion.value = result.version;
+      remoteVersion.value = result.version;
+      hasPendingLocalSync.value = false;
+      stateSource.value = 'remoto';
+
+      // Retirar de la cola ÚNICAMENTE los IDs confirmados en esta solicitud
+      deletedMovementIds.value = deletedMovementIds.value.filter(id => !deletedIdsToSend.includes(id));
+      saveLocalBackup();
+      logDraftTrace('saveDraftInternal_success', { version: result.version });
     }
 
     await fetchUserDrafts(informe.responsable_user_id);
 
     if (isSilent) {
-      toast.info('✓ Borrador autoguardado', { timeout: 2000 });
+      toast.info(`✓ Borrador sincronizado (v${baseVersion.value || 1})`, { timeout: 1500 });
     } else {
       toast.success('Borrador guardado exitosamente.');
     }
@@ -1647,23 +2365,32 @@ const saveDraftInternal = async (isSilent = false) => {
       toast.error('Error al guardar borrador: ' + (err.message || 'Error inesperado'));
     }
     autoSaveStatus.value = 'error';
+    logDraftTrace('saveDraftInternal_error', { error: err.message });
     return false;
   } finally {
     isSaving.value = false;
     isSavingInternal = false;
     if (hasPendingSave) {
       hasPendingSave = false;
-      scheduleAutoSave(300);
+      scheduleAutoSave(300, 'pending_queue');
     }
   }
 };
 
 const saveDraftManual = async () => {
   clearTimeout(autoSaveTimer);
-  await saveDraftInternal(false);
+  if (hydrationState.value === 'conflict') {
+    toast.error('No se puede guardar: hay un conflicto de concurrencia pendiente de resolver.');
+    return;
+  }
+  await saveDraftInternal(false, 'manual_click');
 };
 
 const openResumenModal = async () => {
+  if (hydrationState.value === 'conflict') {
+    toast.error('Hay un conflicto de concurrencia activo. Seleccioná una versión antes de continuar.');
+    return;
+  }
   if (editingIndex.value !== null) {
     toast.error(`Estás editando el movimiento #${editingIndex.value + 1}. Guardá o cancelá los cambios antes de finalizar.`);
     return;
@@ -1679,7 +2406,7 @@ const openResumenModal = async () => {
   }
 
   clearTimeout(autoSaveTimer);
-  const saved = await saveDraftInternal(true);
+  const saved = await saveDraftInternal(true, 'open_resumen_modal');
   if (saved && informe.id) {
     showResumenModal.value = true;
   }
@@ -1691,7 +2418,7 @@ const submitInformeFinal = async () => {
     isSending.value = true;
 
     // Asegurar que la versión más reciente quede guardada
-    const saved = await saveDraftInternal(true);
+    const saved = await saveDraftInternal(true, 'submit_final_check');
     if (!saved || !informe.id) {
       throw new Error('No se pudo verificar el borrador en la base de datos antes de enviar.');
     }

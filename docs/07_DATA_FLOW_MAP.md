@@ -54,7 +54,7 @@ Flujo de Informe Diario de Logística (Nuevo Módulo Independiente 2026)
     - Si la cirugía no figura en Gestión IQ, permite la carga manual de los datos de la cirugía.
     - Selección táctil por chips de tipo de gestión (Entrega, Retiro, Devolución, Incidencia, Otra gestión, Documentación, Traslado).
     - Campo de detalle dinámico obligatorio para Incidencia y Otra gestión.
-    - Guardado de borrador e inserción de ítems en `logistica_informe_movimientos` guardando snapshots textuales de cirugías para garantizar inmutabilidad.
+    - Guardado de borrador atómico y transaccional mediante la RPC `guardar_borrador_informe_logistica` con control de versiones (`version`), respaldo local instantáneo (`localStorage`), recuperación automática de huérfanos y modo supervisión de solo lectura para administradores.
     - Envío definitivo llamando a la RPC transaccional `enviar_informe_logistica(p_informe_id)`.
 
 2.  LogisticaHistorialView.vue & LogisticaInformesView.vue:
