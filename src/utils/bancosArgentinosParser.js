@@ -4,6 +4,62 @@
  * Monto, Fecha, Concepto y Banco Emisor/Receptor.
  */
 
+/**
+ * Parsea un importe monetario desde string o número, reconociendo formatos argentinos y estándar.
+ * Evita multiplicaciones erróneas de decimales (ej: 1500.50 no debe transformarse en 150050).
+ * @param {string|number} rawVal 
+ * @returns {number}
+ */
+export function parseImporteMonetario(rawVal) {
+  if (rawVal === null || rawVal === undefined || rawVal === '') return 0;
+  if (typeof rawVal === 'number') {
+    return isNaN(rawVal) ? 0 : rawVal;
+  }
+  let str = String(rawVal).trim();
+  str = str.replace(/[$€£¥\s\u00A0a-zA-Z]/g, '');
+  if (!str) return 0;
+
+  const isNegative = str.startsWith('-') || str.endsWith('-');
+  str = str.replace(/-/g, '');
+
+  if (str.includes(',') && str.includes('.')) {
+    const lastComma = str.lastIndexOf(',');
+    const lastDot = str.lastIndexOf('.');
+    if (lastComma > lastDot) {
+      // Formato latino/argentino: 1.234.567,89
+      str = str.replace(/\./g, '').replace(',', '.');
+    } else {
+      // Formato internacional: 1,234,567.89
+      str = str.replace(/,/g, '');
+    }
+  } else if (str.includes(',')) {
+    const parts = str.split(',');
+    if (parts.length === 2 && parts[1].length <= 2) {
+      // Decimal con coma: 1234,56
+      str = str.replace(',', '.');
+    } else {
+      // Separador de miles: 1,234,567
+      str = str.replace(/,/g, '');
+    }
+  } else if (str.includes('.')) {
+    const parts = str.split('.');
+    if (parts.length === 2 && parts[1].length <= 2) {
+      // Decimal con punto: 1234.56 (preservar decimal)
+      // str ya es '1234.56'
+    } else if (parts.length > 2) {
+      // Múltiples puntos como miles: 1.234.567
+      str = str.replace(/\./g, '');
+    } else if (parts.length === 2 && parts[1].length === 3) {
+      // Punto de miles: 15.000
+      str = str.replace(/\./g, '');
+    }
+  }
+
+  const num = parseFloat(str);
+  if (isNaN(num)) return 0;
+  return isNegative ? -num : num;
+}
+
 // Normalización de texto y limpieza de caracteres invisibles / non-breaking spaces
 function cleanText(text) {
   if (!text) return '';
@@ -78,8 +134,7 @@ export function parsearComprobanteBancarioTexto(rawText) {
   for (const reg of montoPatterns) {
     const match = text.match(reg);
     if (match) {
-      const cleanVal = match[1].replace(/\s/g, '').replace(/\./g, '').replace(',', '.');
-      const parsed = parseFloat(cleanVal);
+      const parsed = parseImporteMonetario(match[1]);
       if (!isNaN(parsed) && parsed > 0) {
         monto_transferido = parsed;
         break;

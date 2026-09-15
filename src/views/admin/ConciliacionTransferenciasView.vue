@@ -1443,7 +1443,7 @@ import { supabase } from '../../services/supabase';
 import { useToast } from 'vue-toastification';
 import { useOrdenDePagoPDF } from '../../composables/useOrdenDePagoPDF';
 import { formatDate } from '../../utils/reportMapper';
-import { parsearComprobanteBancarioTexto, findExactSurgerySubset } from '../../utils/bancosArgentinosParser';
+import { parsearComprobanteBancarioTexto, findExactSurgerySubset, parseImporteMonetario } from '../../utils/bancosArgentinosParser';
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
@@ -2121,6 +2121,8 @@ const confirmarLoteAutomatico = async () => {
 
       const transferMonto = Number(fileItem.extractedData?.monto_transferido) || 0;
       const fileCirugias = reconciliationsMap.value[fileItem.id]?.cirugias || [];
+      const cirugiasTotal = fileCirugias.reduce((sum, c) => sum + (Number(c.parte1) || 0), 0);
+      const montoFinalGeneral = cirugiasTotal > 0 ? cirugiasTotal : transferMonto;
 
       // Subida automática y segura del comprobante bancario a R2
       let objectKey = fileItem.uploadedObjectKey || null;
@@ -2137,13 +2139,13 @@ const confirmarLoteAutomatico = async () => {
       }
 
       const ordenDePago = {
-        monto_total_general: transferMonto,
+        monto_total_general: montoFinalGeneral,
         comprobante_object_key: objectKey,
         notas: `[CONCILIACIÓN DE PAGOS EN LOTE] ${fileItem.extractedData?.destinatario_nombre || ''} - Ref: ${fileItem.extractedData?.numero_operacion || 'Comprobante Conciliado'}`,
         pagos: [
           {
             instrumentador_dni: fileItem.matchedInstrumentador.dni,
-            monto_total_instrumentador: transferMonto,
+            monto_total_instrumentador: montoFinalGeneral,
             cirugias: fileCirugias.map(c => ({
               id: c.id,
               monto: Number(c.parte1) || 0
@@ -3040,14 +3042,7 @@ const handleExcelUpload = (e) => {
           rawVal = row[colMap.debe];
         }
 
-        let monto = 0;
-        if (typeof rawVal === 'number') {
-          monto = rawVal;
-        } else if (typeof rawVal === 'string' && rawVal.trim() !== '') {
-          const cleanVal = rawVal.trim().replace(/\./g, '').replace(',', '.');
-          const parsed = parseFloat(cleanVal);
-          if (!isNaN(parsed)) monto = parsed;
-        }
+        const monto = parseImporteMonetario(rawVal);
 
         if (rawNombre && monto > 0) {
           const key = rawCuit || rawNombre.toLowerCase();

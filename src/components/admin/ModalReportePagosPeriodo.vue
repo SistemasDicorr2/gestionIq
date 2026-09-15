@@ -308,10 +308,10 @@
 
                   <div class="text-right">
                     <div class="font-black text-slate-900 dark:text-white">
-                      {{ formatCurrency(orden.monto_total_general || orden.monto_total || 0) }}
+                      {{ formatCurrency(getMontoOrdenVisual(orden)) }}
                     </div>
                     <div class="text-[10px] text-slate-400">
-                      {{ orden.cantidad_cirugias || orden.cirugias?.length || 1 }} cx
+                      {{ getCantidadCirugiasVisual(orden) }} cx
                     </div>
                   </div>
                 </div>
@@ -613,15 +613,77 @@ const matchingOrders = computed(() => {
   return list;
 });
 
+const orderDetailsCache = ref(new Map());
+
+const fetchOrderDetailsIfNeeded = async (ordersList) => {
+  if (!ordersList || ordersList.length === 0) return;
+  const missingOrders = ordersList.filter(o => o?.id && !orderDetailsCache.value.has(o.id));
+  if (missingOrders.length === 0) return;
+
+  await Promise.all(missingOrders.map(async (o) => {
+    try {
+      const { data, error } = await supabase.rpc('obtener_detalle_orden_pago', { p_orden_id: o.id });
+      if (!error && data) {
+        orderDetailsCache.value.set(o.id, data);
+      }
+    } catch (e) {
+      console.warn(`No se pudo precargar detalle de orden #${o.id}:`, e);
+    }
+  }));
+};
+
+watch(matchingOrders, (newOrders) => {
+  if (newOrders && newOrders.length > 0) {
+    fetchOrderDetailsIfNeeded(newOrders);
+  }
+}, { immediate: true });
+
+const getMontoOrdenVisual = (orden) => {
+  if (!orden) return 0;
+  if (selectedDni.value === 'todos') {
+    return parseFloat(orden.monto_total_general || orden.monto_total || 0) || 0;
+  }
+  const cached = orderDetailsCache.value.get(orden.id);
+  if (cached) {
+    const pagos = cached.pagos_instrumentadores || cached.pagos || [];
+    const pago = pagos.find(p => String(p.instrumentador_dni).trim() === String(selectedDni.value).trim());
+    if (pago) {
+      return parseFloat(pago.monto_total_instrumentador || pago.monto_total || 0) || 0;
+    }
+  }
+  const dnis = parseDnis(orden.instrumentadores_dnis);
+  if (dnis.length <= 1) {
+    return parseFloat(orden.monto_total_general || orden.monto_total || 0) || 0;
+  }
+  return (parseFloat(orden.monto_total_general || orden.monto_total || 0) || 0) / dnis.length;
+};
+
+const getCantidadCirugiasVisual = (orden) => {
+  if (!orden) return 0;
+  if (selectedDni.value === 'todos') {
+    return orden.cantidad_cirugias || orden.cirugias?.length || 1;
+  }
+  const cached = orderDetailsCache.value.get(orden.id);
+  if (cached) {
+    const pagos = cached.pagos_instrumentadores || cached.pagos || [];
+    const pago = pagos.find(p => String(p.instrumentador_dni).trim() === String(selectedDni.value).trim());
+    if (pago) {
+      const cir = pago.cirugias || pago.reportes || [];
+      return cir.length > 0 ? cir.length : 1;
+    }
+  }
+  return orden.cantidad_cirugias || orden.cirugias?.length || 1;
+};
+
 const totalCirugiasCount = computed(() => {
   return matchingOrders.value.reduce((acc, o) => {
-    return acc + (o.cantidad_cirugias || o.cirugias?.length || 1);
+    return acc + getCantidadCirugiasVisual(o);
   }, 0);
 });
 
 const totalMontoLiquidado = computed(() => {
   return matchingOrders.value.reduce((sum, o) => {
-    const val = parseFloat(o.monto_total_general || o.monto_total || 0);
+    const val = getMontoOrdenVisual(o);
     return sum + (!isNaN(val) ? val : 0);
   }, 0);
 });
@@ -673,7 +735,11 @@ const ejecutarDescargaPDF = async () => {
 
   try {
     const orderDetailsPromises = matchingOrders.value.map(async (o) => {
+      if (orderDetailsCache.value.has(o.id)) {
+        return orderDetailsCache.value.get(o.id);
+      }
       const { data } = await supabase.rpc('obtener_detalle_orden_pago', { p_orden_id: o.id });
+      if (data) orderDetailsCache.value.set(o.id, data);
       return data || o;
     });
 
@@ -713,7 +779,11 @@ const enviarReportePorEmail = async () => {
   try {
     // 1. Obtener detalles de órdenes
     const orderDetailsPromises = matchingOrders.value.map(async (o) => {
+      if (orderDetailsCache.value.has(o.id)) {
+        return orderDetailsCache.value.get(o.id);
+      }
       const { data } = await supabase.rpc('obtener_detalle_orden_pago', { p_orden_id: o.id });
+      if (data) orderDetailsCache.value.set(o.id, data);
       return data || o;
     });
     const detailedOrders = await Promise.all(orderDetailsPromises);
