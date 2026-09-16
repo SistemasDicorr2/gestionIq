@@ -56,8 +56,8 @@
 
         <!-- BOTÓN ÚNICO CANÓNICO "+ CARGAR NUEVA CONCILIACIÓN" -->
         <div v-if="activeMainTab === 'conciliador'" class="relative" ref="nuevaConciliacionMenuRef">
-          <input type="file" ref="excelInputRef" @change="handleExcelUpload" accept=".xlsx,.xls,.csv" class="hidden" />
-          <input type="file" ref="fileInputRef" @change="handleFileInputChange" multiple accept="image/*,application/pdf" class="hidden" />
+          <input type="file" ref="excelInputRef" @change="handleExcelUpload" accept=".xlsx,.xls,.csv,.xlsb,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/csv" class="hidden" />
+          <input type="file" ref="fileInputRef" @change="handleFileInputChange" multiple accept="image/*,application/pdf,.xlsx,.xls,.csv" class="hidden" />
 
           <div class="flex items-center gap-0.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-xs transition-all active:scale-95">
             <button 
@@ -893,16 +893,26 @@
         </div>
 
         <!-- ALERTA DE DUPLICIDAD EN MODAL -->
-        <div v-if="activeFile.isDuplicate" class="p-2.5 bg-rose-100 dark:bg-rose-955/90 border-2 border-rose-400 dark:border-rose-700 text-rose-900 dark:text-rose-100 rounded-xl text-xs font-bold flex items-center gap-2 shadow-2xs shrink-0">
-          <span class="text-base shrink-0">⚠️</span>
-          <div class="space-y-0.5">
-            <span class="font-black text-rose-900 dark:text-rose-100 block">
-              ¡Atención! Comprobante detectado como duplicado
-            </span>
-            <span class="text-[11px] opacity-90 block">
-              {{ activeFile.duplicateOrderInfo?.tipo === 'mismo_lote' ? 'Este mismo número de operación ya existe en otro archivo del lote actual.' : `Este comprobante ya fue utilizado en la Orden de Pago #${activeFile.duplicateOrderInfo?.id} el ${formatDate(activeFile.duplicateOrderInfo?.fecha)}.` }}
-            </span>
+        <div v-if="activeFile.isDuplicate" class="p-2.5 bg-rose-100 dark:bg-rose-955/90 border-2 border-rose-400 dark:border-rose-700 text-rose-900 dark:text-rose-100 rounded-xl text-xs font-bold flex flex-col sm:flex-row sm:items-center justify-between gap-2 shadow-2xs shrink-0">
+          <div class="flex items-center gap-2">
+            <span class="text-base shrink-0">⚠️</span>
+            <div class="space-y-0.5">
+              <span class="font-black text-rose-900 dark:text-rose-100 block">
+                ¡Atención! Comprobante detectado como duplicado
+              </span>
+              <span class="text-[11px] opacity-90 block">
+                {{ activeFile.duplicateOrderInfo?.tipo === 'mismo_lote' ? 'Este mismo número de operación ya existe en otro archivo del lote actual.' : `Este comprobante ya fue utilizado en la Orden de Pago #${activeFile.duplicateOrderInfo?.id} el ${formatDate(activeFile.duplicateOrderInfo?.fecha)}.` }}
+              </span>
+            </div>
           </div>
+          <button 
+            type="button" 
+            @click="allowDuplicateProcessing(activeFile)" 
+            class="px-2.5 py-1 bg-white dark:bg-slate-900 text-rose-800 dark:text-rose-200 border border-rose-300 dark:border-rose-700 rounded-lg text-[10px] font-black hover:bg-rose-50 dark:hover:bg-slate-800 cursor-pointer shrink-0 active:scale-95 shadow-2xs self-end sm:self-auto"
+            title="Omitir alerta si se trata de una prueba previa o re-conciliación intencional"
+          >
+            ✓ Ignorar y Permitir
+          </button>
         </div>
 
         <!-- Barra de Saldos Compacta Slim (1 sola fila) -->
@@ -2412,6 +2422,10 @@ const normalizeOpCode = (code) => {
 // VERIFICAR DUPLICADOS EN HISTORIAL DE ÓRDENES Y LOTE ACTIVO
 const checkDuplicateTransfer = (fileItem) => {
   if (!fileItem) return;
+  if (fileItem.overrideDuplicate) {
+    fileItem.isDuplicate = false;
+    return;
+  }
   fileItem.isDuplicate = false;
   fileItem.duplicateOrderInfo = null;
 
@@ -2483,6 +2497,25 @@ const checkDuplicateTransfer = (fileItem) => {
     };
     return;
   }
+};
+
+const allowDuplicateProcessing = (fileItem) => {
+  if (!fileItem) return;
+  fileItem.isDuplicate = false;
+  fileItem.overrideDuplicate = true;
+  toast.info(`Alerta de duplicado omitida para ${fileItem.name}.`);
+  saveDraftDebounced();
+};
+
+const allowAllDuplicatesProcessing = () => {
+  files.value.forEach(f => {
+    if (f.isDuplicate) {
+      f.isDuplicate = false;
+      f.overrideDuplicate = true;
+    }
+  });
+  toast.info("Se han omitido las alertas de duplicados para todos los comprobantes.");
+  saveDraftDebounced();
 };
 
 // CONVERTIR BASE64 A BLOB
@@ -2940,10 +2973,22 @@ const fetchInitialData = async () => {
   }
 };
 
-const handleExcelUpload = (e) => {
-  const file = e.target.files?.[0];
-  if (!file) return;
+const isExcelFile = (file) => {
+  if (!file) return false;
+  const name = (file.name || '').toLowerCase();
+  return (
+    name.endsWith('.xlsx') ||
+    name.endsWith('.xls') ||
+    name.endsWith('.csv') ||
+    name.endsWith('.xlsb') ||
+    file.type === 'application/vnd.ms-excel' ||
+    file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' ||
+    file.type === 'text/csv'
+  );
+};
 
+const processExcelFile = (file) => {
+  if (!file) return;
   const fileName = file.name;
   const reader = new FileReader();
 
@@ -3093,20 +3138,52 @@ const handleExcelUpload = (e) => {
   reader.readAsArrayBuffer(file);
 };
 
+const handleExcelUpload = (e) => {
+  const file = e.target.files?.[0];
+  if (!file) return;
+
+  if (isExcelFile(file)) {
+    processExcelFile(file);
+  } else {
+    toast.warning("El archivo seleccionado no es un Excel (.xlsx, .xls, .csv). Se procesará como comprobante de pago.");
+    processMultipleFiles([file]);
+  }
+  e.target.value = '';
+};
+
 const triggerFileInput = () => {
   fileInputRef.value?.click();
 };
 
 const handleFileInputChange = (e) => {
   if (e.target.files && e.target.files.length > 0) {
-    processMultipleFiles(Array.from(e.target.files));
+    const all = Array.from(e.target.files);
+    const excelFiles = all.filter(isExcelFile);
+    const receiptFiles = all.filter(f => !isExcelFile(f));
+
+    if (excelFiles.length > 0) {
+      processExcelFile(excelFiles[0]);
+    }
+    if (receiptFiles.length > 0) {
+      processMultipleFiles(receiptFiles);
+    }
+    e.target.value = '';
   }
 };
 
 const handleFileDrop = (e) => {
   isDragging.value = false;
   if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-    processMultipleFiles(Array.from(e.dataTransfer.files));
+    const all = Array.from(e.dataTransfer.files);
+    const excelFiles = all.filter(isExcelFile);
+    const receiptFiles = all.filter(f => !isExcelFile(f));
+
+    if (excelFiles.length > 0) {
+      processExcelFile(excelFiles[0]);
+    }
+    if (receiptFiles.length > 0) {
+      processMultipleFiles(receiptFiles);
+    }
   }
 };
 
