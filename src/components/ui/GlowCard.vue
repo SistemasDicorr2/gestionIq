@@ -39,8 +39,7 @@ import { computed } from 'vue';
 const props = defineProps({
   glowColor: {
     type: String,
-    default: 'indigo',
-    validator: (c) => ['indigo', 'emerald', 'amber', 'rose', 'slate'].includes(c)
+    default: 'indigo'
   },
   interactive: {
     type: Boolean,
@@ -48,8 +47,7 @@ const props = defineProps({
   },
   padding: {
     type: String,
-    default: 'md',
-    validator: (p) => ['none', 'sm', 'md', 'lg'].includes(p)
+    default: 'md'
   },
   customClass: {
     type: String,
@@ -67,27 +65,34 @@ const paddingClasses = computed(() => {
 });
 
 const glowBorderClass = computed(() => {
-  switch (props.glowColor) {
-    case 'emerald':
-      return 'border-emerald-200/80 dark:border-emerald-900/60 hover:border-emerald-400 dark:hover:border-emerald-700 shadow-emerald-500/5';
-    case 'amber':
-      return 'border-amber-200/80 dark:border-amber-900/60 hover:border-amber-400 dark:hover:border-amber-700 shadow-amber-500/5';
-    case 'rose':
-      return 'border-rose-200/80 dark:border-rose-900/60 hover:border-rose-400 dark:hover:border-rose-700 shadow-rose-500/5';
-    case 'slate':
-      return 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700';
-    default:
-      return 'border-slate-200 dark:border-slate-800 hover:border-indigo-300 dark:hover:border-indigo-800 shadow-indigo-500/5';
+  if (props.glowColor.includes('emerald') || props.glowColor.includes('16, 185, 129') || props.glowColor.includes('10, 207')) {
+    return 'hover:border-emerald-400 dark:hover:border-emerald-700 shadow-emerald-500/5';
   }
+  if (props.glowColor.includes('amber') || props.glowColor.includes('245, 158, 11') || props.glowColor.includes('217, 119, 6')) {
+    return 'hover:border-amber-400 dark:hover:border-amber-700 shadow-amber-500/5';
+  }
+  if (props.glowColor.includes('rose') || props.glowColor.includes('244, 63, 94') || props.glowColor.includes('225, 29, 72')) {
+    return 'hover:border-rose-400 dark:hover:border-rose-700 shadow-rose-500/5';
+  }
+  if (props.glowColor.includes('cyan') || props.glowColor.includes('6, 182, 212')) {
+    return 'hover:border-cyan-400 dark:hover:border-cyan-700 shadow-cyan-500/5';
+  }
+  if (props.glowColor.includes('blue') || props.glowColor.includes('37, 99, 235') || props.glowColor.includes('59, 130, 246')) {
+    return 'hover:border-blue-400 dark:hover:border-blue-700 shadow-blue-500/5';
+  }
+  if (props.glowColor === 'slate') {
+    return 'hover:border-slate-300 dark:hover:border-slate-700';
+  }
+  return 'hover:border-indigo-300 dark:hover:border-indigo-800 shadow-indigo-500/5';
 });
 
 const glowBgClass = computed(() => {
-  switch (props.glowColor) {
-    case 'emerald': return 'bg-emerald-500';
-    case 'amber': return 'bg-amber-500';
-    case 'rose': return 'bg-rose-500';
-    case 'slate': return 'bg-slate-500';
-    default: return 'bg-indigo-500';
-  }
+  if (props.glowColor.includes('emerald') || props.glowColor.includes('16, 185, 129')) return 'bg-emerald-500';
+  if (props.glowColor.includes('amber') || props.glowColor.includes('245, 158, 11')) return 'bg-amber-500';
+  if (props.glowColor.includes('rose') || props.glowColor.includes('244, 63, 94')) return 'bg-rose-500';
+  if (props.glowColor.includes('cyan') || props.glowColor.includes('6, 182, 212')) return 'bg-cyan-500';
+  if (props.glowColor.includes('blue') || props.glowColor.includes('37, 99, 235')) return 'bg-blue-500';
+  if (props.glowColor === 'slate') return 'bg-slate-500';
+  return 'bg-indigo-500';
 });
 </script>

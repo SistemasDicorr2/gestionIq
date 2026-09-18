@@ -9,8 +9,8 @@
       leave-to-class="opacity-0"
     >
       <div 
-        v-if="open" 
-        class="fixed inset-0 z-50 bg-slate-955/75 dark:bg-slate-955/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 overflow-y-auto"
+        v-if="isVisible" 
+        class="fixed inset-0 z-50 bg-slate-950/75 dark:bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 overflow-y-auto"
         @click="handleBackdropClick"
         @keydown.esc="handleEsc"
       >
@@ -23,16 +23,16 @@
           leave-to-class="opacity-0 scale-95 translate-y-2"
         >
           <div
-            v-if="open"
+            v-if="isVisible"
             @click.stop
             :class="[
-              'relative w-full rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl flex flex-col max-h-[92vh] overflow-hidden',
+              'relative w-full rounded-2xl bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 shadow-2xl flex flex-col max-h-[92vh] overflow-hidden',
               maxWidthClass,
               customClass
             ]"
           >
             <!-- Cabecera del Modal -->
-            <div class="px-5 py-4 border-b border-slate-100 dark:border-slate-800 flex items-start justify-between gap-3 shrink-0">
+            <div v-if="$slots.title || title" class="px-5 py-4 border-b border-slate-100 dark:border-slate-800 flex items-start justify-between gap-3 shrink-0">
               <div class="space-y-0.5">
                 <h3 class="text-base sm:text-lg font-black text-slate-900 dark:text-white flex items-center gap-2">
                   <slot name="title">{{ title }}</slot>
@@ -54,7 +54,7 @@
             </div>
 
             <!-- Cuerpo del Modal -->
-            <div class="p-5 overflow-y-auto grow scrollbar-thin">
+            <div class="overflow-y-auto grow scrollbar-thin">
               <slot />
             </div>
 
@@ -77,6 +77,10 @@ const props = defineProps({
     type: Boolean,
     default: false
   },
+  show: {
+    type: Boolean,
+    default: false
+  },
   title: {
     type: String,
     default: ''
@@ -87,8 +91,7 @@ const props = defineProps({
   },
   maxWidth: {
     type: String,
-    default: 'lg',
-    validator: (m) => ['sm', 'md', 'lg', 'xl', '2xl', '3xl', '4xl'].includes(m)
+    default: 'lg'
   },
   showCloseButton: {
     type: Boolean,
@@ -108,9 +111,14 @@ const props = defineProps({
   }
 });
 
-const emit = defineEmits(['update:open', 'close']);
+const emit = defineEmits(['update:open', 'update:show', 'close']);
+
+const isVisible = computed(() => props.open || props.show);
 
 const maxWidthClass = computed(() => {
+  if (props.maxWidth.startsWith('max-w-')) {
+    return props.maxWidth;
+  }
   switch (props.maxWidth) {
     case 'sm': return 'max-w-sm';
     case 'md': return 'max-w-md';
@@ -124,6 +132,7 @@ const maxWidthClass = computed(() => {
 
 const closeModal = () => {
   emit('update:open', false);
+  emit('update:show', false);
   emit('close');
 };
 
@@ -140,7 +149,7 @@ const handleEsc = () => {
 };
 
 const handleKeydown = (e) => {
-  if (e.key === 'Escape' && props.open && props.closeOnEscape) {
+  if (e.key === 'Escape' && isVisible.value && props.closeOnEscape) {
     closeModal();
   }
 };
@@ -153,7 +162,7 @@ onUnmounted(() => {
   window.removeEventListener('keydown', handleKeydown);
 });
 
-watch(() => props.open, (isOpen) => {
+watch(isVisible, (isOpen) => {
   if (isOpen) {
     document.body.style.overflow = 'hidden';
   } else {

@@ -589,7 +589,8 @@ import {
   FileText, 
   ArrowRight, 
   FileDown, 
-  Search 
+  Search,
+  MessageCircle
 } from 'lucide-vue-next';
 
 const isAuthenticated = ref(false);
