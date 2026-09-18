@@ -323,20 +323,39 @@
         </main>
 
         <!-- Pie del Modal con Acciones -->
-        <footer class="px-6 py-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/90 flex items-center justify-between shrink-0">
+        <footer class="px-6 py-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/90 flex flex-wrap items-center justify-between gap-3 shrink-0">
           <button 
             type="button" 
             @click="emit('close')"
-            class="px-4 py-2 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-all cursor-pointer"
+            class="px-4 py-2.5 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-all cursor-pointer"
           >
             Cerrar
           </button>
 
-          <div class="flex items-center gap-3">
+          <div class="flex items-center gap-2.5">
+            <!-- Botón Exportar CSV para IA / Análisis Profundo -->
+            <button 
+              type="button" 
+              @click="ejecutarDescargaCSV"
+              :disabled="matchingOrders.length === 0 || isGeneratingCsv || isGenerating"
+              class="px-4 py-2.5 text-xs font-bold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700/80 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl border border-slate-300 dark:border-slate-700 shadow-xs transition-all flex items-center gap-2 cursor-pointer"
+              title="Exporta todas las columnas y desgloses de cirugías a CSV estándar para análisis en IA (ChatGPT/Claude/Gemini/Python) y Excel"
+            >
+              <svg v-if="isGeneratingCsv" class="animate-spin h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              <svg v-else class="w-4 h-4 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              <span>{{ isGeneratingCsv ? 'Generando CSV...' : 'Exportar CSV (IA / Datos)' }}</span>
+            </button>
+
+            <!-- Botón Descargar PDF Ejecutivo -->
             <button 
               type="button" 
               @click="ejecutarDescargaPDF"
-              :disabled="matchingOrders.length === 0 || isGenerating"
+              :disabled="matchingOrders.length === 0 || isGenerating || isGeneratingCsv"
               class="px-5 py-2.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl shadow-md transition-all flex items-center gap-2 cursor-pointer"
             >
               <svg v-if="isGenerating" class="animate-spin h-3.5 w-3.5 text-white" fill="none" viewBox="0 0 24 24">
@@ -360,6 +379,7 @@
 import { ref, computed, watch, onMounted } from 'vue';
 import { supabase } from '../../services/supabase';
 import { useReportePagosPDF } from '../../composables/useReportePagosPDF';
+import { useReportePagosCSV } from '../../composables/useReportePagosCSV';
 import { useToasts } from '../../composables/useToasts';
 import { renderEmailReportePagosHtml } from '../../utils/reporteEmailTemplate';
 
@@ -377,6 +397,7 @@ const props = defineProps({
 const emit = defineEmits(['close']);
 
 const { generarReporteListadoCompletoPagos } = useReportePagosPDF();
+const { exportarReportePagosCSV } = useReportePagosCSV();
 const { showSuccessToast, showErrorToast } = useToasts();
 
 const periodoPreset = ref('semana-en-curso');
@@ -385,6 +406,7 @@ const searchInstrumentador = ref('');
 const customStartDate = ref('');
 const customEndDate = ref('');
 const isGenerating = ref(false);
+const isGeneratingCsv = ref(false);
 
 const isEmailModalOpen = ref(false);
 const destinatarioEmail = ref('contable@districorr.com.ar');
@@ -767,6 +789,46 @@ const ejecutarDescargaPDF = async () => {
     showErrorToast(err, 'No se pudo generar el reporte PDF.');
   } finally {
     isGenerating.value = false;
+  }
+};
+
+const ejecutarDescargaCSV = async () => {
+  if (matchingOrders.value.length === 0) return;
+  isGeneratingCsv.value = true;
+
+  try {
+    const orderDetailsPromises = matchingOrders.value.map(async (o) => {
+      if (orderDetailsCache.value.has(o.id)) {
+        return orderDetailsCache.value.get(o.id);
+      }
+      const { data } = await supabase.rpc('obtener_detalle_orden_pago', { p_orden_id: o.id });
+      if (data) orderDetailsCache.value.set(o.id, data);
+      return data || o;
+    });
+
+    const detailedOrders = await Promise.all(orderDetailsPromises);
+
+    let instFiltro = null;
+    if (selectedDni.value !== 'todos') {
+      const instObj = availableInstrumentadores.value.find(i => String(i.dni) === String(selectedDni.value));
+      instFiltro = {
+        dni: selectedDni.value,
+        nombre: instObj?.nombre || 'Instrumentador Quirúrgico'
+      };
+    }
+
+    const { filename, totalRows } = exportarReportePagosCSV({
+      ordenesDetalladas: detailedOrders,
+      periodoLabel: periodoLabelFinal.value,
+      instrumentadorFiltro: instFiltro
+    });
+
+    showSuccessToast(`Reporte CSV exportado exitosamente (${totalRows} registros detallados).`);
+  } catch (err) {
+    console.error('Error al exportar reporte CSV:', err);
+    showErrorToast(err, 'No se pudo exportar el archivo CSV.');
+  } finally {
+    isGeneratingCsv.value = false;
   }
 };
 
