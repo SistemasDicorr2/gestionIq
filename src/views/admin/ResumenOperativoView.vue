@@ -16,7 +16,7 @@
           </label>
         </div>
         
-        <!-- Botones de Período Rápido -->
+        <!-- Botones de Período Rápido y Lote -->
         <div class="flex flex-wrap gap-2">
           <button @click="setPeriod('this-week')" :class="['btn-period', activePeriod === 'this-week' ? 'active' : '']">
             Esta Semana
@@ -26,6 +26,16 @@
           </button>
           <button @click="setPeriod('last-month')" :class="['btn-period', activePeriod === 'last-month' ? 'active' : '']">
             Mes Anterior
+          </button>
+          <button 
+            @click="imprimirLoteActualizado" 
+            :disabled="generandoLote"
+            class="btn-period flex items-center gap-1.5 text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-500 border-blue-600 font-bold shadow-xs cursor-pointer disabled:opacity-50"
+            title="Genera el lote con todas las cirugías enviadas pendientes actualizadas hasta este momento y abre la vista de impresión"
+          >
+            <span v-if="generandoLote" class="animate-spin text-xs">🌀</span>
+            <span v-else>🖨️</span>
+            <span>{{ generandoLote ? 'Actualizando...' : 'Generar e Imprimir Lote' }}</span>
           </button>
           <button @click="showConfigModal = true" class="btn-period flex items-center gap-1.5 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-900 bg-blue-50/50 dark:bg-blue-950/30 font-bold">
             <span>⚙️ Programación y Destinatarios</span>
@@ -657,6 +667,7 @@ import autoTable from 'jspdf-autotable';
 import VueEasyLightbox from 'vue-easy-lightbox';
 import ConfigurarDestinatariosModal from '../../components/admin/ConfigurarDestinatariosModal.vue';
 import ConfigurarReporteCajasDevueltasModal from '../../components/admin/ConfigurarReporteCajasDevueltasModal.vue';
+import { generarLoteOperativoActualizado } from '../../services/loteOperativoService.js';
 
 const toast = useToast();
 const headerConfig = inject('header-config', null);
@@ -667,6 +678,7 @@ const reportes = ref([]);
 const showWelcomeModal = ref(false);
 const showConfigModal = ref(false);
 const showCajasModal = ref(false);
+const generandoLote = ref(false);
 
 const filters = ref({
   from: '',
@@ -717,6 +729,24 @@ const toggleDateFilter = (dateStr) => {
     selectedDateFilter.value = null;
   } else {
     selectedDateFilter.value = dateStr;
+  }
+};
+
+const imprimirLoteActualizado = async () => {
+  try {
+    generandoLote.value = true;
+    toast.info("Consultando cirugías y generando lote actualizado...");
+
+    const resultado = await generarLoteOperativoActualizado();
+    toast.success(`¡Lote generado con éxito (${resultado.count} cirugías)! Abriendo vista de impresión...`);
+
+    // Abrir en una pestaña nueva
+    window.open(resultado.url, '_blank');
+  } catch (err) {
+    console.error("Error al generar lote para imprimir:", err);
+    toast.error("No se pudo generar el lote actualizado: " + err.message);
+  } finally {
+    generandoLote.value = false;
   }
 };
 

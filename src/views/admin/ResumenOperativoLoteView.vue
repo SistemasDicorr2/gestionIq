@@ -25,7 +25,7 @@
             </p>
           </div>
 
-          <div class="flex items-center gap-3 shrink-0">
+          <div class="flex flex-wrap items-center gap-2 sm:gap-3 shrink-0">
             <!-- Indicador de Carga de Recursos -->
             <div v-if="!allLoaded && fichas.length > 0" class="text-xs text-amber-600 dark:text-amber-400 font-medium flex items-center gap-1.5 bg-amber-50 dark:bg-amber-950/40 px-3 py-1.5 rounded-xl border border-amber-200/80">
               <svg class="animate-spin h-3.5 w-3.5 text-amber-600" fill="none" viewBox="0 0 24 24">
@@ -34,6 +34,18 @@
               </svg>
               <span>Cargando recursos...</span>
             </div>
+
+            <!-- Botón Actualizar Lote con Cirugías Recientes -->
+            <button 
+              @click="actualizarLoteEnVivo" 
+              :disabled="actualizando || loading"
+              class="px-3.5 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all flex items-center gap-1.5 cursor-pointer bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 disabled:opacity-50"
+              title="Busca si ingresaron nuevas cirugías pendientes recientemente y actualiza este lote de inmediato"
+            >
+              <span v-if="actualizando" class="animate-spin text-xs">🌀</span>
+              <span v-else>🔄</span>
+              <span>{{ actualizando ? 'Buscando nuevas...' : 'Actualizar Cirugías Nuevas' }}</span>
+            </button>
 
             <!-- Botón de Impresión de Seleccionadas -->
             <button 
@@ -709,14 +721,20 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { supabase } from '../../services/supabase';
+import { useToast } from 'vue-toastification';
 import ReportPDF from '../../components/ReportPDF.vue';
 import { normalizeReport, formatDate } from '../../utils/reportMapper.js';
+import { generarLoteOperativoActualizado } from '../../services/loteOperativoService.js';
 
 const route = useRoute();
+const router = useRouter();
+const toast = useToast();
+
 const loading = ref(true);
 const error = ref(null);
+const actualizando = ref(false);
 
 const lote = ref(null);
 const fichas = ref([]);
@@ -1249,6 +1267,28 @@ const fetchLote = async () => {
     error.value = err.message;
   } finally {
     loading.value = false;
+  }
+};
+
+const actualizarLoteEnVivo = async () => {
+  try {
+    actualizando.value = true;
+    toast.info("Buscando cirugías recientes y actualizando lote...");
+
+    const resultado = await generarLoteOperativoActualizado();
+    
+    // Si el token cambió o es el mismo, actualizar la URL y recargar las fichas
+    if (resultado.token !== route.params.token) {
+      router.replace({ name: 'ResumenOperativoLote', params: { token: resultado.token } });
+    }
+    
+    await fetchLote();
+    toast.success(`¡Lote actualizado! Ahora contiene ${resultado.count} fichas.`);
+  } catch (err) {
+    console.error("[LoteView] Error al actualizar lote en vivo:", err);
+    toast.error("No se pudo actualizar el lote: " + err.message);
+  } finally {
+    actualizando.value = false;
   }
 };
 

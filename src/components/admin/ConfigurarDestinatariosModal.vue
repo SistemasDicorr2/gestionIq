@@ -200,16 +200,31 @@
 
       <!-- Acciones del Modal -->
       <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
-        <button 
-          type="button" 
-          @click="testReporteEmail" 
-          :disabled="testing || loading"
-          class="w-full sm:w-auto px-4 py-2 bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 disabled:opacity-50 text-xs font-bold rounded-xl transition cursor-pointer flex items-center justify-center gap-1.5"
-        >
-          <span v-if="testing" class="animate-spin text-xs">🌀</span>
-          <span v-else>🧪</span>
-          <span>{{ testing ? 'Enviando prueba...' : 'Probar reporte con el correo' }}</span>
-        </button>
+        <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+          <button 
+            type="button" 
+            @click="abrirLoteActualizado" 
+            :disabled="generandoLote || loading"
+            class="w-full sm:w-auto px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-xs font-extrabold rounded-xl shadow-sm transition cursor-pointer flex items-center justify-center gap-1.5"
+            title="Genera el lote con todas las cirugías ingresadas hasta este momento y abre la vista de impresión"
+          >
+            <span v-if="generandoLote" class="animate-spin text-xs">🌀</span>
+            <span v-else>🖨️</span>
+            <span>{{ generandoLote ? 'Actualizando lote...' : 'Generar e Imprimir Lote Actualizado' }}</span>
+          </button>
+
+          <button 
+            type="button" 
+            @click="testReporteEmail" 
+            :disabled="testing || loading || generandoLote"
+            class="w-full sm:w-auto px-3.5 py-2 bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 disabled:opacity-50 text-xs font-bold rounded-xl transition cursor-pointer flex items-center justify-center gap-1.5"
+            title="Envía el correo de prueba a los destinatarios configurados"
+          >
+            <span v-if="testing" class="animate-spin text-xs">🌀</span>
+            <span v-else>🧪</span>
+            <span>{{ testing ? 'Enviando prueba...' : 'Probar correo' }}</span>
+          </button>
+        </div>
 
         <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
           <button @click="$emit('close')" class="px-4 py-2 text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition cursor-pointer">
@@ -234,6 +249,7 @@ import { ref, reactive, watch } from 'vue';
 import { supabase } from '../../services/supabase';
 import { useToast } from 'vue-toastification';
 import { sendEmailWithResend } from '../../services/resendService';
+import { generarLoteOperativoActualizado } from '../../services/loteOperativoService';
 
 const props = defineProps({
   show: { type: Boolean, default: false }
@@ -245,6 +261,7 @@ const toast = useToast();
 const loading = ref(false);
 const saving = ref(false);
 const testing = ref(false);
+const generandoLote = ref(false);
 const newEmail = ref('');
 const emailList = ref([]);
 const omitidasList = ref([]);
@@ -422,6 +439,24 @@ const saveConfig = async () => {
     toast.error("Error al guardar configuración: " + err.message);
   } finally {
     saving.value = false;
+  }
+};
+
+const abrirLoteActualizado = async () => {
+  try {
+    generandoLote.value = true;
+    toast.info("Consultando cirugías y actualizando lote...");
+
+    const resultado = await generarLoteOperativoActualizado();
+    toast.success(`¡Lote actualizado con éxito (${resultado.count} cirugías)! Abriendo vista de impresión...`);
+
+    // Abrir en una pestaña nueva
+    window.open(resultado.url, '_blank');
+  } catch (err) {
+    console.error("Error al generar lote actualizado:", err);
+    toast.error("No se pudo generar el lote actualizado: " + err.message);
+  } finally {
+    generandoLote.value = false;
   }
 };
 
