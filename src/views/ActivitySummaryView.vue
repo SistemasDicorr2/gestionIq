@@ -1,228 +1,363 @@
 <!-- src/views/ActivitySummaryView.vue -->
 <template>
   <div :class="{ 'dark': isDarkMode }">
-    <div class="min-h-screen py-8 transition-colors duration-300 bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900 sm:py-12 text-slate-900 dark:text-slate-100">
+    <div 
+      :class="[
+        'relative transition-colors duration-300 bg-slate-200/85 dark:bg-slate-950 text-slate-900 dark:text-slate-100 selection:bg-blue-500/20',
+        !isAuthenticated ? 'h-[100dvh] min-h-[100dvh] max-h-[100dvh] overflow-hidden' : 'min-h-screen py-6 sm:py-10 overflow-x-hidden'
+      ]"
+    >
 
-      <!-- ESTADO 1: PANTALLA DE AUTENTICACIÓN -->
-      <div v-if="!isAuthenticated" class="max-w-md px-4 pt-10 sm:pt-16 mx-auto">
-        <div class="p-6 sm:p-8 text-center bg-white/95 dark:bg-slate-900/95 border shadow-xl border-slate-200/90 dark:border-slate-800 rounded-3xl">
-          <div class="flex justify-center mb-5">
-            <img src="/2.svg" alt="Districorr" class="h-9 sm:h-10 opacity-95 dark:invert dark:brightness-200 transition-all">
-          </div>
-
-          <h1 class="text-xl sm:text-2xl font-black text-slate-950 dark:text-white tracking-tight">Acceso al Portal</h1>
-          <p class="mt-1.5 mb-6 text-xs sm:text-sm text-slate-600 dark:text-slate-300 font-medium">
-            Ingresá tu DNI para acceder a tu historial de cirugías y comprobantes.
-          </p>
-
-          <form @submit.prevent="authenticate()">
-            <div class="relative">
-              <input 
-                v-model="dni" 
-                type="text" 
-                inputmode="numeric"
-                pattern="[0-9]*"
-                maxlength="12"
-                autocomplete="username"
-                placeholder="Ingresá tu DNI (sin puntos)" 
-                class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl text-center text-base sm:text-lg font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:bg-white dark:focus:bg-slate-900 focus:outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500 placeholder:font-normal placeholder:text-xs sm:placeholder:text-sm" 
-                required 
-              />
-            </div>
-
-            <div v-if="error" class="flex items-center justify-center gap-1.5 mt-3 text-xs font-bold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/50 py-2 px-3 rounded-lg border border-red-200 dark:border-red-800/60">
-              <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-              <span>{{ error }}</span>
-            </div>
-
-            <button 
-              type="submit" 
-              :disabled="isLoading" 
-              class="w-full mt-5 py-3 px-5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-sm shadow-md transition-all cursor-pointer hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-            >
-              <svg v-if="isLoading" class="w-4 h-4 animate-spin text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-              <span>{{ isLoading ? 'Verificando DNI...' : 'Ingresar al Portal' }}</span>
-            </button>
-          </form>
-          
-          <div class="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800 text-center">
-            <a href="https://www.districorr.com.ar" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 text-xs font-bold text-slate-400 hover:text-blue-600 dark:text-slate-500 dark:hover:text-blue-400 transition-colors">
-              <span>www.districorr.com.ar</span>
-              <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" /></svg>
-            </a>
-          </div>
+      <!-- ESTADO 1: PANTALLA DE AUTENTICACIÓN SIN SCROLL (FIT 100vh) -->
+      <div v-if="!isAuthenticated" class="relative h-full flex flex-col justify-between max-w-md sm:max-w-lg px-4 sm:px-6 mx-auto py-3 sm:py-5">
+        
+        <!-- Ambient Animated Glow Orbs -->
+        <div class="absolute inset-0 pointer-events-none overflow-hidden -z-10">
+          <div class="absolute top-6 left-1/4 w-64 h-64 sm:w-80 sm:h-80 bg-blue-500/20 dark:bg-blue-600/15 rounded-full blur-3xl animate-blob"></div>
+          <div class="absolute bottom-10 right-1/4 w-64 h-64 sm:w-80 sm:h-80 bg-indigo-500/20 dark:bg-indigo-600/15 rounded-full blur-3xl animate-blob [animation-delay:2s]"></div>
+          <div class="absolute inset-0 bg-[radial-gradient(#94a3b8_1.5px,transparent_1.5px)] [background-size:20px_20px] dark:bg-[radial-gradient(#334155_1.5px,transparent_1.5px)] opacity-60 dark:opacity-25"></div>
         </div>
+
+        <!-- Top Bar Compacta -->
+        <header class="flex items-center justify-between gap-3 shrink-0">
+          <div class="flex items-center gap-2">
+            <img src="/2.svg" alt="Districorr" class="h-7 sm:h-8 opacity-95 dark:invert dark:brightness-200 transition-all">
+            <span class="text-[10px] sm:text-xs font-black tracking-wider uppercase text-slate-700 dark:text-slate-300 border-l border-slate-400 dark:border-slate-800 pl-2">
+              Gestión IQ
+            </span>
+          </div>
+
+          <div class="flex items-center gap-1.5 sm:gap-2">
+            <a 
+              href="https://wa.me/5493794007558?text=Hola%20tengo%20un%20inconveniente%20para%20ingresar%20mi%20DNI%20al%20portal." 
+              target="_blank" 
+              rel="noopener noreferrer"
+              class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-[11px] font-bold text-slate-900 dark:text-slate-100 hover:text-emerald-600 dark:hover:text-emerald-400 shadow-sm transition-all hover:scale-105"
+            >
+              <MessageCircle class="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
+              <span>Soporte</span>
+            </a>
+
+            <!-- Toggle Modo Oscuro -->
+            <button 
+              @click="isDarkMode = !isDarkMode" 
+              class="p-1.5 sm:p-2 text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 shadow-sm hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-all duration-200 hover:scale-105 active:scale-95 focus:outline-none cursor-pointer" 
+              :title="isDarkMode ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'"
+            >
+              <Sun v-if="isDarkMode" class="w-4 h-4 text-amber-400" />
+              <Moon v-else class="w-4 h-4 text-slate-900" />
+            </button>
+          </div>
+        </header>
+
+        <!-- Centro: Tarjeta Hero Compacta y Centrada -->
+        <main class="my-auto py-2 sm:py-4 w-full">
+          <GlowCard class="p-5 sm:p-7 text-center bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 shadow-xl rounded-2xl sm:rounded-3xl" glow-color="rgba(37, 99, 235, 0.18)">
+            
+            <!-- Icono Flotante -->
+            <div class="relative flex justify-center mb-3">
+              <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-blue-500/25 ring-4 ring-blue-500/10">
+                <ShieldCheck class="w-6 h-6 sm:w-7 sm:h-7" />
+              </div>
+            </div>
+
+            <!-- Título y Subtítulo -->
+            <h1 class="text-xl sm:text-2xl font-black tracking-tight text-slate-950 dark:text-white">
+              Portal del Instrumentador
+            </h1>
+            <p class="mt-1 text-xs sm:text-sm text-slate-700 dark:text-slate-300 font-semibold max-w-xs sm:max-w-sm mx-auto leading-relaxed">
+              Ingresá tu DNI para consultar el estado de tus cirugías y liquidaciones.
+            </p>
+
+            <!-- Formulario de Acceso Compacto -->
+            <form @submit.prevent="login" class="mt-4 sm:mt-5 space-y-3 sm:space-y-4 max-w-xs mx-auto">
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500 dark:text-slate-400">
+                  <Lock class="w-4 h-4" />
+                </div>
+                <input
+                  v-model="dni"
+                  type="text"
+                  inputmode="numeric"
+                  pattern="[0-9]*"
+                  required
+                  placeholder="Número de DNI (sin puntos)"
+                  class="block w-full pl-10 pr-3.5 py-2.5 sm:py-3 text-sm font-bold bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-slate-950 dark:text-white placeholder:text-slate-400 placeholder:font-normal transition-all shadow-inner"
+                  autocomplete="off"
+                  :disabled="isLoading"
+                />
+              </div>
+
+              <!-- Botón Shimmer Interactivo -->
+              <ShimmerButton 
+                type="submit" 
+                :disabled="isLoading"
+                class="w-full py-2.5 sm:py-3 text-xs sm:text-sm font-black tracking-wide cursor-pointer"
+              >
+                <span v-if="isLoading" class="flex items-center justify-center gap-2">
+                  <svg class="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  <span>Validando...</span>
+                </span>
+                <span v-else class="flex items-center justify-center gap-2">
+                  <span>Ingresar al Portal</span>
+                  <LogIn class="w-4 h-4" />
+                </span>
+              </ShimmerButton>
+            </form>
+
+            <!-- Error Banner -->
+            <div 
+              v-if="error" 
+              class="mt-3 p-2.5 bg-rose-50 dark:bg-rose-950/40 border border-rose-300 dark:border-rose-800 rounded-xl flex items-center gap-2 text-rose-800 dark:text-rose-200 text-xs text-left animate-shake"
+            >
+              <AlertCircle class="w-4 h-4 shrink-0 text-rose-600 dark:text-rose-400" />
+              <p class="font-bold leading-tight">{{ error }}</p>
+            </div>
+          </GlowCard>
+        </main>
+
+        <!-- Footer Compacto -->
+        <footer class="py-2 border-t border-slate-300 dark:border-slate-800 text-center shrink-0">
+          <p class="text-[11px] text-slate-700 dark:text-slate-400 font-bold">
+            Gestión IQ — 
+            <a 
+              href="https://www.districorr.com.ar" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              class="font-black text-blue-700 dark:text-blue-400 hover:underline inline-flex items-center gap-0.5 ml-0.5"
+            >
+              <span>www.districorr.com.ar</span>
+              <ExternalLink class="w-2.5 h-2.5" />
+            </a>
+          </p>
+        </footer>
+
       </div>
 
-      <!-- ESTADO 2: VISTA DE DATOS -->
+      <!-- ESTADO 2: VISTA DE DATOS CON ALTO CONTRASTE -->
       <div v-else class="max-w-6xl px-4 mx-auto sm:px-6 lg:px-8">
-        <header class="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-4">
+        <header class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
           <div>
             <div class="flex items-center gap-2.5 flex-wrap">
-              <h1 class="text-2xl font-extrabold sm:text-3xl text-slate-950 dark:text-white tracking-tight">Mi Actividad Profesional</h1>
+              <h1 class="text-2xl font-black sm:text-3xl text-slate-950 dark:text-white tracking-tight">Mi Actividad Profesional</h1>
+              <span v-if="instrumentadorInfo?.nombre_completo" class="px-3 py-1 rounded-full text-xs font-black bg-blue-100 dark:bg-blue-900/60 text-blue-900 dark:text-blue-200 border border-blue-300 dark:border-blue-700 shadow-xs">
+                {{ instrumentadorInfo.nombre_completo }}
+              </span>
             </div>
-            <p class="mt-1 text-xs sm:text-sm text-slate-600 dark:text-slate-300 font-medium">
+            <p class="mt-1 text-xs sm:text-sm text-slate-800 dark:text-slate-200 font-bold">
               Consultá tus cirugías registradas, el estado de tus pagos y tus datos personales.
             </p>
           </div>
           
-          <!-- Toggle Modo Oscuro alineado de forma limpia arriba a la derecha -->
+          <!-- Toggle Modo Oscuro -->
           <button 
             @click="isDarkMode = !isDarkMode" 
-            class="shrink-0 p-2 text-slate-500 bg-white border border-slate-200 shadow-2xs hover:bg-slate-50 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700 dark:hover:bg-slate-700 rounded-full transition-all duration-200 hover:-translate-y-0.5 focus:outline-none cursor-pointer mt-1" 
+            class="shrink-0 p-2.5 text-slate-800 bg-white border border-slate-300 shadow-md hover:bg-slate-100 dark:bg-slate-900 dark:text-slate-200 dark:border-slate-700 dark:hover:bg-slate-800 rounded-full transition-all duration-200 hover:scale-105 active:scale-95 focus:outline-none cursor-pointer self-end sm:self-auto" 
             :title="isDarkMode ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'"
           >
-            <svg v-if="!isDarkMode" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
-            <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+            <Sun v-if="isDarkMode" class="w-5 h-5 text-amber-400 transition-transform rotate-0 hover:rotate-45" />
+            <Moon v-else class="w-5 h-5 text-slate-900 transition-transform rotate-0 hover:-rotate-12" />
           </button>
         </header>
 
-        <!-- Tabs de Navegación Nativas Adaptables y Compactas -->
-        <div class="mb-5 sm:mb-6">
-          <nav class="grid grid-cols-4 gap-1 p-1 bg-white/95 dark:bg-slate-900/95 border border-slate-200/90 dark:border-slate-800 rounded-2xl shadow-2xs sm:flex sm:items-center sm:gap-2 sm:w-fit">
+        <!-- Tabs de Navegación Estilo Animate UI -->
+        <div class="mb-6">
+          <nav class="grid grid-cols-4 gap-1 p-1.5 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-slate-300 dark:border-slate-800 rounded-2xl shadow-md sm:flex sm:items-center sm:gap-2 sm:w-fit">
             <button 
               @click="activeTab = 'resumen'"
               :class="[
-                'flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 sm:py-2.5 rounded-xl text-[11px] sm:text-sm font-black transition-all duration-200 cursor-pointer select-none',
+                'flex flex-col sm:flex-row items-center justify-center gap-1.5 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-black transition-all duration-200 cursor-pointer select-none',
                 activeTab === 'resumen' 
-                  ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30' 
-                  : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 hover:text-slate-900 dark:hover:text-white'
+                  ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30 ring-1 ring-blue-500' 
+                  : 'text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-950 dark:hover:text-white'
               ]"
             >
-              <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" /></svg>
-              <span class="hidden sm:inline">Resumen</span>
-              <span class="sm:hidden text-[10px] sm:text-xs">Resumen</span>
+              <Activity class="w-4 h-4 shrink-0" />
+              <span>Resumen</span>
             </button>
 
             <button 
               @click="activeTab = 'pagos'"
               :class="[
-                'flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 sm:py-2.5 rounded-xl text-[11px] sm:text-sm font-black transition-all duration-200 cursor-pointer select-none',
+                'flex flex-col sm:flex-row items-center justify-center gap-1.5 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-black transition-all duration-200 cursor-pointer select-none',
                 activeTab === 'pagos' 
-                  ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30' 
-                  : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 hover:text-slate-900 dark:hover:text-white'
+                  ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30 ring-1 ring-blue-500' 
+                  : 'text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-950 dark:hover:text-white'
               ]"
             >
-              <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15A2.25 2.25 0 002.25 6.75v10.5A2.25 2.25 0 004.5 19.5z" /></svg>
+              <Receipt class="w-4 h-4 shrink-0" />
               <span class="hidden sm:inline">Pagos y Comprobantes</span>
-              <span class="sm:hidden text-[10px] sm:text-xs">Pagos</span>
+              <span class="sm:hidden">Pagos</span>
             </button>
 
             <button 
               @click="activeTab = 'datos'"
               :class="[
-                'flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 sm:py-2.5 rounded-xl text-[11px] sm:text-sm font-black transition-all duration-200 cursor-pointer select-none',
+                'flex flex-col sm:flex-row items-center justify-center gap-1.5 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-black transition-all duration-200 cursor-pointer select-none',
                 activeTab === 'datos' 
-                  ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30' 
-                  : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 hover:text-slate-900 dark:hover:text-white'
+                  ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30 ring-1 ring-blue-500' 
+                  : 'text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-950 dark:hover:text-white'
               ]"
             >
-              <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" /></svg>
+              <UserCheck class="w-4 h-4 shrink-0" />
               <span class="hidden sm:inline">Mi Perfil</span>
-              <span class="sm:hidden text-[10px] sm:text-xs">Perfil</span>
+              <span class="sm:hidden">Perfil</span>
             </button>
 
             <button 
               @click="activeTab = 'faq'"
               :class="[
-                'flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 sm:py-2.5 rounded-xl text-[11px] sm:text-sm font-black transition-all duration-200 cursor-pointer select-none',
+                'flex flex-col sm:flex-row items-center justify-center gap-1.5 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-black transition-all duration-200 cursor-pointer select-none',
                 activeTab === 'faq' 
-                  ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30' 
-                  : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 hover:text-slate-900 dark:hover:text-white'
+                  ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30 ring-1 ring-blue-500' 
+                  : 'text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-950 dark:hover:text-white'
               ]"
             >
-              <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M12 18h.008v.008H12V18zM21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+              <HelpCircle class="w-4 h-4 shrink-0" />
               <span class="hidden sm:inline">Preguntas Frecuentes</span>
-              <span class="sm:hidden text-[10px] sm:text-xs">Ayuda</span>
+              <span class="sm:hidden">Ayuda</span>
             </button>
           </nav>
         </div>
 
-        <!-- TAB 1: RESUMEN DE PAGOS -->
-        <div v-if="activeTab === 'resumen'">
+        <!-- TAB 1: RESUMEN DE ACTIVIDAD CON ALTO CONTRASTE -->
+        <div v-if="activeTab === 'resumen'" class="space-y-6">
           
-          <!-- KPIs -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8 sm:gap-6 lg:mb-10">
-            <div class="p-5 sm:p-6 bg-white border shadow-2xs border-slate-200/80 dark:bg-slate-900 rounded-2xl dark:border-slate-800 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
-              <h3 class="text-xs font-extrabold tracking-wider uppercase text-slate-400 dark:text-slate-400">Cirugías pendientes de pago por Districorr</h3>
-              <p class="mt-2.5 text-3xl font-extrabold sm:text-4xl text-slate-950 dark:text-white">{{ cirugiasPendientesCount }}</p>
-            </div>
-            <div class="p-5 sm:p-6 bg-white border shadow-2xs border-slate-200/80 dark:bg-slate-900 rounded-2xl dark:border-slate-800 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
-              <h3 class="text-xs font-extrabold tracking-wider uppercase text-slate-400 dark:text-slate-400">Pagos realizados en el mes en curso</h3>
-              <p class="mt-2.5 text-3xl font-extrabold sm:text-4xl text-slate-950 dark:text-white">{{ cirugiasCobradasMesCount }}</p>
-            </div>
+          <!-- KPIs con Bento GlowCards y SlidingNumbers -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+            <GlowCard class="p-5 sm:p-6 bg-white dark:bg-slate-900 rounded-2xl border border-slate-300 dark:border-slate-800 shadow-md" glow-color="rgba(245, 158, 11, 0.15)">
+              <div class="flex items-center justify-between">
+                <h3 class="text-xs font-black tracking-wider uppercase text-slate-900 dark:text-slate-100">Cirugías pendientes de liquidación</h3>
+                <div class="w-9 h-9 rounded-xl bg-amber-100 dark:bg-amber-950/60 flex items-center justify-center text-amber-800 dark:text-amber-400 border border-amber-300 dark:border-amber-800/80 shadow-xs">
+                  <Clock class="w-5 h-5" />
+                </div>
+              </div>
+              <div class="mt-3 flex items-baseline gap-2">
+                <span class="text-3xl sm:text-4xl font-black text-slate-950 dark:text-white">
+                  <SlidingNumber :value="cirugiasPendientesCount" />
+                </span>
+                <span class="text-xs font-black text-slate-700 dark:text-slate-300">cirugías</span>
+              </div>
+            </GlowCard>
+
+            <GlowCard class="p-5 sm:p-6 bg-white dark:bg-slate-900 rounded-2xl border border-slate-300 dark:border-slate-800 shadow-md" glow-color="rgba(16, 185, 129, 0.15)">
+              <div class="flex items-center justify-between">
+                <h3 class="text-xs font-black tracking-wider uppercase text-slate-900 dark:text-slate-100">Pagos realizados en el mes en curso</h3>
+                <div class="w-9 h-9 rounded-xl bg-emerald-100 dark:bg-emerald-950/60 flex items-center justify-center text-emerald-800 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-800/80 shadow-xs">
+                  <CheckCircle2 class="w-5 h-5" />
+                </div>
+              </div>
+              <div class="mt-3 flex items-baseline gap-2">
+                <span class="text-3xl sm:text-4xl font-black text-slate-950 dark:text-white">
+                  <SlidingNumber :value="cirugiasCobradasMesCount" />
+                </span>
+                <span class="text-xs font-black text-slate-700 dark:text-slate-300">cirugías abonadas</span>
+              </div>
+            </GlowCard>
           </div>
 
-          <div class="grid grid-cols-1 gap-8 lg:gap-10 lg:grid-cols-12">
+          <div class="grid grid-cols-1 gap-6 lg:gap-8 lg:grid-cols-12">
             
             <!-- MAIN BLOCK: Pendientes -->
             <div class="lg:col-span-7">
-              <h2 class="mb-5 text-xl font-extrabold text-slate-950 dark:text-white">Pendientes de liquidación</h2>
-              
-              <div v-if="pendientes.length > 0" class="space-y-4 sm:space-y-5">
-                <div v-for="report in pendientes" :key="report.id" class="p-5 bg-white border shadow-2xs border-slate-200/80 sm:p-6 dark:bg-slate-900 rounded-2xl dark:border-slate-800 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
-                  <div class="flex items-start justify-between gap-4 mb-3">
-                    <div>
-                      <p class="font-extrabold text-slate-950 dark:text-white">{{ report.paciente || 'No especificado' }}</p>
-                      <p class="text-sm text-slate-600 dark:text-slate-400 mt-0.5">{{ report.fecha_cirugia ? formatDate(report.fecha_cirugia) : 'Fecha no disponible' }}</p>
-                    </div>
-                    <span class="inline-flex items-center px-3 py-1 text-xs font-bold border rounded-full shrink-0 bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-800/50">
-                      <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
-                      Pendiente
-                    </span>
-                  </div>
-                  <div class="flex items-start gap-3 p-3.5 mt-4 mb-5 text-sm border rounded-xl bg-sky-50/80 text-sky-900 dark:bg-sky-950/40 dark:text-sky-200 border-sky-200/80 dark:border-sky-800">
-                    <svg class="w-5 h-5 shrink-0 text-sky-600 dark:text-sky-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" /></svg>
-                    <p class="leading-relaxed text-xs sm:text-sm">Esta cirugía será incluida en una próxima orden de pago cuando se genere la liquidación correspondiente.</p>
-                  </div>
-                  <button @click="openDetailModal(report, false)" class="inline-flex items-center justify-center px-4 py-2 text-xs font-extrabold transition-all duration-200 rounded-xl text-slate-700 bg-slate-100 hover:bg-slate-200 focus:outline-none dark:text-slate-200 dark:bg-slate-800 dark:border dark:border-slate-700 dark:hover:bg-slate-700 hover:-translate-y-0.5 cursor-pointer">
-                    Ver detalle
-                  </button>
-                </div>
+              <div class="flex items-center justify-between mb-4">
+                <h2 class="text-lg sm:text-xl font-black text-slate-950 dark:text-white flex items-center gap-2">
+                  <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
+                  Pendientes de liquidación
+                </h2>
+                <span v-if="pendientes.length > 0" class="text-xs font-black px-2.5 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/50 text-amber-900 dark:text-amber-200 border border-amber-200 dark:border-amber-800">
+                  {{ pendientes.length }} pendientes
+                </span>
               </div>
               
-              <div v-else class="px-6 py-10 text-center bg-white border shadow-2xs border-slate-200/80 dark:bg-slate-900 rounded-2xl dark:border-slate-800 text-slate-500">
-                No tenés cirugías pendientes de liquidación.
+              <div v-if="pendientes.length > 0" class="space-y-4">
+                <GlowCard v-for="report in pendientes" :key="report.id" class="p-5 bg-white dark:bg-slate-900 rounded-2xl border border-slate-300 dark:border-slate-800 shadow-sm" glow-color="rgba(245, 158, 11, 0.12)">
+                  <div class="flex items-start justify-between gap-4 mb-3">
+                    <div>
+                      <p class="font-black text-slate-950 dark:text-white text-base">{{ report.paciente || 'No especificado' }}</p>
+                      <p class="text-xs text-slate-600 dark:text-slate-400 mt-0.5 flex items-center gap-1.5 font-semibold">
+                        <Calendar class="w-3.5 h-3.5 text-slate-500" />
+                        {{ report.fecha_cirugia ? formatDate(report.fecha_cirugia) : 'Fecha no disponible' }}
+                      </p>
+                    </div>
+                    <AnimatedBadge variant="warning" dot pulse>
+                      Pendiente
+                    </AnimatedBadge>
+                  </div>
+
+                  <div class="flex items-start gap-2.5 p-3 mt-3 mb-4 text-xs border rounded-xl bg-sky-50 dark:bg-sky-950/40 text-sky-950 dark:text-sky-200 border-sky-300 dark:border-sky-800">
+                    <Info class="w-4 h-4 shrink-0 text-sky-700 dark:text-sky-400 mt-0.5" />
+                    <p class="leading-relaxed font-semibold">Esta cirugía será incluida en una próxima orden de pago cuando se genere la liquidación correspondiente.</p>
+                  </div>
+
+                  <button @click="openDetailModal(report, false)" class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 text-xs font-black transition-all duration-200 rounded-xl text-slate-800 bg-slate-100 hover:bg-slate-200 focus:outline-none dark:text-slate-100 dark:bg-slate-800 dark:border dark:border-slate-700 dark:hover:bg-slate-700 hover:scale-[1.02] active:scale-[0.98] cursor-pointer">
+                    <Eye class="w-3.5 h-3.5" />
+                    <span>Ver detalle</span>
+                  </button>
+                </GlowCard>
+              </div>
+              
+              <div v-else class="px-6 py-12 text-center bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-2xl text-slate-600 dark:text-slate-400 shadow-sm">
+                <CheckCircle2 class="w-10 h-10 text-emerald-600/70 mx-auto mb-2" />
+                <p class="font-black text-sm text-slate-900 dark:text-slate-100">No tenés cirugías pendientes de liquidación.</p>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 font-medium">Todas tus cirugías registradas han sido procesadas.</p>
               </div>
             </div>
             
             <!-- SECONDARY BLOCK: Comprobantes -->
             <div class="lg:col-span-5">
-              <h2 class="mb-5 text-xl font-extrabold text-slate-950 dark:text-white">Últimos comprobantes cargados</h2>
+              <div class="flex items-center justify-between mb-4">
+                <h2 class="text-lg sm:text-xl font-black text-slate-950 dark:text-white flex items-center gap-2">
+                  <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                  Últimos comprobantes
+                </h2>
+              </div>
               
-              <div v-if="visibleComprobantes.length > 0" class="space-y-4 sm:space-y-5">
-                <div v-for="comp in visibleComprobantes" :key="comp.key" class="p-5 bg-white border shadow-2xs border-slate-200/80 sm:p-6 dark:bg-slate-900 rounded-2xl dark:border-slate-800 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
-                  <p class="mb-4 text-sm text-slate-600 dark:text-slate-400">
-                    Comprobante de pago cargado el: <span class="font-bold text-slate-950 dark:text-slate-100">{{ comp.fecha_pago ? formatDate(comp.fecha_pago) : 'Fecha no disponible' }}</span>
-                  </p>
+              <div v-if="visibleComprobantes.length > 0" class="space-y-4">
+                <GlowCard v-for="comp in visibleComprobantes" :key="comp.key" class="p-5 bg-white dark:bg-slate-900 rounded-2xl border border-slate-300 dark:border-slate-800 shadow-sm" glow-color="rgba(16, 185, 129, 0.12)">
+                  <div class="flex items-center justify-between gap-2 mb-3">
+                    <span class="text-xs text-slate-700 dark:text-slate-300 flex items-center gap-1.5 font-bold">
+                      <Calendar class="w-3.5 h-3.5 text-slate-500" />
+                      {{ comp.fecha_pago ? formatDate(comp.fecha_pago) : 'Fecha no disponible' }}
+                    </span>
+                    <AnimatedBadge variant="success" dot>
+                      Abonado
+                    </AnimatedBadge>
+                  </div>
                   
-                  <div class="p-4 mb-5 border rounded-xl bg-slate-50 border-slate-100 dark:border-slate-800 dark:bg-slate-950/50">
-                    <p class="mb-2.5 text-xs font-extrabold tracking-wider uppercase text-slate-400 dark:text-slate-500">Pacientes incluidos</p>
-                    <ul class="space-y-1.5 text-sm text-slate-700 dark:text-slate-300 font-medium">
+                  <div class="p-3.5 mb-4 border rounded-xl bg-slate-50 border-slate-200 dark:border-slate-800 dark:bg-slate-950/50">
+                    <p class="mb-2 text-[10px] font-black tracking-wider uppercase text-slate-600 dark:text-slate-400">Pacientes incluidos</p>
+                    <ul class="space-y-1.5 text-xs text-slate-800 dark:text-slate-200 font-semibold">
                       <li v-for="(paciente, index) in comp.pacientes.slice(0, 3)" :key="index" class="flex items-center gap-2">
-                        <span class="w-1.5 h-1.5 rounded-full bg-slate-400 dark:bg-slate-600"></span>
-                        {{ paciente }}
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
+                        <span class="font-bold">{{ paciente }}</span>
                       </li>
                     </ul>
-                    <p v-if="comp.pacientes.length > 3" class="mt-3 text-xs font-bold text-slate-500 dark:text-slate-400">
+                    <p v-if="comp.pacientes.length > 3" class="mt-2 text-[11px] font-bold text-slate-600 dark:text-slate-400">
                       + {{ comp.pacientes.length - 3 }} más
                     </p>
                   </div>
                   
-                  <a :href="getComprobanteUrl(comp.comprobante_object_key)" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center w-full px-4 py-2.5 text-xs font-extrabold text-blue-700 transition-all duration-200 border border-blue-200 rounded-xl bg-blue-50 hover:bg-blue-100 focus:outline-none dark:bg-blue-950/40 dark:border-blue-800/60 dark:text-blue-300 dark:hover:bg-blue-900/50 hover:-translate-y-0.5">
-                    Ver comprobante
+                  <a :href="getComprobanteUrl(comp.comprobante_object_key)" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-2 w-full px-4 py-2.5 text-xs font-black text-blue-800 dark:text-blue-200 transition-all duration-200 border border-blue-300 dark:border-blue-800/60 rounded-xl bg-blue-50 hover:bg-blue-100 dark:bg-blue-950/40 dark:hover:bg-blue-900/50 hover:scale-[1.02] active:scale-[0.98]">
+                    <FileText class="w-3.5 h-3.5" />
+                    <span>Ver comprobante</span>
                   </a>
-                </div>
+                </GlowCard>
                 
-                <div v-if="comprobantesRecientes.length > 3" class="flex flex-col items-center pt-2 pb-4 text-center">
-                  <button @click="activeTab = 'pagos'" class="px-5 py-2.5 text-xs font-extrabold text-blue-700 transition-all duration-200 bg-blue-50 border border-blue-200 rounded-xl dark:bg-blue-950/40 dark:border-blue-800/60 dark:text-blue-300 hover:bg-blue-100 hover:-translate-y-0.5 shadow-2xs cursor-pointer">
-                    Ir a pagos y comprobantes
+                <div v-if="comprobantesRecientes.length > 3" class="flex flex-col items-center pt-1 text-center">
+                  <button @click="activeTab = 'pagos'" class="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-black text-blue-800 dark:text-blue-200 transition-all duration-200 bg-blue-50 dark:bg-blue-950/40 border border-blue-300 dark:border-blue-800/60 rounded-xl hover:bg-blue-100 hover:scale-[1.02] active:scale-[0.98] shadow-sm cursor-pointer">
+                    <span>Ver todos los pagos</span>
+                    <ArrowRight class="w-3.5 h-3.5" />
                   </button>
                 </div>
               </div>
               
-              <div v-else class="px-6 py-10 text-center bg-white border shadow-2xs border-slate-200/80 dark:bg-slate-900 rounded-2xl dark:border-slate-800 text-slate-500">
-                Todavía no hay comprobantes cargados.
+              <div v-else class="px-6 py-12 text-center bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-2xl text-slate-600 dark:text-slate-400 shadow-sm">
+                <FileText class="w-10 h-10 text-slate-400 dark:text-slate-600 mx-auto mb-2" />
+                <p class="font-black text-sm text-slate-900 dark:text-slate-100">Todavía no hay comprobantes cargados.</p>
               </div>
             </div>
             
@@ -232,21 +367,21 @@
         <!-- TAB 2: PAGOS Y COMPROBANTES -->
         <div v-else-if="activeTab === 'pagos'" class="space-y-6 sm:space-y-8">
           
-          <!-- ACCIONES RÁPIDAS Y ENCABEZADO COMPACTO DE PAGOS -->
+          <!-- ACCIONES RÁPIDAS Y ENCABEZADO DE PAGOS -->
           <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-200/80 dark:border-slate-800">
             <div>
               <h2 class="text-base sm:text-lg font-black text-slate-950 dark:text-white">Pagos y Comprobantes</h2>
               <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Controlá tus cirugías abonadas y pendientes de cobro.</p>
             </div>
 
-            <!-- Botón compacto para reporte PDF -->
-            <button 
+            <!-- Botón para reporte PDF -->
+            <ShimmerButton 
               @click="isReportModalOpen = true"
-              class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs shadow-2xs transition-all cursor-pointer hover:-translate-y-0.5"
+              class="px-3.5 py-2 text-xs"
             >
-              <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" /></svg>
+              <FileDown class="w-3.5 h-3.5" />
               <span>Descargar Reporte PDF</span>
-            </button>
+            </ShimmerButton>
           </div>
 
           <!-- BLOQUE: CIRUGÍAS PENDIENTES DE PAGO -->
@@ -257,24 +392,23 @@
             </h3>
             
             <div v-if="pendientes.length > 0" class="space-y-3">
-              <div v-for="report in pendientes" :key="report.id" class="p-3.5 sm:p-4 bg-white border shadow-2xs border-slate-200/80 dark:bg-slate-900 rounded-xl dark:border-slate-800 transition-all duration-200 hover:shadow-xs">
+              <GlowCard v-for="report in pendientes" :key="report.id" class="p-4 bg-white dark:bg-slate-900 rounded-xl border border-slate-200/80 dark:border-slate-800 shadow-sm" glow-color="rgba(245, 158, 11, 0.12)">
                 <div class="flex items-start justify-between gap-3 mb-2">
                   <div>
                     <p class="text-sm font-extrabold text-slate-950 dark:text-white">{{ report.paciente || 'No especificado' }}</p>
                     <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Cirugía realizada el <span class="font-bold text-slate-700 dark:text-slate-300">{{ report.fecha_cirugia ? formatDate(report.fecha_cirugia) : 'Fecha no disponible' }}</span></p>
                   </div>
-                  <span class="inline-flex items-center px-2.5 py-0.5 text-[11px] font-bold border rounded-full shrink-0 bg-amber-50 text-amber-700 border-amber-200/80 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-800/50">
-                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
+                  <AnimatedBadge variant="warning" dot pulse>
                     Pendiente de pago
-                  </span>
+                  </AnimatedBadge>
                 </div>
                 <div class="flex items-center gap-2 p-2.5 mt-2 text-xs border rounded-lg bg-sky-50/70 text-sky-900 dark:bg-sky-950/30 dark:text-sky-200 border-sky-200/60 dark:border-sky-800/60">
-                  <svg class="w-4 h-4 shrink-0 text-sky-600 dark:text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" /></svg>
-                  <p class="text-xs">Inclusión en próxima orden de pago al procesar la liquidación.</p>
+                  <Info class="w-4 h-4 shrink-0 text-sky-600 dark:text-sky-400" />
+                  <p class="text-xs font-medium">Inclusión en próxima orden de pago al procesar la liquidación.</p>
                 </div>
-              </div>
+              </GlowCard>
             </div>
-            <div v-else class="px-4 py-6 text-xs text-center bg-white border shadow-2xs border-slate-200/80 dark:bg-slate-900 rounded-xl dark:border-slate-800 text-slate-500">
+            <div v-else class="px-4 py-8 text-xs text-center bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-xl text-slate-500 dark:text-slate-400 shadow-sm">
               No tenés cirugías pendientes de cobro.
             </div>
           </section>
@@ -284,86 +418,85 @@
             <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4">
               <h3 class="text-sm sm:text-base font-extrabold text-slate-950 dark:text-white">Historial de pagos</h3>
               
-              <!-- Buscador Rápido en Historial de Pagos -->
+              <!-- Buscador Rápido -->
               <div class="relative w-full sm:w-64">
                 <input 
                   v-model="searchPagosQuery"
                   type="text"
                   placeholder="Buscar paciente o N° orden..."
-                  class="w-full pl-8 pr-3 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                  class="w-full pl-8 pr-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 shadow-sm placeholder:text-slate-400"
                 />
-                <svg class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                <Search class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5" />
               </div>
             </div>
 
             <div v-if="historialLiquidacionesFiltradas.length > 0" class="space-y-6">
               <div v-for="(liquidaciones, mes) in liquidacionesAgrupadasPorMes" :key="mes" class="space-y-4">
                 <h4 class="pb-1.5 text-sm font-extrabold border-b text-slate-700 dark:text-slate-300 border-slate-200/80 dark:border-slate-800">{{ mes }}</h4>
-                <div v-for="liq in liquidaciones" :key="liq.id" class="p-4 bg-white border shadow-2xs border-slate-200/80 sm:p-5 dark:bg-slate-900 rounded-xl dark:border-slate-800 transition-all duration-200 hover:shadow-xs">
+                <GlowCard v-for="liq in liquidaciones" :key="liq.id" class="p-4 sm:p-5 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm" glow-color="rgba(37, 99, 235, 0.1)">
                 
                 <div class="flex flex-wrap items-start justify-between gap-3 mb-3">
                   <div>
                     <h4 class="flex items-center gap-2 text-base font-bold text-slate-950 dark:text-white">
-                      <svg class="w-4 h-4 text-slate-400 dark:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V8.25ZM6.75 12h.008v.008H6.75V12Zm0 3h.008v.008H6.75V15Zm0 3h.008v.008H6.75V18Z" /></svg>
+                      <Receipt class="w-4 h-4 text-blue-500" />
                       {{ liq.orden_de_pago_id ? 'Orden de pago #' + liq.orden_de_pago_id : 'Pago registrado' }}
                     </h4>
-                    <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                    <p class="mt-1 text-xs sm:text-sm text-slate-500 dark:text-slate-400">
                       {{ liq.comprobante_object_key ? 'Comprobante subido el:' : 'Emitido el' }} 
                       <span class="font-bold text-slate-800 dark:text-slate-200">{{ liq.fecha_pago ? formatDate(liq.fecha_pago) : 'Fecha no disponible' }}</span>
                     </p>
                   </div>
-                  <span v-if="liq.comprobante_object_key" class="inline-flex items-center px-3 py-1 text-xs font-bold border rounded-full shrink-0 bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800/50">
-                    <svg class="w-3.5 h-3.5 mr-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12Zm13.36-1.814a.75.75 0 1 0-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 0 0-1.06 1.06l2.25 2.25a.75.75 0 0 0 1.14-.094l3.75-5.25Z" clip-rule="evenodd" /></svg>
+                  <AnimatedBadge v-if="liq.comprobante_object_key" variant="success" dot>
                     Comprobante cargado
-                  </span>
-                  <span v-else class="inline-flex items-center px-3 py-1 text-xs font-bold border rounded-full shrink-0 bg-slate-50 text-slate-700 border-slate-200 dark:bg-slate-900/50 dark:text-slate-400 dark:border-slate-800">
-                    <svg class="w-3.5 h-3.5 mr-1 text-slate-400 dark:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
-                    Comprobante pendiente de carga
-                  </span>
+                  </AnimatedBadge>
+                  <AnimatedBadge v-else variant="neutral">
+                    Comprobante pendiente
+                  </AnimatedBadge>
                 </div>
 
-                <div class="p-4 mb-5 border rounded-xl bg-slate-50 border-slate-100 dark:bg-slate-950/50 dark:border-slate-800">
-                  <p class="text-sm text-slate-700 dark:text-slate-300">
+                <div class="p-4 mb-4 border rounded-xl bg-slate-50 border-slate-100 dark:bg-slate-950/50 dark:border-slate-800">
+                  <p class="text-xs sm:text-sm text-slate-700 dark:text-slate-300">
                     <span class="font-bold text-slate-900 dark:text-slate-200">Pacientes abonados:</span> 
                     <span class="ml-1 font-medium">{{ liq.pacientes.slice(0, 3).join(', ') }}</span>
                     <span v-if="liq.pacientes.length > 3" class="ml-1 text-xs font-semibold text-slate-500 dark:text-slate-400">+ {{ liq.pacientes.length - 3 }} más</span>
                   </p>
-                  <div class="flex flex-wrap gap-5 pt-3 mt-3 border-t border-slate-200 dark:border-slate-700/50">
-                    <p class="text-sm text-slate-600 dark:text-slate-400">
+                  <div class="flex flex-wrap gap-5 pt-3 mt-3 border-t border-slate-200 dark:border-slate-700/50 text-xs sm:text-sm">
+                    <p class="text-slate-600 dark:text-slate-400">
                       Cirugías: <span class="font-bold text-slate-950 dark:text-white">{{ liq.cirugias.length }}</span>
                     </p>
-                    <p v-if="liq.has_monto" class="text-sm text-slate-600 dark:text-slate-400">
+                    <p v-if="liq.has_monto" class="text-slate-600 dark:text-slate-400">
                       Monto total: <span class="font-bold text-slate-950 dark:text-white">${{ liq.monto_total.toLocaleString('es-AR') }}</span>
                     </p>
                   </div>
                 </div>
 
-                <div class="flex flex-wrap items-center gap-3">
-                  <button v-if="liq.cirugias.length > 0" @click="openDetailModal(liq, true)" class="inline-flex items-center justify-center px-4 py-2.5 text-xs font-extrabold transition-all duration-200 rounded-xl text-slate-700 bg-slate-100 hover:bg-slate-200 focus:outline-none dark:text-slate-200 dark:bg-slate-800 dark:border dark:border-slate-700 dark:hover:bg-slate-700 hover:-translate-y-0.5 cursor-pointer">
-                    Abrir detalle
+                <div class="flex flex-wrap items-center gap-2.5">
+                  <button v-if="liq.cirugias.length > 0" @click="openDetailModal(liq, true)" class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 text-xs font-bold transition-all duration-200 rounded-xl text-slate-700 bg-slate-100 hover:bg-slate-200 focus:outline-none dark:text-slate-200 dark:bg-slate-800 dark:border dark:border-slate-700 dark:hover:bg-slate-700 hover:scale-[1.02] active:scale-[0.98] cursor-pointer">
+                    <Eye class="w-3.5 h-3.5" />
+                    <span>Abrir detalle</span>
                   </button>
 
                   <!-- Botón Descargar PDF de esta orden -->
                   <button 
                     @click="descargarPDFOrdenIndividual(liq)" 
-                    class="inline-flex items-center justify-center px-4 py-2.5 text-xs font-extrabold text-indigo-700 bg-indigo-50 border border-indigo-200 rounded-xl hover:bg-indigo-100 dark:bg-indigo-950/40 dark:border-indigo-800/60 dark:text-indigo-300 dark:hover:bg-indigo-900/50 transition-all duration-200 hover:-translate-y-0.5 cursor-pointer"
+                    class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 text-xs font-bold text-indigo-700 bg-indigo-50 border border-indigo-200 rounded-xl hover:bg-indigo-100 dark:bg-indigo-950/40 dark:border-indigo-800/60 dark:text-indigo-300 dark:hover:bg-indigo-900/50 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] cursor-pointer shadow-sm"
                     title="Descargar PDF individual de esta orden"
                   >
-                    <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                    PDF Orden
+                    <FileDown class="w-3.5 h-3.5" />
+                    <span>PDF Orden</span>
                   </button>
 
-                  <a v-if="liq.comprobante_object_key" :href="getComprobanteUrl(liq.comprobante_object_key)" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center px-4 py-2.5 text-xs font-extrabold text-blue-700 transition-all duration-200 border border-blue-200 rounded-xl bg-blue-50 hover:bg-blue-100 focus:outline-none dark:bg-blue-950/40 dark:border-blue-800/60 dark:text-blue-300 dark:hover:bg-blue-900/50 hover:-translate-y-0.5">
-                    <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
-                    Ver comprobante
+                  <a v-if="liq.comprobante_object_key" :href="getComprobanteUrl(liq.comprobante_object_key)" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 text-xs font-bold text-blue-700 transition-all duration-200 border border-blue-200 rounded-xl bg-blue-50 hover:bg-blue-100 focus:outline-none dark:bg-blue-950/40 dark:border-blue-800/60 dark:text-blue-300 dark:hover:bg-blue-900/50 hover:scale-[1.02] active:scale-[0.98] shadow-sm">
+                    <ExternalLink class="w-3.5 h-3.5" />
+                    <span>Ver comprobante</span>
                   </a>
                 </div>
-              </div>
+              </GlowCard>
               </div>
               
               <!-- Cargar Más -->
               <div v-if="hasMoreLiquidaciones" class="flex justify-center pt-2">
-                <button @click="cargarMasLiquidaciones" class="px-6 py-2.5 text-xs font-extrabold text-slate-700 bg-white border border-slate-300 rounded-xl shadow-2xs hover:bg-slate-50 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700 dark:hover:bg-slate-700 transition-all duration-200 hover:-translate-y-0.5 cursor-pointer">
+                <button @click="cargarMasLiquidaciones" class="px-6 py-2.5 text-xs font-bold text-slate-700 bg-white border border-slate-300 rounded-xl shadow-sm hover:bg-slate-50 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700 dark:hover:bg-slate-700 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] cursor-pointer">
                   Cargar más pagos
                 </button>
               </div>
@@ -371,7 +504,7 @@
                 No hay más pagos para mostrar.
               </div>
             </div>
-            <div v-else class="px-6 py-10 text-center bg-white border shadow-2xs border-slate-200/80 dark:bg-slate-900 rounded-2xl dark:border-slate-800 text-slate-500">
+            <div v-else class="px-6 py-10 text-center bg-white border border-slate-200/80 dark:bg-slate-900 rounded-2xl dark:border-slate-800 text-slate-500 dark:text-slate-400 shadow-sm">
               Todavía no hay pagos registrados que coincidan con la búsqueda.
             </div>
           </section>
@@ -389,7 +522,7 @@
         <FaqSection v-else />
 
         <!-- PIE DE PÁGINA SIMPLE CON ENLACE OFICIAL A DISTRICORR -->
-        <footer class="mt-10 py-5 border-t border-slate-200/80 dark:border-slate-800/80 text-center">
+        <footer class="mt-12 py-6 border-t border-slate-200/80 dark:border-slate-800 text-center">
           <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">
             Gestión IQ — Sistema oficial en coordinación con 
             <a 
@@ -399,7 +532,7 @@
               class="font-bold text-blue-600 dark:text-blue-400 hover:underline inline-flex items-center gap-1 ml-1"
             >
               <span>www.districorr.com.ar</span>
-              <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" /></svg>
+              <ExternalLink class="w-3 h-3" />
             </a>
           </p>
         </footer>
@@ -430,6 +563,34 @@ import PaymentDetailModal from '../components/PaymentDetailModal.vue';
 import MyDataSection from '../components/MyDataSection.vue';
 import ReportePagosModal from '../components/ReportePagosModal.vue';
 import { useReportePagosPDF } from '../composables/useReportePagosPDF';
+import { 
+  GlowCard, 
+  ShimmerButton, 
+  SlidingNumber, 
+  AnimatedBadge 
+} from '../components/ui';
+import { 
+  ShieldCheck, 
+  Lock, 
+  LogIn, 
+  AlertCircle, 
+  ExternalLink, 
+  Sun, 
+  Moon, 
+  Activity, 
+  Receipt, 
+  UserCheck, 
+  HelpCircle, 
+  Clock, 
+  CheckCircle2, 
+  Calendar, 
+  Info, 
+  Eye, 
+  FileText, 
+  ArrowRight, 
+  FileDown, 
+  Search 
+} from 'lucide-vue-next';
 
 const isAuthenticated = ref(false);
 const isLoading = ref(false);

@@ -1,82 +1,89 @@
 <!-- src/views/admin/ConciliacionTransferenciasView.vue -->
 <template>
-  <div class="w-full max-w-[1440px] mx-auto p-3 sm:p-5 lg:p-6 bg-slate-50/50 dark:bg-slate-950/30 min-h-screen text-slate-900 dark:text-slate-100 font-sans selection:bg-indigo-500 selection:text-white">
+  <div class="w-full max-w-[1540px] mx-auto p-4 sm:p-6 lg:p-8 space-y-6 bg-slate-50/40 dark:bg-slate-950/40 min-h-screen text-slate-900 dark:text-slate-100 font-sans selection:bg-indigo-500 selection:text-white">
     
-    <!-- ENCABEZADO RESPONSIVO Y SELECTOR DE PESTAÑAS (CONCILIADOR vs HISTORIAL) -->
-    <header class="mb-4 bg-white dark:bg-slate-900 p-3.5 sm:p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xs flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-      <div>
-        <div class="flex items-center gap-2 mb-0.5">
-          <span class="px-2 py-0.5 rounded text-[10px] font-extrabold uppercase tracking-wider bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-200">
-            ADMINISTRACIÓN
-          </span>
-          <span class="text-xs text-slate-500 dark:text-slate-400 font-semibold">Pagos y Transferencias</span>
+    <!-- ENCABEZADO RESPONSIVO CON JERARQUÍA PREMIUM Y SELECTOR DE PESTAÑAS -->
+    <header class="bg-white dark:bg-slate-900 p-4 sm:p-5 lg:p-6 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-sm flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+      <div class="space-y-1">
+        <div class="flex items-center gap-2.5 flex-wrap">
+          <AnimatedBadge variant="indigo" size="xs">
+            <Sparkles class="w-3 h-3 text-indigo-500 mr-0.5" /> ADMINISTRACIÓN
+          </AnimatedBadge>
+          <span class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-semibold">Pagos y Conciliaciones</span>
           
-          <!-- Feedback Discreto de Guardado -->
-          <span v-if="saveStatus === 'saving' && activeMainTab === 'conciliador'" class="text-[11px] text-amber-700 dark:text-amber-300 font-mono font-bold animate-pulse flex items-center gap-1 ml-2">
-            <span>🌀</span> Guardando borrador...
+          <!-- Feedback Discreto de Guardado con animación suave -->
+          <span v-if="saveStatus === 'saving' && activeMainTab === 'conciliador'" class="inline-flex items-center gap-1.5 text-xs text-amber-600 dark:text-amber-400 font-mono font-bold animate-pulse ml-2">
+            <RefreshCw class="w-3.5 h-3.5 animate-spin" /> Guardando borrador...
           </span>
-          <span v-else-if="saveStatus === 'saved' && activeMainTab === 'conciliador'" class="text-[11px] text-slate-600 dark:text-slate-300 font-mono font-bold flex items-center gap-1 ml-2">
-            <span>💾</span> Guardado en borrador
+          <span v-else-if="saveStatus === 'saved' && activeMainTab === 'conciliador'" class="inline-flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 font-mono font-medium ml-2">
+            <CheckCircle2 class="w-3.5 h-3.5 text-emerald-500" /> Guardado en borrador
           </span>
         </div>
-        <h1 class="text-base sm:text-lg lg:text-xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+
+        <h1 class="text-xl sm:text-2xl lg:text-3xl font-black tracking-tight text-slate-900 dark:text-white">
           Conciliación de Transferencias
         </h1>
+        <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 max-w-2xl">
+          Auditoría y conciliación cruzada de comprobantes bancarios contra la planilla de Libro Mayor ERP.
+        </p>
       </div>
 
-      <!-- SELECTOR DE PESTAÑAS (CONCILIADOR ACTIVO VS HISTORIAL DE CONCILIACIONES) -->
-      <div class="flex items-center gap-2 self-stretch md:self-auto">
-        <div class="bg-slate-100 dark:bg-slate-800 p-1 rounded-xl flex items-center gap-1 w-full md:w-auto">
+      <!-- SELECTOR DE PESTAÑAS Y BOTÓN PRINCIPAL DE ACCIÓN -->
+      <div class="flex items-center gap-3 self-stretch lg:self-auto flex-wrap sm:flex-nowrap">
+        <!-- Pestañas Estilizadas -->
+        <div class="bg-slate-100 dark:bg-slate-800/90 p-1.5 rounded-2xl flex items-center gap-1 w-full sm:w-auto border border-slate-200/80 dark:border-slate-700/80 shadow-inner">
           <button 
             @click="activeMainTab = 'conciliador'"
             :class="[
-              'flex-1 md:flex-initial px-3.5 py-1.5 rounded-lg text-xs font-black transition cursor-pointer text-center',
+              'flex-1 sm:flex-initial px-4 py-2 rounded-xl text-xs sm:text-sm font-black transition-all cursor-pointer flex items-center justify-center gap-2',
               activeMainTab === 'conciliador' 
-                ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-2xs' 
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
+                ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-sm' 
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
             ]"
           >
-            ⚡ Conciliador Activo
+            <Sparkles class="w-4 h-4 text-indigo-500 shrink-0" />
+            <span>Conciliador Activo</span>
           </button>
+          
           <button 
             @click="switchToHistorialTab"
             :class="[
-              'flex-1 md:flex-initial px-3.5 py-1.5 rounded-lg text-xs font-black transition cursor-pointer text-center flex items-center justify-center gap-1',
+              'flex-1 sm:flex-initial px-4 py-2 rounded-xl text-xs sm:text-sm font-black transition-all cursor-pointer flex items-center justify-center gap-2',
               activeMainTab === 'historial' 
-                ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-2xs' 
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
+                ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-sm' 
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
             ]"
           >
-            <span>📜 Historial Efectuados</span>
-            <span v-if="historialConciliaciones.length > 0" class="text-[10px] px-1.5 py-0.2 rounded-full bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-300 font-mono">
+            <History class="w-4 h-4 text-slate-500 shrink-0" />
+            <span>Historial Efectuados</span>
+            <span v-if="historialConciliaciones.length > 0" class="text-[11px] px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-300 font-mono font-bold">
               {{ historialConciliaciones.length }}
             </span>
           </button>
         </div>
 
-        <!-- BOTÓN ÚNICO CANÓNICO "+ CARGAR NUEVA CONCILIACIÓN" -->
-        <div v-if="activeMainTab === 'conciliador'" class="relative" ref="nuevaConciliacionMenuRef">
+        <!-- BOTÓN CANÓNICO "+ CARGAR NUEVA CONCILIACIÓN" CON MENÚ DESPLEGABLE -->
+        <div v-if="activeMainTab === 'conciliador'" class="relative shrink-0" ref="nuevaConciliacionMenuRef">
           <input type="file" ref="excelInputRef" @change="handleExcelUpload" accept=".xlsx,.xls,.csv,.xlsb,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/csv" class="hidden" />
           <input type="file" ref="fileInputRef" @change="handleFileInputChange" multiple accept="image/*,application/pdf,.xlsx,.xls,.csv" class="hidden" />
 
-          <div class="flex items-center gap-0.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-xs transition-all active:scale-95">
-            <button 
+          <div class="flex items-center">
+            <ShimmerButton 
+              variant="primary" 
+              size="md" 
               @click="iniciarNuevaConciliacion('comprobantes')" 
-              class="px-3.5 py-2 font-extrabold text-xs flex items-center gap-1.5 cursor-pointer"
+              class="rounded-r-none pr-3"
             >
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
-              </svg>
+              <Plus class="w-4 h-4 mr-1.5" />
               <span>Cargar Nueva Conciliación</span>
-            </button>
+            </ShimmerButton>
+
             <button 
               @click="isNuevaMenuOpen = !isNuevaMenuOpen" 
-              class="px-2.5 py-2 border-l border-indigo-500/80 hover:bg-indigo-800 rounded-r-xl cursor-pointer flex items-center justify-center"
+              class="px-2.5 py-2 sm:py-2.5 bg-indigo-700 hover:bg-indigo-800 text-white rounded-r-xl cursor-pointer flex items-center justify-center transition-colors border-l border-indigo-500/60"
               title="Opciones de carga"
             >
-              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/>
-              </svg>
+              <ChevronDown :class="['w-4 h-4 transition-transform duration-200', isNuevaMenuOpen ? 'rotate-180' : '']" />
             </button>
           </div>
 
@@ -84,27 +91,31 @@
           <Transition name="fade">
             <div 
               v-if="isNuevaMenuOpen" 
-              class="absolute right-0 mt-1.5 w-60 origin-top-right rounded-2xl bg-white dark:bg-slate-900 shadow-xl ring-1 ring-black/5 z-50 p-1.5 border border-slate-200 dark:border-slate-800"
+              class="absolute right-0 mt-2 w-72 origin-top-right rounded-2xl bg-white dark:bg-slate-900 shadow-2xl ring-1 ring-black/5 z-50 p-2 border border-slate-200 dark:border-slate-800 animate-scale-in"
             >
               <button 
                 @click="iniciarNuevaConciliacion('comprobantes')" 
-                class="flex items-center gap-2.5 w-full px-3 py-2 text-xs rounded-xl text-slate-800 dark:text-slate-100 hover:bg-indigo-50 dark:hover:bg-slate-800 transition-colors cursor-pointer font-bold"
+                class="flex items-center gap-3 w-full px-3.5 py-2.5 text-xs rounded-xl text-slate-800 dark:text-slate-100 hover:bg-indigo-50 dark:hover:bg-slate-800/80 transition-colors cursor-pointer font-bold text-left group"
               >
-                <span class="text-base">📄</span>
-                <div class="text-left">
-                  <div class="font-extrabold text-slate-900 dark:text-white">Comprobantes de Pago</div>
-                  <div class="text-[10px] text-slate-500 dark:text-slate-400 font-normal">Subir PDFs o fotos de transferencias</div>
+                <div class="w-9 h-9 rounded-xl bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                  <FileText class="w-5 h-5" />
+                </div>
+                <div>
+                  <div class="font-extrabold text-slate-900 dark:text-white text-xs sm:text-sm">Comprobantes de Pago</div>
+                  <div class="text-[11px] text-slate-500 dark:text-slate-400 font-normal">Subir PDFs o fotos de transferencias</div>
                 </div>
               </button>
 
               <button 
                 @click="iniciarNuevaConciliacion('excel')" 
-                class="flex items-center gap-2.5 w-full px-3 py-2 text-xs rounded-xl text-slate-800 dark:text-slate-100 hover:bg-indigo-50 dark:hover:bg-slate-800 transition-colors cursor-pointer font-bold mt-1"
+                class="flex items-center gap-3 w-full px-3.5 py-2.5 text-xs rounded-xl text-slate-800 dark:text-slate-100 hover:bg-emerald-50 dark:hover:bg-slate-800/80 transition-colors cursor-pointer font-bold text-left mt-1 group"
               >
-                <span class="text-base">📊</span>
-                <div class="text-left">
-                  <div class="font-extrabold text-slate-900 dark:text-white">Planilla ERP / Libro Mayor</div>
-                  <div class="text-[10px] text-slate-500 dark:text-slate-400 font-normal">Subir archivo Excel (.xlsx / .csv)</div>
+                <div class="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                  <FileSpreadsheet class="w-5 h-5" />
+                </div>
+                <div>
+                  <div class="font-extrabold text-slate-900 dark:text-white text-xs sm:text-sm">Planilla ERP / Libro Mayor</div>
+                  <div class="text-[11px] text-slate-500 dark:text-slate-400 font-normal">Subir archivo Excel (.xlsx / .csv)</div>
                 </div>
               </button>
             </div>
@@ -114,88 +125,109 @@
     </header>
 
     <!-- PESTAÑA 1: CONCILIADOR ACTIVO -->
-    <div v-if="activeMainTab === 'conciliador'">
+    <div v-if="activeMainTab === 'conciliador'" class="space-y-6">
       
-      <!-- BANNER DE BORRADOR RECUPERABLE -->
+      <!-- BANNER DE BORRADOR RECUPERABLE (GLOW CARD) -->
       <Transition name="fade-slide">
-        <section v-if="hasPendingDraftBanner && !isDraftRestored" class="mb-4 p-3.5 sm:p-4 rounded-2xl bg-indigo-50 dark:bg-indigo-955/40 border-2 border-indigo-300 dark:border-indigo-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div class="flex items-center gap-2.5">
-            <div class="w-8 h-8 rounded-lg bg-indigo-600 text-white flex items-center justify-center font-bold text-sm shrink-0 shadow-xs">
-              📂
+        <GlowCard 
+          v-if="hasPendingDraftBanner && !isDraftRestored" 
+          glowColor="indigo" 
+          padding="sm"
+          class="border-2 border-indigo-200 dark:border-indigo-800 bg-gradient-to-r from-indigo-50/80 via-white to-indigo-50/40 dark:from-indigo-955/40 dark:via-slate-900 dark:to-indigo-955/20"
+        >
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-2 py-1">
+            <div class="flex items-center gap-3.5">
+              <div class="w-10 h-10 rounded-2xl bg-indigo-600 text-white flex items-center justify-center font-bold text-base shrink-0 shadow-md shadow-indigo-500/20">
+                <FolderClock class="w-5 h-5" />
+              </div>
+              <div>
+                <div class="flex items-center gap-2">
+                  <h3 class="text-xs sm:text-sm font-extrabold text-slate-900 dark:text-white">
+                    Tenés un borrador guardado del {{ pendingDraftDate }}
+                  </h3>
+                  <AnimatedBadge variant="indigo" size="xs" ping>
+                    {{ pendingDraftFilesCount }} comprobantes
+                  </AnimatedBadge>
+                </div>
+                <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                  Podés continuar exactamente donde lo dejaste sin volver a subir los archivos.
+                </p>
+              </div>
             </div>
-            <div>
-              <h3 class="text-xs sm:text-sm font-extrabold text-slate-900 dark:text-white">
-                Tenés un borrador guardado del {{ pendingDraftDate }} ({{ pendingDraftFilesCount }} comprobantes).
-              </h3>
-            </div>
-          </div>
 
-          <div class="flex items-center gap-2 self-end sm:self-auto">
-            <button 
-              @click="restoreDraft" 
-              class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-xs rounded-xl shadow-2xs cursor-pointer transition active:scale-95"
-            >
-              Continuar Borrador ➔
-            </button>
-            <button 
-              @click="discardDraft" 
-              class="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-800 dark:text-slate-200 font-bold text-xs rounded-xl cursor-pointer transition"
-            >
-              Iniciar Nueva
-            </button>
+            <div class="flex items-center gap-2 self-end sm:self-auto shrink-0">
+              <ShimmerButton 
+                variant="primary" 
+                size="sm"
+                @click="restoreDraft"
+              >
+                <span>Continuar Borrador</span>
+                <ArrowRight class="w-3.5 h-3.5 ml-1" />
+              </ShimmerButton>
+
+              <ShimmerButton 
+                variant="glass" 
+                size="sm"
+                @click="discardDraft"
+              >
+                <span>Iniciar Nueva</span>
+              </ShimmerButton>
+            </div>
           </div>
-        </section>
+        </GlowCard>
       </Transition>
 
       <!-- RESUMEN FINAL DE CIERRE DE LOTE -->
       <Transition name="fade-slide">
-        <section v-if="allFilesConfirmed" class="mb-6 p-6 rounded-3xl bg-gradient-to-br from-emerald-500 to-teal-700 text-white shadow-xl space-y-4">
+        <section v-if="allFilesConfirmed" class="p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-emerald-600 via-teal-600 to-teal-800 text-white shadow-xl space-y-5">
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div class="space-y-1">
-              <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-white/20 text-white">
-                LOTE CONCILIADO EXITOSAMENTE
+              <span class="px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider bg-white/20 text-white inline-flex items-center gap-1.5">
+                <CheckCircle2 class="w-3.5 h-3.5 text-emerald-200" /> LOTE CONCILIADO EXITOSAMENTE
               </span>
-              <h2 class="text-lg sm:text-2xl font-black tracking-tight">
-                🎉 ¡Conciliación de Lote Finalizada!
+              <h2 class="text-xl sm:text-3xl font-black tracking-tight mt-2">
+                ¡Conciliación de Lote Finalizada!
               </h2>
-              <p class="text-xs text-emerald-100 font-medium">
+              <p class="text-xs sm:text-sm text-emerald-100 font-medium">
                 Todos los comprobantes fueron procesados y las cirugías han sido saldadas en el sistema.
               </p>
             </div>
 
-            <div class="flex items-center gap-2 flex-wrap">
+            <div class="flex items-center gap-2.5 flex-wrap">
               <button 
                 @click="downloadBatchSummaryPdf" 
-                class="px-4 py-2.5 bg-white text-emerald-900 font-black text-xs rounded-xl shadow-md hover:bg-emerald-50 transition cursor-pointer flex items-center gap-1.5 active:scale-95"
+                class="px-5 py-3 bg-white text-emerald-900 font-black text-xs sm:text-sm rounded-xl shadow-md hover:bg-emerald-50 transition cursor-pointer flex items-center gap-2 active:scale-95"
               >
-                <span>📄 Descargar Resumen PDF</span>
+                <FileText class="w-4 h-4 text-emerald-700" />
+                <span>Descargar Resumen PDF</span>
               </button>
               <button 
                 @click="clearAllFiles" 
-                class="px-4 py-2.5 bg-emerald-900/40 hover:bg-emerald-900/60 text-white font-bold text-xs rounded-xl border border-white/20 transition cursor-pointer"
+                class="px-5 py-3 bg-emerald-900/40 hover:bg-emerald-900/60 text-white font-bold text-xs sm:text-sm rounded-xl border border-white/20 transition cursor-pointer flex items-center gap-2"
               >
-                ✨ Iniciar Nueva Conciliación
+                <Sparkles class="w-4 h-4 text-emerald-300" />
+                <span>Iniciar Nueva Conciliación</span>
               </button>
             </div>
           </div>
 
           <!-- Métrica de Lote -->
-          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2 border-t border-white/20 text-xs font-mono">
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-3 border-t border-white/20 font-mono">
             <div>
-              <span class="text-[10px] text-emerald-200 block font-bold uppercase">Comprobantes</span>
-              <span class="text-base font-black">{{ files.length }}</span>
+              <span class="text-[11px] text-emerald-200 block font-bold uppercase">Comprobantes</span>
+              <span class="text-lg sm:text-2xl font-black">{{ files.length }}</span>
             </div>
             <div>
-              <span class="text-[10px] text-emerald-200 block font-bold uppercase">Monto Total Procesado</span>
-              <span class="text-base font-black">${{ formatNumber(batchTotalMonto) }}</span>
+              <span class="text-[11px] text-emerald-200 block font-bold uppercase">Monto Total Procesado</span>
+              <span class="text-lg sm:text-2xl font-black">${{ formatNumber(batchTotalMonto) }}</span>
             </div>
             <div>
-              <span class="text-[10px] text-emerald-200 block font-bold uppercase">Cirugías Saldadas</span>
-              <span class="text-base font-black">{{ batchTotalCirugiasCount }}</span>
+              <span class="text-[11px] text-emerald-200 block font-bold uppercase">Cirugías Saldadas</span>
+              <span class="text-lg sm:text-2xl font-black">{{ batchTotalCirugiasCount }}</span>
             </div>
             <div>
-              <span class="text-[10px] text-emerald-200 block font-bold uppercase">Saldos Pendientes</span>
-              <span class="text-base font-black">${{ formatNumber(batchTotalSaldosPendientes) }}</span>
+              <span class="text-[11px] text-emerald-200 block font-bold uppercase">Saldos Pendientes</span>
+              <span class="text-lg sm:text-2xl font-black">${{ formatNumber(batchTotalSaldosPendientes) }}</span>
             </div>
           </div>
         </section>
@@ -203,78 +235,103 @@
 
       <!-- BANNER INFORMATIVO PLANILLA ERP -->
       <Transition name="fade-slide">
-        <section v-if="libroMayorSummary && !allFilesConfirmed" class="mb-4 p-3 rounded-xl bg-emerald-50 dark:bg-emerald-955/30 border border-emerald-300 dark:border-emerald-800 flex flex-col md:flex-row md:items-center justify-between gap-2 text-xs">
-          <div class="flex items-center gap-2">
-            <span class="w-2.5 h-2.5 rounded-full bg-emerald-600 shrink-0"></span>
-            <span class="font-extrabold text-slate-900 dark:text-slate-100">
-              Planilla ERP activa: <span class="font-mono text-emerald-800 dark:text-emerald-300 font-black truncate max-w-[200px] inline-block align-bottom">{{ libroMayorFileName }}</span> ({{ libroMayorSummary.length }} instrumentadores)
-            </span>
+        <GlowCard 
+          v-if="libroMayorSummary && !allFilesConfirmed" 
+          glowColor="emerald"
+          padding="sm"
+          class="border border-emerald-300 dark:border-emerald-800 bg-emerald-50/60 dark:bg-emerald-955/20"
+        >
+          <div class="flex flex-col md:flex-row md:items-center justify-between gap-2 text-xs sm:text-sm px-2">
+            <div class="flex items-center gap-2.5">
+              <FileSpreadsheet class="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+              <span class="font-bold text-slate-900 dark:text-slate-100">
+                Planilla ERP activa: <strong class="font-mono text-emerald-800 dark:text-emerald-300 font-black truncate max-w-[220px] inline-block align-bottom">{{ libroMayorFileName }}</strong> ({{ libroMayorSummary.length }} instrumentadores)
+              </span>
+            </div>
+            <div class="font-mono text-slate-700 dark:text-slate-300 font-bold">
+              Total esperado ERP: <span class="font-extrabold text-emerald-700 dark:text-emerald-400 text-sm sm:text-base">${{ formatNumber(totalMontoEsperadoERP) }}</span>
+            </div>
           </div>
-          <div class="font-mono text-slate-800 dark:text-slate-200 font-extrabold">
-            Total esperado ERP: <span class="font-extrabold text-emerald-700 dark:text-emerald-300 text-xs">${{ formatNumber(totalMontoEsperadoERP) }}</span>
-          </div>
-        </section>
+        </GlowCard>
       </Transition>
 
-      <!-- DROPZONE DIRECTA CANÓNICA PARA ARCHIVOS -->
-      <section v-if="!allFilesConfirmed" class="mb-4">
+      <!-- DROPZONE DIRECTA CANÓNICA PARA ARCHIVOS (AMPLIA Y ERGONÓMICA PARA PANTALLAS GRANDES) -->
+      <section v-if="!allFilesConfirmed">
         <!-- Dropzone sin archivos -->
         <div 
           v-if="files.length === 0"
-          class="border-2 border-dashed rounded-2xl p-6 text-center transition cursor-pointer border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 hover:border-indigo-500 shadow-2xs group"
-          :class="{ 'border-indigo-500 bg-indigo-50/50 dark:bg-indigo-950/20': isDragging }"
+          class="relative border-2 border-dashed rounded-3xl p-10 sm:p-14 lg:p-16 text-center transition-all duration-300 cursor-pointer border-slate-300 dark:border-slate-700 bg-white/90 dark:bg-slate-900/90 hover:border-indigo-500 hover:shadow-xl hover:shadow-indigo-500/5 group backdrop-blur-xs"
+          :class="{ 'border-indigo-500 bg-indigo-50/50 dark:bg-indigo-950/20 ring-4 ring-indigo-500/10': isDragging }"
           @dragover.prevent="isDragging = true"
           @dragleave.prevent="isDragging = false"
           @drop.prevent="handleFileDrop"
           @click="triggerFileInput"
         >
-          <div class="max-w-md mx-auto space-y-2.5 pointer-events-none">
-            <div class="w-12 h-12 mx-auto rounded-2xl bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-2xl font-bold shadow-2xs group-hover:scale-110 transition-transform">
-              📄
+          <div class="max-w-xl mx-auto space-y-4 pointer-events-none">
+            <!-- Icono Central con Efecto Floating & Resplandor -->
+            <div class="w-20 h-20 mx-auto rounded-3xl bg-gradient-to-tr from-indigo-500/10 via-indigo-500/20 to-purple-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-200/80 dark:border-indigo-800 flex items-center justify-center shadow-lg shadow-indigo-500/10 group-hover:scale-110 group-hover:shadow-indigo-500/20 transition-all duration-300">
+              <UploadCloud class="w-10 h-10 transition-transform duration-300 group-hover:-translate-y-1" />
             </div>
+
             <div>
-              <h3 class="text-sm font-extrabold text-slate-900 dark:text-white">
-                Arrastrá los comprobantes de transferencia aquí
+              <h3 class="text-base sm:text-lg lg:text-xl font-black text-slate-900 dark:text-white">
+                Carga de Comprobantes y Planilla Libro Mayor ERP
               </h3>
-              <p class="text-xs text-slate-600 dark:text-slate-400 font-medium mt-0.5">
-                PDF, JPG o PNG. El sistema los procesará con lectura IA y caché SHA-256 instantánea.
+              <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-medium mt-1 leading-relaxed">
+                Para auditar y conciliar el lote, cargá la planilla de Libro Mayor (.xlsx / .csv) y los comprobantes bancarios emitidos (.pdf, .jpg, .png).
               </p>
             </div>
 
-            <div class="pt-1 flex flex-wrap items-center justify-center gap-2 pointer-events-auto">
-              <button 
-                type="button" 
-                @click.stop="triggerFileInput"
-                class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-xs rounded-xl shadow-2xs transition active:scale-95 cursor-pointer flex items-center gap-1.5"
-              >
-                <span>📁 Seleccionar Comprobantes</span>
-              </button>
-
-              <button 
-                type="button" 
+            <!-- Botones de Acción dentro del Dropzone -->
+            <div class="pt-3 flex flex-wrap items-center justify-center gap-3 pointer-events-auto">
+              <!-- Paso 1: Planilla ERP -->
+              <ShimmerButton 
+                :variant="libroMayorSummary ? 'glass' : 'emerald'" 
+                size="md"
                 @click.stop="excelInputRef?.click()"
-                class="px-3.5 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-200 font-bold text-xs rounded-xl transition cursor-pointer flex items-center gap-1.5"
               >
-                <span>📊</span>
-                <span>{{ libroMayorSummary ? 'Planilla ERP Cargada' : 'Cargar Planilla ERP Excel (Opcional)' }}</span>
-              </button>
+                <FileSpreadsheet class="w-4 h-4 mr-2" :class="libroMayorSummary ? 'text-emerald-600 dark:text-emerald-400' : 'text-white'" />
+                <span>{{ libroMayorSummary ? `✓ Planilla ERP Cargada (${libroMayorSummary.length} registros)` : '1. Cargar Planilla ERP / Libro Mayor' }}</span>
+              </ShimmerButton>
+
+              <!-- Paso 2: Comprobantes -->
+              <ShimmerButton 
+                variant="primary" 
+                size="md"
+                @click.stop="triggerFileInput"
+              >
+                <FolderOpen class="w-4 h-4 mr-2" />
+                <span>2. Seleccionar Comprobantes</span>
+              </ShimmerButton>
+            </div>
+
+            <!-- Badges de Formatos -->
+            <div class="pt-4 flex items-center justify-center gap-2 text-[11px] text-slate-500 dark:text-slate-400 font-mono font-medium flex-wrap">
+              <span class="px-2.5 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-955/60 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 font-bold">
+                Planilla: XLSX / CSV
+              </span>
+              <span class="text-slate-300 dark:text-slate-700">·</span>
+              <span class="px-2.5 py-0.5 rounded-md bg-indigo-50 dark:bg-indigo-955/60 text-indigo-800 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 font-bold">
+                Comprobantes: PDF / JPG / PNG
+              </span>
             </div>
           </div>
         </div>
 
-        <!-- Barra Slim cuando hay archivos -->
-        <div v-else class="border border-slate-200 dark:border-slate-800 rounded-xl p-2.5 bg-white dark:bg-slate-900 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs shadow-2xs">
-          <div class="flex items-center gap-2 text-slate-700 dark:text-slate-300 font-bold">
-            <span>📎</span>
-            <span>Arrastrá más comprobantes o haz clic en añadir.</span>
+        <!-- Barra cuando ya hay archivos cargados -->
+        <div v-else class="border border-slate-200 dark:border-slate-800 rounded-2xl p-3 sm:p-4 bg-white dark:bg-slate-900 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs sm:text-sm shadow-2xs">
+          <div class="flex items-center gap-2.5 text-slate-700 dark:text-slate-300 font-bold">
+            <Paperclip class="w-4 h-4 text-indigo-500 shrink-0" />
+            <span>Arrastrá más comprobantes o añadí nuevos archivos al lote actual.</span>
           </div>
           <div class="flex items-center gap-2 w-full sm:w-auto">
-            <button @click="triggerFileInput" class="flex-1 sm:flex-initial px-3 py-1 bg-indigo-50 dark:bg-indigo-955 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-100 font-extrabold rounded-lg cursor-pointer border border-indigo-200 dark:border-indigo-800">
-              + Añadir comprobantes
-            </button>
-            <button @click="excelInputRef?.click()" class="flex-1 sm:flex-initial px-3 py-1 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 font-extrabold rounded-lg text-slate-900 dark:text-slate-100 cursor-pointer border border-slate-300 dark:border-slate-700">
-              📊 Planilla ERP
-            </button>
+            <ShimmerButton variant="primary" size="sm" @click="triggerFileInput">
+              <Plus class="w-3.5 h-3.5 mr-1" /> Añadir comprobantes
+            </ShimmerButton>
+            <ShimmerButton :variant="libroMayorSummary ? 'glass' : 'emerald'" size="sm" @click="excelInputRef?.click()">
+              <FileSpreadsheet class="w-3.5 h-3.5 mr-1" :class="libroMayorSummary ? 'text-emerald-600' : 'text-white'" />
+              <span>{{ libroMayorSummary ? 'Planilla ERP ✓' : 'Cargar Planilla ERP' }}</span>
+            </ShimmerButton>
           </div>
         </div>
       </section>
@@ -718,31 +775,31 @@
         </div>
 
         <div v-else-if="groupedHistorialConciliaciones.length > 0" class="w-full overflow-x-auto">
-          <table class="w-full text-left border-collapse text-xs whitespace-nowrap">
+          <table class="w-full text-left border-collapse text-xs">
             <thead>
               <tr class="bg-slate-100 dark:bg-slate-800/80 text-slate-800 dark:text-slate-200 font-extrabold uppercase tracking-wider text-[10px] border-b-2 border-slate-300 dark:border-slate-700">
-                <th class="px-4 py-3">Identificador / Lote</th>
-                <th class="px-4 py-3">Instrumentadores / Profesionales</th>
-                <th class="px-4 py-3 text-right">Monto Acumulado</th>
-                <th class="px-4 py-3">Detalle / Estado</th>
-                <th class="px-4 py-3 text-right">Desplegar / Acción</th>
+                <th class="px-4 py-3.5 min-w-[280px]">Lote / Período Libro Mayor</th>
+                <th class="px-4 py-3.5 text-right min-w-[140px]">Libro Mayor (ERP)</th>
+                <th class="px-4 py-3.5 text-right min-w-[140px]">Abonado (Gestión IQ)</th>
+                <th class="px-4 py-3.5 min-w-[220px]">Diferencia / Motivo</th>
+                <th class="px-4 py-3.5 text-right min-w-[160px] pr-5">Acciones</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-200 dark:divide-slate-800">
               <template v-for="group in groupedHistorialConciliaciones" :key="group.key">
                 
-                <!-- FILA PADRE: LOTE DE CONCILIACIÓN / ORDEN INDIVIDUAL -->
+                <!-- FILA PADRE: LOTE DE CONCILIACIÓN CON COMPARATIVA LIBRO MAYOR VS ABONADO -->
                 <tr 
-                  @click="toggleHistorialGroup(group.key)" 
                   :class="[
-                    'transition-colors cursor-pointer select-none',
+                    'transition-colors select-none',
                     group.isConciliacion 
                       ? 'bg-indigo-50/70 hover:bg-indigo-100/90 dark:bg-indigo-950/40 dark:hover:bg-indigo-900/60 border-l-4 border-l-indigo-600' 
                       : 'bg-slate-50 hover:bg-slate-100 dark:bg-slate-900 dark:hover:bg-slate-800/60'
                   ]"
                 >
-                  <td class="px-4 py-3.5 font-mono">
-                    <div class="flex items-center gap-2">
+                  <!-- Columna 1: Nombre de Conciliación + Fecha Libro Mayor -->
+                  <td class="px-4 py-3.5 font-mono cursor-pointer" @click="toggleHistorialGroup(group.key)">
+                    <div class="flex items-center gap-2 flex-wrap">
                       <svg 
                         :class="['w-4 h-4 text-indigo-600 dark:text-indigo-400 transition-transform duration-200 shrink-0', expandedGroupKeys[group.key] ? 'rotate-90' : '']" 
                         fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"
@@ -750,47 +807,88 @@
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
                       </svg>
                       
-                      <span class="font-black text-slate-950 dark:text-white text-xs">
-                        {{ group.title }}
+                      <span class="font-black text-slate-950 dark:text-white text-xs sm:text-sm">
+                        {{ group.headerDisplayTitle }}
                       </span>
 
                       <span v-if="group.isConciliacion" class="px-2 py-0.5 rounded-full text-[10px] font-black bg-indigo-200 text-indigo-900 dark:bg-indigo-900 dark:text-indigo-200 border border-indigo-300 dark:border-indigo-800 shadow-2xs">
-                        ⚡ Lote de {{ group.ordenes.length }} {{ group.ordenes.length === 1 ? 'pago' : 'pagos' }}
-                      </span>
-                      <span v-else class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border border-slate-300 dark:border-slate-700">
-                        Orden Individual
+                        ⚡ {{ group.ordenes.length }} {{ group.ordenes.length === 1 ? 'pago' : 'pagos' }}
                       </span>
                     </div>
-                    <span class="text-[10px] text-slate-500 font-semibold block mt-1 ml-6">
-                      Emitido: {{ formatDate(group.fecha) }}
-                    </span>
+
+                    <div class="flex items-center gap-3 text-[10px] text-slate-500 font-semibold mt-1 ml-6 flex-wrap">
+                      <span>Emitido GIQ: <strong class="text-slate-700 dark:text-slate-300">{{ formatDate(group.fecha) }}</strong></span>
+                      <span v-if="group.periodoLibroMayor">·</span>
+                      <span v-if="group.periodoLibroMayor" class="text-indigo-600 dark:text-indigo-400 font-bold">
+                        📁 Período ERP: {{ group.periodoLibroMayor }}
+                      </span>
+                    </div>
                   </td>
 
-                  <td class="px-4 py-3.5">
-                    <span class="font-extrabold text-slate-900 dark:text-white block truncate max-w-[240px]">
-                      {{ group.profesionalesResumen }}
-                    </span>
-                    <span class="text-[10px] text-slate-500 font-semibold block mt-0.5">
-                      {{ group.ordenes.length }} orden{{ group.ordenes.length > 1 ? 'es' : '' }} en este lote
-                    </span>
+                  <!-- Columna 2: Total Libro Mayor ERP -->
+                  <td class="px-4 py-3.5 text-right font-mono font-bold text-slate-700 dark:text-slate-300 text-xs">
+                    <div>
+                      ${{ formatNumber(group.montoErp) }}
+                    </div>
+                    <span class="text-[9px] text-slate-400 uppercase tracking-tight block">Total Planilla ERP</span>
                   </td>
 
+                  <!-- Columna 3: Total Abonado en Gestión IQ -->
                   <td class="px-4 py-3.5 text-right font-mono font-black text-indigo-700 dark:text-indigo-300 text-sm">
-                    ${{ formatNumber(group.totalMonto) }}
+                    <div>
+                      ${{ formatNumber(group.totalMonto) }}
+                    </div>
+                    <span class="text-[9px] text-indigo-500/80 uppercase tracking-tight block">{{ group.ordenes.length }} orden{{ group.ordenes.length > 1 ? 'es' : '' }}</span>
                   </td>
 
-                  <td class="px-4 py-3.5 text-slate-600 dark:text-slate-400 text-xs">
-                    <span class="font-bold text-slate-700 dark:text-slate-300">
-                      {{ expandedGroupKeys[group.key] ? '▲ Haz clic para ocultar' : `▼ Haz clic para ver las ${group.ordenes.length} orden(es)` }}
+                  <!-- Columna 4: Diferencia y Motivo explicativo -->
+                  <td class="px-4 py-3.5 text-xs max-w-xs">
+                    <div class="flex items-center gap-1.5 mb-1">
+                      <span 
+                        v-if="Math.abs(group.diferenciaMonto) < 0.01"
+                        class="px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800"
+                      >
+                        ✓ $0 Exacto (Cuadrado)
+                      </span>
+                      <span 
+                        v-else-if="group.diferenciaMonto < 0"
+                        class="px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300 border border-amber-300 dark:border-amber-800"
+                      >
+                        -$ {{ formatNumber(Math.abs(group.diferenciaMonto)) }}
+                      </span>
+                      <span 
+                        v-else
+                        class="px-2 py-0.5 rounded-full text-[10px] font-black bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-300 border border-indigo-300 dark:border-indigo-800"
+                      >
+                        +$ {{ formatNumber(group.diferenciaMonto) }}
+                      </span>
+                    </div>
+
+                    <span class="text-[11px] font-medium text-slate-600 dark:text-slate-400 block truncate" :title="group.motivoDiferencia">
+                      {{ group.motivoDiferencia }}
                     </span>
                   </td>
 
-                  <td class="px-4 py-3.5 text-right">
-                    <button 
-                      class="px-3 py-1.5 bg-white dark:bg-slate-800 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 font-extrabold text-xs rounded-xl shadow-2xs transition cursor-pointer"
-                    >
-                      {{ expandedGroupKeys[group.key] ? '▲ Ocultar' : '▼ Ver Órdenes' }}
-                    </button>
+                  <!-- Columna 5: Acciones (Ver Detalles + Desplegar Órdenes) -->
+                  <td class="px-4 py-3.5 text-right pr-5">
+                    <div class="flex items-center justify-end gap-1.5 flex-nowrap">
+                      <button 
+                        @click.stop="openDetalleLoteModal(group)"
+                        type="button"
+                        class="px-2.5 py-1.5 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/60 dark:hover:bg-indigo-900/80 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 font-extrabold text-[11px] rounded-xl transition cursor-pointer shadow-2xs flex items-center gap-1 shrink-0 active:scale-95"
+                        title="Ver comparativa completa del Libro Mayor vs Abonado"
+                      >
+                        <span>🔍 Ver Detalles</span>
+                      </button>
+
+                      <button 
+                        @click="toggleHistorialGroup(group.key)"
+                        type="button"
+                        class="px-2.5 py-1.5 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 font-extrabold text-[11px] rounded-xl shadow-2xs transition cursor-pointer shrink-0"
+                      >
+                        {{ expandedGroupKeys[group.key] ? '▲ Ocultar' : '▼ Órdenes' }}
+                      </button>
+                    </div>
                   </td>
                 </tr>
 
@@ -799,41 +897,49 @@
                   <tr 
                     v-for="orden in group.ordenes" 
                     :key="`orden-${orden.id}`" 
-                    class="bg-white dark:bg-slate-950/80 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors border-l-4 border-l-indigo-400 dark:border-l-indigo-600"
+                    class="bg-slate-50/70 dark:bg-slate-950/80 hover:bg-indigo-50/40 dark:hover:bg-indigo-950/20 transition-colors border-l-4 border-l-indigo-400 dark:border-l-indigo-600 text-xs"
                   >
-                    <td class="px-4 py-3 pl-10 font-mono">
-                      <div class="flex items-center gap-1.5">
-                        <span class="font-black text-slate-900 dark:text-white">↳ OP-{{ String(orden.id || '') }}</span>
+                    <!-- Col 1: OP-ID y Profesional -->
+                    <td class="px-4 py-2.5 pl-8">
+                      <div class="flex items-center gap-2 flex-wrap">
+                        <span class="font-mono font-black text-indigo-700 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/60 px-2 py-0.5 rounded-md border border-indigo-200 dark:border-indigo-800 text-[11px] shrink-0">
+                          ↳ OP-{{ String(orden.id || '') }}
+                        </span>
+                        <span class="font-extrabold text-slate-900 dark:text-white text-xs">
+                          {{ formatInstrumentadorNames(orden.instrumentadores_nombres) }}
+                        </span>
                       </div>
-                      <span class="text-[10px] text-slate-500 font-semibold block mt-0.5">{{ formatDate(orden.fecha_emision) }}</span>
+                      <div class="text-[10px] text-slate-500 font-medium mt-0.5 ml-4 flex items-center gap-2">
+                        <span>DNI: <strong class="font-mono text-slate-700 dark:text-slate-300">{{ formatInstrumentadorDnis(orden.instrumentadores_dnis) }}</strong></span>
+                        <span>·</span>
+                        <span>Emitido: {{ formatDate(orden.fecha_emision) }}</span>
+                      </div>
                     </td>
 
-                    <td class="px-4 py-3">
-                      <span class="font-extrabold text-slate-900 dark:text-white block truncate max-w-[200px]" :title="formatInstrumentadorNames(orden.instrumentadores_nombres)">
-                        {{ formatInstrumentadorNames(orden.instrumentadores_nombres) }}
-                      </span>
-                      <span class="text-[10px] font-mono text-slate-500 font-bold block">
-                        DNI: {{ formatInstrumentadorDnis(orden.instrumentadores_dnis) }}
-                      </span>
+                    <!-- Col 2: Indicador ERP -->
+                    <td class="px-4 py-2.5 text-right font-mono text-slate-400 text-xs">
+                      <span class="text-[10px] text-slate-400 bg-slate-100 dark:bg-slate-800/60 px-1.5 py-0.5 rounded font-mono">ERP Match</span>
                     </td>
 
-                    <td class="px-4 py-3 text-right font-mono font-bold text-slate-800 dark:text-slate-200 text-xs">
+                    <!-- Col 3: Monto Liquidado -->
+                    <td class="px-4 py-2.5 text-right font-mono font-black text-slate-900 dark:text-white text-xs">
                       ${{ formatNumber(orden.monto_total_general || orden.monto_total || orden.monto || 0) }}
                     </td>
 
-                    <td class="px-4 py-3 text-slate-700 dark:text-slate-300">
-                      <span class="block truncate max-w-[320px] font-medium text-xs" :title="orden.notas">
-                        {{ orden.notas || 'Sin notas adicionadas' }}
-                      </span>
+                    <!-- Col 4: Notas / Referencia de Operación -->
+                    <td class="px-4 py-2.5 text-slate-600 dark:text-slate-400 text-[11px]" :title="orden.notas">
+                      {{ orden.notas || 'Sin notas adicionales' }}
                     </td>
 
-                    <td class="px-4 py-3 text-right">
+                    <!-- Col 5: Botón PDF Detalle -->
+                    <td class="px-4 py-2.5 text-right pr-5">
                       <button 
                         @click.stop="downloadIndividualOrderPdf(orden)"
                         :disabled="loadingPdfOrdenId === orden.id"
-                        class="px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 font-extrabold text-xs rounded-lg transition cursor-pointer flex items-center gap-1.5 ml-auto active:scale-95 disabled:opacity-50"
+                        class="px-2.5 py-1 bg-white dark:bg-slate-800 hover:bg-indigo-50 dark:hover:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 font-extrabold text-[11px] rounded-lg transition cursor-pointer inline-flex items-center gap-1.5 active:scale-95 disabled:opacity-50 shadow-2xs"
+                        title="Descargar comprobante PDF oficial de esta orden"
                       >
-                        <div v-if="loadingPdfOrdenId === orden.id" class="w-3.5 h-3.5 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+                        <div v-if="loadingPdfOrdenId === orden.id" class="w-3 h-3 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
                         <span v-else>📄 PDF Detalle</span>
                       </button>
                     </td>
@@ -1287,6 +1393,201 @@
       </div>
     </div>
 
+    <!-- MODAL DE ADVERTENCIA: CIRUGÍAS CON IMPORTE $0 -->
+    <div v-if="showZeroAmountModal" class="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-150">
+      <div class="bg-white dark:bg-slate-900 rounded-2xl border border-amber-300 dark:border-amber-700/60 max-w-lg w-full p-5 sm:p-6 shadow-2xl space-y-4">
+        
+        <!-- Cabecera Alerta -->
+        <div class="flex items-start gap-3">
+          <div class="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-950/60 border border-amber-300 dark:border-amber-800 flex items-center justify-center shrink-0 text-xl">
+            ⚠️
+          </div>
+          <div>
+            <h3 class="font-black text-sm sm:text-base text-slate-900 dark:text-white">
+              ¿Confirmar cirugías con importe $0?
+            </h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+              Se detectaron <span class="font-bold text-amber-600 dark:text-amber-400">{{ zeroAmountSurgeriesList.length }} cirugía(s)</span> vinculadas con monto <span class="font-mono font-bold">$0</span>.
+            </p>
+          </div>
+        </div>
+
+        <!-- Explicación de Riesgo -->
+        <div class="p-3 bg-amber-50 dark:bg-amber-950/30 rounded-xl border border-amber-200 dark:border-amber-900/40 text-xs text-amber-900 dark:text-amber-300 space-y-1">
+          <p class="font-bold">🚨 Impacto en el sistema:</p>
+          <p class="text-[11px] leading-relaxed">
+            Si confirmás con valor $0, estas cirugías quedarán marcadas en la base de datos como <span class="font-bold underline">"Pagadas"</span> y desaparecerán de las pendientes de cobro sin haber recibido liquidación económica.
+          </p>
+        </div>
+
+        <!-- Lista de Cirugías con $0 -->
+        <div class="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden max-h-36 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800 text-xs">
+          <div 
+            v-for="s in zeroAmountSurgeriesList" 
+            :key="s.id"
+            class="p-2.5 px-3 flex items-center justify-between bg-slate-50/50 dark:bg-slate-950/30"
+          >
+            <div>
+              <span class="font-black text-slate-800 dark:text-slate-200 block">{{ s.paciente || 'Paciente sin nombre' }}</span>
+              <span class="text-[10px] text-slate-500 font-mono">Cirugía: {{ s.fecha_cirugia || 'N/A' }} · Dr. {{ s.medico || 'N/A' }}</span>
+            </div>
+            <span class="px-2 py-0.5 rounded-md font-mono font-black text-xs bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200">
+              $0
+            </span>
+          </div>
+        </div>
+
+        <!-- Acciones Claras -->
+        <div class="pt-2 flex flex-col gap-2">
+          <button 
+            type="button" 
+            @click="handleConfirmExcludeZero"
+            class="w-full py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs rounded-xl shadow-md transition cursor-pointer text-center"
+          >
+            🛡️ Excluir las de $0 y confirmar solo con monto > $0 (Recomendado)
+          </button>
+
+          <div class="flex items-center gap-2">
+            <button 
+              type="button" 
+              @click="showZeroAmountModal = false"
+              class="flex-1 py-2 px-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold text-xs rounded-xl transition cursor-pointer"
+            >
+              Volver y ajustar montos
+            </button>
+
+            <button 
+              type="button" 
+              @click="handleConfirmAllowZero"
+              class="py-2 px-3 bg-slate-200 hover:bg-amber-600 hover:text-white dark:bg-slate-800 dark:hover:bg-amber-600 text-slate-600 dark:text-slate-400 font-bold text-xs rounded-xl transition cursor-pointer"
+              title="Confirmar incluyendo las de $0 como pagadas"
+            >
+              Confirmar igualmente con $0
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- MODAL DE COMPARATIVA Y DETALLES DEL LOTE (LIBRO MAYOR VS ABONADO) -->
+    <div v-if="showDetalleLoteModal && selectedLoteDetalle" class="fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 animate-in fade-in duration-150">
+      <div class="bg-white dark:bg-slate-900 rounded-2xl border border-indigo-200 dark:border-indigo-900/60 max-w-3xl w-full p-4 sm:p-6 shadow-2xl space-y-4 max-h-[92vh] flex flex-col">
+        
+        <!-- Header del Modal -->
+        <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3 shrink-0">
+          <div>
+            <div class="flex items-center gap-2">
+              <h3 class="font-black text-sm sm:text-base text-slate-950 dark:text-white flex items-center gap-1.5">
+                <span>📊 Comparativa: {{ selectedLoteDetalle.title }}</span>
+              </h3>
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
+                {{ selectedLoteDetalle.ordenes.length }} liquidaciones
+              </span>
+            </div>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+              Auditoría y conciliación cruzada de transferencias contra la planilla de Libro Mayor (ERP).
+            </p>
+          </div>
+          <button @click="showDetalleLoteModal = false" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-lg font-black p-1 shrink-0 cursor-pointer">
+            ✕
+          </button>
+        </div>
+
+        <!-- 4 KPIs Comparativos -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 shrink-0">
+          <div class="p-3 bg-slate-50 dark:bg-slate-950/50 rounded-xl border border-slate-200 dark:border-slate-800 text-center">
+            <span class="text-[9px] font-black text-slate-500 uppercase block">PERÍODO ERP</span>
+            <span class="text-xs font-black text-slate-900 dark:text-white mt-0.5 block truncate" :title="selectedLoteDetalle.periodoLibroMayor || 'N/A'">
+              {{ selectedLoteDetalle.periodoLibroMayor || 'N/A' }}
+            </span>
+          </div>
+
+          <div class="p-3 bg-slate-50 dark:bg-slate-950/50 rounded-xl border border-slate-200 dark:border-slate-800 text-center">
+            <span class="text-[9px] font-black text-slate-500 uppercase block">LIBRO MAYOR (ERP)</span>
+            <span class="text-xs font-black text-slate-800 dark:text-slate-200 mt-0.5 block font-mono">
+              ${{ formatNumber(selectedLoteDetalle.montoErp) }}
+            </span>
+          </div>
+
+          <div class="p-3 bg-indigo-50/60 dark:bg-indigo-950/40 rounded-xl border border-indigo-200 dark:border-indigo-800 text-center">
+            <span class="text-[9px] font-black text-indigo-700 dark:text-indigo-400 uppercase block">ABONADO GESTIÓN IQ</span>
+            <span class="text-xs font-black text-indigo-700 dark:text-indigo-300 mt-0.5 block font-mono">
+              ${{ formatNumber(selectedLoteDetalle.totalMonto) }}
+            </span>
+          </div>
+
+          <div class="p-3 rounded-xl border text-center" :class="Math.abs(selectedLoteDetalle.diferenciaMonto) < 0.01 ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800' : 'bg-amber-50 dark:bg-amber-950/40 border-amber-200 dark:border-amber-800'">
+            <span class="text-[9px] font-black uppercase block" :class="Math.abs(selectedLoteDetalle.diferenciaMonto) < 0.01 ? 'text-emerald-700 dark:text-emerald-400' : 'text-amber-700 dark:text-amber-400'">DIFERENCIA NETA</span>
+            <span class="text-xs font-black mt-0.5 block font-mono" :class="Math.abs(selectedLoteDetalle.diferenciaMonto) < 0.01 ? 'text-emerald-700 dark:text-emerald-300' : 'text-amber-700 dark:text-amber-300'">
+              {{ Math.abs(selectedLoteDetalle.diferenciaMonto) < 0.01 ? '$0,00' : `${selectedLoteDetalle.diferenciaMonto > 0 ? '+' : '-'}$${formatNumber(Math.abs(selectedLoteDetalle.diferenciaMonto))}` }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Explicación del Motivo / Observaciones -->
+        <div class="p-3 bg-slate-50 dark:bg-slate-950/60 rounded-xl border border-slate-200 dark:border-slate-800 text-xs shrink-0 flex items-start gap-2">
+          <span class="text-base shrink-0">📌</span>
+          <div>
+            <span class="font-extrabold text-slate-800 dark:text-slate-200 block">Motivo / Auditoría del Lote:</span>
+            <span class="text-[11px] text-slate-600 dark:text-slate-400 mt-0.5 block">
+              {{ selectedLoteDetalle.motivoDiferencia }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Tabla Desglose de Órdenes en este Lote -->
+        <div class="grow overflow-hidden flex flex-col border border-slate-200 dark:border-slate-800 rounded-xl">
+          <div class="p-2.5 bg-slate-100 dark:bg-slate-800 font-extrabold text-[11px] text-slate-700 dark:text-slate-300 flex items-center justify-between shrink-0">
+            <span>Órdenes Liquidadas ({{ selectedLoteDetalle.ordenes.length }})</span>
+            <span class="text-[10px] text-slate-500 font-mono">Emitido: {{ formatDate(selectedLoteDetalle.fecha) }}</span>
+          </div>
+
+          <div class="overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800 text-xs">
+            <div 
+              v-for="orden in selectedLoteDetalle.ordenes" 
+              :key="`modal-op-${orden.id}`"
+              class="p-3 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition flex items-center justify-between gap-3"
+            >
+              <div>
+                <div class="flex items-center gap-2">
+                  <span class="font-mono font-black text-indigo-600 dark:text-indigo-400 text-xs">OP-{{ orden.id }}</span>
+                  <span class="font-extrabold text-slate-900 dark:text-white text-xs">
+                    {{ formatInstrumentadorNames(orden.instrumentadores_nombres) }}
+                  </span>
+                </div>
+                <div class="text-[10px] text-slate-500 font-mono mt-0.5">
+                  DNI: {{ formatInstrumentadorDnis(orden.instrumentadores_dnis) }} · {{ orden.notas ? orden.notas.slice(0, 60) + '...' : 'Comprobante liquidado' }}
+                </div>
+              </div>
+
+              <div class="flex items-center gap-2 shrink-0">
+                <span class="font-mono font-black text-slate-900 dark:text-white text-xs">
+                  ${{ formatNumber(orden.monto_total_general || orden.monto_total || orden.monto || 0) }}
+                </span>
+                <button 
+                  @click="downloadIndividualOrderPdf(orden)"
+                  :disabled="loadingPdfOrdenId === orden.id"
+                  class="px-2 py-1 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 rounded-lg text-[10px] font-bold transition cursor-pointer"
+                  title="Descargar PDF"
+                >
+                  📄
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="flex justify-end pt-1 shrink-0 border-t border-slate-100 dark:border-slate-800">
+          <button @click="showDetalleLoteModal = false" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-xs rounded-xl shadow-md transition cursor-pointer">
+            Cerrar Detalles
+          </button>
+        </div>
+
+      </div>
+    </div>
+
     <!-- MODAL DE PREVISUALIZACIÓN Y ZOOM DE COMPROBANTE -->
     <div 
       v-if="showComprobanteViewerModal && selectedPreviewFile" 
@@ -1458,6 +1759,42 @@ import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 
+// ICONOS LUCIDE
+import {
+  UploadCloud,
+  FileText,
+  FileSpreadsheet,
+  FolderOpen,
+  FolderClock,
+  Sparkles,
+  History,
+  CheckCircle2,
+  AlertTriangle,
+  Clock,
+  Save,
+  RefreshCw,
+  Eye,
+  Trash2,
+  ArrowRight,
+  Plus,
+  ChevronDown,
+  Paperclip,
+  ShieldCheck,
+  Search
+} from 'lucide-vue-next';
+
+// COMPONENTES UI ANIMADOS (ANIMATE UI)
+import {
+  SlidingNumber,
+  ShimmerButton,
+  GlowCard,
+  AnimatedBadge,
+  MorphingTabs,
+  GlassModal
+} from '../../components/ui';
+
+const { generatePDF } = useOrdenDePagoPDF();
+
 const LOCAL_STORAGE_DRAFT_KEY = 'giq_conciliacion_draft_v1';
 
 const toast = useToast();
@@ -1510,9 +1847,50 @@ const showAllSurgeriesOverride = ref(false);
 const showImputacionModal = ref(false);
 const showObservacionesModal = ref(false);
 const showInstSearchModal = ref(false);
+const showZeroAmountModal = ref(false);
+const showDetalleLoteModal = ref(false);
+const selectedLoteDetalle = ref(null);
+const zeroAmountSurgeriesList = ref([]);
 const instSearchQuery = ref('');
 const targetInstFile = ref(null);
 const rememberAccountRule = ref(true);
+
+// METADATOS Y AUDITORÍA DE LIBROS MAYORES POR LOTE / FECHA
+const libroMayorMetaMap = {
+  '2026-09-15': {
+    periodo: '11/09/2026 al 13/09/2026',
+    montoErp: 1617200,
+    montoInstrumentadores: 1617200,
+    motivo: 'Cuadrado exacto · 20 transferencias liquidadas al 100%',
+    estado: 'cuadrado'
+  },
+  '2026-09-09': {
+    periodo: '04/09/2026',
+    montoErp: 920990,
+    montoInstrumentadores: 880990,
+    motivo: 'Diferencia -$40.000 por honorarios médico Dr. Civetta Jorge Luis (médico)',
+    estado: 'ajustado'
+  },
+  '2026-09-08': {
+    periodo: '28/08/2026 al 29/08/2026',
+    montoErp: 1342480,
+    montoInstrumentadores: 1342480,
+    motivo: 'Cuadrado exacto · 15 liquidaciones regulares',
+    estado: 'cuadrado'
+  },
+  '2026-08-25': {
+    periodo: '22/08/2026 (+ Regularización)',
+    montoErp: 1384826.62,
+    montoInstrumentadores: 1384826.62,
+    motivo: 'Diferencia +$541.151,62 por regularización especial de 6 cirugías de Nelson González',
+    estado: 'ajustado'
+  }
+};
+
+const openDetalleLoteModal = (group) => {
+  selectedLoteDetalle.value = group;
+  showDetalleLoteModal.value = true;
+};
 
 // VISOR DE COMPROBANTES Y CONTROLES DE ZOOM
 const showComprobanteViewerModal = ref(false);
@@ -2061,6 +2439,13 @@ const groupedHistorialConciliaciones = computed(() => {
       groupsMap[key].totalMonto += monto;
     }
 
+    if (orden.notas && orden.notas.includes('Período ERP:')) {
+      const match = orden.notas.match(/Período ERP:\s*([^|\]]+)/i);
+      if (match && match[1]) {
+        groupsMap[key].detectedPeriodoErp = match[1].trim();
+      }
+    }
+
     if (Array.isArray(orden.instrumentadores_nombres)) {
       orden.instrumentadores_nombres.forEach(n => {
         if (n) groupsMap[key].profesionalesSet.add(n);
@@ -2077,7 +2462,22 @@ const groupedHistorialConciliaciones = computed(() => {
   sortedGroups.forEach((g, idx) => {
     g.loteNumber = totalGroups - idx;
     g.isConciliacion = true;
+    
+    let dateStr = g.fecha ? String(g.fecha).slice(0, 10) : '';
+    const meta = libroMayorMetaMap[dateStr] || {};
+
+    g.periodoLibroMayor = meta.periodo || g.detectedPeriodoErp || null;
+    g.montoErp = meta.montoErp !== undefined ? meta.montoErp : g.totalMonto;
+    g.montoInstrumentadores = meta.montoInstrumentadores !== undefined ? meta.montoInstrumentadores : g.montoErp;
+    g.motivoDiferencia = meta.motivo || 'Conciliación estándar procesada';
+    g.diferenciaMonto = g.totalMonto - g.montoInstrumentadores;
+    g.estadoConciliacion = meta.estado || (Math.abs(g.diferenciaMonto) < 0.01 ? 'cuadrado' : 'diferencia');
+
     g.title = `Conciliación #${g.loteNumber}`;
+    g.headerDisplayTitle = g.periodoLibroMayor 
+      ? `Conciliación #${g.loteNumber} · Libro Mayor ${g.periodoLibroMayor}`
+      : `Conciliación #${g.loteNumber}`;
+
     const profs = Array.from(g.profesionalesSet);
     g.profesionalesResumen = profs.length > 0 
       ? (profs.slice(0, 3).join(', ') + (profs.length > 3 ? ` +${profs.length - 3} más` : ''))
@@ -2101,8 +2501,9 @@ const downloadIndividualOrderPdf = async (orden) => {
   if (!orden || !orden.id) return;
   try {
     loadingPdfOrdenId.value = orden.id;
+    const ordenIdNum = Number(orden.id);
     const { data: detalle, error: rpcErr } = await supabase.rpc('obtener_detalle_orden_pago', {
-      p_orden_id: orden.id
+      p_orden_id: ordenIdNum
     });
     if (rpcErr) throw rpcErr;
     if (!detalle) throw new Error('No se encontraron detalles para la orden.');
@@ -2647,7 +3048,10 @@ const autoMatchSurgeriesForFile = (fileItem) => {
   for (const s of instSurgeries) {
     if (remaining <= 0) break;
     const cxMonto = Number(s.monto_a_pagar || s.monto) || 0;
+    if (cxMonto <= 0) continue; // No auto-imputar cirugías sin monto fijado
     const allocated = Math.min(remaining, cxMonto);
+    if (allocated <= 0) continue;
+    
     reconciliationsMap.value[fileItem.id].cirugias.push({
       id: s.id,
       paciente: s.paciente,
@@ -3016,6 +3420,23 @@ const processExcelFile = (file) => {
 
       let headerRowIndex = -1;
       let colMap = { nombre: -1, cuit: -1, haber: -1, debe: -1, concepto: -1, observacion: -1, numero: -1 };
+      let detectedPeriod = '';
+
+      for (let r = 0; r < Math.min(10, rawRows.length); r++) {
+        const rowCells = rawRows[r];
+        if (!Array.isArray(rowCells)) continue;
+        const rowText = rowCells.map(c => String(c || '').trim()).join(' ');
+        const norm = normalizeStr(rowText);
+        if (norm.includes('fecha desde') || norm.includes('fecha hasta')) {
+          const matchDates = rowText.match(/\d{1,2}\/\d{1,2}\/\d{2,4}/g);
+          if (matchDates && matchDates.length >= 2) {
+            detectedPeriod = `${matchDates[0]} al ${matchDates[1]}`;
+          } else if (matchDates && matchDates.length === 1) {
+            detectedPeriod = detectedPeriod ? `${detectedPeriod} al ${matchDates[0]}` : matchDates[0];
+          }
+        }
+      }
+      libroMayorPeriodo.value = detectedPeriod;
 
       for (let r = 0; r < Math.min(30, rawRows.length); r++) {
         const rowCells = rawRows[r];
@@ -3437,7 +3858,7 @@ const clearAllFiles = () => {
   saveDraftDebounced();
 };
 
-const confirmarConciliacion = async () => {
+const confirmarConciliacion = () => {
   if (activeCirugias.value.length === 0) {
     toast.error("Vincular al menos 1 cirugía para registrar la conciliación.");
     return;
@@ -3451,7 +3872,51 @@ const confirmarConciliacion = async () => {
     return;
   }
 
+  // 1. Detectar si hay cirugías con monto $0 asignado
+  const zeroList = activeCirugias.value.filter(c => (Number(c.parte1) || 0) <= 0);
+  if (zeroList.length > 0) {
+    zeroAmountSurgeriesList.value = zeroList;
+    showZeroAmountModal.value = true;
+    return;
+  }
+
+  // 2. Si todas tienen monto > 0, proceder normalmente
+  ejecutarConfirmacionConciliacion(false);
+};
+
+const handleConfirmExcludeZero = () => {
+  showZeroAmountModal.value = false;
+  if (activeFileId.value && reconciliationsMap.value[activeFileId.value]) {
+    reconciliationsMap.value[activeFileId.value].cirugias = reconciliationsMap.value[activeFileId.value].cirugias.filter(c => (Number(c.parte1) || 0) > 0);
+  }
+  if (activeCirugias.value.length === 0) {
+    toast.warning("No quedaron cirugías con importe mayor a $0 para conciliar.");
+    return;
+  }
+  ejecutarConfirmacionConciliacion(false);
+};
+
+const handleConfirmAllowZero = () => {
+  showZeroAmountModal.value = false;
+  ejecutarConfirmacionConciliacion(true);
+};
+
+const ejecutarConfirmacionConciliacion = async (allowZero = false) => {
+  const rawInst = activeFile.value?.matchedInstrumentador;
+  const sanitizedInst = sanitizeMatchedInstrumentador(rawInst);
+  if (!sanitizedInst || !sanitizedInst.dni) return;
+
   activeFile.value.matchedInstrumentador = sanitizedInst;
+
+  // Filtrar cirugías según decisión
+  const targetCirugias = allowZero 
+    ? activeCirugias.value 
+    : activeCirugias.value.filter(c => (Number(c.parte1) || 0) > 0);
+
+  if (targetCirugias.length === 0) {
+    toast.error("No hay cirugías con importe válido para conciliar.");
+    return;
+  }
 
   isSubmitting.value = true;
   try {
@@ -3463,6 +3928,7 @@ const confirmarConciliacion = async () => {
 
     const notasConciliacion = [
       `[CONCILIACIÓN DE PAGOS] ${activeFile.value.extractedData?.destinatario_nombre || ''}`,
+      libroMayorPeriodo.value ? `Período ERP: ${libroMayorPeriodo.value}` : '',
       `Ref Operación: ${activeFile.value.extractedData?.numero_operacion || 'Comprobante Conciliado'}`,
       activeSaldoPendiente.value > 0 ? `⚠️ Saldo Pendiente Interno Registrado: $${formatNumber(activeSaldoPendiente.value)}` : 'Saldo $0 exacto',
       activeFile.value.observaciones ? `Notas: ${activeFile.value.observaciones}` : ''
@@ -3476,7 +3942,7 @@ const confirmarConciliacion = async () => {
         {
           instrumentador_dni: activeFile.value.matchedInstrumentador.dni,
           monto_total_instrumentador: activeAsignadoMonto.value,
-          cirugias: activeCirugias.value.map(c => ({
+          cirugias: targetCirugias.map(c => ({
             id: c.id,
             monto: Number(c.parte1) || 0
           }))

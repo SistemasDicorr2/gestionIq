@@ -1,78 +1,217 @@
 <!-- src/components/NewInstrumentadorModal.vue -->
 <template>
-  <Transition name="fade">
-    <div v-if="show" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-3 sm:p-4 overflow-hidden" @click.self="$emit('close')">
-      <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden transform transition-all border border-slate-100 dark:border-slate-700">
-        
-        <!-- Header del Modal (Fixed) -->
-        <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-700/80 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/50 shrink-0">
-          <h2 class="text-lg sm:text-xl font-bold text-slate-900 dark:text-slate-100">Nuevo Instrumentador</h2>
-          <button @click="$emit('close')" class="p-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700">
-            <svg class="w-5 h-5 text-slate-500 dark:text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-          </button>
+  <GlassModal
+    :open="show"
+    title="Nuevo Instrumentador"
+    description="Registrar un nuevo perfil profesional en la base de datos de Gestión IQ."
+    maxWidth="2xl"
+    @close="$emit('close')"
+  >
+    <!-- Template del Título con Icono -->
+    <template #title>
+      <div class="flex items-center gap-2.5">
+        <div class="w-9 h-9 rounded-xl bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold text-base shrink-0 border border-indigo-200 dark:border-indigo-800">
+          <UserPlus class="w-5 h-5" />
         </div>
-
-        <!-- Body Scrollable -->
-        <form @submit.prevent="handleSubmit" class="flex-1 overflow-y-auto p-5 sm:p-6">
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            
-            <div class="space-y-4">
-              <div>
-                <label for="new-nombre_completo" class="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1">Nombre Completo</label>
-                <input v-model="formData.nombre_completo" type="text" id="new-nombre_completo" required class="form-input" />
-              </div>
-              <div>
-                <label for="new-dni" class="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1">DNI</label>
-                <input v-model="formData.dni" type="text" id="new-dni" required class="form-input" />
-              </div>
-              <div>
-                <label for="new-cuil" class="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1">CUIL</label>
-                <input v-model="formData.cuil" type="text" id="new-cuil" class="form-input" />
-              </div>
-            </div>
-
-            <div class="space-y-4">
-              <div>
-                <label for="new-alias" class="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1">Alias</label>
-                <input v-model="formData.alias" type="text" id="new-alias" class="form-input" />
-              </div>
-              <div>
-                <label for="new-telefono" class="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1">Teléfono</label>
-                <input v-model="formData.telefono" type="tel" id="new-telefono" class="form-input" />
-              </div>
-              <div>
-                <label for="new-lugar_trabajo" class="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1">Lugar de Trabajo</label>
-                <input v-model="formData.lugar_trabajo" type="text" id="new-lugar_trabajo" class="form-input" />
-              </div>
-            </div>
-
-            <div class="sm:col-span-2">
-              <label for="new-puntos_manuales" class="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1">Puntos Manuales (Inicial)</label>
-              <input v-model.number="formData.puntos_manuales" type="number" id="new-puntos_manuales" class="form-input" />
-            </div>
-
-          </div>
-        </form>
-        
-        <!-- Footer del Modal (Fixed) -->
-        <div class="px-6 py-3.5 bg-slate-50 dark:bg-slate-800/60 border-t border-slate-100 dark:border-slate-700 flex justify-end space-x-3 shrink-0">
-          <button type="button" @click="$emit('close')" class="px-4 py-2 text-xs font-semibold text-slate-700 bg-white border border-slate-300 rounded-lg shadow-sm hover:bg-slate-50 dark:bg-slate-700 dark:text-slate-200 dark:border-slate-600 dark:hover:bg-slate-600">
-            Cancelar
-          </button>
-          <button @click="handleSubmit" :disabled="isSubmitting" class="px-4 py-2 text-xs font-semibold bg-blue-600 text-white rounded-lg shadow-sm hover:bg-blue-700 disabled:opacity-50">
-            {{ isSubmitting ? 'Creando...' : 'Crear Instrumentador' }}
-          </button>
+        <div>
+          <span class="text-base sm:text-lg font-black text-slate-900 dark:text-white block">Nuevo Instrumentador</span>
+          <span class="text-xs text-slate-500 dark:text-slate-400 font-normal block">Alta de profesional y cuenta de liquidación</span>
         </div>
-
       </div>
-    </div>
-  </Transition>
+    </template>
+
+    <!-- Formulario Principal con GlowCards organizadas -->
+    <form @submit.prevent="handleSubmit" id="new-instrumentador-form" class="space-y-4 pt-1">
+      
+      <!-- SECCIÓN 1: DATOS PERSONALES -->
+      <GlowCard glowColor="indigo" padding="sm" class="border border-slate-200/80 dark:border-slate-800 space-y-3">
+        <div class="flex items-center gap-2 pb-2.5 border-b border-slate-100 dark:border-slate-800">
+          <User class="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+          <h3 class="text-xs font-black tracking-wider uppercase text-slate-900 dark:text-slate-100">
+            Datos Personales y Contacto
+          </h3>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 text-xs">
+          <div class="sm:col-span-2">
+            <label for="new-nombre_completo" class="block font-bold text-slate-700 dark:text-slate-300 mb-1">
+              Nombre Completo <span class="text-rose-500">*</span>
+            </label>
+            <input 
+              v-model="formData.nombre_completo" 
+              type="text" 
+              id="new-nombre_completo" 
+              required 
+              placeholder="Ej: Perez Maria Laura"
+              class="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl text-xs sm:text-sm font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:bg-white dark:focus:bg-slate-900 focus:outline-none transition-all placeholder:text-slate-400 placeholder:font-normal" 
+            />
+          </div>
+
+          <div>
+            <label for="new-dni" class="block font-bold text-slate-700 dark:text-slate-300 mb-1">
+              DNI <span class="text-rose-500">*</span>
+            </label>
+            <input 
+              v-model="formData.dni" 
+              type="text" 
+              id="new-dni" 
+              required 
+              placeholder="Ej: 34511933"
+              class="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl text-xs sm:text-sm font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:bg-white dark:focus:bg-slate-900 focus:outline-none transition-all placeholder:text-slate-400 placeholder:font-normal font-mono" 
+            />
+          </div>
+
+          <div>
+            <label for="new-cuil" class="block font-bold text-slate-700 dark:text-slate-300 mb-1">
+              CUIT / CUIL
+            </label>
+            <input 
+              v-model="formData.cuil" 
+              type="text" 
+              id="new-cuil" 
+              placeholder="Ej: 27345119334"
+              class="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl text-xs sm:text-sm font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:bg-white dark:focus:bg-slate-900 focus:outline-none transition-all placeholder:text-slate-400 placeholder:font-normal font-mono" 
+            />
+          </div>
+
+          <div>
+            <label for="new-telefono" class="block font-bold text-slate-700 dark:text-slate-300 mb-1">
+              Teléfono de Contacto
+            </label>
+            <input 
+              v-model="formData.telefono" 
+              type="tel" 
+              id="new-telefono" 
+              placeholder="Ej: 3794123456"
+              class="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl text-xs sm:text-sm font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:bg-white dark:focus:bg-slate-900 focus:outline-none transition-all placeholder:text-slate-400 placeholder:font-normal" 
+            />
+          </div>
+
+          <div>
+            <label for="new-lugar_trabajo" class="block font-bold text-slate-700 dark:text-slate-300 mb-1">
+              Lugar de Trabajo Habitual
+            </label>
+            <input 
+              v-model="formData.lugar_trabajo" 
+              type="text" 
+              id="new-lugar_trabajo" 
+              placeholder="Ej: Sanatorio Del Norte / Clínica San José"
+              class="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl text-xs sm:text-sm font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:bg-white dark:focus:bg-slate-900 focus:outline-none transition-all placeholder:text-slate-400 placeholder:font-normal" 
+            />
+          </div>
+        </div>
+      </GlowCard>
+
+      <!-- SECCIÓN 2: DATOS BANCARIOS -->
+      <GlowCard glowColor="emerald" padding="sm" class="border border-slate-200/80 dark:border-slate-800 space-y-3">
+        <div class="flex items-center gap-2 pb-2.5 border-b border-slate-100 dark:border-slate-800">
+          <Wallet class="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+          <h3 class="text-xs font-black tracking-wider uppercase text-slate-900 dark:text-slate-100">
+            Datos Bancarios para Liquidaciones
+          </h3>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 text-xs">
+          <div>
+            <label for="new-banco" class="block font-bold text-slate-700 dark:text-slate-300 mb-1">
+              Entidad Bancaria
+            </label>
+            <input 
+              v-model="formData.banco" 
+              type="text" 
+              id="new-banco" 
+              placeholder="Ej: Banco Corrientes / Mercado Pago"
+              class="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl text-xs sm:text-sm font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:bg-white dark:focus:bg-slate-900 focus:outline-none transition-all placeholder:text-slate-400 placeholder:font-normal" 
+            />
+          </div>
+
+          <div>
+            <label for="new-alias" class="block font-bold text-slate-700 dark:text-slate-300 mb-1">
+              Alias Bancario
+            </label>
+            <input 
+              v-model="formData.alias" 
+              type="text" 
+              id="new-alias" 
+              placeholder="Ej: MARIA.PAZ.MP"
+              class="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl text-xs sm:text-sm font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:bg-white dark:focus:bg-slate-900 focus:outline-none transition-all placeholder:text-slate-400 placeholder:font-normal uppercase" 
+            />
+          </div>
+
+          <div class="sm:col-span-2">
+            <label for="new-cbu" class="block font-bold text-slate-700 dark:text-slate-300 mb-1">
+              CBU / CVU (22 dígitos)
+            </label>
+            <input 
+              v-model="formData.cbu" 
+              type="text" 
+              id="new-cbu" 
+              maxlength="22"
+              placeholder="Ej: 0000003100084512345678"
+              class="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl text-xs sm:text-sm font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:bg-white dark:focus:bg-slate-900 focus:outline-none transition-all placeholder:text-slate-400 placeholder:font-normal font-mono" 
+            />
+          </div>
+        </div>
+      </GlowCard>
+
+      <!-- SECCIÓN 3: PROGRAMA IQ Y PUNTOS -->
+      <GlowCard glowColor="amber" padding="sm" class="border border-slate-200/80 dark:border-slate-800 space-y-3">
+        <div class="flex items-center gap-2 pb-2.5 border-b border-slate-100 dark:border-slate-800">
+          <Award class="w-4 h-4 text-amber-500" />
+          <h3 class="text-xs font-black tracking-wider uppercase text-slate-900 dark:text-slate-100">
+            Programa IQ y Puntaje Inicial
+          </h3>
+        </div>
+
+        <div class="text-xs">
+          <label for="new-puntos_manuales" class="block font-bold text-slate-700 dark:text-slate-300 mb-1">
+            Puntos Manuales Iniciales
+          </label>
+          <input 
+            v-model.number="formData.puntos_manuales" 
+            type="number" 
+            id="new-puntos_manuales" 
+            min="0"
+            placeholder="0"
+            class="w-full sm:w-1/2 px-3.5 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl text-xs sm:text-sm font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-amber-500 focus:bg-white dark:focus:bg-slate-900 focus:outline-none transition-all placeholder:text-slate-400 placeholder:font-normal font-mono" 
+          />
+        </div>
+      </GlowCard>
+
+    </form>
+
+    <!-- Footer con Botones Shimmer -->
+    <template #footer>
+      <div class="flex items-center justify-end gap-2.5 w-full">
+        <ShimmerButton 
+          variant="glass" 
+          size="sm"
+          type="button" 
+          @click="$emit('close')"
+        >
+          Cancelar
+        </ShimmerButton>
+
+        <ShimmerButton 
+          variant="primary" 
+          size="sm"
+          :loading="isSubmitting" 
+          @click="handleSubmit"
+        >
+          <Plus class="w-4 h-4 mr-1" />
+          <span>{{ isSubmitting ? 'Creando...' : 'Crear Instrumentador' }}</span>
+        </ShimmerButton>
+      </div>
+    </template>
+  </GlassModal>
 </template>
 
 <script setup>
 import { ref, watch } from 'vue';
 import { supabase } from '../services/supabase.js';
 import { useToast } from 'vue-toastification';
+import { User, UserPlus, Wallet, Award, Plus } from 'lucide-vue-next';
+import { GlassModal, GlowCard, ShimmerButton } from './ui';
 
 const props = defineProps({
   show: Boolean,
@@ -87,6 +226,8 @@ const initialFormData = {
   dni: '',
   cuil: '',
   alias: '',
+  banco: '',
+  cbu: '',
   telefono: '',
   lugar_trabajo: '',
   puntos_manuales: 0,
@@ -129,8 +270,3 @@ watch(() => props.show, (newVal) => {
   }
 });
 </script>
-
-<style scoped>
-.fade-enter-active, .fade-leave-active { transition: opacity 0.3s ease; }
-.fade-enter-from, .fade-leave-to { opacity: 0; }
-</style>
