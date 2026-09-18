@@ -662,13 +662,27 @@ async function abrirCompartir(orden) {
 
   for (const inst of shareInstrumentadores.value) {
     try {
-      const { data, error: rpcError } = await supabase.rpc('generar_token_resumen_instrumentador', {
-        p_dni: inst.dni
+      // 1. Intentar obtener/generar token con la RPC oficial
+      const { data: token, error: rpcError } = await supabase.rpc('generar_activity_token', {
+        p_instrumentador_dni: String(inst.dni).trim()
       });
-      if (rpcError) throw rpcError;
-      inst.token = data;
+
+      if (!rpcError && token) {
+        inst.token = token;
+      } else {
+        // Fallback: consultar token directamente en tabla instrumentadores
+        const { data: instData } = await supabase
+          .from('instrumentadores')
+          .select('activity_token')
+          .eq('dni', String(inst.dni).trim())
+          .maybeSingle();
+
+        if (instData?.activity_token) {
+          inst.token = instData.activity_token;
+        }
+      }
     } catch (err) {
-      console.error(`Error al generar el token para ${inst.nombre}:`, err);
+      console.error(`Error al obtener token para ${inst.nombre}:`, err);
     } finally {
       inst.loading = false;
     }
