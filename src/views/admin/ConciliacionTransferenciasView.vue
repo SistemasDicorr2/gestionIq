@@ -2889,9 +2889,7 @@ const checkDuplicateTransfer = (fileItem) => {
 
   const rawOp = fileItem.extractedData?.numero_operacion ? String(fileItem.extractedData.numero_operacion).trim() : '';
   const normOp = normalizeOpCode(rawOp);
-  const transferMonto = Number(fileItem.extractedData?.monto_transferido) || 0;
-  const cuit = fileItem.extractedData?.destinatario_cuit_cuil ? fileItem.extractedData.destinatario_cuit_cuil.replace(/\D/g, '') : '';
-  const fecha = fileItem.extractedData?.fecha_transferencia || '';
+  const fileHash = fileItem.fileHash || '';
 
   // 1. Chequeo contra el historial de órdenes de pago registradas en Supabase
   if (historialConciliaciones.value && historialConciliaciones.value.length > 0) {
@@ -2899,7 +2897,7 @@ const checkDuplicateTransfer = (fileItem) => {
       const notas = String(orden.notas || '').toLowerCase();
       const normNotas = normalizeOpCode(notas);
       
-      // A. Coincidencia de código de operación normalizado
+      // A. Coincidencia estricta de número de comprobante / operación
       if (normOp && normOp.length >= 4 && (notas.includes(rawOp.toLowerCase()) || normNotas.includes(normOp))) {
         return true;
       }
@@ -2923,22 +2921,19 @@ const checkDuplicateTransfer = (fileItem) => {
     }
   }
 
-  // 2. Chequeo contra duplicados dentro del mismo lote activo
+  // 2. Chequeo contra duplicados dentro del mismo lote activo (ÚNICAMENTE por número de comprobante o archivo físico idéntico)
   const siblingDuplicate = files.value.find(other => {
     if (other.id === fileItem.id) return false;
     
-    // A. Mismo código de operación
-    const otherRawOp = other.extractedData?.numero_operacion ? String(other.extractedData.numero_operacion).trim() : '';
-    const otherNormOp = normalizeOpCode(otherRawOp);
-    if (normOp && otherNormOp && normOp.length >= 4 && normOp === otherNormOp) {
+    // A. Mismo archivo físico exacto subido dos veces (mismo SHA-256)
+    if (fileHash && other.fileHash && fileHash === other.fileHash) {
       return true;
     }
 
-    // B. Mismo CUIT + mismo monto exacto + misma fecha (transferencia gemela subida dos veces)
-    const otherCuit = other.extractedData?.destinatario_cuit_cuil ? other.extractedData.destinatario_cuit_cuil.replace(/\D/g, '') : '';
-    const otherMonto = Number(other.extractedData?.monto_transferido) || 0;
-    const otherFecha = other.extractedData?.fecha_transferencia || '';
-    if (cuit && otherCuit && cuit === otherCuit && transferMonto > 0 && Math.abs(transferMonto - otherMonto) < 0.01 && fecha && otherFecha && fecha === otherFecha) {
+    // B. Mismo número de comprobante / operación bancaria
+    const otherRawOp = other.extractedData?.numero_operacion ? String(other.extractedData.numero_operacion).trim() : '';
+    const otherNormOp = normalizeOpCode(otherRawOp);
+    if (normOp && otherNormOp && normOp.length >= 4 && normOp === otherNormOp) {
       return true;
     }
 
