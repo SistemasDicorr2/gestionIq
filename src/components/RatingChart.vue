@@ -40,9 +40,12 @@ const props = defineProps({
 const countsList = computed(() => {
   const counts = [0, 0, 0, 0, 0];
   for (const report of props.reports) {
-    const rating = report[props.field];
-    if (rating >= 1 && rating <= 5) {
-      counts[rating - 1]++;
+    const rawVal = parseFloat(report[props.field]);
+    if (!isNaN(rawVal)) {
+      const rounded = Math.round(rawVal);
+      if (rounded >= 1 && rounded <= 5) {
+        counts[rounded - 1]++;
+      }
     }
   }
   return counts;

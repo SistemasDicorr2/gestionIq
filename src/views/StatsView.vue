@@ -27,13 +27,13 @@
       <!-- Fila 1: Filtros de Fecha -->
       <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between border-b border-slate-100 dark:border-slate-800/80 pb-4">
         <div class="grid gap-4 sm:grid-cols-2 md:grid-cols-[180px_180px_auto]">
-          <label class="flex flex-col gap-1 text-sm font-semibold text-slate-700 dark:text-slate-350">
+          <label class="flex flex-col gap-1 text-sm font-semibold text-slate-700 dark:text-slate-300">
             <span>Fecha Desde</span>
-            <input v-model="filters.from" type="date" class="form-input" @change="fetchStats" />
+            <input v-model="filters.from" type="date" class="form-input" @change="onManualDateChange" />
           </label>
-          <label class="flex flex-col gap-1 text-sm font-semibold text-slate-700 dark:text-slate-355">
+          <label class="flex flex-col gap-1 text-sm font-semibold text-slate-700 dark:text-slate-300">
             <span>Fecha Hasta</span>
-            <input v-model="filters.to" type="date" class="form-input" @change="fetchStats" />
+            <input v-model="filters.to" type="date" class="form-input" @change="onManualDateChange" />
           </label>
         </div>
         
@@ -56,7 +56,7 @@
 
       <!-- Fila 2: Filtros Avanzados -->
       <div class="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
-        <label class="flex flex-col gap-1 text-sm font-semibold text-slate-705 dark:text-slate-300">
+        <label class="flex flex-col gap-1 text-sm font-semibold text-slate-700 dark:text-slate-300">
           <span>Filtrar por Médico</span>
           <select v-model="filters.medico" class="form-select">
             <option value="">Todos los médicos</option>
@@ -64,7 +64,7 @@
           </select>
         </label>
 
-        <label class="flex flex-col gap-1 text-sm font-semibold text-slate-705 dark:text-slate-300">
+        <label class="flex flex-col gap-1 text-sm font-semibold text-slate-700 dark:text-slate-300">
           <span>Filtrar por Técnico</span>
           <select v-model="filters.instrumentador" class="form-select">
             <option value="">Todos los técnicos</option>
@@ -72,7 +72,7 @@
           </select>
         </label>
 
-        <label class="flex flex-col gap-1 text-sm font-semibold text-slate-705 dark:text-slate-300">
+        <label class="flex flex-col gap-1 text-sm font-semibold text-slate-700 dark:text-slate-300">
           <span>Filtrar por Clínica / Institución</span>
           <input 
             v-model="filters.lugar_cirugia" 
@@ -119,25 +119,35 @@
             <h3 class="text-sm font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Rendimiento y Productividad</h3>
           </div>
           
-          <div class="grid grid-cols-2 gap-4">
-            <!-- Promedio Diario -->
-            <div class="relative overflow-hidden p-4 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50/30 dark:bg-slate-955/20">
-              <span class="text-xxs font-bold text-slate-400 uppercase tracking-wider">Promedio Diario</span>
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
+            <!-- Promedio Día Hábil (Lun-Vie) -->
+            <div class="relative overflow-hidden p-4 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50/40 dark:bg-slate-950/20">
+              <span class="text-xxs font-bold text-slate-400 uppercase tracking-wider">Día Hábil (Lun-Vie)</span>
+              <p class="text-2xl font-black text-slate-800 dark:text-slate-200 mt-1">{{ avgCompletadasPorDiaHabil }}</p>
+              <span class="text-[10px] text-slate-400 block mt-1">fichas / día hábil</span>
+              <div class="absolute bottom-0 inset-x-0 h-1 bg-blue-500/20 dark:bg-blue-500/10"></div>
+            </div>
+
+            <!-- Promedio Día Corrido (Calendario) -->
+            <div class="relative overflow-hidden p-4 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50/40 dark:bg-slate-950/20">
+              <span class="text-xxs font-bold text-slate-400 uppercase tracking-wider">Día Corrido</span>
               <p class="text-2xl font-black text-slate-800 dark:text-slate-200 mt-1">{{ avgCompletadasPorDia }}</p>
-              <span class="text-[10px] text-slate-400 block mt-1">fichas completadas / día</span>
-              <div class="absolute bottom-0 inset-x-0 h-1 bg-blue-500/10 dark:bg-blue-500/5"></div>
+              <span class="text-[10px] text-slate-400 block mt-1">fichas / día corrido</span>
+              <div class="absolute bottom-0 inset-x-0 h-1 bg-slate-400/20 dark:bg-slate-600/10"></div>
             </div>
             
             <!-- Promedio Semanal -->
-            <div class="relative overflow-hidden p-4 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50/30 dark:bg-slate-955/20">
+            <div class="relative overflow-hidden p-4 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50/40 dark:bg-slate-950/20 col-span-2 sm:col-span-1">
               <span class="text-xxs font-bold text-slate-400 uppercase tracking-wider">Promedio Semanal</span>
               <p class="text-2xl font-black text-slate-800 dark:text-slate-200 mt-1">{{ avgCompletadasPorSemana }}</p>
-              <span class="text-[10px] text-slate-400 block mt-1">fichas completadas / sem</span>
-              <div class="absolute bottom-0 inset-x-0 h-1 bg-emerald-500/10 dark:bg-emerald-500/5"></div>
+              <span class="text-[10px] text-slate-400 block mt-1">fichas / sem</span>
+              <div class="absolute bottom-0 inset-x-0 h-1 bg-emerald-500/20 dark:bg-emerald-500/10"></div>
             </div>
           </div>
           
-          <p class="text-xxs text-slate-400 italic">Calculado en base a los {{ daysInRange }} días del período activo.</p>
+          <p class="text-xxs text-slate-400 italic">
+            Calculado sobre {{ businessDaysInRange }} días hábiles ({{ daysInRange }} días corridos) del período activo.
+          </p>
         </div>
 
         <!-- Tarjeta de Tendencia de Calidad (Semana vs Mes vs Mes Anterior) -->
@@ -154,15 +164,17 @@
             </svg>
           </div>
 
-          <div v-if="!trendLoading" class="flex items-center justify-between gap-4 py-1 text-center">
+          <div v-if="!trendLoading" class="flex items-center justify-between gap-2 sm:gap-4 py-1 text-center">
             
             <!-- Columna 1: Esta Semana -->
             <div class="flex-1">
               <span class="text-xxs font-bold text-slate-400 uppercase tracking-wider block mb-1">Esta Semana</span>
               <div class="inline-flex items-baseline space-x-0.5">
-                <span class="text-2xl font-black text-slate-800 dark:text-slate-100">{{ weeklyAvgRating.toFixed(2) }}</span>
-                <span class="text-[10px] text-amber-500 font-bold">★</span>
+                <span v-if="weeklyCount > 0" class="text-2xl font-black text-slate-800 dark:text-slate-100">{{ weeklyAvgRating.toFixed(2) }}</span>
+                <span v-else class="text-lg font-bold text-slate-400">-</span>
+                <span v-if="weeklyCount > 0" class="text-[10px] text-amber-500 font-bold">★</span>
               </div>
+              <span class="text-[10px] text-slate-400 block mt-0.5">{{ weeklyCount }} {{ weeklyCount === 1 ? 'eval.' : 'evals.' }}</span>
             </div>
 
             <!-- Desviación: Semana vs Mes -->
@@ -182,9 +194,11 @@
             <div class="flex-1">
               <span class="text-xxs font-bold text-slate-400 uppercase tracking-wider block mb-1">Este Mes</span>
               <div class="inline-flex items-baseline space-x-0.5">
-                <span class="text-2xl font-black text-slate-800 dark:text-slate-100">{{ monthlyAvgRating.toFixed(2) }}</span>
-                <span class="text-[10px] text-amber-500 font-bold">★</span>
+                <span v-if="monthlyCount > 0" class="text-2xl font-black text-slate-800 dark:text-slate-100">{{ monthlyAvgRating.toFixed(2) }}</span>
+                <span v-else class="text-lg font-bold text-slate-400">-</span>
+                <span v-if="monthlyCount > 0" class="text-[10px] text-amber-500 font-bold">★</span>
               </div>
+              <span class="text-[10px] text-slate-400 block mt-0.5">{{ monthlyCount }} {{ monthlyCount === 1 ? 'eval.' : 'evals.' }}</span>
             </div>
 
             <!-- Desviación: Mes vs Mes Anterior -->
@@ -204,9 +218,11 @@
             <div class="flex-1">
               <span class="text-xxs font-bold text-slate-400 uppercase tracking-wider block mb-1">Mes Anterior</span>
               <div class="inline-flex items-baseline space-x-0.5">
-                <span class="text-2xl font-black text-slate-800 dark:text-slate-100">{{ lastMonthAvgRating.toFixed(2) }}</span>
-                <span class="text-[10px] text-amber-500 font-bold">★</span>
+                <span v-if="lastMonthCount > 0" class="text-2xl font-black text-slate-800 dark:text-slate-100">{{ lastMonthAvgRating.toFixed(2) }}</span>
+                <span v-else class="text-lg font-bold text-slate-400">-</span>
+                <span v-if="lastMonthCount > 0" class="text-[10px] text-amber-500 font-bold">★</span>
               </div>
+              <span class="text-[10px] text-slate-400 block mt-0.5">{{ lastMonthCount }} {{ lastMonthCount === 1 ? 'eval.' : 'evals.' }}</span>
             </div>
 
           </div>
@@ -216,7 +232,7 @@
           </div>
 
           <p class="text-xxs text-slate-400 border-t border-slate-100 dark:border-slate-800/80 pt-2">
-            Compara la calificación de la semana actual con el mes en curso y la media cerrada del mes anterior.
+            Compara la calificación de la semana actual con el mes en curso y la media cerrada del mes anterior (según filtros activos).
           </p>
         </div>
 
@@ -278,7 +294,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import { supabase } from '../services/supabase.js';
 import StatCard from '../components/StatCard.vue';
 import RatingChart from '../components/RatingChart.vue';
@@ -292,6 +308,9 @@ const rawStats = ref([]);
 const weeklyAvgRating = ref(0);
 const monthlyAvgRating = ref(0);
 const lastMonthAvgRating = ref(0);
+const weeklyCount = ref(0);
+const monthlyCount = ref(0);
+const lastMonthCount = ref(0);
 const trendLoading = ref(true);
 
 const filters = ref({
@@ -314,10 +333,19 @@ const chartTitleMap = {
 
 // Conversor fecha a string yyyy-mm-dd
 const toInputDate = (date) => {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
+  if (!date) return '';
+  const d = new Date(date);
+  if (isNaN(d.getTime())) return '';
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
   return `${year}-${month}-${day}`;
+};
+
+// Handler cuando el usuario cambia manualmente las fechas en los inputs
+const onManualDateChange = () => {
+  activePeriod.value = 'custom';
+  fetchStats();
 };
 
 // Configurar períodos temporales
@@ -327,16 +355,15 @@ const setPeriod = (period) => {
 
   if (period === 'this-month') {
     const fromDate = new Date(today.getFullYear(), today.getMonth(), 1);
-    const toDate = new Date(today.getFullYear(), today.getMonth() + 1, 0);
     filters.value.from = toInputDate(fromDate);
-    filters.value.to = toInputDate(toDate);
+    filters.value.to = toInputDate(today);
   } else if (period === 'last-month') {
     const fromDate = new Date(today.getFullYear(), today.getMonth() - 1, 1);
     const toDate = new Date(today.getFullYear(), today.getMonth(), 0);
     filters.value.from = toInputDate(fromDate);
     filters.value.to = toInputDate(toDate);
   } else if (period === 'last-90-days') {
-    const fromDate = new Date();
+    const fromDate = new Date(today);
     fromDate.setDate(today.getDate() - 90);
     filters.value.from = toInputDate(fromDate);
     filters.value.to = toInputDate(today);
@@ -379,7 +406,7 @@ const fetchStats = async () => {
   }
 };
 
-// Carga independiente de datos para el widget de tendencia (Semana vs Mes vs Mes Anterior)
+// Carga de datos para el widget de tendencia (reactiva a filtros activos)
 const fetchTrendMetrics = async () => {
   trendLoading.value = true;
   try {
@@ -401,49 +428,72 @@ const fetchTrendMetrics = async () => {
     const lastDayLastMonth = new Date(today.getFullYear(), today.getMonth(), 0);
     const toLastMonthStr = toInputDate(lastDayLastMonth);
 
-    // Traemos los reportes calificados desde el mes anterior hasta hoy
-    const { data, error: trendError } = await supabase
+    // Traemos los reportes desde el mes anterior hasta hoy con campos para filtrado
+    let query = supabase
       .from('reportes')
-      .select('fecha_cirugia, rating_evaluacion_general')
+      .select('fecha_cirugia, rating_evaluacion_general, medico, instrumentador, instrumentador_completado, lugar_cirugia')
       .eq('estado', 'Enviado')
       .gte('fecha_cirugia', fromLastMonthStr);
 
+    const { data, error: trendError } = await query;
+
     if (trendError) throw trendError;
 
-    if (data && data.length > 0) {
-      // 1. Promedio Mes Anterior
-      const dataLastMonth = data.filter(r => r.fecha_cirugia >= fromLastMonthStr && r.fecha_cirugia <= toLastMonthStr);
-      const validLastMonth = dataLastMonth.filter(r => typeof r.rating_evaluacion_general === 'number' && r.rating_evaluacion_general > 0);
-      if (validLastMonth.length > 0) {
-        const sumLastMonth = validLastMonth.reduce((acc, r) => acc + r.rating_evaluacion_general, 0);
-        lastMonthAvgRating.value = sumLastMonth / validLastMonth.length;
-      } else {
-        lastMonthAvgRating.value = 0;
-      }
+    let records = data || [];
 
-      // 2. Promedio Mes Actual
-      const dataMonthly = data.filter(r => r.fecha_cirugia >= fromMonthlyStr);
-      const validMonthly = dataMonthly.filter(r => typeof r.rating_evaluacion_general === 'number' && r.rating_evaluacion_general > 0);
-      if (validMonthly.length > 0) {
-        const sumMonthly = validMonthly.reduce((acc, r) => acc + r.rating_evaluacion_general, 0);
-        monthlyAvgRating.value = sumMonthly / validMonthly.length;
-      } else {
-        monthlyAvgRating.value = 0;
-      }
+    // Aplicar filtros avanzados locales si están activos
+    if (filters.value.medico) {
+      records = records.filter(r => (r.medico || '').trim().toUpperCase() === filters.value.medico);
+    }
+    if (filters.value.instrumentador) {
+      records = records.filter(r => (r.instrumentador_completado || r.instrumentador || '').trim() === filters.value.instrumentador);
+    }
+    if (filters.value.lugar_cirugia) {
+      const q = filters.value.lugar_cirugia.trim().toLowerCase();
+      records = records.filter(r => (r.lugar_cirugia || '').trim().toLowerCase().includes(q));
+    }
 
-      // 3. Promedio Semana Actual
-      const dataWeekly = data.filter(r => r.fecha_cirugia >= fromWeeklyStr);
-      const validWeekly = dataWeekly.filter(r => typeof r.rating_evaluacion_general === 'number' && r.rating_evaluacion_general > 0);
-      if (validWeekly.length > 0) {
-        const sumWeekly = validWeekly.reduce((acc, r) => acc + r.rating_evaluacion_general, 0);
-        weeklyAvgRating.value = sumWeekly / validWeekly.length;
-      } else {
-        weeklyAvgRating.value = 0;
-      }
+    // 1. Promedio Mes Anterior
+    const dataLastMonth = records.filter(r => r.fecha_cirugia >= fromLastMonthStr && r.fecha_cirugia <= toLastMonthStr);
+    const validLastMonth = dataLastMonth.filter(r => {
+      const v = parseFloat(r.rating_evaluacion_general);
+      return !isNaN(v) && v > 0;
+    });
+    lastMonthCount.value = validLastMonth.length;
+    if (validLastMonth.length > 0) {
+      const sum = validLastMonth.reduce((acc, r) => acc + parseFloat(r.rating_evaluacion_general), 0);
+      lastMonthAvgRating.value = sum / validLastMonth.length;
+    } else {
+      lastMonthAvgRating.value = 0;
+    }
+
+    // 2. Promedio Mes Actual (hasta hoy)
+    const todayStr = toInputDate(today);
+    const dataMonthly = records.filter(r => r.fecha_cirugia >= fromMonthlyStr && r.fecha_cirugia <= todayStr);
+    const validMonthly = dataMonthly.filter(r => {
+      const v = parseFloat(r.rating_evaluacion_general);
+      return !isNaN(v) && v > 0;
+    });
+    monthlyCount.value = validMonthly.length;
+    if (validMonthly.length > 0) {
+      const sum = validMonthly.reduce((acc, r) => acc + parseFloat(r.rating_evaluacion_general), 0);
+      monthlyAvgRating.value = sum / validMonthly.length;
+    } else {
+      monthlyAvgRating.value = 0;
+    }
+
+    // 3. Promedio Semana Actual (hasta hoy)
+    const dataWeekly = records.filter(r => r.fecha_cirugia >= fromWeeklyStr && r.fecha_cirugia <= todayStr);
+    const validWeekly = dataWeekly.filter(r => {
+      const v = parseFloat(r.rating_evaluacion_general);
+      return !isNaN(v) && v > 0;
+    });
+    weeklyCount.value = validWeekly.length;
+    if (validWeekly.length > 0) {
+      const sum = validWeekly.reduce((acc, r) => acc + parseFloat(r.rating_evaluacion_general), 0);
+      weeklyAvgRating.value = sum / validWeekly.length;
     } else {
       weeklyAvgRating.value = 0;
-      monthlyAvgRating.value = 0;
-      lastMonthAvgRating.value = 0;
     }
   } catch (err) {
     console.error("Error al cargar métricas de tendencia:", err);
@@ -452,28 +502,67 @@ const fetchTrendMetrics = async () => {
   }
 };
 
-// Días transcurridos en el rango seleccionado
+// Días corridos transcurridos en el rango seleccionado
 const daysInRange = computed(() => {
   let fromDateStr = filters.value.from;
   let toDateStr = filters.value.to;
 
   if (!fromDateStr || !toDateStr) {
-    if (rawStats.value.length === 0) return 1;
-    const dates = rawStats.value.map(r => new Date(r.fecha_cirugia).getTime());
-    const minDate = new Date(Math.min(...dates));
-    const maxDate = new Date(Math.max(...dates));
-    fromDateStr = toInputDate(minDate);
-    toDateStr = toInputDate(maxDate);
+    if (filteredReportes.value.length === 0) return 1;
+    const validTimestamps = filteredReportes.value
+      .map(r => r.fecha_cirugia ? new Date(`${r.fecha_cirugia}T00:00:00`).getTime() : null)
+      .filter(t => t !== null && !isNaN(t));
+    if (validTimestamps.length === 0) return 1;
+    fromDateStr = toInputDate(new Date(Math.min(...validTimestamps)));
+    toDateStr = toInputDate(new Date(Math.max(...validTimestamps)));
   }
 
   const start = new Date(`${fromDateStr}T00:00:00`);
   const end = new Date(`${toDateStr}T00:00:00`);
+  if (isNaN(start.getTime()) || isNaN(end.getTime())) return 1;
   const diffTime = Math.abs(end - start);
   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
   return diffDays || 1;
 });
 
+// Días hábiles (Lunes a Viernes) transcurridos en el rango
+const businessDaysInRange = computed(() => {
+  let fromDateStr = filters.value.from;
+  let toDateStr = filters.value.to;
+
+  if (!fromDateStr || !toDateStr) {
+    if (filteredReportes.value.length === 0) return 1;
+    const validTimestamps = filteredReportes.value
+      .map(r => r.fecha_cirugia ? new Date(`${r.fecha_cirugia}T00:00:00`).getTime() : null)
+      .filter(t => t !== null && !isNaN(t));
+    if (validTimestamps.length === 0) return 1;
+    fromDateStr = toInputDate(new Date(Math.min(...validTimestamps)));
+    toDateStr = toInputDate(new Date(Math.max(...validTimestamps)));
+  }
+
+  const start = new Date(`${fromDateStr}T00:00:00`);
+  const end = new Date(`${toDateStr}T00:00:00`);
+  if (isNaN(start.getTime()) || isNaN(end.getTime())) return 1;
+
+  let count = 0;
+  const cur = new Date(start);
+  while (cur <= end) {
+    const dayOfWeek = cur.getDay();
+    if (dayOfWeek !== 0 && dayOfWeek !== 6) { // Excluir domingo (0) y sábado (6)
+      count++;
+    }
+    cur.setDate(cur.getDate() + 1);
+  }
+  return count || 1;
+});
+
 // Promedios cuantitativos
+const avgCompletadasPorDiaHabil = computed(() => {
+  if (businessDaysInRange.value === 0) return '0.00';
+  const total = filteredReportes.value.length;
+  return (total / businessDaysInRange.value).toFixed(2);
+});
+
 const avgCompletadasPorDia = computed(() => {
   if (daysInRange.value === 0) return '0.00';
   const total = filteredReportes.value.length;
@@ -489,9 +578,9 @@ const avgCompletadasPorSemana = computed(() => {
 
 // Tendencia: Semana vs Mes
 const trendVsMonth = computed(() => {
-  if (weeklyAvgRating.value === 0 || monthlyAvgRating.value === 0) return null;
+  if (weeklyCount.value === 0 || monthlyCount.value === 0) return null;
   const diff = weeklyAvgRating.value - monthlyAvgRating.value;
-  const percent = (diff / monthlyAvgRating.value) * 100;
+  const percent = monthlyAvgRating.value > 0 ? (diff / monthlyAvgRating.value) * 100 : 0;
   return {
     diff: diff.toFixed(2),
     percent: Math.abs(percent).toFixed(1),
@@ -501,9 +590,9 @@ const trendVsMonth = computed(() => {
 
 // Tendencia: Mes vs Mes Anterior
 const trendVsLastMonth = computed(() => {
-  if (monthlyAvgRating.value === 0 || lastMonthAvgRating.value === 0) return null;
+  if (monthlyCount.value === 0 || lastMonthCount.value === 0) return null;
   const diff = monthlyAvgRating.value - lastMonthAvgRating.value;
-  const percent = (diff / lastMonthAvgRating.value) * 100;
+  const percent = lastMonthAvgRating.value > 0 ? (diff / lastMonthAvgRating.value) * 100 : 0;
   return {
     diff: diff.toFixed(2),
     percent: Math.abs(percent).toFixed(1),
@@ -554,10 +643,13 @@ const totalFichas = computed(() => filteredReportes.value.length);
 
 const calculateAverage = (field) => {
   if (filteredReportes.value.length === 0) return '0.00';
-  const validReports = filteredReportes.value.filter(r => typeof r[field] === 'number' && r[field] > 0);
+  const validReports = filteredReportes.value.filter(r => {
+    const val = parseFloat(r[field]);
+    return !isNaN(val) && val > 0;
+  });
   if (validReports.length === 0) return '0.00';
 
-  const sum = validReports.reduce((acc, r) => acc + r[field], 0);
+  const sum = validReports.reduce((acc, r) => acc + parseFloat(r[field]), 0);
   const average = sum / validReports.length;
   return average.toFixed(2);
 };
@@ -566,6 +658,11 @@ const avgPuntualidad = computed(() => calculateAverage('rating_puntualidad'));
 const avgCondiciones = computed(() => calculateAverage('rating_condiciones'));
 const avgAsesoramiento = computed(() => calculateAverage('rating_asesoramiento'));
 const avgGeneral = computed(() => calculateAverage('rating_evaluacion_general'));
+
+// Reaccionar ante cambios de filtros avanzados para actualizar tendencias
+watch([() => filters.value.medico, () => filters.value.instrumentador, () => filters.value.lugar_cirugia], () => {
+  fetchTrendMetrics();
+});
 
 onMounted(() => {
   setPeriod('last-90-days');
