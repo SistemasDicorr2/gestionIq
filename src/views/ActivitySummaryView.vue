@@ -70,7 +70,7 @@
             </p>
 
             <!-- Formulario de Acceso Compacto -->
-            <form @submit.prevent="login" class="mt-4 sm:mt-5 space-y-3 sm:space-y-4 max-w-xs mx-auto">
+            <form @submit.prevent="authenticate()" class="mt-4 sm:mt-5 space-y-3 sm:space-y-4 max-w-xs mx-auto">
               <div class="relative">
                 <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500 dark:text-slate-400">
                   <Lock class="w-4 h-4" />
@@ -732,6 +732,8 @@ const authenticate = async (overrideDni = null) => {
     isLoading.value = false;
   }
 };
+
+const login = authenticate;
 
 onMounted(() => {
   // Intentar auto-login transparente si el usuario ya verificó su DNI en esta sesión
