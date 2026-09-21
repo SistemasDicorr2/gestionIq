@@ -8,128 +8,173 @@
       ]"
     >
 
-      <!-- ESTADO 1: PANTALLA DE AUTENTICACIÓN SIN SCROLL (FIT 100vh) -->
-      <div v-if="!isAuthenticated" class="relative h-full flex flex-col justify-between max-w-md sm:max-w-lg px-4 sm:px-6 mx-auto py-3 sm:py-5">
+      <!-- ESTADO 1: PANTALLA DE AUTENTICACIÓN ULTRA-MODERNA Y RESPONSIVA (FIT 100vh) -->
+      <div v-if="!isAuthenticated" class="relative min-h-[100dvh] flex flex-col justify-between max-w-lg px-4 sm:px-6 mx-auto py-4 sm:py-6 overflow-y-auto">
         
-        <!-- Ambient Animated Glow Orbs -->
-        <div class="absolute inset-0 pointer-events-none overflow-hidden -z-10">
-          <div class="absolute top-6 left-1/4 w-64 h-64 sm:w-80 sm:h-80 bg-blue-500/20 dark:bg-blue-600/15 rounded-full blur-3xl animate-blob"></div>
-          <div class="absolute bottom-10 right-1/4 w-64 h-64 sm:w-80 sm:h-80 bg-indigo-500/20 dark:bg-indigo-600/15 rounded-full blur-3xl animate-blob [animation-delay:2s]"></div>
-          <div class="absolute inset-0 bg-[radial-gradient(#94a3b8_1.5px,transparent_1.5px)] [background-size:20px_20px] dark:bg-[radial-gradient(#334155_1.5px,transparent_1.5px)] opacity-60 dark:opacity-25"></div>
+        <!-- Ambient Animated Mesh & Glow Orbs -->
+        <div class="fixed inset-0 pointer-events-none overflow-hidden -z-10">
+          <div class="absolute -top-10 -left-10 w-72 h-72 sm:w-96 sm:h-96 bg-blue-500/20 dark:bg-blue-600/15 rounded-full blur-3xl animate-blob"></div>
+          <div class="absolute -bottom-10 -right-10 w-72 h-72 sm:w-96 sm:h-96 bg-indigo-500/20 dark:bg-indigo-600/15 rounded-full blur-3xl animate-blob [animation-delay:3s]"></div>
+          <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-cyan-500/10 dark:bg-cyan-600/10 rounded-full blur-[100px] animate-blob [animation-delay:5s]"></div>
+          <div class="absolute inset-0 bg-[radial-gradient(#94a3b8_1px,transparent_1px)] [background-size:24px_24px] dark:bg-[radial-gradient(#334155_1px,transparent_1px)] opacity-40 dark:opacity-20"></div>
         </div>
 
-        <!-- Top Bar Compacta -->
-        <header class="flex items-center justify-between gap-3 shrink-0">
-          <div class="flex items-center gap-2">
-            <img src="/2.svg" alt="Districorr" class="h-7 sm:h-8 opacity-95 dark:invert dark:brightness-200 transition-all">
-            <span class="text-[10px] sm:text-xs font-black tracking-wider uppercase text-slate-700 dark:text-slate-300 border-l border-slate-400 dark:border-slate-800 pl-2">
-              Gestión IQ
-            </span>
+        <!-- Top Bar Compacta con Branding y Controles -->
+        <header class="flex items-center justify-between gap-3 shrink-0 mb-4 animate-fadeIn">
+          <div class="flex items-center gap-2 group">
+            <img src="/ISologo  (1).svg" alt="Districorr" class="h-8 sm:h-9 w-auto object-contain transition-transform duration-300 group-hover:scale-105">
+            <div class="border-l border-slate-300 dark:border-slate-800 pl-2">
+              <span class="block text-[11px] sm:text-xs font-black tracking-wider uppercase text-slate-800 dark:text-slate-200">
+                Gestión <span class="text-blue-600 dark:text-blue-400">IQ</span>
+              </span>
+              <span class="block text-[9px] font-medium text-slate-500 dark:text-slate-400 -mt-0.5">
+                Portal Profesional
+              </span>
+            </div>
           </div>
 
-          <div class="flex items-center gap-1.5 sm:gap-2">
+          <div class="flex items-center gap-2">
             <a 
               href="https://wa.me/5493794007558?text=Hola%20tengo%20un%20inconveniente%20para%20ingresar%20mi%20DNI%20al%20portal." 
               target="_blank" 
               rel="noopener noreferrer"
-              class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-[11px] font-bold text-slate-900 dark:text-slate-100 hover:text-emerald-600 dark:hover:text-emerald-400 shadow-sm transition-all hover:scale-105"
+              class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border border-slate-300/80 dark:border-slate-800/80 text-xs font-bold text-slate-800 dark:text-slate-200 hover:text-emerald-600 dark:hover:text-emerald-400 hover:border-emerald-500/40 shadow-sm transition-all duration-200 hover:scale-105 active:scale-95"
             >
-              <MessageCircle class="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
+              <MessageCircle class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
               <span>Soporte</span>
             </a>
 
             <!-- Toggle Modo Oscuro -->
             <button 
               @click="isDarkMode = !isDarkMode" 
-              class="p-1.5 sm:p-2 text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 shadow-sm hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-all duration-200 hover:scale-105 active:scale-95 focus:outline-none cursor-pointer" 
+              class="p-2 text-slate-800 dark:text-slate-200 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border border-slate-300/80 dark:border-slate-800/80 shadow-sm hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-all duration-200 hover:scale-105 active:scale-95 focus:outline-none cursor-pointer" 
               :title="isDarkMode ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'"
             >
-              <Sun v-if="isDarkMode" class="w-4 h-4 text-amber-400" />
-              <Moon v-else class="w-4 h-4 text-slate-900" />
+              <Sun v-if="isDarkMode" class="w-4 h-4 text-amber-400 transition-transform rotate-0 hover:rotate-45" />
+              <Moon v-else class="w-4 h-4 text-slate-800 transition-transform rotate-0 hover:-rotate-12" />
             </button>
           </div>
         </header>
 
-        <!-- Centro: Tarjeta Hero Compacta y Centrada -->
-        <main class="my-auto py-2 sm:py-4 w-full">
-          <GlowCard class="p-5 sm:p-7 text-center bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 shadow-xl rounded-2xl sm:rounded-3xl" glow-color="rgba(37, 99, 235, 0.18)">
+        <!-- Centro: Tarjeta Hero de Alta Fidelidad -->
+        <main class="my-auto py-2 sm:py-4 w-full flex items-center justify-center">
+          <div class="relative w-full max-w-sm sm:max-w-md bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl border border-slate-200/90 dark:border-slate-800/90 rounded-3xl p-6 sm:p-8 shadow-2xl shadow-blue-500/10 dark:shadow-black/60 transition-all duration-300 hover:shadow-blue-500/15 overflow-hidden animate-scale-in">
             
-            <!-- Icono Flotante -->
-            <div class="relative flex justify-center mb-3">
-              <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-blue-500/25 ring-4 ring-blue-500/10">
-                <ShieldCheck class="w-6 h-6 sm:w-7 sm:h-7" />
+            <!-- Acento Superior de Luz Gradiente -->
+            <div class="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-[2px] bg-gradient-to-r from-transparent via-blue-500 to-transparent"></div>
+            
+            <!-- Resplandor sutil de fondo de la tarjeta -->
+            <div class="pointer-events-none absolute -top-20 -right-20 w-44 h-44 rounded-full bg-blue-500/10 dark:bg-blue-600/15 blur-3xl"></div>
+            <div class="pointer-events-none absolute -bottom-20 -left-20 w-44 h-44 rounded-full bg-indigo-500/10 dark:bg-indigo-600/15 blur-3xl"></div>
+
+            <!-- Cabecera de la Tarjeta con Logo e Indicador -->
+            <div class="text-center relative z-10">
+              
+              <!-- Badge de Seguridad con Pulso -->
+              <div class="inline-flex items-center gap-1.5 px-3 py-1 mb-4 rounded-full bg-blue-50 dark:bg-blue-950/60 border border-blue-200/80 dark:border-blue-800/60 text-[11px] font-bold text-blue-700 dark:text-blue-300 shadow-xs">
+                <span class="relative flex h-2 w-2">
+                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                </span>
+                <span>Portal Oficial del Instrumentador</span>
               </div>
+
+              <!-- Isologo / Icono Districorr con Halo Luminoso -->
+              <div class="relative flex justify-center mb-4">
+                <div class="relative group cursor-default">
+                  <div class="absolute -inset-1.5 bg-gradient-to-tr from-blue-600 to-indigo-600 rounded-2xl blur-md opacity-30 group-hover:opacity-50 transition-opacity duration-300"></div>
+                  <div class="relative w-16 h-16 sm:w-18 sm:h-18 rounded-2xl bg-gradient-to-b from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 border border-slate-200 dark:border-slate-700 flex items-center justify-center p-3 shadow-md shadow-blue-500/15 transition-transform duration-300 group-hover:scale-105">
+                    <img src="/ISologo  (1).svg" alt="Districorr" class="w-full h-full object-contain">
+                  </div>
+                </div>
+              </div>
+
+              <!-- Título Principal y Bajada -->
+              <h1 class="text-2xl sm:text-3xl font-black tracking-tight text-slate-950 dark:text-white">
+                Ingreso al Portal
+              </h1>
+              <p class="mt-2 text-xs sm:text-sm text-slate-600 dark:text-slate-300 font-medium max-w-xs mx-auto leading-relaxed">
+                Ingresá tu <strong class="text-slate-900 dark:text-white font-bold">DNI</strong> para acceder al registro de tus cirugías y liquidaciones.
+              </p>
             </div>
 
-            <!-- Título y Subtítulo -->
-            <h1 class="text-xl sm:text-2xl font-black tracking-tight text-slate-950 dark:text-white">
-              Portal del Instrumentador
-            </h1>
-            <p class="mt-1 text-xs sm:text-sm text-slate-700 dark:text-slate-300 font-semibold max-w-xs sm:max-w-sm mx-auto leading-relaxed">
-              Ingresá tu DNI para consultar el estado de tus cirugías y liquidaciones.
-            </p>
-
-            <!-- Formulario de Acceso Compacto -->
-            <form @submit.prevent="authenticate()" class="mt-4 sm:mt-5 space-y-3 sm:space-y-4 max-w-xs mx-auto">
-              <div class="relative">
-                <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500 dark:text-slate-400">
-                  <Lock class="w-4 h-4" />
+            <!-- Formulario de Acceso -->
+            <form @submit.prevent="authenticate()" class="mt-6 space-y-4 max-w-xs sm:max-w-sm mx-auto relative z-10">
+              
+              <div>
+                <label class="block text-left text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1.5">
+                  Documento Nacional de Identidad
+                </label>
+                <div class="relative group">
+                  <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 dark:text-slate-500 group-focus-within:text-blue-600 dark:group-focus-within:text-blue-400 transition-colors duration-200">
+                    <Lock class="w-4 h-4" />
+                  </div>
+                  <input
+                    v-model="dni"
+                    type="text"
+                    inputmode="numeric"
+                    pattern="[0-9]*"
+                    required
+                    placeholder="Ej: 28202551"
+                    class="block w-full pl-10 pr-3.5 py-3 text-base sm:text-lg font-bold tracking-wider bg-slate-50 dark:bg-slate-950/80 border border-slate-300 dark:border-slate-700 rounded-xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-600 dark:focus:border-blue-400 text-slate-950 dark:text-white placeholder:text-slate-400 placeholder:font-normal placeholder:tracking-normal transition-all duration-200 shadow-inner"
+                    autocomplete="off"
+                    :disabled="isLoading"
+                  />
                 </div>
-                <input
-                  v-model="dni"
-                  type="text"
-                  inputmode="numeric"
-                  pattern="[0-9]*"
-                  required
-                  placeholder="Número de DNI (sin puntos)"
-                  class="block w-full pl-10 pr-3.5 py-2.5 sm:py-3 text-sm font-bold bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-slate-950 dark:text-white placeholder:text-slate-400 placeholder:font-normal transition-all shadow-inner"
-                  autocomplete="off"
-                  :disabled="isLoading"
-                />
               </div>
 
-              <!-- Botón Shimmer Interactivo -->
-              <ShimmerButton 
+              <!-- Botón Shimmer Interactivo con Gradiente -->
+              <button 
                 type="submit" 
                 :disabled="isLoading"
-                class="w-full py-2.5 sm:py-3 text-xs sm:text-sm font-black tracking-wide cursor-pointer"
+                class="w-full relative inline-flex items-center justify-center py-3.5 px-5 text-sm font-extrabold tracking-wide text-white rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-500 hover:to-indigo-500 active:scale-[0.98] transition-all duration-200 shadow-lg shadow-blue-600/30 hover:shadow-blue-600/40 disabled:opacity-50 disabled:pointer-events-none cursor-pointer overflow-hidden group"
               >
-                <span v-if="isLoading" class="flex items-center justify-center gap-2">
+                <!-- Haz de luz Shimmer -->
+                <span class="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/25 to-transparent animate-shimmer pointer-events-none"></span>
+
+                <span v-if="isLoading" class="flex items-center justify-center gap-2 relative z-10">
                   <svg class="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
-                  <span>Validando...</span>
+                  <span>Validando acceso...</span>
                 </span>
-                <span v-else class="flex items-center justify-center gap-2">
+                <span v-else class="flex items-center justify-center gap-2 relative z-10">
                   <span>Ingresar al Portal</span>
-                  <LogIn class="w-4 h-4" />
+                  <ArrowRight class="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" />
                 </span>
-              </ShimmerButton>
+              </button>
             </form>
 
             <!-- Error Banner -->
             <div 
               v-if="error" 
-              class="mt-3 p-2.5 bg-rose-50 dark:bg-rose-950/40 border border-rose-300 dark:border-rose-800 rounded-xl flex items-center gap-2 text-rose-800 dark:text-rose-200 text-xs text-left animate-shake"
+              class="mt-4 p-3 bg-rose-50 dark:bg-rose-950/50 border border-rose-300 dark:border-rose-800/80 rounded-xl flex items-center gap-2.5 text-rose-800 dark:text-rose-200 text-xs text-left animate-shake shadow-xs relative z-10"
             >
               <AlertCircle class="w-4 h-4 shrink-0 text-rose-600 dark:text-rose-400" />
               <p class="font-bold leading-tight">{{ error }}</p>
             </div>
-          </GlowCard>
+
+            <!-- Footer interno de la tarjeta: Información de privacidad -->
+            <div class="mt-6 pt-4 border-t border-slate-200/80 dark:border-slate-800/80 flex items-center justify-center gap-1.5 text-[11px] text-slate-500 dark:text-slate-400 relative z-10">
+              <ShieldCheck class="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 shrink-0" />
+              <span>Conexión segura y privada</span>
+            </div>
+
+          </div>
         </main>
 
-        <!-- Footer Compacto -->
-        <footer class="py-2 border-t border-slate-300 dark:border-slate-800 text-center shrink-0">
-          <p class="text-[11px] text-slate-700 dark:text-slate-400 font-bold">
-            Gestión IQ — 
+        <!-- Footer Institucional -->
+        <footer class="py-2 text-center shrink-0 animate-fadeIn">
+          <p class="text-[11px] sm:text-xs text-slate-600 dark:text-slate-400 font-medium">
+            Districorr • Trazabilidad Quirúrgica — 
             <a 
               href="https://www.districorr.com.ar" 
               target="_blank" 
               rel="noopener noreferrer" 
-              class="font-black text-blue-700 dark:text-blue-400 hover:underline inline-flex items-center gap-0.5 ml-0.5"
+              class="font-bold text-blue-600 dark:text-blue-400 hover:underline inline-flex items-center gap-0.5 ml-0.5"
             >
-              <span>www.districorr.com.ar</span>
+              <span>districorr.com.ar</span>
               <ExternalLink class="w-2.5 h-2.5" />
             </a>
           </p>
@@ -902,6 +947,25 @@ const getComprobanteUrl = (objectKey) => {
 
 .tab-btn { @apply px-5 py-2.5 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-400 transition-all duration-200 hover:bg-slate-100 hover:text-slate-900 dark:hover:bg-slate-800 dark:hover:text-slate-100 whitespace-nowrap; }
 .tab-btn--active { @apply bg-slate-900 text-white shadow-md hover:bg-slate-800 dark:bg-slate-700 dark:text-white dark:hover:bg-slate-600; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-6px); }
+  40%, 80% { transform: translateX(6px); }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-shake {
+  animation: shake 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
 
 .hide-scrollbar::-webkit-scrollbar { display: none; }
 .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
