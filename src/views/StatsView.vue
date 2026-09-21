@@ -382,22 +382,43 @@ const fetchStats = async () => {
   error.value = null;
 
   try {
-    let query = supabase
-      .from('reportes')
-      .select('id, medico, instrumentador, instrumentador_completado, lugar_cirugia, fecha_cirugia, rating_puntualidad, rating_condiciones, rating_asesoramiento, rating_evaluacion_general')
-      .eq('estado', 'Enviado');
+    let allRecords = [];
+    const pageSize = 1000;
+    let from = 0;
+    let hasMore = true;
 
-    if (filters.value.from) {
-      query = query.gte('fecha_cirugia', filters.value.from);
+    while (hasMore) {
+      let query = supabase
+        .from('reportes')
+        .select('id, medico, instrumentador, instrumentador_completado, lugar_cirugia, fecha_cirugia, rating_puntualidad, rating_condiciones, rating_asesoramiento, rating_evaluacion_general')
+        .eq('estado', 'Enviado');
+
+      if (filters.value.from) {
+        query = query.gte('fecha_cirugia', filters.value.from);
+      }
+      if (filters.value.to) {
+        query = query.lte('fecha_cirugia', filters.value.to);
+      }
+
+      const { data, error: fetchError } = await query
+        .order('fecha_cirugia', { ascending: false })
+        .range(from, from + pageSize - 1);
+
+      if (fetchError) throw fetchError;
+
+      if (data && data.length > 0) {
+        allRecords.push(...data);
+        if (data.length < pageSize) {
+          hasMore = false;
+        } else {
+          from += pageSize;
+        }
+      } else {
+        hasMore = false;
+      }
     }
-    if (filters.value.to) {
-      query = query.lte('fecha_cirugia', filters.value.to);
-    }
 
-    const { data, error: fetchError } = await query.order('fecha_cirugia', { ascending: false });
-
-    if (fetchError) throw fetchError;
-    rawStats.value = data || [];
+    rawStats.value = allRecords;
   } catch (err) {
     console.error("Error al cargar estadísticas:", err);
     error.value = 'No se pudieron cargar los datos de estadísticas. Por favor, intente de nuevo.';
@@ -428,18 +449,38 @@ const fetchTrendMetrics = async () => {
     const lastDayLastMonth = new Date(today.getFullYear(), today.getMonth(), 0);
     const toLastMonthStr = toInputDate(lastDayLastMonth);
 
-    // Traemos los reportes desde el mes anterior hasta hoy con campos para filtrado
-    let query = supabase
-      .from('reportes')
-      .select('fecha_cirugia, rating_evaluacion_general, medico, instrumentador, instrumentador_completado, lugar_cirugia')
-      .eq('estado', 'Enviado')
-      .gte('fecha_cirugia', fromLastMonthStr);
+    // Traemos los reportes desde el mes anterior hasta hoy con campos para filtrado paginado
+    let trendRecords = [];
+    const pageSize = 1000;
+    let from = 0;
+    let hasMore = true;
 
-    const { data, error: trendError } = await query;
+    while (hasMore) {
+      let query = supabase
+        .from('reportes')
+        .select('fecha_cirugia, rating_evaluacion_general, medico, instrumentador, instrumentador_completado, lugar_cirugia')
+        .eq('estado', 'Enviado')
+        .gte('fecha_cirugia', fromLastMonthStr);
 
-    if (trendError) throw trendError;
+      const { data, error: trendError } = await query
+        .order('fecha_cirugia', { ascending: false })
+        .range(from, from + pageSize - 1);
 
-    let records = data || [];
+      if (trendError) throw trendError;
+
+      if (data && data.length > 0) {
+        trendRecords.push(...data);
+        if (data.length < pageSize) {
+          hasMore = false;
+        } else {
+          from += pageSize;
+        }
+      } else {
+        hasMore = false;
+      }
+    }
+
+    let records = trendRecords;
 
     // Aplicar filtros avanzados locales si están activos
     if (filters.value.medico) {
