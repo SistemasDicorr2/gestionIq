@@ -959,54 +959,65 @@
     </div>
 
     <!-- MODAL SLIM COMPACTO: VINCULACIÓN DE CIRUGÍAS -->
-    <div v-if="showImputacionModal && activeFile && activeFile.matchedInstrumentador" class="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-2 sm:p-4">
-      <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 max-w-4xl w-full p-4 sm:p-5 shadow-2xl space-y-3 max-h-[92vh] flex flex-col animate-in fade-in zoom-in-95 duration-150">
+    <div v-if="showImputacionModal && activeFile && activeFile.matchedInstrumentador" class="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-3 sm:p-5">
+      <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 max-w-4xl w-full p-4 sm:p-6 shadow-2xl space-y-4 max-h-[92vh] flex flex-col animate-in fade-in zoom-in-95 duration-200">
         
-        <!-- Header Ultracompacto Slim -->
-        <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-2.5 shrink-0">
-          <div class="flex items-center gap-2 flex-wrap text-xs">
-            <span class="text-[9px] font-black uppercase tracking-wider text-indigo-700 dark:text-indigo-300 bg-indigo-100 dark:bg-indigo-955 px-1.5 py-0.5 rounded">
-              VINCULACIÓN (Esc para cerrar)
+        <!-- Header Ultracompacto Slim con Iconografía Vectorial -->
+        <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3 shrink-0">
+          <div class="flex items-center gap-2.5 flex-wrap text-xs">
+            <span class="inline-flex items-center gap-1 text-xs font-bold text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/70 border border-indigo-200/80 dark:border-indigo-800/80 px-2 py-0.5 rounded-lg">
+              <Sparkles class="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
+              <span>Vinculación</span>
             </span>
-            <span class="font-extrabold text-slate-900 dark:text-white truncate max-w-[200px]" :title="activeFile.name">
-              📄 {{ activeFile.name }}
-            </span>
+            <div class="flex items-center gap-1.5 font-bold text-slate-800 dark:text-slate-100 truncate max-w-[240px]" :title="activeFile.name">
+              <FileText class="w-4 h-4 text-slate-400 shrink-0" />
+              <span class="truncate">{{ activeFile.name }}</span>
+            </div>
             <button 
               @click.stop="openComprobanteModal(activeFile)"
-              class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-indigo-50 hover:bg-indigo-100 text-indigo-700 dark:bg-indigo-955 dark:hover:bg-indigo-900 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 transition cursor-pointer shrink-0 flex items-center gap-1 active:scale-95"
-              title="Ver comprobante con zoom"
+              class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 transition cursor-pointer shrink-0 flex items-center gap-1.5 active:scale-95"
+              title="Ver comprobante original"
             >
-              <span>👁️ Ver Comprobante</span>
+              <Eye class="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
+              <span>Ver Comprobante</span>
             </button>
-            <span class="text-slate-400">·</span>
-            <span class="font-black text-indigo-600 dark:text-indigo-400">
-              {{ activeFile.matchedInstrumentador?.nombre }}
-            </span>
+            <span class="text-slate-300 dark:text-slate-700">·</span>
+            <div class="flex items-center gap-1.5 font-bold text-indigo-600 dark:text-indigo-400 text-xs">
+              <User class="w-3.5 h-3.5 shrink-0" />
+              <span>{{ activeFile.matchedInstrumentador?.nombre }}</span>
+            </div>
           </div>
 
           <div class="flex items-center gap-2">
             <!-- Botón Modal de Observaciones -->
             <button 
               @click="showObservacionesModal = true" 
-              class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-xs rounded-lg transition border border-slate-300 dark:border-slate-700 flex items-center gap-1"
+              class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold text-xs rounded-xl transition border border-slate-300 dark:border-slate-700 flex items-center gap-1.5 cursor-pointer active:scale-95"
             >
-              <span>📝 Observaciones</span>
-              <span v-if="activeFile.observaciones" class="w-2 h-2 rounded-full bg-amber-500"></span>
+              <StickyNote class="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
+              <span>Observaciones</span>
+              <span v-if="activeFile.observaciones" class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
             </button>
 
-            <button @click="showImputacionModal = false" class="text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 text-sm font-bold p-1 shrink-0">✕</button>
+            <button 
+              @click="showImputacionModal = false" 
+              class="text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg p-1.5 transition cursor-pointer"
+              title="Cerrar (Esc)"
+            >
+              <X class="w-4 h-4" />
+            </button>
           </div>
         </div>
 
         <!-- ALERTA DE DUPLICIDAD EN MODAL -->
-        <div v-if="activeFile.isDuplicate" class="p-2.5 bg-rose-100 dark:bg-rose-955/90 border-2 border-rose-400 dark:border-rose-700 text-rose-900 dark:text-rose-100 rounded-xl text-xs font-bold flex flex-col sm:flex-row sm:items-center justify-between gap-2 shadow-2xs shrink-0">
-          <div class="flex items-center gap-2">
-            <span class="text-base shrink-0">⚠️</span>
+        <div v-if="activeFile.isDuplicate" class="p-3 bg-rose-50 dark:bg-rose-955/80 border border-rose-300 dark:border-rose-800 text-rose-900 dark:text-rose-100 rounded-xl text-xs font-semibold flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 shadow-xs shrink-0">
+          <div class="flex items-center gap-2.5">
+            <AlertTriangle class="w-5 h-5 text-rose-600 shrink-0" />
             <div class="space-y-0.5">
-              <span class="font-black text-rose-900 dark:text-rose-100 block">
-                ¡Atención! Comprobante detectado como duplicado
+              <span class="font-bold text-rose-900 dark:text-rose-100 block">
+                Comprobante detectado como duplicado
               </span>
-              <span class="text-[11px] opacity-90 block">
+              <span class="text-xs text-rose-700 dark:text-rose-300 block">
                 {{ activeFile.duplicateOrderInfo?.tipo === 'mismo_lote' ? 'Este mismo número de operación ya existe en otro archivo del lote actual.' : `Este comprobante ya fue utilizado en la Orden de Pago #${activeFile.duplicateOrderInfo?.id} el ${formatDate(activeFile.duplicateOrderInfo?.fecha)}.` }}
               </span>
             </div>
@@ -1014,101 +1025,120 @@
           <button 
             type="button" 
             @click="allowDuplicateProcessing(activeFile)" 
-            class="px-2.5 py-1 bg-white dark:bg-slate-900 text-rose-800 dark:text-rose-200 border border-rose-300 dark:border-rose-700 rounded-lg text-[10px] font-black hover:bg-rose-50 dark:hover:bg-slate-800 cursor-pointer shrink-0 active:scale-95 shadow-2xs self-end sm:self-auto"
-            title="Omitir alerta si se trata de una prueba previa o re-conciliación intencional"
+            class="px-3 py-1.5 bg-white dark:bg-slate-900 text-rose-700 dark:text-rose-300 border border-rose-300 dark:border-rose-700 rounded-lg text-xs font-bold hover:bg-rose-50 dark:hover:bg-slate-800 cursor-pointer shrink-0 active:scale-95 shadow-xs self-end sm:self-auto transition"
+            title="Omitir alerta si se trata de una re-conciliación intencional"
           >
-            ✓ Ignorar y Permitir
+            Ignorar y Permitir
           </button>
         </div>
 
-        <!-- Barra de Saldos Compacta Slim (1 sola fila) -->
-        <div class="px-3 py-2 bg-slate-100 dark:bg-slate-800/90 rounded-xl border border-slate-300 dark:border-slate-700 shrink-0">
-          <div class="flex items-center justify-between text-xs font-mono flex-wrap gap-2">
-            <div class="flex items-center gap-1.5">
-              <span class="text-[10px] text-slate-500 font-bold uppercase">Transferido:</span>
-              <span class="font-black text-indigo-700 dark:text-indigo-300">${{ formatNumber(activeTransferMonto) }}</span>
+        <!-- Barra de Saldos Compacta con Animated UX (SlidingNumber) -->
+        <div class="p-3 bg-slate-50 dark:bg-slate-800/80 rounded-xl border border-slate-200 dark:border-slate-700 shrink-0 grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-center sm:text-left">
+          <!-- Transferido -->
+          <div class="px-3 py-1.5 bg-white dark:bg-slate-900/90 rounded-lg border border-slate-200/80 dark:border-slate-700/80 flex items-center justify-between sm:justify-start gap-2">
+            <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">Transferido:</span>
+            <div class="text-sm font-bold text-slate-900 dark:text-white font-mono flex items-center gap-0.5">
+              <span class="text-xs text-slate-400">$</span>
+              <SlidingNumber :value="activeTransferMonto" :decimal-places="2" />
             </div>
-            <div class="flex items-center gap-1.5">
-              <span class="text-[10px] text-slate-500 font-bold uppercase">Imputado:</span>
-              <span class="font-black text-purple-700 dark:text-purple-300">${{ formatNumber(activeAsignadoMonto) }}</span>
+          </div>
+
+          <!-- Imputado -->
+          <div class="px-3 py-1.5 bg-white dark:bg-slate-900/90 rounded-lg border border-slate-200/80 dark:border-slate-700/80 flex items-center justify-between sm:justify-start gap-2">
+            <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">Imputado:</span>
+            <div class="text-sm font-bold text-indigo-600 dark:text-indigo-400 font-mono flex items-center gap-0.5">
+              <span class="text-xs text-indigo-400">$</span>
+              <SlidingNumber :value="activeAsignadoMonto" :decimal-places="2" />
             </div>
-            <div class="flex items-center gap-1.5">
-              <span class="text-[10px] text-slate-500 font-bold uppercase">Saldo Pendiente:</span>
-              <span :class="['font-black text-xs', activeSaldoPendiente === 0 ? 'text-emerald-700 dark:text-emerald-300' : 'text-amber-700 dark:text-amber-300']">
-                ${{ formatNumber(activeSaldoPendiente) }}
-              </span>
+          </div>
+
+          <!-- Saldo Pendiente -->
+          <div class="px-3 py-1.5 bg-white dark:bg-slate-900/90 rounded-lg border border-slate-200/80 dark:border-slate-700/80 flex items-center justify-between sm:justify-start gap-2">
+            <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">Saldo Pendiente:</span>
+            <div :class="['text-sm font-bold font-mono flex items-center gap-0.5', activeSaldoPendiente === 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400']">
+              <span class="text-xs opacity-70">$</span>
+              <SlidingNumber :value="activeSaldoPendiente" :decimal-places="2" />
             </div>
           </div>
         </div>
 
         <!-- Contenido Interior Scrollable -->
-        <div class="overflow-y-auto space-y-3 grow pr-1 scrollbar-thin">
+        <div class="overflow-y-auto space-y-3.5 grow pr-1 scrollbar-thin">
           
           <!-- 1. CIRUGÍAS YA VINCULADAS -->
-          <div class="space-y-1.5">
-            <h4 class="font-black text-[11px] text-slate-900 dark:text-white uppercase tracking-wider flex items-center justify-between">
-              <span>Cirugías Vinculadas ({{ activeCirugias.length }})</span>
-              <span v-if="activeAsignadoMonto > 0" class="font-mono text-purple-700 dark:text-purple-300">Imputado: ${{ formatNumber(activeAsignadoMonto) }}</span>
-            </h4>
+          <div class="space-y-2">
+            <div class="flex items-center justify-between text-xs font-bold text-slate-800 dark:text-slate-200">
+              <div class="flex items-center gap-1.5">
+                <span>Cirugías Vinculadas</span>
+                <span class="px-2 py-0.5 rounded-full text-xs bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-mono">
+                  {{ activeCirugias.length }}
+                </span>
+              </div>
+              <span v-if="activeAsignadoMonto > 0" class="font-mono text-indigo-600 dark:text-indigo-400 font-bold">
+                Total Imputado: ${{ formatNumber(activeAsignadoMonto) }}
+              </span>
+            </div>
 
-            <div v-if="activeCirugias.length > 0" class="border border-slate-300 dark:border-slate-800 rounded-xl overflow-hidden shadow-2xs">
+            <div v-if="activeCirugias.length > 0" class="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-xs bg-white dark:bg-slate-900">
               <table class="w-full table-fixed text-left border-collapse text-xs">
                 <thead>
-                  <tr class="bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 font-extrabold uppercase tracking-wider text-[9px] border-b border-slate-300 dark:border-slate-700">
-                    <th class="px-2.5 py-1.5 w-[14%]">Fecha</th>
-                    <th class="px-2.5 py-1.5 w-[24%]">Paciente</th>
-                    <th class="px-2.5 py-1.5 w-[24%]">Médico / Lugar</th>
-                    <th class="px-2.5 py-1.5 w-[14%] text-right">Total CX</th>
-                    <th class="px-2.5 py-1.5 w-[16%] text-right">Monto Imputado</th>
-                    <th class="px-2.5 py-1.5 w-[8%] text-right pr-2">Quitar</th>
+                  <tr class="bg-slate-50 dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 font-semibold text-xs border-b border-slate-200 dark:border-slate-700">
+                    <th class="px-3 py-2 w-[15%]">Fecha</th>
+                    <th class="px-3 py-2 w-[24%]">Paciente</th>
+                    <th class="px-3 py-2 w-[23%]">Médico / Lugar</th>
+                    <th class="px-3 py-2 w-[14%] text-right">Total CX</th>
+                    <th class="px-3 py-2 w-[18%] text-right">Monto Imputado</th>
+                    <th class="px-3 py-2 w-[6%] text-center">Quitar</th>
                   </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-200 dark:divide-slate-800">
-                  <tr v-for="(item, idx) in activeCirugias" :key="item.id" class="hover:bg-slate-50 dark:hover:bg-slate-800/40">
-                    <td class="px-2.5 py-1.5 font-mono font-bold text-slate-700 dark:text-slate-300">
+                <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                  <tr v-for="(item, idx) in activeCirugias" :key="item.id" class="hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors">
+                    <td class="px-3 py-2 font-mono font-medium text-slate-600 dark:text-slate-400">
                       {{ formatDate(item.fecha_cirugia) }}
                     </td>
-                    <td class="px-2.5 py-1.5 font-extrabold text-slate-900 dark:text-white truncate" :title="item.paciente">
+                    <td class="px-3 py-2 font-bold text-slate-900 dark:text-white truncate" :title="item.paciente">
                       {{ item.paciente }}
                     </td>
-                    <td class="px-2.5 py-1.5 text-slate-700 dark:text-slate-300">
-                      <div class="font-bold text-slate-900 dark:text-slate-100 truncate" :title="item.medico">{{ item.medico }}</div>
-                      <div class="text-[10px] text-slate-500 truncate" :title="item.lugar_cirugia">{{ item.lugar_cirugia }}</div>
+                    <td class="px-3 py-2 text-slate-600 dark:text-slate-400">
+                      <div class="font-semibold text-slate-800 dark:text-slate-200 truncate" :title="item.medico">{{ item.medico }}</div>
+                      <div class="text-[11px] text-slate-400 truncate" :title="item.lugar_cirugia">{{ item.lugar_cirugia }}</div>
                     </td>
 
-                    <td class="px-2.5 py-1.5 text-right font-mono font-extrabold text-slate-900 dark:text-white">
+                    <td class="px-3 py-2 text-right font-mono font-bold text-slate-800 dark:text-slate-200">
                       ${{ formatNumber(item.totalCx) }}
                     </td>
 
                     <!-- MONTO IMPUTADO EDITABLE -->
-                    <td class="px-2.5 py-1.5 text-right font-mono font-black">
-                      <div class="flex items-center justify-end gap-1">
+                    <td class="px-3 py-2 text-right">
+                      <div class="flex items-center justify-end gap-1.5">
                         <button
                           type="button"
                           @click="item.parte1 = Math.round(activeTransferMonto / 2); saveDraftDebounced()"
-                          class="px-1.5 py-0.5 text-[10px] font-extrabold bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950 dark:hover:bg-indigo-900 text-indigo-700 dark:text-indigo-300 rounded border border-indigo-200 dark:border-indigo-800 transition cursor-pointer shrink-0"
+                          class="px-2 py-1 text-xs font-semibold bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950 dark:hover:bg-indigo-900 text-indigo-700 dark:text-indigo-300 rounded-md border border-indigo-200/80 dark:border-indigo-800/80 transition cursor-pointer shrink-0 flex items-center gap-0.5 active:scale-95"
                           title="Asignar el 50% de la transferencia a esta cirugía"
                         >
-                          🌓 50%
+                          <Percent class="w-3 h-3 text-indigo-500" />
+                          <span>50%</span>
                         </button>
-                        <span class="text-indigo-600 font-bold">$</span>
+                        <span class="text-slate-400 font-bold">$</span>
                         <input 
                           type="number" 
                           step="0.01"
                           v-model.number="item.parte1" 
                           @input="saveDraftDebounced"
-                          class="w-24 px-1.5 py-0.5 bg-indigo-50 dark:bg-indigo-955/60 border border-indigo-300 dark:border-indigo-700 rounded-lg text-indigo-900 dark:text-indigo-100 font-mono font-black text-xs text-right focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                          class="w-24 px-2 py-1 bg-white dark:bg-slate-950 border border-indigo-200 dark:border-indigo-800 rounded-lg text-slate-900 dark:text-slate-100 font-mono font-bold text-xs text-right focus:outline-none focus:ring-2 focus:ring-indigo-500"
                         />
                       </div>
                     </td>
 
-                    <td class="px-2.5 py-1.5 text-right pr-2">
+                    <td class="px-3 py-2 text-center">
                       <button 
                         type="button" 
                         @click="removeCirugiaFromActive(idx)" 
-                        class="text-red-600 hover:text-red-800 font-extrabold text-xs cursor-pointer p-1"
+                        class="p-1 rounded-md text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/50 transition cursor-pointer inline-flex items-center justify-center"
+                        title="Quitar de la vinculación"
                       >
-                        ✕
+                        <Trash2 class="w-3.5 h-3.5" />
                       </button>
                     </td>
                   </tr>
@@ -1116,39 +1146,41 @@
               </table>
             </div>
 
-            <div v-else class="p-2.5 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-dashed border-slate-300 dark:border-slate-700 text-center text-xs text-slate-500 font-semibold">
-              Todavía no vinculaste cirugías a este comprobante. Buscá abajo en la lista o usá las liquidaciones sugeridas.
+            <div v-else class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-dashed border-slate-300 dark:border-slate-700 text-center text-xs text-slate-500 font-medium">
+              Todavía no vinculaste cirugías a este comprobante. Buscá abajo en la lista o utilizá las opciones sugeridas.
             </div>
           </div>
 
           <!-- 2. BUSCADOR DIRECTO DE CIRUGÍAS PENDIENTES CON ENTER TECLADO -->
-          <div class="pt-2 border-t border-slate-200 dark:border-slate-800 space-y-2">
+          <div class="pt-3 border-t border-slate-200 dark:border-slate-800 space-y-2.5">
             
             <!-- Cabecera de búsqueda y Chips de Sugerencias (50-50, 100%, ERP) -->
-            <div class="space-y-1.5">
+            <div class="space-y-2">
               <div class="flex items-center justify-between flex-wrap gap-2">
-                <h4 class="font-black text-[11px] text-slate-900 dark:text-white uppercase tracking-wider">
-                  🔍 Buscar e Imputar Cirugías Pendientes de {{ activeFile.matchedInstrumentador?.nombre }}
-                </h4>
+                <div class="flex items-center gap-1.5 font-bold text-xs text-slate-800 dark:text-slate-200">
+                  <Search class="w-4 h-4 text-indigo-600" />
+                  <span>Cirugías disponibles de {{ activeFile.matchedInstrumentador?.nombre }}</span>
+                </div>
 
                 <!-- Chips de Importes Sugeridos (50-50, 100% y Planilla ERP) -->
                 <div class="flex items-center gap-1.5 flex-wrap text-xs">
-                  <span class="text-[10px] font-bold text-indigo-700 dark:text-indigo-300 uppercase tracking-wider">Sugeridos:</span>
+                  <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">Sugeridos:</span>
                   
                   <!-- Opción 50% / 50-50 -->
                   <button 
                     type="button"
                     @click="setHalfPreallocatedAmount"
                     :class="[
-                      'px-2 py-0.5 rounded-lg text-[11px] font-mono font-black border transition cursor-pointer flex items-center gap-1',
+                      'px-2.5 py-1 rounded-lg text-xs font-semibold border transition cursor-pointer flex items-center gap-1 active:scale-95',
                       targetPreallocatedAmount === Math.round((activeSaldoPendiente > 0 ? activeSaldoPendiente : activeTransferMonto) / 2)
-                        ? 'bg-indigo-600 text-white border-indigo-600 shadow-2xs' 
-                        : 'bg-indigo-50 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800 hover:bg-indigo-100'
+                        ? 'bg-indigo-600 text-white border-indigo-600 shadow-xs' 
+                        : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700'
                     ]"
                     title="Asignar el 50% del saldo en partes iguales"
                   >
-                    <span>🌓 50% (50-50)</span>
-                    <span class="opacity-90">(${{ formatNumber(Math.round((activeSaldoPendiente > 0 ? activeSaldoPendiente : activeTransferMonto) / 2)) }})</span>
+                    <Percent class="w-3.5 h-3.5 text-indigo-500" />
+                    <span>50% (50-50)</span>
+                    <span class="font-mono opacity-90">(${{ formatNumber(Math.round((activeSaldoPendiente > 0 ? activeSaldoPendiente : activeTransferMonto) / 2)) }})</span>
                   </button>
 
                   <!-- Opción 100% Saldo -->
@@ -1156,14 +1188,15 @@
                     type="button"
                     @click="setFullPreallocatedAmount"
                     :class="[
-                      'px-2 py-0.5 rounded-lg text-[11px] font-mono font-black border transition cursor-pointer flex items-center gap-1',
+                      'px-2.5 py-1 rounded-lg text-xs font-semibold border transition cursor-pointer flex items-center gap-1 active:scale-95',
                       targetPreallocatedAmount === (activeSaldoPendiente > 0 ? activeSaldoPendiente : activeTransferMonto)
-                        ? 'bg-indigo-600 text-white border-indigo-600 shadow-2xs' 
-                        : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-700 hover:bg-slate-200'
+                        ? 'bg-indigo-600 text-white border-indigo-600 shadow-xs' 
+                        : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700'
                     ]"
                     title="Asignar el 100% del saldo disponible"
                   >
-                    <span>🌕 100% Saldo</span>
+                    <Coins class="w-3.5 h-3.5 text-amber-500" />
+                    <span>100% Saldo</span>
                   </button>
 
                   <!-- Chips ERP adicionales si se cargó planilla -->
@@ -1174,30 +1207,34 @@
                       :key="lIdx"
                       @click="targetPreallocatedAmount = liq.monto"
                       :class="[
-                        'px-2 py-0.5 rounded-lg text-[11px] font-mono font-black border transition cursor-pointer',
+                        'px-2.5 py-1 rounded-lg text-xs font-semibold border transition cursor-pointer flex items-center gap-1 active:scale-95',
                         targetPreallocatedAmount === liq.monto 
-                          ? 'bg-indigo-600 text-white border-indigo-600 shadow-2xs' 
-                          : 'bg-indigo-50 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800 hover:bg-indigo-100'
+                          ? 'bg-indigo-600 text-white border-indigo-600 shadow-xs' 
+                          : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700'
                       ]"
                       :title="liq.descripcion"
                     >
-                      ERP: ${{ formatNumber(liq.monto) }}
+                      <FileSpreadsheet class="w-3.5 h-3.5 text-emerald-500" />
+                      <span>ERP: ${{ formatNumber(liq.monto) }}</span>
                     </button>
                   </template>
                 </div>
               </div>
 
-              <!-- Input de Búsqueda Integrado Slim con Atajo Enter y Checkbox de Pagadas -->
+              <!-- Input de Búsqueda Integrado con Atajo Enter y Checkbox de Pagadas -->
               <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-                <input 
-                  type="text" 
-                  v-model="surgerySearchQuery" 
-                  @keydown.enter.prevent="handleSurgerySearchEnter"
-                  placeholder="🔍 Buscar paciente, médico, sanatorio... (Enter para vincular sugerida)" 
-                  class="flex-1 bg-slate-50 dark:bg-slate-950 border border-indigo-200 dark:border-indigo-800 rounded-xl px-3 py-1.5 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                />
+                <div class="relative flex-1">
+                  <Search class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                  <input 
+                    type="text" 
+                    v-model="surgerySearchQuery" 
+                    @keydown.enter.prevent="handleSurgerySearchEnter"
+                    placeholder="Buscar paciente, médico, sanatorio... (Enter para vincular sugerida)" 
+                    class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl pl-9 pr-3 py-2 text-xs font-medium text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white dark:focus:bg-slate-900 transition"
+                  />
+                </div>
                 
-                <label class="flex items-center gap-1.5 text-xs text-slate-700 dark:text-slate-300 font-extrabold cursor-pointer shrink-0 bg-slate-100 dark:bg-slate-800 px-2.5 py-1.5 rounded-xl border border-slate-300 dark:border-slate-700 hover:bg-slate-200 transition">
+                <label class="flex items-center gap-2 text-xs text-slate-700 dark:text-slate-300 font-semibold cursor-pointer shrink-0 bg-slate-100 dark:bg-slate-800 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700 transition">
                   <input type="checkbox" v-model="includePaidSurgeries" class="rounded text-indigo-600 focus:ring-indigo-500 cursor-pointer" />
                   <span>Incluir pagadas (verificación)</span>
                 </label>
@@ -1205,65 +1242,66 @@
             </div>
 
             <!-- Lista de Cirugías Pendientes y Pagadas Disponibles -->
-            <div class="border border-slate-200 dark:border-slate-800 rounded-xl divide-y divide-slate-100 dark:divide-slate-800 max-h-52 overflow-y-auto scrollbar-thin">
+            <div class="border border-slate-200 dark:border-slate-800 rounded-xl divide-y divide-slate-100 dark:divide-slate-800 max-h-52 overflow-y-auto scrollbar-thin bg-white dark:bg-slate-900">
               <div 
                 v-for="surg in filteredAvailableSurgeries" 
                 :key="surg.id" 
                 :class="[
-                  'p-2.5 flex flex-col sm:flex-row sm:items-center justify-between text-xs gap-2 transition',
+                  'p-3 flex flex-col sm:flex-row sm:items-center justify-between text-xs gap-2.5 transition-colors',
                   surg.esPagada || surg.estado === 'Pagado'
-                    ? 'bg-emerald-50/50 dark:bg-emerald-955/20 hover:bg-emerald-100/60 dark:hover:bg-emerald-950/40 border-l-4 border-l-emerald-500'
-                    : 'hover:bg-indigo-50/50 dark:hover:bg-indigo-950/30'
+                    ? 'bg-emerald-50/40 dark:bg-emerald-955/20 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 border-l-4 border-l-emerald-500'
+                    : 'hover:bg-slate-50 dark:hover:bg-slate-800/60'
                 ]"
               >
                 <!-- Información Completa de Cirugía -->
-                <div class="min-w-0 flex-1 space-y-0.5">
+                <div class="min-w-0 flex-1 space-y-1">
                   <div class="flex items-center gap-2 flex-wrap">
-                    <span class="font-extrabold text-slate-900 dark:text-white text-xs">{{ surg.paciente }}</span>
-                    <span class="font-mono text-[10px] text-slate-600 dark:text-slate-300 font-bold bg-slate-100 dark:bg-slate-800 px-1.5 py-0.2 rounded">
-                      📅 {{ formatDate(surg.fecha_cirugia) }}
+                    <span class="font-bold text-slate-900 dark:text-white text-xs">{{ surg.paciente }}</span>
+                    <span class="inline-flex items-center gap-1 font-mono text-xs text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-md font-medium">
+                      <Calendar class="w-3 h-3 text-slate-400" />
+                      {{ formatDate(surg.fecha_cirugia) }}
                     </span>
                     <!-- BADGE VISUAL DE CIRUGÍA YA PAGADA -->
                     <span 
                       v-if="surg.esPagada || surg.estado === 'Pagado'" 
-                      class="px-1.5 py-0.2 rounded text-[10px] font-black bg-emerald-100 text-emerald-900 dark:bg-emerald-950 dark:text-emerald-200 border border-emerald-300 dark:border-emerald-700 flex items-center gap-1"
+                      class="px-2 py-0.5 rounded-md text-[11px] font-semibold bg-emerald-100 text-emerald-900 dark:bg-emerald-950 dark:text-emerald-200 border border-emerald-300 dark:border-emerald-700 inline-flex items-center gap-1"
                       title="Esta cirugía ya se encuentra abonada en el sistema. Disponible para verificación de comprobante."
                     >
-                      ✓ Ya Pagada (Verificación)
+                      <CheckCircle2 class="w-3 h-3 text-emerald-600" />
+                      <span>Ya Pagada</span>
                     </span>
                   </div>
-                  <div class="text-[11px] text-slate-600 dark:text-slate-300 font-medium leading-tight">
-                    <span class="font-bold text-slate-800 dark:text-slate-200">Médico:</span> {{ surg.medico || 'No especificado' }} 
-                    <span class="text-slate-400 mx-1">|</span> 
-                    <span class="font-bold text-slate-800 dark:text-slate-200">Lugar:</span> {{ surg.lugar_cirugia || 'No especificado' }}
+                  <div class="text-xs text-slate-600 dark:text-slate-400 font-normal leading-tight">
+                    <span class="font-semibold text-slate-700 dark:text-slate-300">Médico:</span> {{ surg.medico || 'No especificado' }} 
+                    <span class="text-slate-300 dark:text-slate-600 mx-1.5">|</span> 
+                    <span class="font-semibold text-slate-700 dark:text-slate-300">Lugar:</span> {{ surg.lugar_cirugia || 'No especificado' }}
                   </div>
                 </div>
 
-                <!-- Botón de Vincular -->
-                <button 
-                  type="button" 
-                  @click="addSurgeryToActiveDirect(surg)" 
-                  :class="[
-                    'self-end sm:self-auto px-3 py-1.5 font-black text-xs rounded-lg cursor-pointer shrink-0 shadow-2xs active:scale-95 transition flex items-center gap-1',
-                    surg.esPagada || surg.estado === 'Pagado'
-                      ? 'bg-slate-800 hover:bg-slate-900 text-emerald-300'
-                      : 'bg-indigo-600 hover:bg-indigo-700 text-white'
-                  ]"
+                <!-- Botón de Vincular con ShimmerButton -->
+                <ShimmerButton 
+                  size="sm"
+                  :variant="surg.esPagada || surg.estado === 'Pagado' ? 'outline' : 'primary'"
+                  @click="addSurgeryToActiveDirect(surg)"
+                  customClass="self-end sm:self-auto shrink-0"
                 >
-                  <span>+ Vincular</span>
-                  <span class="font-mono font-bold text-[11px]">(${{ formatNumber(targetPreallocatedAmount > 0 ? targetPreallocatedAmount : (activeSaldoPendiente > 0 ? activeSaldoPendiente : surg.monto_a_pagar)) }})</span>
-                </button>
+                  <Plus class="w-3.5 h-3.5 mr-0.5" />
+                  <span>Vincular</span>
+                  <span class="font-mono font-medium text-xs ml-1 opacity-90">
+                    (${{ formatNumber(targetPreallocatedAmount > 0 ? targetPreallocatedAmount : (activeSaldoPendiente > 0 ? activeSaldoPendiente : surg.monto_a_pagar)) }})
+                  </span>
+                </ShimmerButton>
               </div>
 
-              <div v-if="filteredAvailableSurgeries.length === 0" class="p-4 text-center text-xs text-slate-500 font-semibold space-y-2">
+              <div v-if="filteredAvailableSurgeries.length === 0" class="p-5 text-center text-xs text-slate-500 font-medium space-y-2">
                 <p class="italic">No se encontraron cirugías {{ includePaidSurgeries ? '' : 'pendientes' }} para este profesional con el filtro introducido.</p>
                 <div v-if="!showAllSurgeriesOverride" class="pt-1">
                   <button 
                     type="button" 
                     @click="showAllSurgeriesOverride = true" 
-                    class="px-3 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 dark:bg-indigo-950 dark:hover:bg-indigo-900 dark:text-indigo-300 font-extrabold text-xs rounded-lg border border-indigo-200 dark:border-indigo-800 transition cursor-pointer"
+                    class="px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 dark:bg-indigo-950 dark:hover:bg-indigo-900 dark:text-indigo-300 font-semibold text-xs rounded-xl border border-indigo-200 dark:border-indigo-800 transition cursor-pointer active:scale-95"
                   >
-                    🔍 Mostrar todas las cirugías disponibles sin filtrar por profesional
+                    Mostrar todas las cirugías disponibles sin filtrar por profesional
                   </button>
                 </div>
               </div>
@@ -1273,27 +1311,27 @@
 
         </div>
 
-        <!-- Footer Ultracompacto Slim -->
-        <div class="pt-2 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-2 shrink-0">
-          <button @click="showImputacionModal = false" class="w-full sm:w-auto px-3.5 py-2 bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 font-bold text-xs rounded-xl cursor-pointer">
+        <!-- Footer Ultracompacto Slim con ShimmerButton -->
+        <div class="pt-3 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3 shrink-0">
+          <button 
+            @click="showImputacionModal = false" 
+            class="w-full sm:w-auto px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-semibold text-xs rounded-xl transition cursor-pointer text-center"
+          >
             Guardar borrador y cerrar
           </button>
 
-          <button 
-            type="button" 
-            @click="confirmarConciliacion"
+          <ShimmerButton 
+            :variant="activeSaldoPendiente === 0 ? 'emerald' : 'primary'"
             :disabled="activeCirugias.length === 0 || isSubmitting"
-            :class="[
-              'w-full sm:w-auto px-5 py-2 rounded-xl font-black text-xs text-white shadow-md transition cursor-pointer text-center',
-              activeSaldoPendiente === 0 
-                ? 'bg-emerald-600 hover:bg-emerald-700 active:scale-95' 
-                : 'bg-indigo-600 hover:bg-indigo-700 active:scale-95'
-            ]"
+            :loading="isSubmitting"
+            @click="confirmarConciliacion"
+            customClass="w-full sm:w-auto"
           >
+            <CheckCircle2 class="w-4 h-4 mr-1.5" />
             <span>
-              {{ isSubmitting ? 'Registrando...' : (activeSaldoPendiente === 0 ? '✓ Confirmar Conciliación ($0 exacto)' : `✓ Confirmar Conciliación (Registrar Saldo Pendiente: $${formatNumber(activeSaldoPendiente)})`) }}
+              {{ isSubmitting ? 'Registrando...' : (activeSaldoPendiente === 0 ? 'Confirmar Conciliación ($0 exacto)' : `Confirmar Conciliación (Saldo Pendiente: $${formatNumber(activeSaldoPendiente)})`) }}
             </span>
-          </button>
+          </ShimmerButton>
         </div>
 
       </div>
@@ -1770,6 +1808,7 @@ import {
   History,
   CheckCircle2,
   AlertTriangle,
+  AlertCircle,
   Clock,
   Save,
   RefreshCw,
@@ -1780,7 +1819,14 @@ import {
   ChevronDown,
   Paperclip,
   ShieldCheck,
-  Search
+  Search,
+  X,
+  Percent,
+  Coins,
+  User,
+  Calendar,
+  StickyNote,
+  Check
 } from 'lucide-vue-next';
 
 // COMPONENTES UI ANIMADOS (ANIMATE UI)
@@ -1837,6 +1883,7 @@ const activeFileId = ref(null);
 
 const libroMayorSummary = ref(null);
 const libroMayorFileName = ref('');
+const libroMayorPeriodo = ref('');
 
 const instrumentadoresOptions = ref([]);
 const allPendingSurgeries = ref([]);
@@ -2817,7 +2864,17 @@ const tryMatchWithAsociacionesBancarias = (item) => {
 // NORMALIZACIÓN DE CÓDIGOS DE OPERACIÓN
 const normalizeOpCode = (code) => {
   if (!code) return '';
-  return String(code).toLowerCase().replace(/^(op|operacion|nro|comp|trans|coelsa)[:\-\s]*/i, '').replace(/[\s\-_]/g, '');
+  const cleaned = String(code)
+    .toLowerCase()
+    .replace(/^(op|operacion|operación|nro|n°|num|numero|número|comp|comprobante|trans|transferencia|coelsa|referencia|ref)[:\.\-\s]*/i, '')
+    .replace(/[\s\-_]/g, '');
+
+  // Descartar si es un valor genérico o no contiene un código identificador real con dígitos
+  const genericTerms = ['na', 'null', 'undefined', 'noespecificado', 'sinnro', 'sinnumero', 'comprobante', 'transferencia', 'pendiente', 'error', 'robante', 'ferencia'];
+  if (genericTerms.includes(cleaned) || !/\d/.test(cleaned) || cleaned.length < 4) {
+    return '';
+  }
+  return cleaned;
 };
 
 // VERIFICAR DUPLICADOS EN HISTORIAL DE ÓRDENES Y LOTE ACTIVO
@@ -3111,6 +3168,7 @@ const saveDraftDebounced = () => {
       const draftPayload = {
         updatedAt: new Date().toISOString(),
         libroMayorFileName: libroMayorFileName.value,
+        libroMayorPeriodo: libroMayorPeriodo.value,
         libroMayorSummary: libroMayorSummary.value,
         isLibroMayorSkipped: isLibroMayorSkipped.value,
         files: serializableFiles,
@@ -3193,6 +3251,7 @@ const restoreDraft = () => {
   const draft = pendingDraftData.value;
 
   libroMayorFileName.value = draft.libroMayorFileName || '';
+  libroMayorPeriodo.value = draft.libroMayorPeriodo || '';
   libroMayorSummary.value = draft.libroMayorSummary || null;
   isLibroMayorSkipped.value = draft.isLibroMayorSkipped || false;
   files.value = draft.files || [];
