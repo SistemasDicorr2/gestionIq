@@ -35,9 +35,18 @@
               autoSaveStatus === 'error' ? 'bg-rose-50 text-rose-800 border-rose-200 dark:bg-rose-950 dark:text-rose-300 dark:border-rose-900' :
               'bg-slate-100 text-slate-600 border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700'
             ]"
+            :title="autoSaveStatus === 'error' && lastSyncErrorMessage ? `Detalle del error: ${lastSyncErrorMessage}` : ''"
           >
-            <span :class="['w-1.5 h-1.5 rounded-full', autoSaveStatus === 'saving' ? 'bg-blue-500 animate-ping' : autoSaveStatus === 'saved' ? 'bg-emerald-500' : autoSaveStatus === 'error' ? 'bg-rose-500' : 'bg-slate-400']"></span>
-            <span>{{ autoSaveMessage }}</span>
+            <span :class="['w-1.5 h-1.5 rounded-full shrink-0', autoSaveStatus === 'saving' ? 'bg-blue-500 animate-ping' : autoSaveStatus === 'saved' ? 'bg-emerald-500' : autoSaveStatus === 'error' ? 'bg-rose-500' : 'bg-slate-400']"></span>
+            <span class="truncate max-w-[200px]">{{ autoSaveMessage }}</span>
+            <button 
+              v-if="autoSaveStatus === 'error'"
+              type="button"
+              @click.stop="saveDraftManual"
+              class="ml-1 text-[9px] underline font-black text-rose-700 dark:text-rose-300 hover:text-rose-900 cursor-pointer"
+            >
+              Reintentar
+            </button>
           </span>
 
           <button 
@@ -303,11 +312,20 @@
           <!-- BANNER ADVERTENCIA JORNADA YA ENVIADA -->
           <div v-if="enviadoExistente" class="p-3 bg-amber-50 dark:bg-amber-950/60 border border-amber-300 dark:border-amber-800 rounded-xl text-xs text-amber-900 dark:text-amber-200 flex items-start gap-2 animate-fadeIn mt-1">
             <svg class="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-            <div class="space-y-0.5">
+            <div class="space-y-1">
               <span class="font-extrabold block text-xs">⚠️ Atención: Jornada ya enviada</span>
               <p class="text-[11px] leading-relaxed opacity-90">
-                Ya existe un informe formal enviado para la fecha {{ formatDate(enviadoExistente.fecha) }}. Este borrador se guardará como un informe diario adicional.
+                Ya existe un informe formal enviado para la fecha {{ formatDate(enviadoExistente.fecha) }}. No es posible enviar dos informes para la misma fecha. Podés ver o editar el informe enviado o seleccionar otra fecha de jornada.
               </p>
+              <div class="pt-0.5 flex items-center gap-3">
+                <router-link 
+                  :to="{ name: 'LogisticaDetalleInforme', params: { id: enviadoExistente.id } }" 
+                  class="text-[11px] font-extrabold text-amber-800 dark:text-amber-300 underline hover:opacity-80 flex items-center gap-1"
+                >
+                  <span>Ver informe enviado de esta fecha</span>
+                  <span>→</span>
+                </router-link>
+              </div>
             </div>
           </div>
         </div>
@@ -1240,13 +1258,16 @@ const handleNewReportClick = () => {
 
 const autoSaveStatus = ref('idle'); // 'idle' | 'saving' | 'saved' | 'error'
 const lastSaveTime = ref('');
+const lastSyncErrorMessage = ref('');
 
 const autoSaveMessage = computed(() => {
   if (hydrationState.value === 'conflict') return 'Pausado por Conflicto';
   if (isAdminViewingOtherDraft.value && !adminEditEnabled.value) return 'Supervisión (Solo Lectura)';
   if (autoSaveStatus.value === 'saving') return 'Sincronizando borrador...';
   if (autoSaveStatus.value === 'saved') return lastSaveTime.value ? `Autoguardado ${lastSaveTime.value}` : 'Autoguardado OK';
-  if (autoSaveStatus.value === 'error') return 'Error de sincronización';
+  if (autoSaveStatus.value === 'error') {
+    return lastSyncErrorMessage.value ? `Error: ${lastSyncErrorMessage.value}` : 'Error de sincronización';
+  }
   return 'Borrador sin cambios';
 });
 
@@ -2708,6 +2729,7 @@ const saveDraftInternal = async (isSilent = false, reason = 'user_mutation', for
         throw new Error(result.error || 'Error al guardar borrador');
       }
 
+      lastSyncErrorMessage.value = '';
       informe.id = result.informe_id;
       informe.version = result.version;
       baseVersion.value = result.version;
@@ -2733,11 +2755,13 @@ const saveDraftInternal = async (isSilent = false, reason = 'user_mutation', for
     lastSaveTime.value = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
     return true;
   } catch (err) {
+    const errorMsg = err.message || err.details || 'Error inesperado al sincronizar';
+    lastSyncErrorMessage.value = errorMsg;
     if (!isSilent) {
-      toast.error('Error al guardar borrador: ' + (err.message || 'Error inesperado'));
+      toast.error('Error al sincronizar borrador: ' + errorMsg);
     }
     autoSaveStatus.value = 'error';
-    logDraftTrace('saveDraftInternal_error', { error: err.message });
+    logDraftTrace('saveDraftInternal_error', { error: errorMsg });
     return false;
   } finally {
     isSaving.value = false;
@@ -2778,7 +2802,7 @@ const openResumenModal = async () => {
   }
 
   clearTimeout(autoSaveTimer);
-  const saved = await saveDraftInternal(true, 'open_resumen_modal');
+  const saved = await saveDraftInternal(false, 'open_resumen_modal');
   if (saved && informe.id) {
     showResumenModal.value = true;
   }
@@ -2790,9 +2814,9 @@ const submitInformeFinal = async () => {
     isSending.value = true;
 
     // Asegurar que la versión más reciente quede guardada
-    const saved = await saveDraftInternal(true, 'submit_final_check');
+    const saved = await saveDraftInternal(false, 'submit_final_check');
     if (!saved || !informe.id) {
-      throw new Error('No se pudo verificar el borrador en la base de datos antes de enviar.');
+      throw new Error(lastSyncErrorMessage.value || 'No se pudo verificar el borrador en la base de datos antes de enviar.');
     }
 
     const { error } = await supabase.rpc('enviar_informe_logistica', {
