@@ -100,190 +100,336 @@
         </div>
       </div>
 
-      <!-- RESUMEN COMPACTO (4 KPI Cards) -->
-      <div class="p-4 sm:p-5">
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-          <!-- Movimientos -->
-          <div class="p-2.5 sm:p-3 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200/80 dark:border-slate-700/80 flex items-center gap-2.5">
-            <div class="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 3L4 7L8 11M4 7H20M16 21L20 17L16 13M20 17H4"/></svg>
+      <!-- RESUMEN OPERATIVO SUPERIOR (Prioridad Visual: Entregas, Retiros, Pendientes) -->
+      <div class="p-4 sm:p-5 space-y-3">
+        <!-- Tarjetas Principales Prioritarias -->
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+          <!-- Entregas -->
+          <div class="p-3 bg-blue-50/70 dark:bg-blue-950/40 rounded-xl border border-blue-200/80 dark:border-blue-900/60 flex items-center gap-3 shadow-2xs">
+            <div class="w-9 h-9 rounded-lg bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-xs font-bold text-sm">
+              🚚
             </div>
             <div>
-              <div class="text-lg font-extrabold text-slate-900 dark:text-white leading-none">{{ movimientos.length }}</div>
-              <div class="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mt-0.5">MOVIMIENTOS</div>
+              <div class="text-xl font-extrabold text-blue-950 dark:text-blue-200 leading-none">{{ stats.totalEntregas }}</div>
+              <div class="text-[9px] font-bold text-blue-700 dark:text-blue-400 uppercase tracking-wider mt-1">ENTREGAS</div>
             </div>
           </div>
 
-          <!-- Cajas -->
-          <div class="p-2.5 sm:p-3 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200/80 dark:border-slate-700/80 flex items-center gap-2.5">
-            <div class="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 16V8C21 7.3 20.6 6.65 20 6.3L13 2.3C12.4 1.95 11.6 1.95 11 2.3L4 6.3C3.4 6.65 3 7.3 3 8V16C3 16.7 3.4 17.35 4 17.7L11 21.7C11.6 22.05 12.4 22.05 13 21.7L20 17.7C20.6 17.35 21 16.7 21 16Z"/></svg>
+          <!-- Retiros -->
+          <div class="p-3 bg-indigo-50/70 dark:bg-indigo-950/40 rounded-xl border border-indigo-200/80 dark:border-indigo-900/60 flex items-center gap-3 shadow-2xs">
+            <div class="w-9 h-9 rounded-lg bg-indigo-600 text-white flex items-center justify-center shrink-0 shadow-xs font-bold text-sm">
+              📦
             </div>
             <div>
-              <div class="text-lg font-extrabold text-slate-900 dark:text-white leading-none">{{ totalCajas }}</div>
-              <div class="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mt-0.5">CAJAS / EQUIPOS</div>
-            </div>
-          </div>
-
-          <!-- Bultos -->
-          <div class="p-2.5 sm:p-3 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200/80 dark:border-slate-700/80 flex items-center gap-2.5">
-            <div class="w-8 h-8 rounded-lg bg-cyan-50 dark:bg-cyan-950/60 text-cyan-600 dark:text-cyan-400 flex items-center justify-center shrink-0">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.5 8.5L7 6L11.5 8.5L7 11L2.5 8.5Z"/></svg>
-            </div>
-            <div>
-              <div class="text-lg font-extrabold text-slate-900 dark:text-white leading-none">{{ totalBultos }}</div>
-              <div class="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mt-0.5">BULTOS</div>
+              <div class="text-xl font-extrabold text-indigo-950 dark:text-indigo-200 leading-none">{{ stats.totalRetiros }}</div>
+              <div class="text-[9px] font-bold text-indigo-700 dark:text-indigo-400 uppercase tracking-wider mt-1">RETIROS</div>
             </div>
           </div>
 
           <!-- Pendientes -->
-          <div class="p-2.5 sm:p-3 bg-amber-50/80 dark:bg-amber-950/40 rounded-xl border border-amber-200/80 dark:border-amber-900/60 flex items-center gap-2.5">
-            <div class="w-8 h-8 rounded-lg bg-amber-100 dark:bg-amber-900/60 text-amber-700 dark:text-amber-400 flex items-center justify-center shrink-0">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/><path d="M12 7V12L15 14" stroke="currentColor" stroke-width="2"/></svg>
+          <div class="p-3 bg-amber-50/90 dark:bg-amber-950/50 rounded-xl border border-amber-300/80 dark:border-amber-900/70 flex items-center gap-3 shadow-2xs col-span-2 sm:col-span-1">
+            <div class="w-9 h-9 rounded-lg bg-amber-500 text-white flex items-center justify-center shrink-0 shadow-xs font-bold text-sm">
+              ⚠️
             </div>
             <div>
-              <div class="text-lg font-extrabold text-amber-900 dark:text-amber-300 leading-none">{{ totalPendientes }}</div>
-              <div class="text-[9px] font-bold text-amber-700 dark:text-amber-400 uppercase tracking-wider mt-0.5">PENDIENTES</div>
+              <div class="text-xl font-extrabold text-amber-950 dark:text-amber-200 leading-none">{{ stats.totalPendientes }}</div>
+              <div class="text-[9px] font-bold text-amber-800 dark:text-amber-400 uppercase tracking-wider mt-1">PENDIENTES</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tarjetas Secundarias: Movimientos Totales, Cajas y Bultos -->
+        <div class="grid grid-cols-3 gap-2.5">
+          <!-- Movimientos (Total) -->
+          <div class="p-2.5 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200/80 dark:border-slate-700/80 flex items-center gap-2.5">
+            <div class="w-7 h-7 rounded-lg bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 flex items-center justify-center shrink-0 font-bold text-xs">
+              📊
+            </div>
+            <div>
+              <div class="text-base font-extrabold text-slate-900 dark:text-white leading-none">{{ stats.totalMovimientos }}</div>
+              <div class="text-[8.5px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mt-0.5">MOVIMIENTOS</div>
+            </div>
+          </div>
+
+          <!-- Cajas / Equipos -->
+          <div class="p-2.5 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200/80 dark:border-slate-700/80 flex items-center gap-2.5">
+            <div class="w-7 h-7 rounded-lg bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 flex items-center justify-center shrink-0 font-bold text-xs">
+              💼
+            </div>
+            <div>
+              <div class="text-base font-extrabold text-slate-900 dark:text-white leading-none">{{ stats.totalCajas }}</div>
+              <div class="text-[8.5px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mt-0.5">CAJAS / EQUIPOS</div>
+            </div>
+          </div>
+
+          <!-- Bultos -->
+          <div class="p-2.5 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200/80 dark:border-slate-700/80 flex items-center gap-2.5">
+            <div class="w-7 h-7 rounded-lg bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 flex items-center justify-center shrink-0 font-bold text-xs">
+              🛍️
+            </div>
+            <div>
+              <div class="text-base font-extrabold text-slate-900 dark:text-white leading-none">{{ stats.totalBultos }}</div>
+              <div class="text-[8.5px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mt-0.5">BULTOS</div>
             </div>
           </div>
         </div>
 
         <!-- Observación General -->
-        <div v-if="informe.observacion_general" class="mt-3.5 p-3 bg-blue-50/60 dark:bg-blue-950/40 rounded-xl border-l-4 border-blue-600 text-xs space-y-1">
+        <div v-if="informe.observacion_general" class="p-3 bg-blue-50/60 dark:bg-blue-950/40 rounded-xl border-l-4 border-blue-600 text-xs space-y-1">
           <span class="font-extrabold text-blue-900 dark:text-blue-300 block">Observación General de la Jornada:</span>
           <p class="text-slate-700 dark:text-slate-300 italic">{{ informe.observacion_general }}</p>
         </div>
       </div>
 
-      <!-- SEPARADOR + TÍTULO TABLA -->
+      <!-- SECCIÓN: DETALLE DE MOVIMIENTOS AGRUPADOS POR INSTITUCIÓN -->
       <div class="px-4 sm:px-5 py-2 flex items-center justify-between border-t border-slate-100 dark:border-slate-800 text-xs font-extrabold">
-        <span class="text-slate-900 dark:text-white">Detalle de movimientos</span>
-        <span class="text-[10px] text-slate-400 dark:text-slate-500 font-mono">{{ movimientos.length }} registros</span>
+        <span class="text-slate-900 dark:text-white flex items-center gap-1.5">
+          <span>📋</span> Detalle de movimientos por institución
+        </span>
+        <span class="text-[10px] text-slate-400 dark:text-slate-500 font-mono">{{ movimientos.length }} registros en total</span>
       </div>
 
-      <!-- TABLA DE MOVIMIENTOS DESKTOP -->
-      <div class="hidden sm:block overflow-x-auto px-4 sm:px-5 pb-5">
-        <table class="w-full text-xs text-left border-collapse border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden">
-          <thead>
-            <tr class="bg-[#142033] text-white font-bold text-[10px] uppercase">
-              <th class="p-2.5 text-center w-8">#</th>
-              <th class="p-2.5 w-32">Movimiento</th>
-              <th class="p-2.5">Paciente / Cliente</th>
-              <th class="p-2.5">Institución / Médico</th>
-              <th class="p-2.5">Observaciones / Novedad</th>
-              <th class="p-2.5 text-center w-14">Cajas</th>
-              <th class="p-2.5 text-center w-14">Bultos</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-slate-200 dark:divide-slate-800">
-            <tr 
-              v-for="(mov, idx) in movimientos" 
-              :key="mov.id"
-              :class="idx % 2 === 0 ? 'bg-white dark:bg-slate-900' : 'bg-slate-50/70 dark:bg-slate-800/40'"
+      <!-- CONTENEDOR AGRUPADO POR ENTIDAD (Desktop y Mobile) -->
+      <div class="px-4 sm:px-5 pb-3 space-y-4">
+        <div 
+          v-for="group in entityGroups" 
+          :key="group.entidad"
+          class="rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden bg-white dark:bg-slate-900/60 shadow-2xs"
+        >
+          <!-- Header de Institución / Entidad -->
+          <div class="px-3.5 py-2.5 bg-slate-100 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700/80 flex flex-wrap items-center justify-between gap-2">
+            <div class="flex items-center gap-2">
+              <span class="text-sm">🏥</span>
+              <span class="font-extrabold text-xs text-slate-900 dark:text-white uppercase tracking-tight">
+                {{ group.entidad }}
+              </span>
+            </div>
+            <div class="flex items-center gap-2 text-[10px] font-bold font-mono">
+              <span class="px-2 py-0.5 rounded bg-blue-100 dark:bg-blue-950 text-blue-800 dark:text-blue-300">
+                {{ group.entregas }} ent.
+              </span>
+              <span class="px-2 py-0.5 rounded bg-indigo-100 dark:bg-indigo-950 text-indigo-800 dark:text-indigo-300">
+                {{ group.retiros }} ret.
+              </span>
+              <span class="px-2 py-0.5 rounded bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-200">
+                {{ group.cajas }} cajas | {{ group.bultos }} bultos
+              </span>
+              <span v-if="group.pendientes > 0" class="px-2 py-0.5 rounded bg-amber-200 text-amber-900 font-black">
+                ⚠️ {{ group.pendientes }} pend.
+              </span>
+            </div>
+          </div>
+
+          <!-- TABLA DE MOVIMIENTOS DESKTOP DE LA ENTIDAD -->
+          <div class="hidden sm:block overflow-x-auto">
+            <table class="w-full text-xs text-left border-collapse">
+              <thead>
+                <tr class="bg-slate-50 dark:bg-slate-800/40 text-slate-500 dark:text-slate-400 font-bold text-[9px] uppercase border-b border-slate-200 dark:border-slate-700">
+                  <th class="p-2 text-center w-8">#</th>
+                  <th class="p-2 w-36">Movimiento</th>
+                  <th class="p-2 w-44">Paciente / Cliente</th>
+                  <th class="p-2 w-36">Médico / Destino</th>
+                  <th class="p-2">Observaciones / Novedad</th>
+                  <th class="p-2 text-center w-14">Cajas</th>
+                  <th class="p-2 text-center w-14">Bultos</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                <tr 
+                  v-for="(mov, idx) in group.movimientos" 
+                  :key="mov.id || idx"
+                  class="hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors"
+                >
+                  <td class="p-2 text-center font-bold text-slate-400 font-mono text-[10px]">
+                    {{ String(idx + 1).padStart(2, '0') }}
+                  </td>
+                  
+                  <td class="p-2 align-top space-y-1">
+                    <span :class="['px-2 py-0.5 rounded text-[10px] font-extrabold inline-block', getMovementDisplayInfo(mov).bgClass]">
+                      {{ getMovementDisplayInfo(mov).displayTitle }}
+                    </span>
+
+                    <!-- Horario Real y Badge Fuera de Corte (Si existe dato confiable) -->
+                    <div v-if="getMovementDisplayInfo(mov).horaInfo" class="flex items-center gap-1 flex-wrap">
+                      <span class="font-mono text-[9px] text-slate-500 font-bold">
+                        ⏰ {{ getMovementDisplayInfo(mov).horaInfo.hora }}
+                      </span>
+                      <span 
+                        v-if="getMovementDisplayInfo(mov).horaInfo.isFueraDeCorte" 
+                        class="px-1.5 py-0.2 rounded text-[8px] font-black uppercase tracking-wider bg-amber-100 text-amber-900 border border-amber-300 dark:bg-amber-950 dark:text-amber-300 dark:border-amber-800"
+                        title="Salida realizada después del horario de corte de las 15:00"
+                      >
+                        FUERA DE CORTE
+                      </span>
+                    </div>
+
+                    <div v-if="mov.id_cirugia_snapshot">
+                      <span class="font-mono text-[9px] px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold inline-block">
+                        {{ mov.id_cirugia_snapshot }}
+                      </span>
+                    </div>
+                  </td>
+
+                  <td class="p-2 align-top">
+                    <span class="font-extrabold text-slate-900 dark:text-white block">{{ mov.paciente_snapshot || mov.destino || 'Sin especificar' }}</span>
+                    <span v-if="mov.cliente_snapshot" class="text-[10px] text-slate-500 block mt-0.5">🏢 {{ mov.cliente_snapshot }}</span>
+                  </td>
+
+                  <td class="p-2 align-top text-slate-700 dark:text-slate-300">
+                    <span v-if="mov.medico_snapshot" class="font-bold block text-slate-800 dark:text-slate-200">👨‍⚕️ {{ mov.medico_snapshot }}</span>
+                    <span v-else-if="mov.destino" class="text-slate-500 block">📍 {{ mov.destino }}</span>
+                    <span v-else class="text-slate-400 italic text-[10px]">-</span>
+                  </td>
+
+                  <td class="p-2 align-top">
+                    <div v-if="getMovementDisplayInfo(mov).subDetail" class="mb-1 p-1.5 bg-purple-50/90 dark:bg-purple-950/40 rounded border-l-2 border-purple-600 text-[11px] text-purple-950 dark:text-purple-200">
+                      <span class="font-extrabold text-purple-800 dark:text-purple-300">Motivo:</span> {{ getMovementDisplayInfo(mov).subDetail }}
+                    </div>
+
+                    <span v-if="getMovementDisplayInfo(mov).cleanObs" class="text-slate-700 dark:text-slate-300 block text-xs">
+                      {{ getMovementDisplayInfo(mov).cleanObs }}
+                    </span>
+                    <span v-else-if="!getMovementDisplayInfo(mov).subDetail && !mov.tiene_pendiente" class="text-slate-400 italic text-[10px]">Sin notas</span>
+
+                    <div v-if="mov.tiene_pendiente" class="mt-1 p-1 px-2 bg-amber-50 dark:bg-amber-950/40 rounded border border-amber-200 dark:border-amber-900/50 text-[10px] font-bold text-amber-900 dark:text-amber-300">
+                      ⚠️ Pendiente: {{ mov.detalle_pendiente }}
+                    </div>
+                  </td>
+
+                  <td class="p-2 text-center font-mono font-extrabold text-slate-900 dark:text-white text-xs">
+                    {{ mov.cantidad_cajas || 0 }}
+                  </td>
+
+                  <td class="p-2 text-center font-mono font-extrabold text-slate-900 dark:text-white text-xs">
+                    {{ mov.cantidad_bultos || 0 }}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- TARJETAS DE REGISTROS APILADAS MÓVIL (sm:hidden) -->
+          <div class="sm:hidden p-3 space-y-2.5 divide-y divide-slate-100 dark:divide-slate-800">
+            <div 
+              v-for="(mov, idx) in group.movimientos" 
+              :key="mov.id || idx"
+              class="pt-2.5 first:pt-0 space-y-2"
             >
-              <td class="p-2.5 text-center font-bold text-slate-400 font-mono text-[11px]">{{ String(idx + 1).padStart(2, '0') }}</td>
-              
-              <td class="p-2.5 align-top">
-                <span :class="['px-2.5 py-0.5 rounded-md border text-[10px] font-extrabold inline-block', getMovementDisplayInfo(mov).bgClass]">
-                  {{ getMovementDisplayInfo(mov).displayTitle }}
-                </span>
-                <div v-if="mov.id_cirugia_snapshot" class="mt-1">
-                  <span class="font-mono text-[9px] px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold inline-block">
-                    {{ mov.id_cirugia_snapshot }}
+              <div class="flex items-start justify-between gap-2">
+                <div>
+                  <div class="text-[10px] font-mono font-bold text-slate-400">
+                    {{ String(idx + 1).padStart(2, '0') }} {{ mov.id_cirugia_snapshot ? '· ' + mov.id_cirugia_snapshot : '' }}
+                  </div>
+                  <div class="font-extrabold text-sm text-slate-900 dark:text-white mt-0.5">
+                    {{ mov.paciente_snapshot || mov.destino || 'Sin especificar' }}
+                  </div>
+                  <div v-if="mov.cliente_snapshot" class="text-xs text-slate-500">
+                    🏢 {{ mov.cliente_snapshot }}
+                  </div>
+                </div>
+                <div class="flex flex-col items-end gap-1">
+                  <span :class="['px-2 py-0.5 rounded text-[9px] font-extrabold inline-block', getMovementDisplayInfo(mov).bgClass]">
+                    {{ getMovementDisplayInfo(mov).displayTitle }}
+                  </span>
+                  <span 
+                    v-if="getMovementDisplayInfo(mov).horaInfo?.isFueraDeCorte" 
+                    class="px-1.5 py-0.2 rounded text-[8px] font-black uppercase bg-amber-100 text-amber-900 border border-amber-300"
+                  >
+                    FUERA DE CORTE
                   </span>
                 </div>
-              </td>
+              </div>
 
-              <td class="p-2.5 align-top">
-                <span class="font-extrabold text-slate-900 dark:text-white block">{{ mov.paciente_snapshot || mov.destino || 'Sin especificar' }}</span>
-                <span v-if="mov.cliente_snapshot" class="text-[11px] text-slate-500 block mt-0.5">🏢 {{ mov.cliente_snapshot }}</span>
-              </td>
+              <div v-if="mov.medico_snapshot" class="text-xs text-slate-600 dark:text-slate-300">
+                👨‍⚕️ Médico · <strong>{{ mov.medico_snapshot }}</strong>
+              </div>
 
-              <td class="p-2.5 align-top text-slate-700 dark:text-slate-300">
-                <span v-if="mov.institucion_snapshot" class="font-bold block text-slate-800 dark:text-slate-200">🏥 {{ mov.institucion_snapshot }}</span>
-                <span v-if="mov.medico_snapshot" class="text-slate-500 block mt-0.5">👨‍⚕️ {{ mov.medico_snapshot }}</span>
-              </td>
-
-              <td class="p-2.5 align-top">
-                <div v-if="getMovementDisplayInfo(mov).subDetail" class="mb-1.5 p-2 bg-purple-50/90 dark:bg-purple-950/40 rounded-lg border-l-3 border-purple-600 text-xs text-purple-950 dark:text-purple-200">
-                  <span class="font-extrabold text-purple-800 dark:text-purple-300">Motivo / Gestión:</span> {{ getMovementDisplayInfo(mov).subDetail }}
+              <div class="space-y-1 text-xs">
+                <div v-if="getMovementDisplayInfo(mov).subDetail" class="p-1.5 bg-purple-50/80 dark:bg-purple-950/40 rounded border-l-2 border-purple-600 text-xs font-semibold text-purple-950 dark:text-purple-200">
+                  <span class="font-extrabold">Motivo:</span> {{ getMovementDisplayInfo(mov).subDetail }}
                 </div>
-
-                <span v-if="getMovementDisplayInfo(mov).cleanObs" class="text-slate-700 dark:text-slate-300 block text-xs">
+                <div v-if="getMovementDisplayInfo(mov).cleanObs" class="text-slate-600 dark:text-slate-300">
                   {{ getMovementDisplayInfo(mov).cleanObs }}
-                </span>
-                <span v-else-if="!getMovementDisplayInfo(mov).subDetail && !mov.tiene_pendiente" class="text-slate-400 italic text-[11px]">Sin notas</span>
-
-                <div v-if="mov.tiene_pendiente" class="mt-1 p-1 px-2 bg-amber-50 dark:bg-amber-950/40 rounded-lg border border-amber-200 dark:border-amber-900/50 text-[10px] font-bold text-amber-900 dark:text-amber-300">
+                </div>
+                <div v-if="mov.tiene_pendiente" class="p-1.5 bg-amber-50 dark:bg-amber-950/40 rounded border border-amber-200 text-[10px] font-bold text-amber-800">
                   ⚠️ Pendiente: {{ mov.detalle_pendiente }}
                 </div>
-              </td>
+              </div>
 
-              <td class="p-2.5 text-center font-mono font-extrabold text-slate-900 dark:text-white text-xs">
-                {{ mov.cantidad_cajas || 0 }}
-              </td>
-
-              <td class="p-2.5 text-center font-mono font-extrabold text-slate-900 dark:text-white text-xs">
-                {{ mov.cantidad_bultos || 0 }}
-              </td>
-            </tr>
-          </tbody>
-        </table>
+              <div class="p-1.5 bg-slate-50 dark:bg-slate-800/60 rounded flex items-center justify-between text-[11px] font-mono font-bold">
+                <span v-if="getMovementDisplayInfo(mov).horaInfo">⏰ {{ getMovementDisplayInfo(mov).horaInfo.hora }}</span>
+                <span>Cajas: <strong>{{ mov.cantidad_cajas || 0 }}</strong></span>
+                <span>Bultos: <strong>{{ mov.cantidad_bultos || 0 }}</strong></span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <!-- TARJETAS DE REGISTROS APILADAS MÓVIL (sm:hidden) -->
-      <div class="sm:hidden px-4 pb-4 space-y-2.5">
-        <div 
-          v-for="(mov, idx) in movimientos" 
-          :key="mov.id"
-          class="p-3 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 space-y-2"
-        >
-          <div class="flex items-start justify-between gap-2">
-            <div>
-              <div class="text-[10px] font-mono font-bold text-slate-400">
-                {{ String(idx + 1).padStart(2, '0') }} {{ mov.id_cirugia_snapshot ? '· ' + mov.id_cirugia_snapshot : '' }}
-              </div>
-              <div class="font-extrabold text-sm text-slate-900 dark:text-white mt-0.5">
-                {{ mov.paciente_snapshot || mov.destino || 'Sin especificar' }}
-              </div>
-              <div v-if="mov.cliente_snapshot" class="text-xs text-slate-500">
-                🏢 {{ mov.cliente_snapshot }}
-              </div>
-            </div>
-            <span :class="['px-2.5 py-0.5 rounded-md border text-[9px] font-extrabold inline-block shrink-0', getMovementDisplayInfo(mov).bgClass]">
-              {{ getMovementDisplayInfo(mov).displayTitle }}
-            </span>
-          </div>
+      <!-- SECCIÓN: RESUMEN POR ENTIDAD / INSTITUCIÓN (Colocada al final del detalle) -->
+      <div class="px-4 sm:px-5 py-4 space-y-2 border-t border-slate-100 dark:border-slate-800 bg-slate-50/40 dark:bg-slate-900/30">
+        <div class="flex items-center justify-between text-xs font-extrabold">
+          <span class="text-slate-900 dark:text-white flex items-center gap-1.5">
+            <span>🏥</span> Resumen de actividad por institución
+          </span>
+          <span class="text-[10px] text-slate-400 dark:text-slate-500 font-mono">{{ entityGroups.length }} instituciones</span>
+        </div>
 
-          <div class="h-px bg-slate-100 dark:bg-slate-800"></div>
-
-          <div class="space-y-1 text-xs">
-            <div class="font-bold text-slate-800 dark:text-slate-200">🏥 {{ mov.institucion_snapshot || 'Sin especificar' }}</div>
-            <div v-if="mov.medico_snapshot" class="text-slate-500">👨‍⚕️ Médico · {{ mov.medico_snapshot }}</div>
-          </div>
-
-          <div class="space-y-1 text-xs pt-1">
-            <div class="text-[9px] font-black uppercase text-blue-600 dark:text-blue-400 tracking-wider">
-              {{ mov.tipo_movimiento }}
-            </div>
-            <div v-if="getMovementDisplayInfo(mov).subDetail" class="p-2 bg-purple-50/80 dark:bg-purple-950/40 rounded-lg border-l-3 border-purple-600 text-xs font-semibold text-purple-950 dark:text-purple-200">
-              <span class="font-extrabold">Motivo:</span> {{ getMovementDisplayInfo(mov).subDetail }}
-            </div>
-            <div v-if="getMovementDisplayInfo(mov).cleanObs" class="text-slate-600 dark:text-slate-300">
-              {{ getMovementDisplayInfo(mov).cleanObs }}
-            </div>
-            <div v-else-if="!getMovementDisplayInfo(mov).subDetail && !mov.tiene_pendiente" class="text-slate-400 italic text-xs">
-              Sin notas
-            </div>
-            <div v-if="mov.tiene_pendiente" class="p-1.5 bg-amber-50 dark:bg-amber-950/40 rounded-lg border border-amber-200 text-[10px] font-bold text-amber-800">
-              ⚠️ Pendiente: {{ mov.detalle_pendiente }}
-            </div>
-          </div>
-
-          <div class="p-2 bg-slate-50 dark:bg-slate-800/60 rounded-lg flex items-center justify-between text-xs font-mono font-bold">
-            <span>Cajas: <strong>{{ mov.cantidad_cajas || 0 }}</strong></span>
-            <span>Bultos: <strong>{{ mov.cantidad_bultos || 0 }}</strong></span>
-          </div>
+        <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
+          <table class="w-full text-xs text-left border-collapse">
+            <thead>
+              <tr class="bg-slate-800 text-white font-bold text-[10px] uppercase tracking-wider">
+                <th class="p-2.5">Entidad / Institución</th>
+                <th class="p-2.5 text-center w-20 text-blue-300">Entregas</th>
+                <th class="p-2.5 text-center w-20 text-indigo-300">Retiros</th>
+                <th class="p-2.5 text-center w-24">Cajas/Equipos</th>
+                <th class="p-2.5 text-center w-20">Bultos</th>
+                <th class="p-2.5 text-center w-24 text-amber-300">Pendientes</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-200 dark:divide-slate-800">
+              <tr 
+                v-for="(group, gIdx) in entityGroups" 
+                :key="group.entidad"
+                :class="gIdx % 2 === 0 ? 'bg-white dark:bg-slate-900' : 'bg-slate-50/70 dark:bg-slate-800/40'"
+              >
+                <td class="p-2.5 font-extrabold text-slate-900 dark:text-white">
+                  {{ group.entidad }}
+                </td>
+                <td class="p-2.5 text-center font-mono font-bold text-blue-600 dark:text-blue-400">
+                  {{ group.entregas }}
+                </td>
+                <td class="p-2.5 text-center font-mono font-bold text-indigo-600 dark:text-indigo-400">
+                  {{ group.retiros }}
+                </td>
+                <td class="p-2.5 text-center font-mono font-bold text-slate-800 dark:text-slate-200">
+                  {{ group.cajas }}
+                </td>
+                <td class="p-2.5 text-center font-mono font-bold text-slate-800 dark:text-slate-200">
+                  {{ group.bultos }}
+                </td>
+                <td class="p-2.5 text-center font-mono font-bold">
+                  <span v-if="group.pendientes > 0" class="px-2 py-0.5 rounded bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300 text-[10px] font-extrabold">
+                    ⚠️ {{ group.pendientes }}
+                  </span>
+                  <span v-else class="text-slate-400">0</span>
+                </td>
+              </tr>
+            </tbody>
+            <tfoot>
+              <tr class="bg-slate-100 dark:bg-slate-800 font-extrabold text-[11px] border-t-2 border-slate-300 dark:border-slate-700">
+                <td class="p-2.5 text-slate-900 dark:text-white uppercase">TOTAL GENERAL</td>
+                <td class="p-2.5 text-center font-mono text-blue-700 dark:text-blue-400">{{ stats.totalEntregas }}</td>
+                <td class="p-2.5 text-center font-mono text-indigo-700 dark:text-indigo-400">{{ stats.totalRetiros }}</td>
+                <td class="p-2.5 text-center font-mono text-slate-900 dark:text-white">{{ stats.totalCajas }}</td>
+                <td class="p-2.5 text-center font-mono text-slate-900 dark:text-white">{{ stats.totalBultos }}</td>
+                <td class="p-2.5 text-center font-mono text-amber-700 dark:text-amber-400">
+                  <span v-if="stats.totalPendientes > 0">⚠️ {{ stats.totalPendientes }}</span>
+                  <span v-else>0</span>
+                </td>
+              </tr>
+            </tfoot>
+          </table>
         </div>
       </div>
 
@@ -310,11 +456,11 @@
       </div>
     </div>
 
-    <!-- Modal de Envió por Correo / Copiar Emails Oficiales / Prueba Resend -->
+    <!-- Modal de Envío por Correo / Copiar Emails Oficiales / Prueba Resend -->
     <EmailReporteModal 
       :show="showEmailModal"
       :informe="informe"
-      :stats="detailStats"
+      :stats="stats"
       :movimientos="movimientos"
       :htmlTableProvider="copyDirectToEmailClipboard"
       :getHtmlContent="() => generateEmailTableHtml(informe, movimientos)"
@@ -332,6 +478,13 @@ import { supabase } from '../../services/supabase';
 import { useToast } from 'vue-toastification';
 import EmailReporteModal from '../../components/logistica/EmailReporteModal.vue';
 import { generateLogisticaInformePDF, getLogisticaInformePdfBase64 } from '../../services/logisticaPdfGenerator';
+import {
+  formatDate,
+  formatDateTime,
+  getMovementDisplayInfo,
+  computeLogisticaStats,
+  groupMovimientosByEntidad
+} from '../../services/logisticaReportHelpers';
 
 const route = useRoute();
 const toast = useToast();
@@ -345,16 +498,8 @@ const isPublicView = computed(() => route.name === 'LogisticaInformePublico' || 
 const informe = ref(null);
 const movimientos = ref([]);
 
-const totalCajas = computed(() => movimientos.value.reduce((sum, m) => sum + (m.cantidad_cajas || 0), 0));
-const totalBultos = computed(() => movimientos.value.reduce((sum, m) => sum + (m.cantidad_bultos || 0), 0));
-const totalPendientes = computed(() => movimientos.value.filter(m => m.tiene_pendiente).length);
-
-const detailStats = computed(() => ({
-  totalMovimientos: movimientos.value.length,
-  totalCajas: totalCajas.value,
-  totalBultos: totalBultos.value,
-  totalPendientes: totalPendientes.value
-}));
+const stats = computed(() => computeLogisticaStats(movimientos.value));
+const entityGroups = computed(() => groupMovimientosByEntidad(movimientos.value));
 
 const fetchInformeDetalle = async () => {
   try {
@@ -438,89 +583,10 @@ const generatePdfBase64 = async () => {
   }
 };
 
-const formatDate = (dateStr) => {
-  if (!dateStr) return '';
-  const [y, m, d] = dateStr.split('-');
-  return `${d}/${m}/${y}`;
-};
-
-const formatDateTime = (dateTimeStr) => {
-  if (!dateTimeStr) return '';
-  const date = new Date(dateTimeStr);
-  return date.toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' }) + ' ' + date.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' });
-};
-
-const getMovementDisplayInfo = (mov) => {
-  let rawTipo = (mov?.tipo_movimiento || '').trim();
-  let obs = (mov?.observaciones || '').trim();
-  let tagTitle = '';
-  let subDetail = '';
-  let cleanObs = obs;
-
-  const match = obs.match(/^\[(.*?):?\s*(.*?)\]\s*(.*)/s);
-  if (match) {
-    const bracketHeader = match[1].trim();
-    const bracketSub = match[2].trim();
-    const restText = match[3].trim();
-
-    if (bracketSub) {
-      subDetail = bracketSub;
-    }
-
-    if (bracketHeader && bracketHeader.toLowerCase() !== 'otra gestión' && bracketHeader.toLowerCase() !== 'otra gestion') {
-      tagTitle = bracketHeader;
-    }
-
-    if (restText) {
-      cleanObs = restText;
-    } else {
-      cleanObs = '';
-    }
-  }
-
-  let displayTitle = tagTitle || rawTipo || 'Otra gestión';
-  const tLower = displayTitle.toLowerCase();
-  
-  if (rawTipo === 'Otra gestión' || tLower.includes('otra gestión') || tLower.includes('otra gestion') || displayTitle.length > 25) {
-    displayTitle = 'Otra gestión';
-  }
-
-  const t = displayTitle.toLowerCase();
-
-  // Estilos por defecto para "Otra gestión": Morado/Púrpura elegante en formato rectangular badge
-  let bgClass = 'bg-purple-50 text-purple-800 border-purple-200/80 dark:bg-purple-950/80 dark:text-purple-300 dark:border-purple-800 rounded-md font-extrabold';
-  let inlineHtml = 'padding:3px 8px;border-radius:5px;background:#f3e8ff;color:#6b21a8;font-size:10px;line-height:13px;font-weight:800;border:1px solid #d8b4fe;display:inline-block;white-space:nowrap;';
-
-  if (t.includes('entrega')) {
-    bgClass = 'bg-blue-50 text-blue-700 border-blue-200/80 dark:bg-blue-950/80 dark:text-blue-300 dark:border-blue-800 rounded-md font-extrabold';
-    inlineHtml = 'padding:3px 8px;border-radius:5px;background:#eff6ff;color:#2563eb;font-size:10px;line-height:13px;font-weight:800;border:1px solid #bfdbfe;display:inline-block;white-space:nowrap;';
-  } else if (t.includes('retiro')) {
-    bgClass = 'bg-indigo-50 text-indigo-700 border-indigo-200/80 dark:bg-indigo-950/80 dark:text-indigo-300 dark:border-indigo-800 rounded-md font-extrabold';
-    inlineHtml = 'padding:3px 8px;border-radius:5px;background:#eef2ff;color:#4f46e5;font-size:10px;line-height:13px;font-weight:800;border:1px solid #c7d2fe;display:inline-block;white-space:nowrap;';
-  } else if (t.includes('esterili')) {
-    bgClass = 'bg-emerald-50 text-emerald-700 border-emerald-200/80 dark:bg-emerald-950/80 dark:text-emerald-300 dark:border-emerald-800 rounded-md font-extrabold';
-    inlineHtml = 'padding:3px 8px;border-radius:5px;background:#ecfdf5;color:#047857;font-size:10px;line-height:13px;font-weight:800;border:1px solid #a7f3d0;display:inline-block;white-space:nowrap;';
-  } else if (t.includes('docu')) {
-    bgClass = 'bg-fuchsia-50 text-fuchsia-700 border-fuchsia-200/80 dark:bg-fuchsia-950/80 dark:text-fuchsia-300 dark:border-fuchsia-800 rounded-md font-extrabold';
-    inlineHtml = 'padding:3px 8px;border-radius:5px;background:#fdf4ff;color:#a21caf;font-size:10px;line-height:13px;font-weight:800;border:1px solid #f5d0fe;display:inline-block;white-space:nowrap;';
-  } else if (t.includes('despacho') || t.includes('envío') || t.includes('envio')) {
-    bgClass = 'bg-sky-50 text-sky-700 border-sky-200/80 dark:bg-sky-950/80 dark:text-sky-300 dark:border-sky-800 rounded-md font-extrabold';
-    inlineHtml = 'padding:3px 8px;border-radius:5px;background:#f0f9ff;color:#0369a1;font-size:10px;line-height:13px;font-weight:800;border:1px solid #bae6fd;display:inline-block;white-space:nowrap;';
-  } else if (t.includes('inciden')) {
-    bgClass = 'bg-rose-50 text-rose-700 border-rose-200/80 dark:bg-rose-950/80 dark:text-rose-300 dark:border-rose-800 rounded-md font-extrabold';
-    inlineHtml = 'padding:3px 8px;border-radius:5px;background:#fff1f2;color:#be123c;font-size:10px;line-height:13px;font-weight:800;border:1px solid #fecdd3;display:inline-block;white-space:nowrap;';
-  } else if (t.includes('control') || t.includes('devolu')) {
-    bgClass = 'bg-amber-50 text-amber-700 border-amber-200/80 dark:bg-amber-950/80 dark:text-amber-300 dark:border-amber-800 rounded-md font-extrabold';
-    inlineHtml = 'padding:3px 8px;border-radius:5px;background:#fffbeb;color:#b45309;font-size:10px;line-height:13px;font-weight:800;border:1px solid #fde68a;display:inline-block;white-space:nowrap;';
-  }
-
-  return { displayTitle, cleanObs, subDetail, bgClass, inlineHtml };
-};
-
 const generateEmailTableHtml = (inf, movsList) => {
-  const cajas = movsList.reduce((sum, m) => sum + (m.cantidad_cajas || 0), 0);
-  const bultos = movsList.reduce((sum, m) => sum + (m.cantidad_bultos || 0), 0);
-  const pendientes = movsList.filter(m => m.tiene_pendiente).length;
+  const emailStats = computeLogisticaStats(movsList);
+  const emailGroups = groupMovimientosByEntidad(movsList);
+
   const fechaStr = formatDate(inf?.fecha);
   const zonaStr = inf?.zona || 'Formosa Capital';
   const responsableStr = inf?.responsable_nombre || 'Logística';
@@ -528,49 +594,99 @@ const generateEmailTableHtml = (inf, movsList) => {
   const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://gestioniq.districorr.com.ar';
   const reportWebUrl = inf?.id ? `${baseUrl}/logistica/informes/publico/${inf.id}` : '#';
 
-  const desktopRows = movsList.map((mov, idx) => {
+  // --- FILAS DE LA TABLA RESUMEN POR ENTIDAD EN EMAIL ---
+  const entitySummaryRows = emailGroups.map((g, idx) => {
     const bg = idx % 2 === 0 ? '#ffffff' : '#f8fafc';
-    const numIdx = String(idx + 1).padStart(2, '0');
-    const info = getMovementDisplayInfo(mov);
-    const idCirugiaBadge = mov.id_cirugia_snapshot 
-      ? `<div style="margin-top:5px;"><span style="display:inline-block;padding:3px 6px;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:5px;font-family:Consolas,monospace;font-size:8px;line-height:10px;font-weight:700;color:#475569;">${mov.id_cirugia_snapshot}</span></div>` 
-      : '';
-    const clienteSpan = mov.cliente_snapshot ? `<div style="margin-top:4px;font-size:9px;line-height:13px;color:#64748b;">${mov.cliente_snapshot}</div>` : '';
-    const instSpan = mov.institucion_snapshot ? `<div style="font-size:10px;line-height:14px;font-weight:700;color:#334155;">${mov.institucion_snapshot}</div>` : '';
-    const medSpan = mov.medico_snapshot ? `<div style="margin-top:5px;font-size:9px;line-height:13px;color:#64748b;">Médico · ${mov.medico_snapshot}</div>` : '';
-    
-    let subDetailHtml = info.subDetail 
-      ? `<div style="margin-bottom:5px;padding:6px 9px;background:#f3e8ff;border-left:3px solid #7e22ce;border-radius:4px;font-size:10px;line-height:14px;color:#581c87;"><strong>Motivo:</strong> ${info.subDetail}</div>` 
-      : '';
-
-    let pendHtml = mov.tiene_pendiente 
-      ? `<div style="margin-top:4px;background-color:#fef3c7;border:1px solid #fcd34d;color:#92400e;padding:3px 5px;border-radius:4px;font-weight:bold;font-size:9px;">⚠️ Pendiente: ${mov.detalle_pendiente || ''}</div>` 
-      : '';
+    const pendBadge = g.pendientes > 0 
+      ? `<span style="display:inline-block;padding:2px 6px;background:#fef3c7;color:#92400e;border-radius:4px;font-weight:800;font-size:9px;">⚠️ ${g.pendientes}</span>`
+      : `<span style="color:#94a3b8;">0</span>`;
 
     return `
       <tr bgcolor="${bg}">
-        <td align="center" valign="top" style="padding:12px 7px;border-bottom:1px solid #e2e8f0;font-size:10px;color:#94a3b8;font-weight:700;">${numIdx}</td>
-        <td valign="top" style="padding:12px 9px;border-bottom:1px solid #e2e8f0;">
-          <span style="${info.inlineHtml}">${info.displayTitle}</span>
-          ${idCirugiaBadge}
-        </td>
-        <td valign="top" style="padding:12px 9px;border-bottom:1px solid #e2e8f0;">
-          <div style="font-size:11px;line-height:15px;font-weight:800;color:#0f172a;">${mov.paciente_snapshot || mov.destino || 'Sin especificar'}</div>
-          ${clienteSpan}
-        </td>
-        <td valign="top" style="padding:12px 9px;border-bottom:1px solid #e2e8f0;">
-          ${instSpan}
-          ${medSpan}
-        </td>
-        <td valign="top" style="padding:12px 9px;border-bottom:1px solid #e2e8f0;">
-          ${subDetailHtml}
-          <div style="font-size:10px;line-height:15px;color:#475569;">${info.cleanObs || (!info.subDetail ? 'Sin notas' : '')}</div>
-          ${pendHtml}
-        </td>
-        <td align="center" valign="middle" style="padding:12px 5px;border-bottom:1px solid #e2e8f0;font-size:11px;font-weight:800;color:#0f172a;">${mov.cantidad_cajas || 0}</td>
-        <td align="center" valign="middle" style="padding:12px 5px;border-bottom:1px solid #e2e8f0;font-size:11px;font-weight:800;color:#0f172a;">${mov.cantidad_bultos || 0}</td>
+        <td style="padding:7px 10px;border-bottom:1px solid #e2e8f0;font-size:11px;font-weight:700;color:#0f172a;">${g.entidad}</td>
+        <td align="center" style="padding:7px 5px;border-bottom:1px solid #e2e8f0;font-size:11px;font-weight:800;color:#2563eb;">${g.entregas}</td>
+        <td align="center" style="padding:7px 5px;border-bottom:1px solid #e2e8f0;font-size:11px;font-weight:800;color:#4f46e5;">${g.retiros}</td>
+        <td align="center" style="padding:7px 5px;border-bottom:1px solid #e2e8f0;font-size:11px;font-weight:700;color:#334155;">${g.cajas}</td>
+        <td align="center" style="padding:7px 5px;border-bottom:1px solid #e2e8f0;font-size:11px;font-weight:700;color:#334155;">${g.bultos}</td>
+        <td align="center" style="padding:7px 5px;border-bottom:1px solid #e2e8f0;">${pendBadge}</td>
       </tr>
     `;
+  }).join('');
+
+  // --- TABLA DETALLE AGRUPADA POR ENTIDAD EN EMAIL ---
+  let globalEmailIndex = 1;
+  const groupedDetailHtml = emailGroups.map(group => {
+    const groupHeader = `
+      <tr bgcolor="#f1f5f9">
+        <td colspan="7" style="padding:8px 10px;border-top:1px solid #cbd5e1;border-bottom:1px solid #cbd5e1;">
+          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+            <tr>
+              <td style="font-size:11px;font-weight:800;color:#0f172a;text-transform:uppercase;">
+                🏥 ${group.entidad}
+              </td>
+              <td align="right" style="font-size:9px;font-weight:700;color:#475569;">
+                <span style="display:inline-block;padding:2px 6px;background:#eff6ff;color:#2563eb;border-radius:3px;margin-right:4px;">${group.entregas} ent.</span>
+                <span style="display:inline-block;padding:2px 6px;background:#eef2ff;color:#4f46e5;border-radius:3px;margin-right:4px;">${group.retiros} ret.</span>
+                <span style="display:inline-block;padding:2px 6px;background:#e2e8f0;color:#334155;border-radius:3px;">${group.cajas} cajas · ${group.bultos} bultos</span>
+                ${group.pendientes > 0 ? `<span style="display:inline-block;padding:2px 6px;background:#fef3c7;color:#92400e;border-radius:3px;margin-left:4px;">⚠️ ${group.pendientes} pend.</span>` : ''}
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    `;
+
+    const movRows = group.movimientos.map((mov, idx) => {
+      const bg = idx % 2 === 0 ? '#ffffff' : '#fafafa';
+      const numIdx = String(globalEmailIndex++).padStart(2, '0');
+      const info = getMovementDisplayInfo(mov);
+
+      const idCirugiaBadge = mov.id_cirugia_snapshot 
+        ? `<div style="margin-top:4px;"><span style="display:inline-block;padding:2px 5px;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:4px;font-family:Consolas,monospace;font-size:8px;font-weight:700;color:#475569;">${mov.id_cirugia_snapshot}</span></div>` 
+        : '';
+      
+      const horaBadge = info.horaInfo 
+        ? `<div style="margin-top:4px;font-size:9px;color:#64748b;font-weight:700;">⏰ ${info.horaInfo.hora} ${info.horaInfo.isFueraDeCorte ? '<span style="display:inline-block;padding:1px 4px;background:#fef3c7;color:#92400e;border:1px solid #fde68a;border-radius:3px;font-size:8px;font-weight:800;">FUERA DE CORTE</span>' : ''}</div>`
+        : '';
+
+      const clienteSpan = mov.cliente_snapshot ? `<div style="margin-top:3px;font-size:9px;line-height:12px;color:#64748b;">🏢 ${mov.cliente_snapshot}</div>` : '';
+      const medSpan = mov.medico_snapshot ? `<div style="font-size:10px;line-height:13px;font-weight:700;color:#334155;">👨‍⚕️ ${mov.medico_snapshot}</div>` : `<div style="font-size:9px;color:#94a3b8;">${mov.destino || '-'}</div>`;
+      
+      let subDetailHtml = info.subDetail 
+        ? `<div style="margin-bottom:4px;padding:5px 8px;background:#f3e8ff;border-left:3px solid #7e22ce;border-radius:3px;font-size:10px;line-height:13px;color:#581c87;"><strong>Motivo:</strong> ${info.subDetail}</div>` 
+        : '';
+
+      let pendHtml = mov.tiene_pendiente 
+        ? `<div style="margin-top:4px;background-color:#fef3c7;border:1px solid #fcd34d;color:#92400e;padding:3px 5px;border-radius:4px;font-weight:bold;font-size:9px;">⚠️ Pendiente: ${mov.detalle_pendiente || ''}</div>` 
+        : '';
+
+      return `
+        <tr bgcolor="${bg}">
+          <td align="center" valign="top" style="padding:10px 6px;border-bottom:1px solid #f1f5f9;font-size:10px;color:#94a3b8;font-weight:700;">${numIdx}</td>
+          <td valign="top" style="padding:10px 8px;border-bottom:1px solid #f1f5f9;">
+            <span style="${info.inlineHtml}">${info.displayTitle}</span>
+            ${horaBadge}
+            ${idCirugiaBadge}
+          </td>
+          <td valign="top" style="padding:10px 8px;border-bottom:1px solid #f1f5f9;">
+            <div style="font-size:11px;line-height:14px;font-weight:800;color:#0f172a;">${mov.paciente_snapshot || mov.destino || 'Sin especificar'}</div>
+            ${clienteSpan}
+          </td>
+          <td valign="top" style="padding:10px 8px;border-bottom:1px solid #f1f5f9;">
+            ${medSpan}
+          </td>
+          <td valign="top" style="padding:10px 8px;border-bottom:1px solid #f1f5f9;">
+            ${subDetailHtml}
+            <div style="font-size:10px;line-height:14px;color:#475569;">${info.cleanObs || (!info.subDetail ? '<span style="color:#94a3b8;font-style:italic;">Sin notas</span>' : '')}</div>
+            ${pendHtml}
+          </td>
+          <td align="center" valign="middle" style="padding:10px 4px;border-bottom:1px solid #f1f5f9;font-size:11px;font-weight:800;color:#0f172a;">${mov.cantidad_cajas || 0}</td>
+          <td align="center" valign="middle" style="padding:10px 4px;border-bottom:1px solid #f1f5f9;font-size:11px;font-weight:800;color:#0f172a;">${mov.cantidad_bultos || 0}</td>
+        </tr>
+      `;
+    }).join('');
+
+    return groupHeader + movRows;
   }).join('');
 
   const obsGenHtml = inf?.observacion_general 
@@ -601,76 +717,12 @@ const generateEmailTableHtml = (inf, movsList) => {
       font-family: Arial, Helvetica, sans-serif;
       color: #172033;
     }
-
     table { border-collapse: collapse; }
-
-    .mobile-only { display: none; max-height: 0; overflow: hidden; mso-hide: all; }
-
     @media only screen and (max-width: 680px) {
-      .email-shell {
-        width: 100% !important;
-        max-width: 100% !important;
-        border-radius: 0 !important;
-      }
-
-      .px {
-        padding-left: 14px !important;
-        padding-right: 14px !important;
-      }
-
-      .header-left,
-      .header-right {
-        display: block !important;
-        width: 100% !important;
-        text-align: left !important;
-      }
-
-      .header-right {
-        padding-top: 8px !important;
-      }
-
-      .kpi-wrap {
-        display: block !important;
-        width: 100% !important;
-      }
-
-      .kpi-cell {
-        width: 50% !important;
-        display: inline-block !important;
-        box-sizing: border-box !important;
-        vertical-align: top !important;
-        padding: 3px !important;
-      }
-
-      .desktop-table {
-        display: none !important;
-        width: 0 !important;
-        height: 0 !important;
-        overflow: hidden !important;
-        opacity: 0 !important;
-      }
-
-      .mobile-only {
-        display: table !important;
-        width: 100% !important;
-        max-height: none !important;
-        overflow: visible !important;
-      }
-
-      .mobile-record {
-        width: 100% !important;
-        margin-bottom: 10px !important;
-      }
-
-      .mobile-title {
-        font-size: 14px !important;
-        line-height: 18px !important;
-      }
-
-      .mobile-copy {
-        font-size: 12px !important;
-        line-height: 17px !important;
-      }
+      .email-shell { width: 100% !important; max-width: 100% !important; border-radius: 0 !important; }
+      .px { padding-left: 12px !important; padding-right: 12px !important; }
+      .kpi-wrap { display: block !important; width: 100% !important; }
+      .kpi-cell { width: 33.33% !important; display: inline-block !important; box-sizing: border-box !important; vertical-align: top !important; padding: 2px !important; }
     }
   </style>
 </head>
@@ -679,7 +731,7 @@ const generateEmailTableHtml = (inf, movsList) => {
 
 <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" bgcolor="#eef2f7">
   <tr>
-    <td align="center" style="padding:18px 8px;">
+    <td align="center" style="padding:16px 6px;">
 
       <table role="presentation"
              width="940"
@@ -707,61 +759,30 @@ const generateEmailTableHtml = (inf, movsList) => {
           <td class="px" style="padding:16px 20px 12px 20px;">
             <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
               <tr>
-                <td valign="top" class="header-left" style="width:72%;">
-
+                <td valign="top" style="width:70%;">
                   <table role="presentation" cellspacing="0" cellpadding="0" border="0">
                     <tr>
-                      <td style="
-                        font-size:16px;
-                        line-height:18px;
-                        font-weight:800;
-                        color:#2563eb;
-                        letter-spacing:-0.1px;
-                      ">
+                      <td style="font-size:16px;line-height:18px;font-weight:800;color:#2563eb;letter-spacing:-0.1px;">
                         DISTRICORR · GESTIÓN IQ
                       </td>
                       <td style="padding-left:8px;">
-                        <span style="
-                          display:inline-block;
-                          padding:3px 7px;
-                          border-radius:999px;
-                          background:#dcfce7;
-                          color:#166534;
-                          font-size:9px;
-                          line-height:11px;
-                          font-weight:800;
-                          letter-spacing:.35px;
-                        ">
+                        <span style="display:inline-block;padding:3px 7px;border-radius:999px;background:#dcfce7;color:#166534;font-size:9px;line-height:11px;font-weight:800;letter-spacing:.35px;">
                           ENVIADO
                         </span>
                       </td>
                     </tr>
                   </table>
 
-                  <div style="
-                    margin-top:5px;
-                    font-size:18px;
-                    line-height:22px;
-                    font-weight:800;
-                    color:#0f172a;
-                  ">
+                  <div style="margin-top:5px;font-size:17px;line-height:21px;font-weight:800;color:#0f172a;">
                     Informe Diario de Logística Operativa
                   </div>
 
-                  <div style="
-                    margin-top:4px;
-                    font-size:11px;
-                    line-height:16px;
-                    color:#64748b;
-                  ">
+                  <div style="margin-top:4px;font-size:11px;line-height:16px;color:#64748b;">
                     ${fechaStr} · <strong style="color:#334155;">${zonaStr}</strong>
                   </div>
                 </td>
 
-                <td valign="top"
-                    align="right"
-                    class="header-right"
-                    style="width:28%;font-size:10px;line-height:15px;color:#64748b;">
+                <td valign="top" align="right" style="width:30%;font-size:10px;line-height:15px;color:#64748b;">
                   <strong style="color:#334155;">Responsable:</strong> ${responsableStr}<br>
                   <strong style="color:#334155;">Enviado:</strong> ${enviadoTimeStr}
                 </td>
@@ -770,143 +791,110 @@ const generateEmailTableHtml = (inf, movsList) => {
           </td>
         </tr>
 
-        <!-- RESUMEN COMPACTO -->
+        <!-- RESUMEN OPERATIVO SUPERIOR (Prioridad Visual: Entregas, Retiros, Pendientes) -->
         <tr>
           <td class="px" style="padding:0 20px 12px 20px;">
-            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" class="kpi-wrap">
+            
+            <!-- FILA 1: PRIORIDAD OPERATIVA -->
+            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin-bottom:6px;">
               <tr>
-
-                <!-- Movimientos -->
-                <td class="kpi-cell" width="25%" style="padding-right:4px;">
+                <!-- Entregas -->
+                <td class="kpi-cell" width="33.33%" style="padding-right:4px;">
                   <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0"
-                         style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;">
+                         style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;">
                     <tr>
-                      <td style="padding:9px 10px;">
-                        <table role="presentation" cellspacing="0" cellpadding="0" border="0">
-                          <tr>
-                            <td valign="middle" style="padding-right:7px;">
-                              <!-- Lucide: ArrowLeftRight -->
-                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-                                   xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                                <path d="M8 3L4 7L8 11" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                <path d="M4 7H20" stroke="#2563eb" stroke-width="2" stroke-linecap="round"/>
-                                <path d="M16 21L20 17L16 13" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                <path d="M20 17H4" stroke="#2563eb" stroke-width="2" stroke-linecap="round"/>
-                              </svg>
-                            </td>
-                            <td valign="middle">
-                              <div style="font-size:18px;line-height:20px;font-weight:800;color:#0f172a;">${movsList.length}</div>
-                              <div style="font-size:9px;line-height:11px;font-weight:700;color:#64748b;letter-spacing:.3px;">MOVIMIENTOS</div>
-                            </td>
-                          </tr>
-                        </table>
+                      <td style="padding:8px 10px;">
+                        <div style="font-size:18px;line-height:20px;font-weight:800;color:#1d4ed8;">${emailStats.totalEntregas}</div>
+                        <div style="font-size:9px;line-height:11px;font-weight:800;color:#2563eb;letter-spacing:.3px;">ENTREGAS</div>
                       </td>
                     </tr>
                   </table>
                 </td>
 
-                <!-- Cajas -->
-                <td class="kpi-cell" width="25%" style="padding-left:2px;padding-right:2px;">
+                <!-- Retiros -->
+                <td class="kpi-cell" width="33.33%" style="padding-left:2px;padding-right:2px;">
                   <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0"
-                         style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;">
+                         style="background:#eef2ff;border:1px solid #c7d2fe;border-radius:8px;">
                     <tr>
-                      <td style="padding:9px 10px;">
-                        <table role="presentation" cellspacing="0" cellpadding="0" border="0">
-                          <tr>
-                            <td valign="middle" style="padding-right:7px;">
-                              <!-- Lucide: Package -->
-                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-                                   xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                                <path d="M21 16V8C21 7.3 20.6 6.65 20 6.3L13 2.3C12.4 1.95 11.6 1.95 11 2.3L4 6.3C3.4 6.65 3 7.3 3 8V16C3 16.7 3.4 17.35 4 17.7L11 21.7C11.6 22.05 12.4 22.05 13 21.7L20 17.7C20.6 17.35 21 16.7 21 16Z"
-                                      stroke="#4f46e5" stroke-width="2" stroke-linejoin="round"/>
-                                <path d="M3.3 7L12 12L20.7 7" stroke="#4f46e5" stroke-width="2" stroke-linejoin="round"/>
-                                <path d="M12 22V12" stroke="#4f46e5" stroke-width="2"/>
-                              </svg>
-                            </td>
-                            <td valign="middle">
-                              <div style="font-size:18px;line-height:20px;font-weight:800;color:#0f172a;">${cajas}</div>
-                              <div style="font-size:9px;line-height:11px;font-weight:700;color:#64748b;letter-spacing:.3px;">CAJAS / EQUIPOS</div>
-                            </td>
-                          </tr>
-                        </table>
-                      </td>
-                    </tr>
-                  </table>
-                </td>
-
-                <!-- Contenedores/Bultos -->
-                <td class="kpi-cell" width="25%" style="padding-left:2px;padding-right:2px;">
-                  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0"
-                         style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;">
-                    <tr>
-                      <td style="padding:9px 10px;">
-                        <table role="presentation" cellspacing="0" cellpadding="0" border="0">
-                          <tr>
-                            <td valign="middle" style="padding-right:7px;">
-                              <!-- Lucide: Boxes -->
-                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-                                   xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                                <path d="M2.5 8.5L7 6L11.5 8.5L7 11L2.5 8.5Z" stroke="#0891b2" stroke-width="2" stroke-linejoin="round"/>
-                                <path d="M7 11V16" stroke="#0891b2" stroke-width="2"/>
-                                <path d="M2.5 8.5V13.5L7 16L11.5 13.5V8.5" stroke="#0891b2" stroke-width="2" stroke-linejoin="round"/>
-                                <path d="M12.5 13.5L17 11L21.5 13.5L17 16L12.5 13.5Z" stroke="#0891b2" stroke-width="2" stroke-linejoin="round"/>
-                                <path d="M17 16V21" stroke="#0891b2" stroke-width="2"/>
-                                <path d="M12.5 13.5V18.5L17 21L21.5 18.5V13.5" stroke="#0891b2" stroke-width="2" stroke-linejoin="round"/>
-                              </svg>
-                            </td>
-                            <td valign="middle">
-                              <div style="font-size:18px;line-height:20px;font-weight:800;color:#0f172a;">${bultos}</div>
-                              <div style="font-size:9px;line-height:11px;font-weight:700;color:#64748b;letter-spacing:.3px;">BULTOS</div>
-                            </td>
-                          </tr>
-                        </table>
+                      <td style="padding:8px 10px;">
+                        <div style="font-size:18px;line-height:20px;font-weight:800;color:#4338ca;">${emailStats.totalRetiros}</div>
+                        <div style="font-size:9px;line-height:11px;font-weight:800;color:#4f46e5;letter-spacing:.3px;">RETIROS</div>
                       </td>
                     </tr>
                   </table>
                 </td>
 
                 <!-- Pendientes -->
-                <td class="kpi-cell" width="25%" style="padding-left:4px;">
+                <td class="kpi-cell" width="33.33%" style="padding-left:4px;">
                   <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0"
-                         style="background:#fffaf0;border:1px solid #fde68a;border-radius:8px;">
+                         style="background:#fffbeb;border:1px solid #fde68a;border-radius:8px;">
                     <tr>
-                      <td style="padding:9px 10px;">
-                        <table role="presentation" cellspacing="0" cellpadding="0" border="0">
-                          <tr>
-                            <td valign="middle" style="padding-right:7px;">
-                              <!-- Lucide: ClockAlert -->
-                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-                                   xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                                <circle cx="12" cy="12" r="9" stroke="#b45309" stroke-width="2"/>
-                                <path d="M12 7V12L15 14" stroke="#b45309" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                <path d="M19 5L21 3" stroke="#b45309" stroke-width="2" stroke-linecap="round"/>
-                              </svg>
-                            </td>
-                            <td valign="middle">
-                              <div style="font-size:18px;line-height:20px;font-weight:800;color:#b45309;">${pendientes}</div>
-                              <div style="font-size:9px;line-height:11px;font-weight:700;color:#b45309;letter-spacing:.3px;">PENDIENTES</div>
-                            </td>
-                          </tr>
-                        </table>
+                      <td style="padding:8px 10px;">
+                        <div style="font-size:18px;line-height:20px;font-weight:800;color:#b45309;">${emailStats.totalPendientes}</div>
+                        <div style="font-size:9px;line-height:11px;font-weight:800;color:#b45309;letter-spacing:.3px;">PENDIENTES</div>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+            </table>
+
+            <!-- FILA 2: TOTALES Y CARGA -->
+            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+              <tr>
+                <!-- Total Movs -->
+                <td class="kpi-cell" width="33.33%" style="padding-right:4px;">
+                  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0"
+                         style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;">
+                    <tr>
+                      <td style="padding:7px 10px;">
+                        <span style="font-size:14px;font-weight:800;color:#0f172a;">${emailStats.totalMovimientos}</span>
+                        <span style="font-size:9px;font-weight:700;color:#64748b;margin-left:4px;">MOVIMIENTOS</span>
                       </td>
                     </tr>
                   </table>
                 </td>
 
+                <!-- Cajas -->
+                <td class="kpi-cell" width="33.33%" style="padding-left:2px;padding-right:2px;">
+                  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0"
+                         style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;">
+                    <tr>
+                      <td style="padding:7px 10px;">
+                        <span style="font-size:14px;font-weight:800;color:#0f172a;">${emailStats.totalCajas}</span>
+                        <span style="font-size:9px;font-weight:700;color:#64748b;margin-left:4px;">CAJAS / EQUIPOS</span>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+
+                <!-- Bultos -->
+                <td class="kpi-cell" width="33.33%" style="padding-left:4px;">
+                  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0"
+                         style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;">
+                    <tr>
+                      <td style="padding:7px 10px;">
+                        <span style="font-size:14px;font-weight:800;color:#0f172a;">${emailStats.totalBultos}</span>
+                        <span style="font-size:9px;font-weight:700;color:#64748b;margin-left:4px;">BULTOS</span>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
               </tr>
             </table>
+
           </td>
         </tr>
 
         ${obsGenHtml}
 
-        <!-- SEPARADOR + TITULO TABLA -->
+        <!-- SEPARADOR + TÍTULO TABLA DETALLE -->
         <tr>
-          <td class="px" style="padding:8px 20px 8px 20px;">
+          <td class="px" style="padding:4px 20px 6px 20px;">
             <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
               <tr>
-                <td style="font-size:13px;line-height:17px;font-weight:800;color:#0f172a;">
-                  Detalle de movimientos
+                <td style="font-size:12px;line-height:16px;font-weight:800;color:#0f172a;">
+                  📋 Detalle de movimientos agrupados por institución
                 </td>
                 <td align="right" style="font-size:9px;line-height:12px;color:#64748b;">
                   ${movsList.length} registros
@@ -916,26 +904,54 @@ const generateEmailTableHtml = (inf, movsList) => {
           </td>
         </tr>
 
-        <!-- ======================================================
-             TABLA PRINCIPAL
-             ====================================================== -->
+        <!-- TABLA DETALLE AGRUPADA -->
         <tr>
-          <td class="px" style="padding:0 20px 20px 20px;">
+          <td class="px" style="padding:0 20px 14px 20px;">
             <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0"
                    style="width:100%;border:1px solid #dbe3ee;border-radius:8px;overflow:hidden;">
 
               <tr bgcolor="#142033">
-                <th align="center" style="width:4%;padding:9px 7px;font-size:9px;color:#fff;">#</th>
-                <th align="left" style="width:14%;padding:9px 9px;font-size:9px;color:#fff;">MOVIMIENTO</th>
-                <th align="left" style="width:17%;padding:9px 9px;font-size:9px;color:#fff;">PACIENTE / CLIENTE</th>
-                <th align="left" style="width:22%;padding:9px 9px;font-size:9px;color:#fff;">INSTITUCIÓN / MÉDICO</th>
-                <th align="left" style="width:33%;padding:9px 9px;font-size:9px;color:#fff;">OBSERVACIONES / NOVEDAD</th>
-                <th align="center" style="width:5%;padding:9px 5px;font-size:9px;color:#fff;">CAJAS</th>
-                <th align="center" style="width:5%;padding:9px 5px;font-size:9px;color:#fff;">BULTOS</th>
+                <th align="center" style="width:4%;padding:8px 6px;font-size:9px;color:#fff;">#</th>
+                <th align="left" style="width:18%;padding:8px 8px;font-size:9px;color:#fff;">MOVIMIENTO</th>
+                <th align="left" style="width:20%;padding:8px 8px;font-size:9px;color:#fff;">PACIENTE / CLIENTE</th>
+                <th align="left" style="width:18%;padding:8px 8px;font-size:9px;color:#fff;">MÉDICO / DESTINO</th>
+                <th align="left" style="width:28%;padding:8px 8px;font-size:9px;color:#fff;">OBSERVACIONES / NOVEDAD</th>
+                <th align="center" style="width:6%;padding:8px 4px;font-size:9px;color:#fff;">CAJAS</th>
+                <th align="center" style="width:6%;padding:8px 4px;font-size:9px;color:#fff;">BULTOS</th>
               </tr>
 
-              ${desktopRows}
+              ${groupedDetailHtml}
 
+            </table>
+          </td>
+        </tr>
+
+        <!-- SECCIÓN: RESUMEN POR ENTIDAD EN EMAIL (Al final después del detalle) -->
+        <tr>
+          <td class="px" style="padding:4px 20px 16px 20px;">
+            <div style="font-size:12px;line-height:16px;font-weight:800;color:#0f172a;margin-bottom:6px;">
+              🏥 Resumen de Actividad por Institución
+            </div>
+
+            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0"
+                   style="border:1px solid #dbe3ee;border-radius:6px;overflow:hidden;">
+              <tr bgcolor="#1e293b">
+                <th align="left" style="padding:7px 10px;font-size:9px;color:#ffffff;font-weight:800;">ENTIDAD / INSTITUCIÓN</th>
+                <th align="center" style="width:12%;padding:7px 5px;font-size:9px;color:#93c5fd;font-weight:800;">ENTREGAS</th>
+                <th align="center" style="width:12%;padding:7px 5px;font-size:9px;color:#a5b4fc;font-weight:800;">RETIROS</th>
+                <th align="center" style="width:14%;padding:7px 5px;font-size:9px;color:#ffffff;font-weight:800;">CAJAS</th>
+                <th align="center" style="width:12%;padding:7px 5px;font-size:9px;color:#ffffff;font-weight:800;">BULTOS</th>
+                <th align="center" style="width:14%;padding:7px 5px;font-size:9px;color:#fcd34d;font-weight:800;">PENDIENTES</th>
+              </tr>
+              ${entitySummaryRows}
+              <tr bgcolor="#f1f5f9" style="border-top:2px solid #cbd5e1;">
+                <td style="padding:7px 10px;font-size:10px;font-weight:800;color:#0f172a;">TOTAL GENERAL</td>
+                <td align="center" style="padding:7px 5px;font-size:11px;font-weight:800;color:#1d4ed8;">${emailStats.totalEntregas}</td>
+                <td align="center" style="padding:7px 5px;font-size:11px;font-weight:800;color:#4338ca;">${emailStats.totalRetiros}</td>
+                <td align="center" style="padding:7px 5px;font-size:11px;font-weight:800;color:#0f172a;">${emailStats.totalCajas}</td>
+                <td align="center" style="padding:7px 5px;font-size:11px;font-weight:800;color:#0f172a;">${emailStats.totalBultos}</td>
+                <td align="center" style="padding:7px 5px;font-size:11px;font-weight:800;color:#b45309;">${emailStats.totalPendientes > 0 ? `⚠️ ${emailStats.totalPendientes}` : '0'}</td>
+              </tr>
             </table>
           </td>
         </tr>
@@ -952,7 +968,7 @@ const generateEmailTableHtml = (inf, movsList) => {
           </td>
         </tr>
 
-        <!-- FOOTER MINIMO -->
+        <!-- FOOTER MÍNIMO -->
         <tr>
           <td class="px" style="padding:11px 20px;background:#0f172a;">
             <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">

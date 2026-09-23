@@ -2,67 +2,13 @@
 
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
-
-/**
- * Formatea una fecha YYYY-MM-DD a DD/MM/YYYY
- */
-const formatDate = (dateStr) => {
-  if (!dateStr) return '';
-  const [y, m, d] = dateStr.split('-');
-  return `${d}/${m}/${y}`;
-};
-
-/**
- * Formatea una fecha/hora ISO a DD/MM/YYYY HH:mm
- */
-const formatDateTime = (dateTimeStr) => {
-  if (!dateTimeStr) return '';
-  const date = new Date(dateTimeStr);
-  return date.toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' }) + 
-         ' ' + 
-         date.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' });
-};
-
-/**
- * Extrae la información limpia de etiquetas y motivos en observaciones
- */
-const getMovementDisplayInfo = (mov) => {
-  let rawTipo = (mov?.tipo_movimiento || '').trim();
-  let obs = (mov?.observaciones || '').trim();
-  let tagTitle = '';
-  let subDetail = '';
-  let cleanObs = obs;
-
-  const match = obs.match(/^\[(.*?):?\s*(.*?)\]\s*(.*)/s);
-  if (match) {
-    const bracketHeader = match[1].trim();
-    const bracketSub = match[2].trim();
-    const restText = match[3].trim();
-
-    if (bracketSub) {
-      subDetail = bracketSub;
-    }
-
-    if (bracketHeader && bracketHeader.toLowerCase() !== 'otra gestión' && bracketHeader.toLowerCase() !== 'otra gestion') {
-      tagTitle = bracketHeader;
-    }
-
-    if (restText) {
-      cleanObs = restText;
-    } else {
-      cleanObs = '';
-    }
-  }
-
-  let displayTitle = tagTitle || rawTipo || 'Otra gestión';
-  const tLower = displayTitle.toLowerCase();
-  
-  if (rawTipo === 'Otra gestión' || tLower.includes('otra gestión') || tLower.includes('otra gestion') || displayTitle.length > 25) {
-    displayTitle = 'Otra gestión';
-  }
-
-  return { displayTitle, cleanObs, subDetail };
-};
+import {
+  formatDate,
+  formatDateTime,
+  getMovementDisplayInfo,
+  computeLogisticaStats,
+  groupMovimientosByEntidad
+} from './logisticaReportHelpers';
 
 /**
  * Genera el documento PDF vectorial nativo para un Informe Diario de Logística
@@ -92,9 +38,12 @@ export function buildLogisticaInformePDF(informe, movimientos = [], options = {}
     ? formatDateTime(informe.enviado_at) 
     : formatDateTime(new Date().toISOString());
 
+  const stats = computeLogisticaStats(movimientos);
+  const entityGroups = groupMovimientosByEntidad(movimientos);
+
   // --- 1. BANNER / ENCABEZADO INSTITUCIONAL CORPORATIVO ---
   doc.setFillColor(20, 32, 51); // Slate-900 / #142033
-  doc.rect(margin, currentY, pageWidth - (margin * 2), 24, 'F');
+  doc.rect(margin, currentY, pageWidth - (margin * 2), 22, 'F');
 
   // Acento superior azul
   doc.setFillColor(37, 99, 235); // Blue-600 / #2563eb
@@ -103,170 +52,206 @@ export function buildLogisticaInformePDF(informe, movimientos = [], options = {}
   // Título Empresa
   doc.setTextColor(255, 255, 255);
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(13);
-  doc.text('DISTRICORR · GESTIÓN IQ', margin + 6, currentY + 9);
+  doc.setFontSize(12);
+  doc.text('DISTRICORR · GESTIÓN IQ', margin + 5, currentY + 8.5);
 
   // Badge Estado
   doc.setFillColor(220, 252, 231); // Emerald-100
-  doc.roundedRect(pageWidth - margin - 32, currentY + 5, 26, 6, 1.5, 1.5, 'F');
-  doc.setFontSize(7.5);
+  doc.roundedRect(pageWidth - margin - 30, currentY + 4.5, 25, 5.5, 1.2, 1.2, 'F');
+  doc.setFontSize(7);
   doc.setTextColor(22, 101, 52); // Emerald-800
-  doc.text(estadoStr, pageWidth - margin - 19, currentY + 9.2, { align: 'center' });
+  doc.text(estadoStr, pageWidth - margin - 17.5, currentY + 8.3, { align: 'center' });
 
   // Subtítulo Informe
-  doc.setFontSize(10);
+  doc.setFontSize(9.5);
   doc.setTextColor(203, 213, 225); // Slate-300
   doc.setFont('helvetica', 'normal');
-  doc.text(`Informe Diario de Logística Operativa — ${fechaStr}`, margin + 6, currentY + 16);
+  doc.text(`Informe Diario de Logística Operativa — ${fechaStr}`, margin + 5, currentY + 15.5);
 
-  currentY += 28;
+  currentY += 25;
 
   // --- 2. METADATA SECUNDARIA (Responsable / Zona / Fecha Envío) ---
-  doc.setFontSize(8.5);
+  doc.setFontSize(8);
   doc.setTextColor(71, 85, 105); // Slate-600
   doc.setFont('helvetica', 'bold');
   doc.text(`Responsable: `, margin, currentY);
   doc.setFont('helvetica', 'normal');
-  doc.text(responsableStr, margin + 22, currentY);
+  doc.text(responsableStr, margin + 20, currentY);
 
   doc.setFont('helvetica', 'bold');
-  doc.text(`Zona: `, margin + 90, currentY);
+  doc.text(`Zona: `, margin + 85, currentY);
   doc.setFont('helvetica', 'normal');
-  doc.text(zonaStr, margin + 101, currentY);
+  doc.text(zonaStr, margin + 95, currentY);
 
   doc.setFont('helvetica', 'bold');
-  doc.text(`Enviado: `, pageWidth - margin - 50, currentY);
+  doc.text(`Enviado: `, pageWidth - margin - 48, currentY);
   doc.setFont('helvetica', 'normal');
-  doc.text(enviadoTimeStr, pageWidth - margin - 35, currentY);
+  doc.text(enviadoTimeStr, pageWidth - margin - 34, currentY);
 
-  currentY += 7;
+  currentY += 6;
 
-  // --- 3. CUADROS KPI RESUMEN ---
-  const totalMovs = movimientos.length;
-  const totalCajas = movimientos.reduce((sum, m) => sum + (m.cantidad_cajas || 0), 0);
-  const totalBultos = movimientos.reduce((sum, m) => sum + (m.cantidad_bultos || 0), 0);
-  const totalPendientes = movimientos.filter(m => m.tiene_pendiente).length;
+  // --- 3. CUADROS KPI RESUMEN OPERATIVO (6 Tarjetas con prioridad visual) ---
+  const boxWidth3 = (pageWidth - (margin * 2) - 6) / 3;
+  const boxHeight = 11;
 
-  const boxWidth = (pageWidth - (margin * 2) - 9) / 4;
-  const boxHeight = 14;
-
-  const kpis = [
-    { label: 'MOVIMIENTOS', value: String(totalMovs), color: [37, 99, 235], bg: [240, 246, 255] },
-    { label: 'CAJAS / EQUIPOS', value: String(totalCajas), color: [79, 70, 229], bg: [245, 243, 255] },
-    { label: 'BULTOS', value: String(totalBultos), color: [8, 145, 178], bg: [236, 254, 255] },
-    { label: 'PENDIENTES', value: String(totalPendientes), color: [180, 83, 9], bg: [254, 243, 199] }
+  const kpisRow1 = [
+    { label: 'ENTREGAS', value: String(stats.totalEntregas), color: [37, 99, 235], bg: [239, 246, 255] },
+    { label: 'RETIROS', value: String(stats.totalRetiros), color: [79, 70, 229], bg: [238, 242, 255] },
+    { label: 'PENDIENTES', value: String(stats.totalPendientes), color: [180, 83, 9], bg: [254, 243, 199] }
   ];
 
-  kpis.forEach((kpi, idx) => {
-    const xPos = margin + (idx * (boxWidth + 3));
-    
-    // Fondo de tarjeta
+  const kpisRow2 = [
+    { label: 'MOVIMIENTOS (TOTAL)', value: String(stats.totalMovimientos), color: [15, 23, 42], bg: [248, 250, 252] },
+    { label: 'CAJAS / EQUIPOS', value: String(stats.totalCajas), color: [79, 70, 229], bg: [248, 250, 252] },
+    { label: 'BULTOS', value: String(stats.totalBultos), color: [8, 145, 178], bg: [248, 250, 252] }
+  ];
+
+  // Render Fila 1
+  kpisRow1.forEach((kpi, idx) => {
+    const xPos = margin + (idx * (boxWidth3 + 3));
     doc.setFillColor(kpi.bg[0], kpi.bg[1], kpi.bg[2]);
     doc.setDrawColor(226, 232, 240);
-    doc.roundedRect(xPos, currentY, boxWidth, boxHeight, 2, 2, 'FD');
+    doc.roundedRect(xPos, currentY, boxWidth3, boxHeight, 1.5, 1.5, 'FD');
 
-    // Valor número
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(13);
+    doc.setFontSize(11);
     doc.setTextColor(kpi.color[0], kpi.color[1], kpi.color[2]);
-    doc.text(kpi.value, xPos + 5, currentY + 8);
+    doc.text(kpi.value, xPos + 4, currentY + 6.5);
 
-    // Label
     doc.setFontSize(6.5);
     doc.setTextColor(100, 116, 139);
-    doc.text(kpi.label, xPos + 5, currentY + 11.8);
+    doc.text(kpi.label, xPos + 4, currentY + 9.8);
   });
 
-  currentY += boxHeight + 6;
+  currentY += boxHeight + 2;
+
+  // Render Fila 2
+  kpisRow2.forEach((kpi, idx) => {
+    const xPos = margin + (idx * (boxWidth3 + 3));
+    doc.setFillColor(kpi.bg[0], kpi.bg[1], kpi.bg[2]);
+    doc.setDrawColor(226, 232, 240);
+    doc.roundedRect(xPos, currentY, boxWidth3, boxHeight, 1.5, 1.5, 'FD');
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(10);
+    doc.setTextColor(kpi.color[0], kpi.color[1], kpi.color[2]);
+    doc.text(kpi.value, xPos + 4, currentY + 6.5);
+
+    doc.setFontSize(6.5);
+    doc.setTextColor(100, 116, 139);
+    doc.text(kpi.label, xPos + 4, currentY + 9.8);
+  });
+
+  currentY += boxHeight + 5;
 
   // --- 4. OBSERVACIÓN GENERAL (Si existe) ---
   if (informe?.observacion_general) {
     doc.setFillColor(239, 246, 255); // Blue-50
     doc.setDrawColor(191, 219, 254); // Blue-200
     
-    const obsLines = doc.splitTextToSize(informe.observacion_general, pageWidth - (margin * 2) - 12);
-    const obsBoxHeight = Math.max(12, (obsLines.length * 4) + 8);
+    const obsLines = doc.splitTextToSize(informe.observacion_general, pageWidth - (margin * 2) - 10);
+    const obsBoxHeight = Math.max(10, (obsLines.length * 3.5) + 7);
 
-    doc.roundedRect(margin, currentY, pageWidth - (margin * 2), obsBoxHeight, 2, 2, 'FD');
+    doc.roundedRect(margin, currentY, pageWidth - (margin * 2), obsBoxHeight, 1.5, 1.5, 'FD');
 
     // Borde izquierdo resaltado azul
     doc.setFillColor(37, 99, 235);
-    doc.rect(margin, currentY, 2.5, obsBoxHeight, 'F');
+    doc.rect(margin, currentY, 2, obsBoxHeight, 'F');
 
-    doc.setFontSize(8);
+    doc.setFontSize(7.5);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(30, 64, 175);
-    doc.text('Observación General de la Jornada:', margin + 6, currentY + 5.5);
+    doc.text('Observación General de la Jornada:', margin + 5, currentY + 4.8);
 
     doc.setFont('helvetica', 'italic');
-    doc.setFontSize(8);
+    doc.setFontSize(7.5);
     doc.setTextColor(51, 65, 85);
-    doc.text(obsLines, margin + 6, currentY + 9.5);
+    doc.text(obsLines, margin + 5, currentY + 8.5);
 
     currentY += obsBoxHeight + 5;
   }
 
-  // --- 5. TABLA VECTORIAL DE MOVIMIENTOS CON jspdf-autotable ---
+  // --- 5. TABLA DETALLE DE MOVIMIENTOS AGRUPADOS POR ENTIDAD ---
   const tableColumns = [
     { header: '#', dataKey: 'idx' },
     { header: 'MOVIMIENTO', dataKey: 'movimiento' },
     { header: 'PACIENTE / CLIENTE', dataKey: 'paciente' },
-    { header: 'INSTITUCIÓN / MÉDICO', dataKey: 'institucion' },
+    { header: 'MÉDICO / DESTINO', dataKey: 'medico' },
     { header: 'OBSERVACIONES / NOVEDAD', dataKey: 'observaciones' },
     { header: 'CAJAS', dataKey: 'cajas' },
     { header: 'BULTOS', dataKey: 'bultos' }
   ];
 
-  const tableBody = movimientos.map((mov, index) => {
-    const info = getMovementDisplayInfo(mov);
-    
-    // Movimiento badge + id cirugia
-    let movCell = info.displayTitle;
-    if (mov.id_cirugia_snapshot) {
-      movCell += `\n[${mov.id_cirugia_snapshot}]`;
-    }
+  let globalMovIndex = 1;
+  const tableRows = [];
 
-    // Paciente / Cliente
-    let pacCell = mov.paciente_snapshot || mov.destino || 'Sin especificar';
-    if (mov.cliente_snapshot) {
-      pacCell += `\nCli: ${mov.cliente_snapshot}`;
-    }
+  entityGroups.forEach(group => {
+    // Fila de encabezado de grupo de institución
+    tableRows.push({
+      _isGroupHeader: true,
+      groupTitle: `INSTITUCIÓN: ${group.entidad.toUpperCase()} (${group.movimientos.length} movs | ${group.entregas} entregas, ${group.retiros} retiros | ${group.cajas} cajas, ${group.bultos} bultos${group.pendientes > 0 ? ` | ⚠️ ${group.pendientes} pend.` : ''})`
+    });
 
-    // Institución / Médico
-    let instCell = mov.institucion_snapshot || 'Sin especificar';
-    if (mov.medico_snapshot) {
-      instCell += `\nDr/a: ${mov.medico_snapshot}`;
-    }
+    group.movimientos.forEach(mov => {
+      const info = getMovementDisplayInfo(mov);
+      
+      // Movimiento badge + hora + fuera de corte + id cirugia
+      let movCell = info.displayTitle;
+      if (info.horaInfo?.hora) {
+        movCell += ` [${info.horaInfo.hora}]`;
+      }
+      if (info.horaInfo?.isFueraDeCorte) {
+        movCell += `\n*FUERA DE CORTE*`;
+      }
+      if (mov.id_cirugia_snapshot) {
+        movCell += `\n(${mov.id_cirugia_snapshot})`;
+      }
 
-    // Observaciones / Motivo / Pendiente
-    let obsCell = '';
-    if (info.subDetail) {
-      obsCell += `Motivo: ${info.subDetail}\n`;
-    }
-    obsCell += info.cleanObs || (!info.subDetail ? 'Sin notas' : '');
-    if (mov.tiene_pendiente) {
-      obsCell += `\n⚠️ Pendiente: ${mov.detalle_pendiente || ''}`;
-    }
+      // Paciente / Cliente
+      let pacCell = mov.paciente_snapshot || mov.destino || 'Sin especificar';
+      if (mov.cliente_snapshot) {
+        pacCell += `\nCli: ${mov.cliente_snapshot}`;
+      }
 
-    return {
-      idx: String(index + 1).padStart(2, '0'),
-      movimiento: movCell,
-      paciente: pacCell,
-      institucion: instCell,
-      observaciones: obsCell,
-      cajas: String(mov.cantidad_cajas || 0),
-      bultos: String(mov.cantidad_bultos || 0)
-    };
+      // Médico / Destino
+      let medCell = mov.medico_snapshot ? `Dr/a: ${mov.medico_snapshot}` : (mov.destino || '-');
+
+      // Observaciones / Motivo / Pendiente
+      let obsCell = '';
+      if (info.subDetail) {
+        obsCell += `Motivo: ${info.subDetail}\n`;
+      }
+      obsCell += info.cleanObs || (!info.subDetail ? 'Sin notas' : '');
+      if (mov.tiene_pendiente) {
+        obsCell += `\n⚠️ Pendiente: ${mov.detalle_pendiente || ''}`;
+      }
+
+      tableRows.push({
+        _isGroupHeader: false,
+        idx: String(globalMovIndex++).padStart(2, '0'),
+        movimiento: movCell,
+        paciente: pacCell,
+        medico: medCell,
+        observaciones: obsCell,
+        cajas: String(mov.cantidad_cajas || 0),
+        bultos: String(mov.cantidad_bultos || 0)
+      });
+    });
   });
 
   autoTable(doc, {
     head: [tableColumns.map(c => c.header)],
-    body: tableBody.map(row => tableColumns.map(col => row[col.dataKey])),
+    body: tableRows.map(row => {
+      if (row._isGroupHeader) {
+        return [{ content: row.groupTitle, colSpan: 7, styles: { fillColor: [241, 245, 249], textColor: [15, 23, 42], fontStyle: 'bold', fontSize: 7.5 } }];
+      }
+      return tableColumns.map(col => row[col.dataKey]);
+    }),
     startY: currentY,
     margin: { left: margin, right: margin },
     styles: {
-      fontSize: 7.5,
-      cellPadding: 2.5,
+      fontSize: 7,
+      cellPadding: 2.2,
       valign: 'top',
       textColor: [30, 41, 59],
       overflow: 'linebreak'
@@ -280,15 +265,83 @@ export function buildLogisticaInformePDF(informe, movimientos = [], options = {}
     },
     columnStyles: {
       0: { halign: 'center', cellWidth: 8, fontStyle: 'bold', textColor: [148, 163, 184] },
-      1: { cellWidth: 28, fontStyle: 'bold' },
-      2: { cellWidth: 35 },
-      3: { cellWidth: 38 },
+      1: { cellWidth: 32, fontStyle: 'bold' },
+      2: { cellWidth: 34 },
+      3: { cellWidth: 30 },
       4: { cellWidth: 'auto' },
       5: { halign: 'center', cellWidth: 12, fontStyle: 'bold' },
       6: { halign: 'center', cellWidth: 12, fontStyle: 'bold' }
+    }
+  });
+
+  currentY = doc.lastAutoTable.finalY + 8;
+
+  // --- 6. TABLA RESUMEN POR ENTIDAD / INSTITUCIÓN (Colocada al final del reporte) ---
+  // Verificar si cabe en la página actual o necesita espacio
+  if (currentY > pageHeight - 45) {
+    doc.addPage();
+    currentY = margin;
+  }
+
+  doc.setFontSize(8.5);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(15, 23, 42);
+  doc.text('Resumen de Actividad por Institución', margin, currentY + 3);
+
+  currentY += 5;
+
+  const entitySummaryHead = [['ENTIDAD / INSTITUCIÓN', 'ENTREGAS', 'RETIROS', 'CAJAS', 'BULTOS', 'PENDIENTES']];
+  const entitySummaryBody = entityGroups.map(g => [
+    g.entidad,
+    String(g.entregas),
+    String(g.retiros),
+    String(g.cajas),
+    String(g.bultos),
+    g.pendientes > 0 ? `⚠️ ${g.pendientes}` : '0'
+  ]);
+
+  // Fila de totales para el resumen por entidad
+  entitySummaryBody.push([
+    'TOTAL GENERAL',
+    String(stats.totalEntregas),
+    String(stats.totalRetiros),
+    String(stats.totalCajas),
+    String(stats.totalBultos),
+    stats.totalPendientes > 0 ? `⚠️ ${stats.totalPendientes}` : '0'
+  ]);
+
+  autoTable(doc, {
+    head: entitySummaryHead,
+    body: entitySummaryBody,
+    startY: currentY,
+    margin: { left: margin, right: margin },
+    styles: {
+      fontSize: 7,
+      cellPadding: 2,
+      textColor: [30, 41, 59],
+      overflow: 'linebreak'
     },
-    alternateRowStyles: {
-      fillColor: [248, 250, 252]
+    headStyles: {
+      fillColor: [30, 41, 59], // Slate-800
+      textColor: [255, 255, 255],
+      fontStyle: 'bold',
+      fontSize: 7,
+      halign: 'left'
+    },
+    columnStyles: {
+      0: { fontStyle: 'bold', cellWidth: 'auto' },
+      1: { halign: 'center', cellWidth: 20, fontStyle: 'bold', textColor: [37, 99, 235] },
+      2: { halign: 'center', cellWidth: 20, fontStyle: 'bold', textColor: [79, 70, 229] },
+      3: { halign: 'center', cellWidth: 18, fontStyle: 'bold' },
+      4: { halign: 'center', cellWidth: 18, fontStyle: 'bold' },
+      5: { halign: 'center', cellWidth: 24, fontStyle: 'bold', textColor: [180, 83, 9] }
+    },
+    didParseCell: (data) => {
+      // Resaltar la fila de TOTAL GENERAL
+      if (data.row.index === entitySummaryBody.length - 1) {
+        data.cell.styles.fillColor = [241, 245, 249];
+        data.cell.styles.fontStyle = 'bold';
+      }
     },
     didDrawPage: (data) => {
       // PIE DE PÁGINA EN TODAS LAS PÁGINAS

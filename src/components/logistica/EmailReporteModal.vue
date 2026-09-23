@@ -395,7 +395,7 @@
         <div v-if="informe" class="px-2.5 py-1.5 bg-slate-100/80 dark:bg-slate-800/60 rounded-xl text-[10px] text-slate-600 dark:text-slate-300 flex items-center justify-between flex-wrap gap-1 border border-slate-200/60 dark:border-slate-700/60 font-medium mt-1">
           <span>👤 <strong>{{ informe.responsable_nombre }}</strong> ({{ informe.zona || 'Formosa' }})</span>
           <span class="font-mono font-bold text-slate-800 dark:text-slate-200">
-            📦 {{ stats.totalMovimientos }} movs | {{ stats.totalCajas }} cajas/equipos
+            📊 {{ stats?.totalMovimientos || 0 }} movs ({{ stats?.totalEntregas || 0 }} ent. / {{ stats?.totalRetiros || 0 }} ret.) | 📦 {{ stats?.totalCajas || 0 }} cajas <template v-if="stats?.totalPendientes">| ⚠️ {{ stats.totalPendientes }} pend.</template>
           </span>
         </div>
       </div>
