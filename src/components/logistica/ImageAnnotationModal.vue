@@ -28,7 +28,7 @@
             @click="undoLastShape" 
             :disabled="shapes.length === 0"
             class="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold transition-all disabled:opacity-30 disabled:cursor-not-allowed flex items-center gap-1 cursor-pointer"
-            title="Deshacer última marca (Ctrl+Z)"
+            title="Deshacer última marca"
           >
             <span>↩️ Deshacer</span>
             <span v-if="shapes.length > 0" class="text-[10px] font-mono text-slate-400">({{ shapes.length }})</span>
@@ -117,19 +117,30 @@
 
       </div>
 
-      <!-- ÁREA CENTRAL DE EDICIÓN CON CANVAS INTERACTIVO -->
+      <!-- ÁREA CENTRAL DE EDICIÓN CON CAPA DE IMAGEN + CANVAS SUPERPUESTO (CORS FREE) -->
       <div class="flex-1 relative flex items-center justify-center overflow-hidden p-2 sm:p-4 bg-slate-950/70">
         
         <div v-if="isLoadingImage" class="text-xs text-blue-400 font-bold animate-pulse flex items-center gap-2">
-          <span>⏳ Cargando imagen para anotación...</span>
+          <span>⏳ Cargando imagen...</span>
         </div>
 
         <div 
           v-show="!isLoadingImage"
           ref="canvasContainerRef"
-          class="relative max-w-full max-h-full flex items-center justify-center touch-none select-none rounded-xl overflow-hidden shadow-2xl border border-slate-800"
+          class="relative inline-flex items-center justify-center select-none rounded-xl overflow-hidden shadow-2xl border border-slate-800 max-w-full max-h-[62vh]"
         >
-          <!-- Canvas donde se dibuja la imagen base + las formas interactivas -->
+          <!-- Imagen base cargada de forma nativa sin CORS restrictivo -->
+          <img 
+            ref="imgElementRef"
+            :src="image.url"
+            @load="onImageLoaded"
+            @error="onImageError"
+            alt="Foto instrumental"
+            class="block max-w-full max-h-[62vh] object-contain pointer-events-none select-none"
+            :style="{ transform: `rotate(${image.rotation || 0}deg)` }"
+          />
+
+          <!-- Canvas transparente superpuesto para trazo y marcas -->
           <canvas 
             ref="drawingCanvasRef"
             @mousedown="handlePointerDown"
@@ -139,7 +150,7 @@
             @touchstart="handleTouchStart"
             @touchmove="handleTouchMove"
             @touchend="handleTouchEnd"
-            class="block cursor-crosshair max-w-full max-h-[62vh] object-contain"
+            class="absolute inset-0 w-full h-full cursor-crosshair touch-none"
           ></canvas>
         </div>
 
@@ -245,12 +256,16 @@ const emit = defineEmits(['close', 'save']);
 
 const drawingCanvasRef = ref(null);
 const canvasContainerRef = ref(null);
+const imgElementRef = ref(null);
 const textInputRef = ref(null);
 
 const isLoadingImage = ref(true);
 const currentTool = ref('circle'); // 'circle', 'arrow', 'pencil', 'text'
-const currentColor = ref('#EF4444'); // Rojo por defecto para faltantes
-const currentStroke = ref(4); // 2, 4, 7
+const currentColor = ref('#EF4444'); // Rojo faltante
+const currentStroke = ref(4);
+
+const naturalWidth = ref(1200);
+const naturalHeight = ref(800);
 
 const tools = [
   { id: 'circle', label: 'Círculo / Óvalo', icon: '⭕', description: 'Rodear instrumental faltante o dañado' },
@@ -283,79 +298,41 @@ const quickTextChips = [
   'REVISAR'
 ];
 
-// Estado de formas guardadas
 const shapes = ref([]);
 const isDrawing = ref(false);
 let startPoint = { x: 0, y: 0 };
 let currentPencilPoints = [];
 
-// Estado de Prompt de texto flotante
 const textPromptVisible = ref(false);
 const textPromptPos = reactive({ x: 50, y: 50 });
 const currentTextInput = ref('');
 let pendingTextCoords = { x: 0, y: 0 };
 
-// Imagen base cargada
-let baseImage = null;
-let canvasWidth = 800;
-let canvasHeight = 600;
-
-// Carga e inicialización de la imagen
-onMounted(async () => {
-  await loadImageOntoCanvas();
-  // Si la imagen ya traía anotaciones previas, restaurarlas
+onMounted(() => {
   if (props.image.annotations && Array.isArray(props.image.annotations)) {
     shapes.value = JSON.parse(JSON.stringify(props.image.annotations));
-    redrawAll();
   }
 });
 
-const loadImageOntoCanvas = () => {
-  return new Promise((resolve) => {
-    isLoadingImage.value = true;
-    baseImage = new Image();
-    baseImage.crossOrigin = 'anonymous';
-    
-    baseImage.onload = () => {
-      const canvas = drawingCanvasRef.value;
-      if (!canvas) return resolve();
+const onImageLoaded = (e) => {
+  const img = e.target;
+  naturalWidth.value = img.naturalWidth || 1200;
+  naturalHeight.value = img.naturalHeight || 800;
 
-      // Ajustamos dimensiones nativas del canvas según la imagen original
-      canvasWidth = baseImage.naturalWidth || baseImage.width || 800;
-      canvasHeight = baseImage.naturalHeight || baseImage.height || 600;
-
-      // Limitamos resolución máxima para rendimiento fluido
-      const maxDim = 1600;
-      if (canvasWidth > maxDim || canvasHeight > maxDim) {
-        if (canvasWidth >= canvasHeight) {
-          canvasHeight = Math.round((canvasHeight * maxDim) / canvasWidth);
-          canvasWidth = maxDim;
-        } else {
-          canvasWidth = Math.round((canvasWidth * maxDim) / canvasHeight);
-          canvasHeight = maxDim;
-        }
-      }
-
-      canvas.width = canvasWidth;
-      canvas.height = canvasHeight;
-
-      redrawAll();
-      isLoadingImage.value = false;
-      resolve();
-    };
-
-    baseImage.onerror = () => {
-      console.error("Error al cargar la imagen para anotación:", props.image.url);
-      isLoadingImage.value = false;
-      resolve();
-    };
-
-    // Usar la URL original si existe, o la URL directa
-    baseImage.src = props.image.originalUrl || props.image.url;
-  });
+  const canvas = drawingCanvasRef.value;
+  if (canvas) {
+    canvas.width = naturalWidth.value;
+    canvas.height = naturalHeight.value;
+    redrawAll();
+  }
+  isLoadingImage.value = false;
 };
 
-// Conversión de coordenadas de puntero al espacio nativo del canvas
+const onImageError = () => {
+  isLoadingImage.value = false;
+};
+
+// Conversión de coordenadas de puntero al espacio nativo de la imagen
 const getCanvasCoords = (e) => {
   const canvas = drawingCanvasRef.value;
   if (!canvas) return { x: 0, y: 0 };
@@ -373,14 +350,13 @@ const getCanvasCoords = (e) => {
   };
 };
 
-// --- MANEJADORES DE MOUSE / TOUCH ---
+// --- MANEJADORES DE PUNTERO ---
 const handlePointerDown = (e) => {
   if (textPromptVisible.value) return;
   const coords = getCanvasCoords(e);
   startPoint = coords;
 
   if (currentTool.value === 'text') {
-    // Abrir modal de texto en esa posición
     const container = canvasContainerRef.value;
     const rect = container ? container.getBoundingClientRect() : { left: 0, top: 0 };
     const clientX = e.touches ? e.touches[0].clientX : e.clientX;
@@ -484,12 +460,10 @@ const handlePointerUp = (e) => {
   redrawAll();
 };
 
-// Táctil Wrappers
 const handleTouchStart = (e) => handlePointerDown(e);
 const handleTouchMove = (e) => handlePointerMove(e);
 const handleTouchEnd = (e) => handlePointerUp(e);
 
-// --- ACCIONES DE FORMAS (UNDO / CLEAR) ---
 const undoLastShape = () => {
   if (shapes.value.length > 0) {
     shapes.value.pop();
@@ -502,7 +476,6 @@ const clearAllShapes = () => {
   redrawAll();
 };
 
-// --- PROMPT DE TEXTO ---
 const cancelTextPrompt = () => {
   textPromptVisible.value = false;
   currentTextInput.value = '';
@@ -528,31 +501,15 @@ const commitTextPrompt = () => {
   redrawAll();
 };
 
-// --- FUNCIONES DE DIBUJO EN CANVAS ---
+// --- DIBUJO EN CAPA TRANSPARENTE ---
 const redrawAll = () => {
   const canvas = drawingCanvasRef.value;
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
   if (!ctx) return;
 
-  // Limpiar canvas
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  // Dibujar imagen base con rotación si corresponde
-  if (baseImage) {
-    ctx.save();
-    const rotation = props.image.rotation || 0;
-    if (rotation !== 0) {
-      ctx.translate(canvas.width / 2, canvas.height / 2);
-      ctx.rotate((rotation * Math.PI) / 180);
-      ctx.drawImage(baseImage, -canvas.width / 2, -canvas.height / 2, canvas.width, canvas.height);
-    } else {
-      ctx.drawImage(baseImage, 0, 0, canvas.width, canvas.height);
-    }
-    ctx.restore();
-  }
-
-  // Dibujar todas las formas guardadas
   for (const s of shapes.value) {
     if (s.type === 'circle') {
       drawCircle(ctx, s.centerX, s.centerY, s.radiusX, s.radiusY, s.color, s.strokeWidth);
@@ -587,7 +544,6 @@ const drawCircle = (ctx, cx, cy, rx, ry, color, strokeWidth) => {
   ctx.shadowBlur = 4;
   ctx.stroke();
 
-  // Trazo punteado interno sutil para máxima visibilidad en fondos oscuros y claros
   ctx.setLineDash([6, 6]);
   ctx.strokeStyle = color === '#FFFFFF' ? '#000000' : '#FFFFFF';
   ctx.lineWidth = Math.max(1, strokeWidth);
@@ -615,13 +571,11 @@ const drawArrow = (ctx, x1, y1, x2, y2, color, strokeWidth) => {
   ctx.shadowColor = 'rgba(0, 0, 0, 0.6)';
   ctx.shadowBlur = 4;
 
-  // Línea principal
   ctx.beginPath();
   ctx.moveTo(x1, y1);
   ctx.lineTo(x2, y2);
   ctx.stroke();
 
-  // Cabeza de flecha
   ctx.beginPath();
   ctx.moveTo(x2, y2);
   ctx.lineTo(x2 - headLen * Math.cos(angle - Math.PI / 6), y2 - headLen * Math.sin(angle - Math.PI / 6));
@@ -667,7 +621,6 @@ const drawText = (ctx, x, y, text, color, strokeWidth) => {
   const textWidth = metrics.width;
   const textHeight = fontSize * 1.2;
 
-  // Fondo sólido para que el texto sea 100% legible
   ctx.fillStyle = 'rgba(15, 23, 42, 0.9)';
   ctx.strokeStyle = color;
   ctx.lineWidth = 2;
@@ -676,45 +629,25 @@ const drawText = (ctx, x, y, text, color, strokeWidth) => {
   ctx.fill();
   ctx.stroke();
 
-  // Texto
   ctx.fillStyle = color;
   ctx.fillText(text, x, y);
   ctx.restore();
 };
 
-// --- GUARDAR Y EXPORTAR IMAGEN ANOTADA ---
+// --- GUARDAR ---
 const saveAndApplyAnnotations = () => {
-  const canvas = drawingCanvasRef.value;
-  if (!canvas) return;
-
-  // Si no hay formas, devolver la original
-  if (shapes.value.length === 0) {
-    emit('save', {
-      originalUrl: props.image.originalUrl || props.image.url,
-      annotatedUrl: props.image.originalUrl || props.image.url,
-      annotations: [],
-      hasAnnotations: false
-    });
-    emit('close');
-    return;
-  }
-
-  // Generar dataURL con las anotaciones incrustadas
-  const annotatedDataUrl = canvas.toDataURL('image/jpeg', 0.92);
-
   emit('save', {
     originalUrl: props.image.originalUrl || props.image.url,
-    annotatedUrl: annotatedDataUrl,
     annotations: JSON.parse(JSON.stringify(shapes.value)),
-    hasAnnotations: true
+    hasAnnotations: shapes.value.length > 0,
+    naturalWidth: naturalWidth.value,
+    naturalHeight: naturalHeight.value
   });
-
   emit('close');
 };
 </script>
 
 <style scoped>
-/* Evitar scroll o saltos en mobile */
 canvas {
   touch-action: none;
 }

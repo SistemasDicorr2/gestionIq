@@ -328,23 +328,110 @@
           </div>
 
           <div class="w-full h-full flex items-center justify-center pt-4 overflow-hidden">
-            <img 
-              :src="img.annotatedUrl || img.url" 
-              :alt="`Fotografía de control ${img.globalIndex}`"
-              class="rounded shadow-2xs block mx-auto my-auto cursor-pointer transition-all duration-200"
-              @click="editable ? $emit('annotate-image', img) : null"
-              :title="editable ? 'Haz clic para marcar o anotar faltantes en esta foto' : ''"
-              :style="{
-                transform: `rotate(${img.rotation || 0}deg)`,
-                maxHeight: (img.rotation === 90 || img.rotation === 270) 
-                  ? (img.size === 'compacto' ? '60mm' : '75mm') 
-                  : (img.size === 'compacto' ? '82mm' : '106mm'),
-                maxWidth: (img.rotation === 90 || img.rotation === 270) ? '70%' : '100%',
-                width: 'auto',
-                height: 'auto',
-                objectFit: 'contain'
-              }"
-            />
+            <div class="relative inline-flex items-center justify-center max-w-full max-h-full">
+              <img 
+                :src="img.url" 
+                :alt="`Fotografía de control ${img.globalIndex}`"
+                class="rounded shadow-2xs block mx-auto my-auto cursor-pointer transition-all duration-200"
+                @click="editable ? $emit('annotate-image', img) : null"
+                :title="editable ? 'Haz clic para marcar o anotar faltantes en esta foto' : ''"
+                :style="{
+                  transform: `rotate(${img.rotation || 0}deg)`,
+                  maxHeight: (img.rotation === 90 || img.rotation === 270) 
+                    ? (img.size === 'compacto' ? '60mm' : '75mm') 
+                    : (img.size === 'compacto' ? '82mm' : '106mm'),
+                  maxWidth: (img.rotation === 90 || img.rotation === 270) ? '70%' : '100%',
+                  width: 'auto',
+                  height: 'auto',
+                  objectFit: 'contain'
+                }"
+              />
+
+              <!-- Capa SVG con Anotaciones Vectoriales (Círculos, Flechas, Lápiz, Texto) -->
+              <svg 
+                v-if="img.annotations && img.annotations.length > 0"
+                class="absolute inset-0 w-full h-full pointer-events-none"
+                :viewBox="`0 0 ${img.naturalWidth || 1200} ${img.naturalHeight || 800}`"
+                preserveAspectRatio="xMidYMid meet"
+              >
+                <template v-for="(s, sIdx) in img.annotations" :key="sIdx">
+                  <!-- Círculo / Óvalo -->
+                  <g v-if="s.type === 'circle'">
+                    <ellipse 
+                      :cx="s.centerX" 
+                      :cy="s.centerY" 
+                      :rx="s.radiusX" 
+                      :ry="s.radiusY" 
+                      :stroke="s.color" 
+                      :stroke-width="s.strokeWidth * 2" 
+                      fill="none" 
+                    />
+                    <ellipse 
+                      :cx="s.centerX" 
+                      :cy="s.centerY" 
+                      :rx="s.radiusX" 
+                      :ry="s.radiusY" 
+                      :stroke="s.color === '#FFFFFF' ? '#000000' : '#FFFFFF'" 
+                      :stroke-width="s.strokeWidth" 
+                      stroke-dasharray="6,6"
+                      fill="none" 
+                    />
+                  </g>
+
+                  <!-- Flecha -->
+                  <g v-else-if="s.type === 'arrow'">
+                    <line 
+                      :x1="s.startX" 
+                      :y1="s.startY" 
+                      :x2="s.endX" 
+                      :y2="s.endY" 
+                      :stroke="s.color" 
+                      :stroke-width="s.strokeWidth * 2" 
+                      stroke-linecap="round"
+                    />
+                    <polygon 
+                      :points="getArrowHeadPoints(s)" 
+                      :fill="s.color" 
+                    />
+                  </g>
+
+                  <!-- Lápiz Libre -->
+                  <path 
+                    v-else-if="s.type === 'pencil'"
+                    :d="getPencilPath(s.points)" 
+                    :stroke="s.color" 
+                    :stroke-width="s.strokeWidth * 2" 
+                    fill="none" 
+                    stroke-linecap="round" 
+                    stroke-linejoin="round" 
+                  />
+
+                  <!-- Texto / Etiqueta -->
+                  <g v-else-if="s.type === 'text'">
+                    <rect 
+                      :x="s.x - 6" 
+                      :y="s.y - 6" 
+                      :width="(s.text.length * (s.strokeWidth * 4.5 || 16)) + 16" 
+                      :height="(s.strokeWidth * 5.5 || 24) + 12" 
+                      rx="6" 
+                      fill="rgba(15, 23, 42, 0.9)" 
+                      :stroke="s.color" 
+                      stroke-width="2" 
+                    />
+                    <text 
+                      :x="s.x" 
+                      :y="s.y + (s.strokeWidth * 4.5 || 18)" 
+                      :fill="s.color" 
+                      font-weight="bold" 
+                      :font-size="Math.max(16, (s.strokeWidth || 4) * 4.5)" 
+                      font-family="sans-serif"
+                    >
+                      {{ s.text }}
+                    </text>
+                  </g>
+                </template>
+              </svg>
+            </div>
           </div>
         </div>
       </div>
@@ -421,7 +508,7 @@ const imagePages = computed(() => {
       globalIndex: i + subIdx + 1
     }));
     pages.push({
-      pageIndex: Math.floor(i / 2) + 2, // Página 1 es la portada
+      pageIndex: Math.floor(i / 2) + 2,
       items: pageItems
     });
   }
@@ -432,6 +519,21 @@ const totalPages = computed(() => 1 + imagePages.value.length);
 
 const getPageNote = (pageIdx) => {
   return props.notasPaginas[pageIdx] || '';
+};
+
+const getArrowHeadPoints = (s) => {
+  const headLen = Math.max(16, (s.strokeWidth || 4) * 4);
+  const angle = Math.atan2(s.endY - s.startY, s.endX - s.startX);
+  const p1x = s.endX - headLen * Math.cos(angle - Math.PI / 6);
+  const p1y = s.endY - headLen * Math.sin(angle - Math.PI / 6);
+  const p2x = s.endX - headLen * Math.cos(angle + Math.PI / 6);
+  const p2y = s.endY - headLen * Math.sin(angle + Math.PI / 6);
+  return `${s.endX},${s.endY} ${p1x},${p1y} ${p2x},${p2y}`;
+};
+
+const getPencilPath = (points) => {
+  if (!points || points.length < 2) return '';
+  return points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ');
 };
 
 // Formato de fechas
