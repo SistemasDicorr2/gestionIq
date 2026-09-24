@@ -169,6 +169,7 @@ import html2canvas from 'html2canvas';
 
 import ReporteDevolucionPDF from './ReporteDevolucionPDF.vue';
 import ImageAnnotationModal from './ImageAnnotationModal.vue';
+import { getCorsSafeImageUrl, convertUrlToBase64 } from '../../utils/imageCorsHelper';
 
 const props = defineProps({
   modelValue: {
@@ -294,16 +295,7 @@ const initReportData = async () => {
 
     // 3. Procesar fotos si no fueron asignadas
     if (props.photos && props.photos.length > 0 && imagenesList.value.length === 0) {
-      imagenesList.value = props.photos.map((p, idx) => ({
-        id: p.id || idx,
-        url: p.url || (p.object_key ? `${R2_PUBLIC_URL}/${p.object_key}` : ''),
-        originalUrl: p.url || (p.object_key ? `${R2_PUBLIC_URL}/${p.object_key}` : ''),
-        annotatedUrl: null,
-        annotations: [],
-        hasAnnotations: false,
-        size: 'grande',
-        rotation: 0
-      }));
+      processPhotosList(props.photos);
     }
 
   } catch (err) {
@@ -328,16 +320,36 @@ const populateControlData = (c) => {
   controlFormData.fecha_control = c.fecha_retiro || (c.created_at ? c.created_at.split('T')[0] : new Date().toISOString().split('T')[0]);
 
   if (c.photos && Array.isArray(c.photos)) {
-    imagenesList.value = c.photos.map((p, idx) => ({
+    processPhotosList(c.photos);
+  }
+};
+
+const processPhotosList = (rawPhotos) => {
+  const list = rawPhotos.map((p, idx) => {
+    const rawUrl = p.url || (p.object_key ? `${R2_PUBLIC_URL}/${p.object_key}` : '');
+    return {
       id: p.id || idx,
-      url: p.url || (p.object_key ? `${R2_PUBLIC_URL}/${p.object_key}` : ''),
-      originalUrl: p.url || (p.object_key ? `${R2_PUBLIC_URL}/${p.object_key}` : ''),
+      url: getCorsSafeImageUrl(rawUrl),
+      originalUrl: rawUrl,
       annotatedUrl: null,
       annotations: [],
       hasAnnotations: false,
       size: 'grande',
       rotation: 0
-    }));
+    };
+  });
+
+  imagenesList.value = list;
+
+  // Precargar en segundo plano a Data URL para html2canvas
+  for (const imgItem of imagenesList.value) {
+    if (imgItem.originalUrl) {
+      convertUrlToBase64(imgItem.originalUrl).then(base64 => {
+        if (base64 && base64.startsWith('data:')) {
+          imgItem.url = base64;
+        }
+      });
+    }
   }
 };
 
@@ -346,12 +358,13 @@ const openAnnotatorForImage = (img) => {
   selectedImageForAnnotation.value = img;
 };
 
-const handleAnnotationSaved = ({ originalUrl, annotatedUrl, annotations, hasAnnotations }) => {
+const handleAnnotationSaved = ({ originalUrl, annotations, hasAnnotations, naturalWidth, naturalHeight }) => {
   if (!selectedImageForAnnotation.value) return;
   
-  selectedImageForAnnotation.value.annotatedUrl = annotatedUrl;
   selectedImageForAnnotation.value.annotations = annotations;
   selectedImageForAnnotation.value.hasAnnotations = hasAnnotations;
+  selectedImageForAnnotation.value.naturalWidth = naturalWidth;
+  selectedImageForAnnotation.value.naturalHeight = naturalHeight;
   
   toast.success(hasAnnotations ? "Anotaciones guardadas en la foto." : "Anotaciones limpiadas.");
   selectedImageForAnnotation.value = null;
@@ -363,6 +376,16 @@ const downloadDirectPDF = async () => {
   try {
     const container = document.getElementById('reporte-devolucion-document');
     if (!container) throw new Error("No se encontró el contenedor del documento para generar el PDF.");
+
+    // Asegurar que todas las fotos estén convertidas a Base64 local antes de capturar con html2canvas
+    for (const imgItem of imagenesList.value) {
+      if (imgItem.url && !imgItem.url.startsWith('data:')) {
+        imgItem.url = await convertUrlToBase64(imgItem.url);
+      }
+    }
+
+    // Pequeño delay para renderizado del DOM
+    await new Promise(resolve => setTimeout(resolve, 200));
 
     const pages = container.querySelectorAll('.a4-page');
     if (!pages || pages.length === 0) throw new Error("No se encontraron páginas en el documento.");

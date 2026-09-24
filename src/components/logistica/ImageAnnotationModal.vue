@@ -132,7 +132,7 @@
           <!-- Imagen base cargada de forma nativa sin CORS restrictivo -->
           <img 
             ref="imgElementRef"
-            :src="image.url"
+            :src="getCorsSafeImageUrl(image.url || image.originalUrl)"
             @load="onImageLoaded"
             @error="onImageError"
             alt="Foto instrumental"
@@ -244,6 +244,7 @@
 
 <script setup>
 import { ref, reactive, onMounted, nextTick } from 'vue';
+import { getCorsSafeImageUrl } from '../../utils/imageCorsHelper';
 
 const props = defineProps({
   image: {
