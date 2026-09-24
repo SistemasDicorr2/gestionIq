@@ -290,14 +290,14 @@
       </div>
 
       <!-- CONTENEDOR DE FOTOGRAFÍAS (2 POR HOJA A4) -->
-      <div class="py-2 space-y-3 my-auto flex-1 flex flex-col justify-center">
+      <div class="py-1 space-y-2.5 my-auto flex-1 flex flex-col justify-center">
         <div 
           v-for="img in page.items" 
           :key="img.id || img.globalIndex"
-          class="border border-slate-300 rounded-lg bg-slate-50 relative shadow-2xs overflow-hidden flex flex-col items-center justify-center p-2 transition-all"
+          class="border border-slate-300 rounded-xl bg-slate-50/70 relative shadow-2xs overflow-hidden flex flex-col items-center justify-center p-2 transition-all"
           :style="{
-            height: img.size === 'compacto' ? '98mm' : '118mm',
-            maxHeight: img.size === 'compacto' ? '98mm' : '118mm',
+            height: img.size === 'grande' ? '104mm' : '94mm',
+            maxHeight: img.size === 'grande' ? '104mm' : '94mm',
             boxSizing: 'border-box'
           }"
         >
@@ -330,10 +330,10 @@
               type="button" 
               @click="toggleImgSize(img)"
               class="px-2 py-0.5 rounded text-[9px] font-extrabold uppercase transition-all shadow-xs cursor-pointer hover:scale-105"
-              :class="img.size === 'compacto' ? 'bg-amber-500 text-white' : 'bg-blue-600 text-white'"
+              :class="img.size === 'grande' ? 'bg-blue-600 text-white' : 'bg-slate-700 text-white'"
               title="Alternar tamaño de imagen"
             >
-              {{ img.size === 'compacto' ? '📦 Compacto' : '🔍 Grande (+15%)' }}
+              {{ img.size === 'grande' ? '🔍 Grande' : '📐 Estándar' }}
             </button>
 
             <!-- Botón para abrir anotador -->
@@ -347,15 +347,15 @@
             </button>
           </div>
 
-          <!-- Imagen con marcas SVG superpuestas (rotan juntas perfectamente) -->
-          <div class="w-full h-full flex items-center justify-center pt-2 overflow-hidden">
+          <!-- Imagen con marcas SVG superpuestas (rotan juntas perfectamente con proporción exacta) -->
+          <div class="w-full h-full flex items-center justify-center overflow-hidden">
             <div 
               class="relative inline-flex items-center justify-center max-w-full max-h-full transition-transform duration-200"
               :style="{
                 transform: `rotate(${img.rotation || 0}deg)`,
                 maxHeight: (img.rotation === 90 || img.rotation === 270) 
-                  ? (img.size === 'compacto' ? '60mm' : '75mm') 
-                  : (img.size === 'compacto' ? '82mm' : '106mm'),
+                  ? (img.size === 'grande' ? '70mm' : '62mm') 
+                  : (img.size === 'grande' ? '96mm' : '86mm'),
                 maxWidth: (img.rotation === 90 || img.rotation === 270) ? '70%' : '100%',
                 width: 'auto',
                 height: 'auto'
@@ -364,10 +364,10 @@
               <img 
                 :src="img.annotatedUrl || img.url" 
                 :alt="`Fotografía de control ${img.globalIndex}`"
-                class="rounded shadow-2xs block mx-auto my-auto cursor-pointer"
+                class="rounded-lg shadow-xs block mx-auto my-auto cursor-pointer"
                 @click="editable ? $emit('annotate-image', img) : null"
                 :title="editable ? 'Haz clic para marcar o anotar faltantes en esta foto' : ''"
-                style="max-width: 100%; max-height: 100%; object-fit: contain;"
+                style="max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain;"
               />
 
               <!-- Capa SVG de Anotaciones (actúa si la imagen no tiene dataUrl quemado) -->
@@ -512,7 +512,7 @@ const props = defineProps({
 const emit = defineEmits(['toggle-image-size', 'annotate-image', 'rotate-image']);
 
 const toggleImgSize = (img) => {
-  img.size = img.size === 'compacto' ? 'grande' : 'compacto';
+  img.size = img.size === 'grande' ? 'estandar' : 'grande';
   emit('toggle-image-size', img);
 };
 

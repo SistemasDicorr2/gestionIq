@@ -355,7 +355,7 @@ const processPhotosList = (rawPhotos) => {
       annotatedUrl: null,
       annotations: [],
       hasAnnotations: false,
-      size: 'grande',
+      size: 'estandar',
       rotation: 0
     };
   });
