@@ -117,7 +117,7 @@
 
       </div>
 
-      <!-- ÁREA CENTRAL DE EDICIÓN CON CAPA DE IMAGEN + CANVAS SUPERPUESTO (CORS FREE) -->
+      <!-- ÁREA CENTRAL DE EDICIÓN CON CAPA DE IMAGEN + CANVAS SUPERPUESTO -->
       <div class="flex-1 relative flex items-center justify-center overflow-hidden p-2 sm:p-4 bg-slate-950/70">
         
         <div v-if="isLoadingImage" class="text-xs text-blue-400 font-bold animate-pulse flex items-center gap-2">
@@ -129,10 +129,11 @@
           ref="canvasContainerRef"
           class="relative inline-flex items-center justify-center select-none rounded-xl overflow-hidden shadow-2xl border border-slate-800 max-w-full max-h-[62vh]"
         >
-          <!-- Imagen base cargada de forma nativa sin CORS restrictivo -->
+          <!-- Imagen base cargada de forma segura con CORS -->
           <img 
             ref="imgElementRef"
-            :src="getCorsSafeImageUrl(image.url || image.originalUrl)"
+            :src="safeImgUrl"
+            crossorigin="anonymous"
             @load="onImageLoaded"
             @error="onImageError"
             alt="Foto instrumental"
@@ -140,7 +141,7 @@
             :style="{ transform: `rotate(${image.rotation || 0}deg)` }"
           />
 
-          <!-- Canvas transparente superpuesto para trazo y marcas -->
+          <!-- Canvas transparente superpuesto para trazo interactivo -->
           <canvas 
             ref="drawingCanvasRef"
             @mousedown="handlePointerDown"
@@ -243,7 +244,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, nextTick } from 'vue';
+import { ref, reactive, computed, onMounted, nextTick } from 'vue';
 import { getCorsSafeImageUrl } from '../../utils/imageCorsHelper';
 
 const props = defineProps({
@@ -261,12 +262,16 @@ const imgElementRef = ref(null);
 const textInputRef = ref(null);
 
 const isLoadingImage = ref(true);
-const currentTool = ref('circle'); // 'circle', 'arrow', 'pencil', 'text'
-const currentColor = ref('#EF4444'); // Rojo faltante
+const currentTool = ref('circle');
+const currentColor = ref('#EF4444');
 const currentStroke = ref(4);
 
 const naturalWidth = ref(1200);
 const naturalHeight = ref(800);
+
+const safeImgUrl = computed(() => {
+  return getCorsSafeImageUrl(props.image.originalUrl || props.image.url);
+});
 
 const tools = [
   { id: 'circle', label: 'Círculo / Óvalo', icon: '⭕', description: 'Rodear instrumental faltante o dañado' },
@@ -319,6 +324,12 @@ const onImageLoaded = (e) => {
   const img = e.target;
   naturalWidth.value = img.naturalWidth || 1200;
   naturalHeight.value = img.naturalHeight || 800;
+  console.log('[ImageAnnotationModal] Foto cargada en anotador:', {
+    url: safeImgUrl.value,
+    naturalWidth: naturalWidth.value,
+    naturalHeight: naturalHeight.value,
+    marcasPrevias: shapes.value.length
+  });
 
   const canvas = drawingCanvasRef.value;
   if (canvas) {
@@ -329,11 +340,11 @@ const onImageLoaded = (e) => {
   isLoadingImage.value = false;
 };
 
-const onImageError = () => {
+const onImageError = (err) => {
+  console.error('[ImageAnnotationModal] Error al cargar imagen en el anotador:', safeImgUrl.value, err);
   isLoadingImage.value = false;
 };
 
-// Conversión de coordenadas de puntero al espacio nativo de la imagen
 const getCanvasCoords = (e) => {
   const canvas = drawingCanvasRef.value;
   if (!canvas) return { x: 0, y: 0 };
@@ -635,15 +646,81 @@ const drawText = (ctx, x, y, text, color, strokeWidth) => {
   ctx.restore();
 };
 
-// --- GUARDAR ---
+// --- GUARDAR Y EXPORTAR IMAGEN CON ANOTACIONES INTEGRADAS ---
 const saveAndApplyAnnotations = () => {
+  const w = naturalWidth.value || 1200;
+  const h = naturalHeight.value || 800;
+
+  console.log('[ImageAnnotationModal] Aplicando y guardando marcas...', {
+    totalMarcas: shapes.value.length,
+    w,
+    h
+  });
+
+  if (shapes.value.length === 0) {
+    emit('save', {
+      url: props.image.originalUrl || props.image.url,
+      originalUrl: props.image.originalUrl || props.image.url,
+      annotations: [],
+      hasAnnotations: false,
+      naturalWidth: w,
+      naturalHeight: h
+    });
+    emit('close');
+    return;
+  }
+
+  // Generamos una imagen quemada con las anotaciones
+  const exportCanvas = document.createElement('canvas');
+  exportCanvas.width = w;
+  exportCanvas.height = h;
+  const ctx = exportCanvas.getContext('2d');
+
+  let exportedDataUrl = null;
+
+  try {
+    if (imgElementRef.value && ctx) {
+      ctx.save();
+      const rotation = props.image.rotation || 0;
+      if (rotation !== 0) {
+        ctx.translate(w / 2, h / 2);
+        ctx.rotate((rotation * Math.PI) / 180);
+        ctx.drawImage(imgElementRef.value, -w / 2, -h / 2, w, h);
+      } else {
+        ctx.drawImage(imgElementRef.value, 0, 0, w, h);
+      }
+      ctx.restore();
+
+      // Dibujar formas sobre la foto
+      for (const s of shapes.value) {
+        if (s.type === 'circle') {
+          drawCircle(ctx, s.centerX, s.centerY, s.radiusX, s.radiusY, s.color, s.strokeWidth);
+        } else if (s.type === 'arrow') {
+          drawArrow(ctx, s.startX, s.startY, s.endX, s.endY, s.color, s.strokeWidth);
+        } else if (s.type === 'pencil') {
+          drawPencil(ctx, s.points, s.color, s.strokeWidth);
+        } else if (s.type === 'text') {
+          drawText(ctx, s.x, s.y, s.text, s.color, s.strokeWidth);
+        }
+      }
+
+      exportedDataUrl = exportCanvas.toDataURL('image/jpeg', 0.92);
+      console.log('[ImageAnnotationModal] DataURL quemado generado con éxito.');
+    }
+  } catch (err) {
+    console.warn("[ImageAnnotationModal] Advertencia: no se pudo generar DataURL directo en exportCanvas, usando render SVG:", err);
+  }
+
   emit('save', {
+    url: exportedDataUrl || props.image.url,
+    annotatedUrl: exportedDataUrl,
     originalUrl: props.image.originalUrl || props.image.url,
     annotations: JSON.parse(JSON.stringify(shapes.value)),
-    hasAnnotations: shapes.value.length > 0,
-    naturalWidth: naturalWidth.value,
-    naturalHeight: naturalHeight.value
+    hasAnnotations: true,
+    naturalWidth: w,
+    naturalHeight: h
   });
+
   emit('close');
 };
 </script>

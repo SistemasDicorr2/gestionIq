@@ -1,9 +1,9 @@
 <!-- src/components/logistica/ReporteDevolucionPDF.vue -->
 <template>
-  <div id="reporte-devolucion-document" class="w-full bg-white text-slate-900 font-sans print:w-full print:p-0">
+  <div class="w-full bg-white text-slate-900 font-sans print:w-full print:p-0">
     
     <!-- HOJA 1: ACTA FORMAL DE CONTROL DE DEVOLUCIÓN Y ESTADO DE CAJAS (COD: REG03-02-01-D) -->
-    <div class="a4-page p-6 sm:p-8 space-y-4 border border-slate-300 dark:border-slate-800 rounded-2xl print:border-none print:p-0 print:rounded-none min-h-[280mm] print:min-h-0 flex flex-col justify-between shadow-sm bg-white">
+    <div class="a4-page p-6 sm:p-8 space-y-4 border border-slate-300 rounded-2xl print:border-none print:p-0 print:rounded-none min-h-[280mm] print:min-h-0 flex flex-col justify-between shadow-sm bg-white">
       
       <div class="space-y-4">
         
@@ -15,17 +15,17 @@
                 <img src="/2.svg" alt="Districorr Logo" class="h-8 sm:h-10 w-auto object-contain" />
               </div>
               <div>
-                <h1 class="text-sm sm:text-base font-black tracking-wider uppercase text-white leading-tight">
+                <h1 class="text-sm sm:text-base font-black uppercase text-white leading-tight">
                   REPORTE DE CONTROL Y DEVOLUCIÓN DE INSTRUMENTAL
                 </h1>
-                <p class="text-[10px] font-bold text-slate-300 uppercase tracking-wide">
+                <p class="text-[10px] font-bold text-slate-300 uppercase">
                   Trazabilidad Quirúrgica • Control de Cajas • Registro de Faltantes
                 </p>
               </div>
             </div>
 
             <div class="text-right border-l border-slate-700 pl-3 space-y-0.5 shrink-0">
-              <span class="px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-widest bg-rose-600 text-white block text-center">
+              <span class="px-2 py-0.5 rounded text-[9px] font-black uppercase bg-rose-600 text-white block text-center">
                 REG03-02-01-D
               </span>
               <div class="font-mono text-[11px] font-black block text-slate-200">
@@ -44,8 +44,19 @@
           <div class="bg-slate-100 px-3 py-1.5 flex items-center justify-between border-t border-slate-300 text-[11px] font-bold text-slate-800">
             <div class="flex items-center gap-2">
               <span class="text-slate-500 uppercase text-[10px]">ESTADO DEVOLUCIÓN:</span>
+              <select 
+                v-if="editable" 
+                v-model="controlData.estado"
+                class="px-2 py-0.5 rounded text-[10px] font-black uppercase bg-white border border-dashed border-blue-400 focus:outline-none cursor-pointer"
+                :class="getStatusBadgeClass(controlData.estado)"
+              >
+                <option value="ok" class="bg-white text-emerald-900 font-bold">Todo OK / Completa</option>
+                <option value="revision" class="bg-white text-amber-900 font-bold">En Revisión / Pendiente</option>
+                <option value="problemas" class="bg-white text-rose-900 font-bold">Con Faltantes / Problemas</option>
+              </select>
               <span 
-                class="px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider"
+                v-else
+                class="px-2 py-0.5 rounded text-[10px] font-black uppercase"
                 :class="getStatusBadgeClass(controlData.estado)"
               >
                 {{ getStatusLabel(controlData.estado) }}
@@ -67,14 +78,14 @@
 
         <!-- GRILLA FORMAL DE CAMPOS Y DATOS DE LA CIRUGÍA -->
         <div class="border border-slate-900 rounded-lg overflow-hidden bg-white text-xs">
-          <div class="bg-slate-900 text-white font-black px-3 py-1.5 uppercase text-[10px] tracking-wider flex items-center justify-between">
-            <span>📋 DATOS PRINCIPALES DE LA CIRUGÍA Y CONTROL</span>
+          <div class="bg-slate-900 text-white font-black px-3 py-1.5 uppercase text-[10px] flex items-center justify-between">
+            <span>DATOS PRINCIPALES DE LA CIRUGÍA Y CONTROL</span>
             <span class="text-[9px] text-slate-300 font-normal">DOCUMENTO OFICIAL DISTRICORR</span>
           </div>
 
           <div class="divide-y divide-slate-300 font-medium">
             <div class="grid grid-cols-1 sm:grid-cols-3">
-              <div class="bg-slate-100/90 font-extrabold uppercase px-3 py-2 text-slate-800 border-r border-slate-300 tracking-wider text-[11px]">
+              <div class="bg-slate-100/90 font-extrabold uppercase px-3 py-2 text-slate-800 border-r border-slate-300 text-[11px]">
                 PACIENTE
               </div>
               <div class="sm:col-span-2 px-3 py-1.5 font-extrabold text-slate-950 bg-white text-xs">
@@ -90,7 +101,7 @@
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-3">
-              <div class="bg-slate-100/90 font-extrabold uppercase px-3 py-2 text-slate-800 border-r border-slate-300 tracking-wider text-[11px]">
+              <div class="bg-slate-100/90 font-extrabold uppercase px-3 py-2 text-slate-800 border-r border-slate-300 text-[11px]">
                 MÉDICO CIRUJANO
               </div>
               <div class="sm:col-span-2 px-3 py-1.5 font-extrabold text-slate-950 bg-white text-xs">
@@ -106,7 +117,7 @@
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-3">
-              <div class="bg-slate-100/90 font-extrabold uppercase px-3 py-2 text-slate-800 border-r border-slate-300 tracking-wider text-[11px]">
+              <div class="bg-slate-100/90 font-extrabold uppercase px-3 py-2 text-slate-800 border-r border-slate-300 text-[11px]">
                 SANATORIO / INSTITUCIÓN
               </div>
               <div class="sm:col-span-2 px-3 py-1.5 font-extrabold text-slate-950 bg-white text-xs">
@@ -122,7 +133,7 @@
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-3">
-              <div class="bg-slate-100/90 font-extrabold uppercase px-3 py-2 text-slate-800 border-r border-slate-300 tracking-wider text-[11px]">
+              <div class="bg-slate-100/90 font-extrabold uppercase px-3 py-2 text-slate-800 border-r border-slate-300 text-[11px]">
                 INSTRUMENTADOR/A ASIGNADO/A
               </div>
               <div class="sm:col-span-2 px-3 py-1.5 font-extrabold text-slate-950 bg-white text-xs">
@@ -139,7 +150,7 @@
 
             <div class="grid grid-cols-1 sm:grid-cols-2 divide-x divide-slate-300">
               <div class="flex">
-                <div class="w-1/2 bg-slate-100/90 font-extrabold uppercase px-3 py-2 text-slate-800 border-r border-slate-300 tracking-wider text-[11px]">
+                <div class="w-1/2 bg-slate-100/90 font-extrabold uppercase px-3 py-2 text-slate-800 border-r border-slate-300 text-[11px]">
                   FECHA DE CX
                 </div>
                 <div class="w-1/2 px-3 py-1.5 font-extrabold text-slate-950 bg-white text-xs">
@@ -154,7 +165,7 @@
               </div>
 
               <div class="flex">
-                <div class="w-1/2 bg-slate-100/90 font-extrabold uppercase px-3 py-2 text-slate-800 border-r border-slate-300 tracking-wider text-[11px]">
+                <div class="w-1/2 bg-slate-100/90 font-extrabold uppercase px-3 py-2 text-slate-800 border-r border-slate-300 text-[11px]">
                   FECHA DE CONTROL
                 </div>
                 <div class="w-1/2 px-3 py-1.5 font-extrabold text-slate-950 bg-white text-xs">
@@ -171,7 +182,7 @@
 
             <div class="grid grid-cols-1 sm:grid-cols-2 divide-x divide-slate-300">
               <div class="flex">
-                <div class="w-1/2 bg-slate-100/90 font-extrabold uppercase px-3 py-2 text-slate-800 border-r border-slate-300 tracking-wider text-[11px]">
+                <div class="w-1/2 bg-slate-100/90 font-extrabold uppercase px-3 py-2 text-slate-800 border-r border-slate-300 text-[11px]">
                   RESPONSABLE CONTROL
                 </div>
                 <div class="w-1/2 px-3 py-1.5 font-extrabold text-slate-950 bg-white text-xs">
@@ -187,7 +198,7 @@
               </div>
 
               <div class="flex">
-                <div class="w-1/2 bg-slate-100/90 font-extrabold uppercase px-3 py-2 text-slate-800 border-r border-slate-300 tracking-wider text-[11px]">
+                <div class="w-1/2 bg-slate-100/90 font-extrabold uppercase px-3 py-2 text-slate-800 border-r border-slate-300 text-[11px]">
                   FOTOS ADJUNTAS
                 </div>
                 <div class="w-1/2 px-3 py-1.5 font-mono font-extrabold text-slate-950 bg-white text-xs flex items-center gap-1">
@@ -201,8 +212,8 @@
 
         <!-- OBSERVACIONES Y DETALLE DE FALTANTES / DAÑOS (HOJA 1) -->
         <div class="border border-slate-900 rounded-lg overflow-hidden bg-white text-xs">
-          <div class="bg-slate-900 text-white font-black px-3 py-1.5 uppercase text-[10px] tracking-wider flex items-center justify-between">
-            <span>📝 OBSERVACIONES DE LOGÍSTICA / DETALLE DE FALTANTES O DAÑOS</span>
+          <div class="bg-slate-900 text-white font-black px-3 py-1.5 uppercase text-[10px] flex items-center justify-between">
+            <span>OBSERVACIONES DE LOGÍSTICA / DETALLE DE FALTANTES O DAÑOS</span>
             <span class="text-[9px] text-slate-300">HOJA 1</span>
           </div>
           <div class="p-3 font-semibold text-slate-900 bg-slate-50/80 min-h-[90px] leading-relaxed text-[11px]">
@@ -258,14 +269,14 @@
     <div 
       v-for="page in imagePages" 
       :key="page.pageIndex"
-      class="a4-page page-break p-6 sm:p-8 flex flex-col justify-between min-h-[280mm] print:min-h-0 border border-slate-300 dark:border-slate-800 rounded-2xl mt-6 print:border-none print:p-0 print:mt-0 print:rounded-none shadow-sm bg-white"
+      class="a4-page page-break p-6 sm:p-8 flex flex-col justify-between min-h-[280mm] print:min-h-0 border border-slate-300 rounded-2xl mt-6 print:border-none print:p-0 print:mt-0 print:rounded-none shadow-sm bg-white"
     >
       <!-- Cabecera de foto -->
       <div class="flex items-center justify-between text-xs font-bold text-slate-800 border-b-2 border-slate-900 pb-2">
         <div class="flex items-center gap-2.5">
           <img src="/2.svg" alt="Districorr" class="h-5 w-auto" />
           <div>
-            <span class="uppercase tracking-wider font-black text-slate-950 block text-[11px]">
+            <span class="uppercase font-black text-slate-950 block text-[11px]">
               ANEXO FOTOGRÁFICO DE CONTROL DE DEVOLUCIÓN
             </span>
             <span class="text-[9px] text-slate-500 font-medium">
@@ -283,73 +294,85 @@
         <div 
           v-for="img in page.items" 
           :key="img.id || img.globalIndex"
-          class="border border-slate-300 rounded-lg bg-slate-50/90 relative shadow-2xs overflow-hidden flex flex-col items-center justify-center p-2 transition-all"
+          class="border border-slate-300 rounded-lg bg-slate-50 relative shadow-2xs overflow-hidden flex flex-col items-center justify-center p-2 transition-all"
           :style="{
             height: img.size === 'compacto' ? '98mm' : '118mm',
             maxHeight: img.size === 'compacto' ? '98mm' : '118mm',
             boxSizing: 'border-box'
           }"
         >
-          <div class="absolute top-2 left-2 flex items-center gap-1.5 z-10">
-            <span class="px-2 py-0.5 rounded bg-slate-950 text-white font-mono text-[9px] font-black z-10 shadow-xs">
+          <!-- Barra interactiva visible solo en edición -->
+          <div v-if="editable" class="absolute top-2 left-2 flex items-center gap-1.5 z-10">
+            <span class="px-2 py-0.5 rounded bg-slate-950 text-white font-mono text-[9px] font-black shadow-xs">
               FOTO #{{ img.globalIndex }} DE {{ imagenes.length }}
             </span>
 
             <span 
               v-if="img.hasAnnotations" 
-              class="px-2 py-0.5 rounded bg-rose-600 text-white font-mono text-[9px] font-black z-10 shadow-xs flex items-center gap-1"
+              class="px-2 py-0.5 rounded bg-rose-600 text-white font-mono text-[9px] font-black shadow-xs flex items-center gap-1"
             >
               <span>🔍</span>
-              <span>MARCAS DE FALTANTES</span>
+              <span>MARCAS</span>
             </span>
 
-            <!-- Botón interactivo de tamaño clickeable en vista previa -->
+            <!-- Botón interactivo de rotación -->
             <button 
-              v-if="editable"
+              type="button" 
+              @click="rotateImg(img)"
+              class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-white text-[9px] font-extrabold uppercase transition-all shadow-xs cursor-pointer"
+              title="Girar foto 90°"
+            >
+              🔄 {{ img.rotation || 0 }}°
+            </button>
+
+            <!-- Botón interactivo de tamaño -->
+            <button 
               type="button" 
               @click="toggleImgSize(img)"
-              class="px-2 py-0.5 rounded text-[9px] font-extrabold uppercase tracking-wider transition-all shadow-xs cursor-pointer hover:scale-105"
+              class="px-2 py-0.5 rounded text-[9px] font-extrabold uppercase transition-all shadow-xs cursor-pointer hover:scale-105"
               :class="img.size === 'compacto' ? 'bg-amber-500 text-white' : 'bg-blue-600 text-white'"
               title="Alternar tamaño de imagen"
             >
               {{ img.size === 'compacto' ? '📦 Compacto' : '🔍 Grande (+15%)' }}
             </button>
 
-            <!-- Botón para abrir anotador directamente desde la hoja -->
+            <!-- Botón para abrir anotador -->
             <button 
-              v-if="editable"
               type="button" 
               @click="$emit('annotate-image', img)"
-              class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-white text-[9px] font-extrabold uppercase tracking-wider transition-all shadow-xs cursor-pointer flex items-center gap-1"
+              class="px-2 py-0.5 rounded bg-rose-700 hover:bg-rose-600 text-white text-[9px] font-extrabold uppercase transition-all shadow-xs cursor-pointer flex items-center gap-1"
               title="Marcar o editar anotaciones en esta foto"
             >
               <span>✏️ Anotar</span>
             </button>
           </div>
 
-          <div class="w-full h-full flex items-center justify-center pt-4 overflow-hidden">
-            <div class="relative inline-flex items-center justify-center max-w-full max-h-full">
+          <!-- Imagen con marcas SVG superpuestas (rotan juntas perfectamente) -->
+          <div class="w-full h-full flex items-center justify-center pt-2 overflow-hidden">
+            <div 
+              class="relative inline-flex items-center justify-center max-w-full max-h-full transition-transform duration-200"
+              :style="{
+                transform: `rotate(${img.rotation || 0}deg)`,
+                maxHeight: (img.rotation === 90 || img.rotation === 270) 
+                  ? (img.size === 'compacto' ? '60mm' : '75mm') 
+                  : (img.size === 'compacto' ? '82mm' : '106mm'),
+                maxWidth: (img.rotation === 90 || img.rotation === 270) ? '70%' : '100%',
+                width: 'auto',
+                height: 'auto'
+              }"
+            >
               <img 
-                :src="img.url" 
+                :src="img.annotatedUrl || img.url" 
                 :alt="`Fotografía de control ${img.globalIndex}`"
-                class="rounded shadow-2xs block mx-auto my-auto cursor-pointer transition-all duration-200"
+                class="rounded shadow-2xs block mx-auto my-auto cursor-pointer"
                 @click="editable ? $emit('annotate-image', img) : null"
                 :title="editable ? 'Haz clic para marcar o anotar faltantes en esta foto' : ''"
-                :style="{
-                  transform: `rotate(${img.rotation || 0}deg)`,
-                  maxHeight: (img.rotation === 90 || img.rotation === 270) 
-                    ? (img.size === 'compacto' ? '60mm' : '75mm') 
-                    : (img.size === 'compacto' ? '82mm' : '106mm'),
-                  maxWidth: (img.rotation === 90 || img.rotation === 270) ? '70%' : '100%',
-                  width: 'auto',
-                  height: 'auto',
-                  objectFit: 'contain'
-                }"
+                style="max-width: 100%; max-height: 100%; object-fit: contain;"
               />
 
-              <!-- Capa SVG con Anotaciones Vectoriales (Círculos, Flechas, Lápiz, Texto) -->
+              <!-- Capa SVG de Anotaciones (actúa si la imagen no tiene dataUrl quemado) -->
               <svg 
-                v-if="img.annotations && img.annotations.length > 0"
+                v-if="!img.annotatedUrl && img.annotations && img.annotations.length > 0"
                 class="absolute inset-0 w-full h-full pointer-events-none"
                 :viewBox="`0 0 ${img.naturalWidth || 1200} ${img.naturalHeight || 800}`"
                 preserveAspectRatio="xMidYMid meet"
@@ -438,8 +461,8 @@
 
       <!-- SECCIÓN DE NOTA / OBSERVACIÓN ESPECÍFICA DE ESTA HOJA -->
       <div v-if="editable || getPageNote(page.pageIndex)" class="mb-2 p-2.5 bg-slate-50 border border-slate-300 rounded-lg text-xs">
-        <div class="flex items-center justify-between font-bold text-slate-900 text-[10px] uppercase tracking-wider mb-1">
-          <span>📝 NOTA / OBSERVACIÓN DE LA HOJA {{ page.pageIndex }}</span>
+        <div class="flex items-center justify-between font-bold text-slate-900 text-[10px] uppercase mb-1">
+          <span>NOTA / OBSERVACIÓN DE LA HOJA {{ page.pageIndex }}</span>
           <span v-if="editable" class="text-[9px] font-normal text-blue-600">(Clic para escribir nota de esta hoja)</span>
         </div>
         <textarea 
@@ -486,19 +509,23 @@ const props = defineProps({
   }
 });
 
-const emit = defineEmits(['toggle-image-size', 'annotate-image']);
+const emit = defineEmits(['toggle-image-size', 'annotate-image', 'rotate-image']);
 
 const toggleImgSize = (img) => {
   img.size = img.size === 'compacto' ? 'grande' : 'compacto';
   emit('toggle-image-size', img);
 };
 
-// Cantidad de fotos con anotaciones
+const rotateImg = (img) => {
+  img.rotation = ((img.rotation || 0) + 90) % 360;
+  console.log('[ReporteDevolucionPDF] Foto rotada a:', img.rotation, 'grados');
+  emit('rotate-image', img);
+};
+
 const annotatedCount = computed(() => {
   return props.imagenes.filter(i => i.hasAnnotations).length;
 });
 
-// Paginador de imágenes (2 por página)
 const imagePages = computed(() => {
   const pages = [];
   const total = props.imagenes.length;
@@ -536,7 +563,6 @@ const getPencilPath = (points) => {
   return points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ');
 };
 
-// Formato de fechas
 const formatDate = (dateStr) => {
   if (!dateStr) return '-';
   try {

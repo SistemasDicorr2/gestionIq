@@ -10,7 +10,7 @@
       <div class="w-full max-w-5xl bg-slate-900/95 border border-slate-800 text-white rounded-2xl p-2.5 px-4 mb-3 flex flex-wrap items-center justify-between gap-2.5 shadow-2xl shrink-0 print:hidden sticky top-2 z-40 backdrop-blur-md">
         
         <div class="flex items-center gap-2">
-          <span class="px-2 py-0.5 rounded bg-rose-600 text-white text-[9px] font-black uppercase tracking-wider">
+          <span class="px-2 py-0.5 rounded bg-rose-600 text-white text-[9px] font-black uppercase">
             REG03-02-01-D
           </span>
           <div class="hidden sm:block">
@@ -63,12 +63,24 @@
             <span>{{ isExportingPDF ? 'Generando PDF...' : '📥 Descargar PDF' }}</span>
           </button>
 
+          <!-- GUARDAR CAMBIOS EN BASE DE DATOS -->
+          <button 
+            type="button" 
+            @click="saveControlChanges" 
+            :disabled="isSavingChanges || isLoading"
+            class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs rounded-xl shadow-md transition-all flex items-center gap-1 cursor-pointer active:scale-95 disabled:opacity-50"
+            title="Guardar observaciones y estado actual en el control de logística"
+          >
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/></svg>
+            <span>{{ isSavingChanges ? 'Guardando...' : '💾 Guardar Cambios' }}</span>
+          </button>
+
           <!-- IMPRIMIR NATIVO -->
           <button 
             type="button" 
             @click="triggerPrint" 
             :disabled="isLoading"
-            class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs rounded-xl shadow-md transition-all flex items-center gap-1 cursor-pointer active:scale-95 disabled:opacity-50"
+            class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 font-extrabold text-xs rounded-xl shadow-md transition-all flex items-center gap-1 cursor-pointer active:scale-95 disabled:opacity-50 border border-slate-700"
           >
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
             <span>🖨️ Imprimir</span>
@@ -89,7 +101,7 @@
           <button 
             type="button" 
             @click="shareViaWhatsApp"
-            class="px-2.5 py-1.5 bg-emerald-700 hover:bg-emerald-600 text-white font-bold text-xs rounded-xl transition-all flex items-center gap-1 cursor-pointer"
+            class="px-2.5 py-1.5 bg-emerald-800 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl transition-all flex items-center gap-1 cursor-pointer"
             title="Enviar mensaje de faltantes por WhatsApp al instrumentador"
           >
             <span>💬 WhatsApp</span>
@@ -112,19 +124,20 @@
         <p class="text-xs text-slate-400 font-bold">Cargando datos y evidencias de logística...</p>
       </div>
 
-      <!-- CONTENEDOR DEL DOCUMENTO FORMATO HOJA A4 -->
+      <!-- CONTENEDOR DE VISTA PREVIA INTERACTIVA (CON ZOOM Y EDICIÓN IN-SITU) -->
       <div v-else class="w-full max-w-5xl flex justify-center items-start overflow-x-auto pb-16 pt-1 print:p-0">
         <div 
           class="relative transition-all duration-200 flex justify-center origin-top shrink-0"
           :style="{
-            width: `${Math.round(210 * effectiveScale)}mm`,
+            width: isExportingPDF ? '210mm' : `${Math.round(210 * effectiveScale)}mm`,
             maxWidth: '100%'
           }"
         >
           <div 
-            class="origin-top bg-white rounded-2xl shadow-2xl print:shadow-none print:transform-none print:w-full print:max-w-none transition-transform duration-200 shrink-0"
+            id="reporte-devolucion-document"
+            class="origin-top bg-white rounded-2xl shadow-2xl transition-transform duration-200 shrink-0 print:shadow-none print:transform-none print:w-full"
             :style="{ 
-              transform: `scale(${effectiveScale})`, 
+              transform: isExportingPDF ? 'none' : `scale(${effectiveScale})`, 
               transformOrigin: 'top center',
               width: '210mm'
             }"
@@ -133,21 +146,12 @@
               :control-data="controlFormData" 
               :imagenes="imagenesList" 
               :notas-paginas="notasPaginas" 
-              :editable="isEditableInPreview"
+              :editable="isEditableInPreview && !isExportingPDF"
               @annotate-image="openAnnotatorForImage"
             />
           </div>
         </div>
       </div>
-    </div>
-
-    <!-- DOCUMENTO OCULTO PARA IMPRESIÓN DIRECTA -->
-    <div v-if="visible" class="hidden print:block w-full">
-      <ReporteDevolucionPDF 
-        :control-data="controlFormData" 
-        :imagenes="imagenesList" 
-        :notas-paginas="notasPaginas" 
-      />
     </div>
 
     <!-- MODAL DE ANOTACIÓN SOBRE FOTOS (FLECHAS, CÍRCULOS, LÁPIZ, TEXTO) -->
@@ -161,7 +165,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, watch, onMounted, onUnmounted } from 'vue';
+import { ref, reactive, computed, watch, onMounted, onUnmounted, nextTick } from 'vue';
 import { supabase } from '../../services/supabase';
 import { useToast } from 'vue-toastification';
 import jsPDF from 'jspdf';
@@ -194,7 +198,7 @@ const props = defineProps({
   }
 });
 
-const emit = defineEmits(['update:modelValue', 'closed']);
+const emit = defineEmits(['update:modelValue', 'closed', 'control-updated']);
 
 const toast = useToast();
 const R2_PUBLIC_URL = import.meta.env.VITE_R2_PUBLIC_URL;
@@ -206,6 +210,7 @@ const visible = computed({
 
 const isLoading = ref(false);
 const isExportingPDF = ref(false);
+const isSavingChanges = ref(false);
 const isEditableInPreview = ref(true);
 const zoomOption = ref('fit-width');
 const selectedImageForAnnotation = ref(null);
@@ -232,7 +237,7 @@ const effectiveScale = computed(() => {
   return parseFloat(zoomOption.value);
 });
 
-// Datos del formulario de devolución
+// Datos reactivos del reporte de devolución
 const controlFormData = reactive({
   report_id: '',
   cirugia_id: '',
@@ -242,7 +247,7 @@ const controlFormData = reactive({
   instrumentador: '',
   fecha_cx: '',
   fecha_control: '',
-  estado: 'problemas', // 'ok', 'revision', 'problemas'
+  estado: 'problemas',
   observaciones: '',
   responsable: 'Logística Districorr'
 });
@@ -250,21 +255,23 @@ const controlFormData = reactive({
 const imagenesList = ref([]);
 const notasPaginas = reactive({});
 
-// Watcher para abrir y cargar datos
 watch(() => props.modelValue, async (newVal) => {
   if (newVal) {
+    console.log('[ReporteDevolucion] Modal abierto para Report ID / Cirugía:', props.reportId);
     await initReportData();
   }
 });
 
 const initReportData = async () => {
   isLoading.value = true;
+  console.log('[ReporteDevolucion] Inicializando datos del reporte...');
   try {
     controlFormData.report_id = String(props.reportId || '');
     controlFormData.cirugia_id = String(props.reportId || '');
 
     // 1. Cargar datos de la cirugía si no vienen completos
     if (props.surgeryData) {
+      console.log('[ReporteDevolucion] Aplicando surgeryData desde props:', props.surgeryData);
       populateSurgeryData(props.surgeryData);
     } else if (props.reportId) {
       const { data: surgery, error: sErr } = await supabase
@@ -274,12 +281,16 @@ const initReportData = async () => {
         .maybeSingle();
 
       if (!sErr && surgery) {
+        console.log('[ReporteDevolucion] Cirugía cargada de BD:', surgery);
         populateSurgeryData(surgery);
+      } else if (sErr) {
+        console.warn('[ReporteDevolucion] Advertencia al buscar cirugía:', sErr);
       }
     }
 
     // 2. Cargar datos del control y fotos
     if (props.control) {
+      console.log('[ReporteDevolucion] Aplicando control desde props:', props.control);
       populateControlData(props.control);
     } else if (props.reportId) {
       const { data: controls, error: cErr } = await supabase
@@ -289,17 +300,26 @@ const initReportData = async () => {
         .order('created_at', { ascending: false });
 
       if (!cErr && controls && controls.length > 0) {
+        console.log('[ReporteDevolucion] Control de logística cargado de BD:', controls[0]);
         populateControlData(controls[0]);
+      } else if (cErr) {
+        console.warn('[ReporteDevolucion] Advertencia al buscar control de logística:', cErr);
       }
     }
 
-    // 3. Procesar fotos si no fueron asignadas
+    // 3. Procesar fotos si fueron pasadas por separado
     if (props.photos && props.photos.length > 0 && imagenesList.value.length === 0) {
+      console.log('[ReporteDevolucion] Procesando fotos desde props.photos:', props.photos.length);
       processPhotosList(props.photos);
     }
 
+    console.log('[ReporteDevolucion] Inicialización completa:', {
+      formData: { ...controlFormData },
+      totalFotos: imagenesList.value.length
+    });
+
   } catch (err) {
-    console.error("Error al inicializar Reporte de Devolución:", err);
+    console.error("[ReporteDevolucion] Error crítico al inicializar reporte:", err);
     toast.error("No se pudieron cargar todos los datos de logística.");
   } finally {
     isLoading.value = false;
@@ -327,9 +347,10 @@ const populateControlData = (c) => {
 const processPhotosList = (rawPhotos) => {
   const list = rawPhotos.map((p, idx) => {
     const rawUrl = p.url || (p.object_key ? `${R2_PUBLIC_URL}/${p.object_key}` : '');
+    const safeUrl = getCorsSafeImageUrl(rawUrl);
     return {
-      id: p.id || idx,
-      url: getCorsSafeImageUrl(rawUrl),
+      id: p.id || `photo_${idx}`,
+      url: safeUrl,
       originalUrl: rawUrl,
       annotatedUrl: null,
       annotations: [],
@@ -341,13 +362,17 @@ const processPhotosList = (rawPhotos) => {
 
   imagenesList.value = list;
 
-  // Precargar en segundo plano a Data URL para html2canvas
+  // Precargar en segundo plano a Data URL Base64 para garantizar exportación a PDF sin bloqueos
   for (const imgItem of imagenesList.value) {
     if (imgItem.originalUrl) {
+      console.log('[ReporteDevolucion] Precargando foto a Base64:', imgItem.originalUrl);
       convertUrlToBase64(imgItem.originalUrl).then(base64 => {
         if (base64 && base64.startsWith('data:')) {
           imgItem.url = base64;
+          console.log('[ReporteDevolucion] Foto precargada a Base64 con éxito:', imgItem.id);
         }
+      }).catch(err => {
+        console.warn('[ReporteDevolucion] Falló precarga Base64 para foto:', imgItem.id, err);
       });
     }
   }
@@ -355,72 +380,184 @@ const processPhotosList = (rawPhotos) => {
 
 // --- ANOTACIÓN DE IMÁGENES ---
 const openAnnotatorForImage = (img) => {
+  console.log('[ReporteDevolucion] Abriendo editor de marcas para foto:', img.id);
   selectedImageForAnnotation.value = img;
 };
 
-const handleAnnotationSaved = ({ originalUrl, annotations, hasAnnotations, naturalWidth, naturalHeight }) => {
+const handleAnnotationSaved = ({ url, annotatedUrl, originalUrl, annotations, hasAnnotations, naturalWidth, naturalHeight }) => {
   if (!selectedImageForAnnotation.value) return;
   
-  selectedImageForAnnotation.value.annotations = annotations;
-  selectedImageForAnnotation.value.hasAnnotations = hasAnnotations;
-  selectedImageForAnnotation.value.naturalWidth = naturalWidth;
-  selectedImageForAnnotation.value.naturalHeight = naturalHeight;
+  const targetImg = selectedImageForAnnotation.value;
+  console.log('[ReporteDevolucion] Guardando anotaciones para foto:', targetImg.id, {
+    marcasCount: annotations?.length || 0,
+    hasAnnotations,
+    tieneAnnotatedUrl: !!annotatedUrl
+  });
+
+  targetImg.url = annotatedUrl || url || targetImg.url;
+  targetImg.annotatedUrl = annotatedUrl || null;
+  targetImg.annotations = annotations || [];
+  targetImg.hasAnnotations = !!hasAnnotations;
+  targetImg.naturalWidth = naturalWidth;
+  targetImg.naturalHeight = naturalHeight;
   
   toast.success(hasAnnotations ? "Anotaciones guardadas en la foto." : "Anotaciones limpiadas.");
   selectedImageForAnnotation.value = null;
 };
 
+// --- GUARDAR CAMBIOS EN SUPABASE ---
+const saveControlChanges = async () => {
+  isSavingChanges.value = true;
+  console.log('[ReporteDevolucion] Guardando cambios en base de datos...', {
+    report_id: controlFormData.report_id,
+    cirugia_id: controlFormData.cirugia_id,
+    estado: controlFormData.estado,
+    observaciones: controlFormData.observaciones,
+    fecha_control: controlFormData.fecha_control
+  });
+
+  try {
+    const targetControlId = props.control?.id;
+    let updateResult = null;
+
+    if (targetControlId) {
+      updateResult = await supabase
+        .from('logistica_controles')
+        .update({
+          estado: controlFormData.estado,
+          observaciones: controlFormData.observaciones?.trim() || '',
+          fecha_retiro: controlFormData.fecha_control || new Date().toISOString().split('T')[0]
+        })
+        .eq('id', targetControlId);
+    } else if (props.reportId) {
+      updateResult = await supabase
+        .from('logistica_controles')
+        .update({
+          estado: controlFormData.estado,
+          observaciones: controlFormData.observaciones?.trim() || '',
+          fecha_retiro: controlFormData.fecha_control || new Date().toISOString().split('T')[0]
+        })
+        .eq('cirugia_id', props.reportId);
+    }
+
+    if (updateResult?.error) {
+      throw updateResult.error;
+    }
+
+    console.log('[ReporteDevolucion] Cambios guardados exitosamente en Supabase.');
+    toast.success("Cambios del control guardados correctamente.");
+    emit('control-updated', {
+      estado: controlFormData.estado,
+      observaciones: controlFormData.observaciones,
+      fecha_control: controlFormData.fecha_control
+    });
+  } catch (err) {
+    console.error("[ReporteDevolucion] Error al guardar cambios en Supabase:", err);
+    toast.error("No se pudieron guardar los cambios en la base de datos: " + (err.message || 'Error desconocido'));
+  } finally {
+    isSavingChanges.value = false;
+  }
+};
+
 // --- DESCARGA DIRECTA PDF ---
 const downloadDirectPDF = async () => {
   isExportingPDF.value = true;
-  try {
-    const container = document.getElementById('reporte-devolucion-document');
-    if (!container) throw new Error("No se encontró el contenedor del documento para generar el PDF.");
+  console.log('[ReporteDevolucion] === INICIANDO EXPORTACIÓN DIRECTA DE PDF ===');
+  
+  const prevEditable = isEditableInPreview.value;
+  const prevZoom = zoomOption.value;
 
-    // Asegurar que todas las fotos estén convertidas a Base64 local antes de capturar con html2canvas
-    for (const imgItem of imagenesList.value) {
-      if (imgItem.url && !imgItem.url.startsWith('data:')) {
-        imgItem.url = await convertUrlToBase64(imgItem.url);
+  try {
+    toast.info("Preparando documento y fotografías para PDF...");
+
+    // 1. Asegurar que todas las fotos tengan formato Base64 local antes de capturar
+    console.log('[ReporteDevolucion] Asegurando conversión Base64 de todas las imágenes...');
+    for (let idx = 0; idx < imagenesList.value.length; idx++) {
+      const imgItem = imagenesList.value[idx];
+      const activeUrl = imgItem.annotatedUrl || imgItem.url;
+      if (activeUrl && !activeUrl.startsWith('data:')) {
+        console.log(`[ReporteDevolucion] Convirtiendo foto #${idx + 1} a Base64...`);
+        try {
+          const b64 = await convertUrlToBase64(activeUrl);
+          if (b64 && b64.startsWith('data:')) {
+            if (imgItem.annotatedUrl) {
+              imgItem.annotatedUrl = b64;
+            } else {
+              imgItem.url = b64;
+            }
+            console.log(`[ReporteDevolucion] Foto #${idx + 1} convertida a Base64.`);
+          }
+        } catch (convErr) {
+          console.warn(`[ReporteDevolucion] Advertencia en conversión Base64 de foto #${idx + 1}:`, convErr);
+        }
       }
     }
 
-    // Pequeño delay para renderizado del DOM
-    await new Promise(resolve => setTimeout(resolve, 200));
+    // 2. Desactivar temporalmente inputs de edición y zoom para captura prístina
+    isEditableInPreview.value = false;
+    zoomOption.value = '1.0';
+
+    await nextTick();
+    await new Promise(resolve => setTimeout(resolve, 350));
+
+    // 3. Capturar el contenedor renderizado en pantalla
+    const container = document.getElementById('reporte-devolucion-document');
+    if (!container) {
+      throw new Error("No se encontró el contenedor #reporte-devolucion-document en el DOM.");
+    }
 
     const pages = container.querySelectorAll('.a4-page');
-    if (!pages || pages.length === 0) throw new Error("No se encontraron páginas en el documento.");
+    console.log('[ReporteDevolucion] Páginas A4 encontradas para captura:', pages.length);
+    if (!pages || pages.length === 0) {
+      throw new Error("No se encontraron páginas A4 en el documento.");
+    }
 
-    const pdf = new jsPDF('p', 'mm', 'a4');
+    const pdf = new jsPDF({
+      orientation: 'p',
+      unit: 'mm',
+      format: 'a4',
+      compress: true
+    });
+    
     const pdfWidth = pdf.internal.pageSize.getWidth();
     const pdfHeight = pdf.internal.pageSize.getHeight();
 
     for (let i = 0; i < pages.length; i++) {
       const pageEl = pages[i];
+      console.log(`[ReporteDevolucion] Renderizando Página ${i + 1} de ${pages.length} con html2canvas...`);
+      
       if (i > 0) pdf.addPage('a4', 'p');
 
       const canvas = await html2canvas(pageEl, {
         scale: 2,
         useCORS: true,
         allowTaint: true,
-        logging: false,
+        logging: true,
         backgroundColor: '#FFFFFF',
         windowWidth: 1200
       });
 
+      console.log(`[ReporteDevolucion] Canvas de página ${i + 1} generado:`, canvas.width, 'x', canvas.height);
       const imgData = canvas.toDataURL('image/jpeg', 0.95);
       pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight, undefined, 'FAST');
     }
 
-    const cleanId = (controlFormData.report_id || 'Cirugia').replace(/[^a-zA-Z0-9_-]/g, '_');
+    const cleanId = (controlFormData.report_id || controlFormData.cirugia_id || 'Cirugia').replace(/[^a-zA-Z0-9_-]/g, '_');
     const filename = `Reporte_Devolucion_Cx_${cleanId}.pdf`;
+    
+    console.log('[ReporteDevolucion] Guardando archivo PDF:', filename);
     pdf.save(filename);
-    toast.success(`PDF ${filename} descargado exitosamente.`);
+    toast.success(`PDF "${filename}" descargado exitosamente.`);
 
   } catch (err) {
-    console.error("Error al exportar PDF de devolución:", err);
-    toast.error("Ocurrió un error al generar el PDF. Podés usar la opción 'Imprimir'.");
+    console.error("[ReporteDevolucion] ERROR FATAL al exportar PDF de devolución:", err);
+    toast.error("Ocurrió un error al generar el PDF: " + (err.message || 'Error inesperado'));
   } finally {
+    // Restaurar estado previo de edición y zoom
+    isEditableInPreview.value = prevEditable;
+    zoomOption.value = prevZoom;
     isExportingPDF.value = false;
+    console.log('[ReporteDevolucion] === FIN DE PROCESO DE EXPORTACIÓN ===');
   }
 };
 
@@ -449,3 +586,4 @@ const closeModal = () => {
   emit('closed');
 };
 </script>
+
