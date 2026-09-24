@@ -281,6 +281,11 @@
             </div>
 
             <div>
+              <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">CANTIDAD DE BULTOS *</label>
+              <input v-model.number="form.cantidad_bultos" type="number" min="1" placeholder="Ej: 1" class="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:outline-none dark:text-white font-medium" />
+            </div>
+
+            <div>
               <div class="flex items-center justify-between mb-1">
                 <label class="block font-bold text-slate-700 dark:text-slate-300">N° DE GUÍA *</label>
                 <button type="button" @click="regenerateGuiaNumber" class="text-[10px] text-blue-600 hover:underline font-bold">🔄 Regenerar</button>
@@ -869,6 +874,7 @@ const form = reactive({
   fecha_cx: '',
   fecha_envio: new Date().toISOString().slice(0, 10),
   transporte: 'EMA PACK',
+  cantidad_bultos: 1,
   numero_guia: generateRandomGuiaNumber(),
   observaciones: 'ENVIO DE INSTRUMENTAL PARA REPARACION Y ACONDICIONAMIENTO'
 });
@@ -1212,6 +1218,7 @@ const loadGuideIntoForm = (g) => {
   form.fecha_cx = g.fecha_cx || '';
   form.fecha_envio = g.fecha_envio || new Date().toISOString().slice(0, 10);
   form.transporte = g.transporte || 'EMA PACK';
+  form.cantidad_bultos = g.cantidad_bultos !== undefined && g.cantidad_bultos !== null ? g.cantidad_bultos : 1;
   form.numero_guia = g.numero_guia || '';
   form.observaciones = g.observaciones || '';
 
@@ -1347,6 +1354,7 @@ const sendViaOutlook = () => {
     `• Fecha CX: ${formatDate(form.fecha_cx)}\n` +
     `• Fecha Envío: ${formatDate(form.fecha_envio)}\n` +
     `• Transporte: ${form.transporte}\n` +
+    `• Cantidad de Bultos: ${form.cantidad_bultos || '1'}\n` +
     `• Observaciones: ${form.observaciones || '-'}\n\n` +
     `Saludos cordiales,\nDistricorr Logística Salud`
   );
@@ -1364,6 +1372,7 @@ const sendViaGmail = () => {
     `• Fecha CX: ${formatDate(form.fecha_cx)}\n` +
     `• Fecha Envío: ${formatDate(form.fecha_envio)}\n` +
     `• Transporte: ${form.transporte}\n` +
+    `• Cantidad de Bultos: ${form.cantidad_bultos || '1'}\n` +
     `• Observaciones: ${form.observaciones || '-'}\n\n` +
     `Saludos cordiales,\nDistricorr Logística Salud`
   );

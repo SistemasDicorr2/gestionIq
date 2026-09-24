@@ -340,8 +340,17 @@
               </div>
             </div>
 
-            <!-- Botón WhatsApp 1-Tap -->
-            <div class="pt-1 border-t border-slate-100 dark:border-slate-800 flex justify-end">
+            <!-- Botones de Acción: Reporte Devolución PDF y WhatsApp 1-Tap -->
+            <div class="pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-end gap-2 flex-wrap">
+              <button 
+                @click="openReporteDevolucionModal(control)"
+                class="px-3 py-1.5 bg-brand-navy hover:bg-brand-navy-light text-white font-bold text-xs rounded-xl flex items-center gap-1.5 shadow-2xs transition-all active:scale-95 cursor-pointer"
+                title="Generar e imprimir Reporte de Devolución en PDF con marcas de faltantes"
+              >
+                <FileTextIcon class="w-3.5 h-3.5" />
+                <span>📄 Reporte PDF</span>
+              </button>
+
               <button 
                 @click="shareViaWhatsApp(control)"
                 class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl flex items-center gap-1.5 shadow-2xs transition-all active:scale-95 cursor-pointer"
@@ -365,6 +374,15 @@
       :index="activeLightboxIndex"
       @hide="isLightboxOpen = false"
     />
+
+    <!-- Modal de Reporte de Devolución -->
+    <ReporteDevolucionModal 
+      v-model="showReporteModal"
+      :report-id="selectedControlForReport?.cirugia_id || selectedControlForReport?.id || ''"
+      :control="selectedControlForReport"
+      :surgery-data="selectedControlForReport?.reportes || null"
+      :photos="selectedControlForReport?.photos || null"
+    />
   </div>
 </template>
 
@@ -386,11 +404,13 @@ import {
   XCircle as XCircleIcon,
   Search as SearchIcon,
   Share2 as Share2Icon,
+  FileText as FileTextIcon,
   RefreshCw as RefreshCwIcon
 } from 'lucide-vue-next';
 
 import SurgerySelector from '../../components/shared/SurgerySelector.vue';
 import FileUpload from '../../components/uploader/FileUpload.vue';
+import ReporteDevolucionModal from '../../components/logistica/ReporteDevolucionModal.vue';
 
 const { showSuccessToast, showErrorToast } = useToasts();
 
@@ -398,6 +418,13 @@ const activeTab = ref('form');
 const recentControls = ref([]);
 const isHistoryLoading = ref(false);
 const historyError = ref(null);
+const showReporteModal = ref(false);
+const selectedControlForReport = ref(null);
+
+const openReporteDevolucionModal = (control) => {
+  selectedControlForReport.value = control;
+  showReporteModal.value = true;
+};
 
 const historySearchQuery = ref('');
 const historyStatusFilter = ref('all');
