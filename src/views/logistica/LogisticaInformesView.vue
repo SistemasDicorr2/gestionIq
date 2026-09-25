@@ -78,12 +78,40 @@
               </span>
             </div>
 
-            <div class="text-[11px] text-slate-500 dark:text-slate-400 space-y-0.5">
-              <div>📍 Zona: <strong>{{ draft.zona || 'Formosa' }}</strong></div>
-              <div>🕒 Último guardado: {{ formatDateTime(draft.updated_at || draft.created_at) }}</div>
-              <div v-if="draft.observacion_general" class="italic truncate text-slate-600 dark:text-slate-300 mt-1">
+            <div class="text-[11px] text-slate-500 dark:text-slate-400 space-y-1">
+              <div class="flex items-center gap-2">
+                <span>📍 Zona: <strong>{{ draft.zona || 'Formosa' }}</strong></span>
+                <span class="text-slate-400">• Guardado: {{ formatDateTime(draft.updated_at || draft.created_at) }}</span>
+              </div>
+              <div v-if="draft.observacion_general" class="italic truncate text-slate-600 dark:text-slate-300">
                 "{{ draft.observacion_general }}"
               </div>
+            </div>
+
+            <!-- Resumen de Borrador con Iconos -->
+            <div class="flex flex-wrap items-center gap-1.5 text-[10px] font-mono font-bold pt-1">
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-50 dark:bg-amber-950/60 text-amber-900 dark:text-amber-200 border border-amber-200/80 dark:border-amber-900/60">
+                <Layers class="w-3 h-3 text-amber-600" />
+                <span>{{ draft.movimientos?.length || 0 }} mov</span>
+              </span>
+
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+                <AnimatedPackageIcon customClass="w-3 h-3 text-slate-500" />
+                <span>{{ getCajasTotal(draft) }} cajas</span>
+              </span>
+
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+                <AnimatedBoxIcon customClass="w-3 h-3 text-slate-500" />
+                <span>{{ getBultosTotal(draft) }} bultos</span>
+              </span>
+
+              <span 
+                v-if="getPendientesTotal(draft) > 0" 
+                class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-rose-50 text-rose-800 border border-rose-200"
+              >
+                <AlertTriangle class="w-3 h-3 text-rose-600" />
+                <span>{{ getPendientesTotal(draft) }} pend</span>
+              </span>
             </div>
 
             <div class="pt-1 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-800">
@@ -254,40 +282,84 @@
             </p>
           </div>
 
-          <div v-else class="space-y-2">
+          <div v-else class="space-y-2.5">
             <div 
               v-for="inf in todayInformesList" 
               :key="inf.id"
-              class="p-3.5 sm:p-4 bg-slate-50/70 dark:bg-slate-800/40 rounded-xl border border-slate-200/80 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+              class="p-3.5 sm:p-4 bg-slate-50/70 dark:bg-slate-800/40 rounded-xl border border-slate-200/80 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:border-slate-300 dark:hover:border-slate-700 transition-colors"
             >
-              <div class="space-y-1">
-                <div class="flex items-center gap-2">
-                  <span class="text-xs font-bold text-slate-900 dark:text-white">
-                    Operador: {{ inf.responsable_nombre }}
-                  </span>
+              <div class="space-y-2 flex-1 min-w-0">
+                <div class="flex flex-wrap items-center gap-2">
+                  <div class="flex items-center gap-1.5 font-bold text-xs text-slate-900 dark:text-white">
+                    <AnimatedCalendarIcon customClass="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0" />
+                    <span>Operador: {{ inf.responsable_nombre }}</span>
+                  </div>
+
                   <span class="text-[11px] font-semibold text-slate-500 dark:text-slate-400">
                     📍 {{ inf.zona || 'Formosa' }}
                   </span>
+
+                  <span v-if="inf.enviado_at" class="text-[11px] text-slate-400 font-normal">
+                    • Enviado: {{ formatTime(inf.enviado_at) }}
+                  </span>
+                  <span v-else class="text-[11px] text-amber-600 dark:text-amber-400 font-bold">
+                    • Borrador activo
+                  </span>
                 </div>
-                
-                <div class="flex items-center gap-3 text-[11px] text-slate-500 dark:text-slate-400">
-                  <span v-if="inf.enviado_at">Enviado: {{ formatTime(inf.enviado_at) }}</span>
-                  <span v-else>Borrador activo</span>
-                  <span v-if="inf.observacion_general" class="italic truncate max-w-xs">💬 {{ inf.observacion_general }}</span>
+
+                <!-- Resumen con Iconos -->
+                <div class="flex flex-wrap items-center gap-1.5 text-[11px] font-mono font-bold">
+                  <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-950/60 text-blue-900 dark:text-blue-200 border border-blue-200/80 dark:border-blue-900/60">
+                    <Layers class="w-3 h-3 text-blue-600" />
+                    <span>{{ inf.movimientos?.length || 0 }} mov</span>
+                  </span>
+
+                  <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-700/60 text-slate-800 dark:text-slate-200 border border-slate-200/80 dark:border-slate-700">
+                    <AnimatedPackageIcon customClass="w-3 h-3 text-slate-600 dark:text-slate-400" />
+                    <span>{{ getCajasTotal(inf) }} cajas</span>
+                  </span>
+
+                  <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-700/60 text-slate-800 dark:text-slate-200 border border-slate-200/80 dark:border-slate-700">
+                    <AnimatedBoxIcon customClass="w-3 h-3 text-slate-600 dark:text-slate-400" />
+                    <span>{{ getBultosTotal(inf) }} bultos</span>
+                  </span>
+
+                  <span 
+                    v-if="getPendientesTotal(inf) > 0" 
+                    class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-50 dark:bg-amber-950/60 text-amber-900 dark:text-amber-200 border border-amber-200/80 dark:border-amber-900/60 font-sans"
+                  >
+                    <AlertTriangle class="w-3 h-3 text-amber-600" />
+                    <span>{{ getPendientesTotal(inf) }} pendiente(s)</span>
+                  </span>
+
+                  <span v-if="inf.observacion_general" class="text-[11px] text-slate-500 italic truncate max-w-xs font-sans font-normal">
+                    💬 "{{ inf.observacion_general }}"
+                  </span>
                 </div>
               </div>
 
-              <div class="flex items-center gap-2 self-end sm:self-auto">
-                <span 
-                  class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase border shadow-2xs"
-                  :class="[
-                    inf.estado === 'borrador' ? 'bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border-amber-300 dark:border-amber-800' :
-                    inf.estado === 'enviado' ? 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800' :
-                    'bg-blue-100 text-blue-800 border-blue-300'
-                  ]"
+              <div class="flex items-center gap-2 self-end sm:self-center shrink-0">
+                <AnimatedBadge 
+                  v-if="inf.estado === 'borrador'" 
+                  variant="warning" 
+                  size="xs" 
+                  ping
                 >
-                  {{ inf.estado === 'borrador' ? 'Borrador' : inf.estado === 'enviado' ? 'Enviado' : inf.estado }}
-                </span>
+                  📝 Borrador
+                </AnimatedBadge>
+
+                <AnimatedBadge 
+                  v-else-if="inf.estado === 'enviado'" 
+                  variant="success" 
+                  size="xs" 
+                  dot
+                >
+                  ✓ Enviado
+                </AnimatedBadge>
+
+                <AnimatedBadge v-else variant="info" size="xs">
+                  {{ inf.estado }}
+                </AnimatedBadge>
 
                 <router-link 
                   v-if="inf.estado === 'enviado'"
@@ -312,14 +384,20 @@
     </template>
 
     <!-- Recent Reports Section -->
-    <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-4 sm:p-5 shadow-xs space-y-3">
-      <div class="flex items-center justify-between">
-        <h3 class="text-xs font-black uppercase tracking-wider text-slate-400">
-          {{ (isAdmin && adminScope === 'all') ? 'Últimos Informes Enviados (Todos)' : 'Historial Reciente de Mis Envíos' }}
-        </h3>
-        <router-link :to="{ name: 'LogisticaHistorial' }" class="text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1">
+    <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-4 sm:p-5 shadow-xs space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+        <div class="flex items-center gap-2">
+          <div class="w-7 h-7 rounded-lg bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400 flex items-center justify-center">
+            <AnimatedHistoryIcon customClass="w-4 h-4" />
+          </div>
+          <h3 class="text-xs font-black uppercase tracking-wider text-slate-700 dark:text-slate-300">
+            {{ (isAdmin && adminScope === 'all') ? 'Últimos Informes Enviados (Todos)' : 'Historial Reciente de Mis Envíos' }}
+          </h3>
+        </div>
+
+        <router-link :to="{ name: 'LogisticaHistorial' }" class="text-xs font-extrabold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 flex items-center gap-1 group">
           <span>Historial Completo</span>
-          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+          <AnimatedArrowRightIcon customClass="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
         </router-link>
       </div>
 
@@ -334,27 +412,69 @@
         </p>
       </div>
 
-      <div v-else class="space-y-2">
+      <div v-else class="space-y-2.5">
         <router-link 
           v-for="inf in recentInformes" 
           :key="inf.id"
           :to="{ name: 'LogisticaDetalleInforme', params: { id: inf.id } }"
-          class="p-3.5 bg-slate-50/60 dark:bg-slate-800/40 hover:bg-slate-100/80 dark:hover:bg-slate-800 rounded-xl border border-slate-200/60 dark:border-slate-800 flex items-center justify-between transition-all group"
+          class="p-3.5 sm:p-4 bg-slate-50/70 dark:bg-slate-800/40 hover:bg-slate-100/90 dark:hover:bg-slate-800/80 rounded-xl border border-slate-200/70 dark:border-slate-700/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition-all duration-200 group hover:shadow-xs hover:border-blue-300 dark:hover:border-blue-800"
         >
-          <div class="space-y-0.5">
-            <span class="text-xs font-extrabold text-slate-900 dark:text-white block group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-              Informe del {{ formatDate(inf.fecha) }} <span v-if="isAdmin && adminScope === 'all'" class="text-slate-500 font-normal">({{ inf.responsable_nombre }})</span>
-            </span>
-            <span class="text-[11px] text-slate-500 dark:text-slate-400">
-              Enviado el {{ formatDateTime(inf.enviado_at) }} <span v-if="inf.zona">| 📍 {{ inf.zona }}</span>
-            </span>
+          <div class="space-y-2 flex-1 min-w-0">
+            <!-- Título y Metadatos -->
+            <div class="flex flex-wrap items-center gap-2">
+              <div class="flex items-center gap-1.5 font-bold text-xs text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                <AnimatedCalendarIcon customClass="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0" />
+                <span>Informe del {{ formatDate(inf.fecha) }}</span>
+              </div>
+
+              <span v-if="isAdmin && adminScope === 'all'" class="text-[11px] font-bold text-slate-600 dark:text-slate-300 bg-slate-200/70 dark:bg-slate-700/60 px-2 py-0.5 rounded-md truncate max-w-[160px]">
+                👤 {{ inf.responsable_nombre }}
+              </span>
+
+              <span v-if="inf.zona" class="text-[11px] font-medium text-slate-500 dark:text-slate-400">
+                📍 {{ inf.zona }}
+              </span>
+
+              <span v-if="inf.enviado_at" class="text-[11px] text-slate-400 font-normal">
+                • {{ formatTime(inf.enviado_at) }}
+              </span>
+            </div>
+
+            <!-- Chips de Resumen Operativo con Iconos Animados -->
+            <div class="flex flex-wrap items-center gap-1.5 text-[11px] font-mono font-bold">
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-950/60 text-blue-900 dark:text-blue-200 border border-blue-200/80 dark:border-blue-900/60">
+                <Layers class="w-3 h-3 text-blue-600" />
+                <span>{{ inf.movimientos?.length || 0 }} mov</span>
+              </span>
+
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-700/60 text-slate-800 dark:text-slate-200 border border-slate-200/80 dark:border-slate-700">
+                <AnimatedPackageIcon customClass="w-3 h-3 text-slate-600 dark:text-slate-400" />
+                <span>{{ getCajasTotal(inf) }} cajas</span>
+              </span>
+
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-700/60 text-slate-800 dark:text-slate-200 border border-slate-200/80 dark:border-slate-700">
+                <AnimatedBoxIcon customClass="w-3 h-3 text-slate-600 dark:text-slate-400" />
+                <span>{{ getBultosTotal(inf) }} bultos</span>
+              </span>
+
+              <span 
+                v-if="getPendientesTotal(inf) > 0" 
+                class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-50 dark:bg-amber-950/60 text-amber-900 dark:text-amber-200 border border-amber-200/80 dark:border-amber-900/60 font-sans"
+              >
+                <AlertTriangle class="w-3 h-3 text-amber-600" />
+                <span>{{ getPendientesTotal(inf) }} pendiente(s)</span>
+              </span>
+            </div>
           </div>
 
-          <div class="flex items-center gap-2">
-            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-emerald-100 text-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300">
+          <!-- Badge de Estado y Flecha -->
+          <div class="flex items-center gap-2 shrink-0 self-end sm:self-center">
+            <AnimatedBadge variant="success" size="xs" dot>
               ✓ Enviado
-            </span>
-            <svg class="w-4 h-4 text-slate-400 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </AnimatedBadge>
+            <div class="w-7 h-7 rounded-lg bg-white dark:bg-slate-700/60 border border-slate-200/80 dark:border-slate-700 flex items-center justify-center text-slate-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 group-hover:border-blue-300 transition-colors">
+              <AnimatedArrowRightIcon customClass="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+            </div>
           </div>
         </router-link>
       </div>
@@ -367,6 +487,15 @@ import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { supabase } from '../../services/supabase';
 import { useToast } from 'vue-toastification';
+import { Layers, AlertTriangle } from 'lucide-vue-next';
+import { 
+  AnimatedBadge,
+  AnimatedHistoryIcon,
+  AnimatedCalendarIcon,
+  AnimatedPackageIcon,
+  AnimatedBoxIcon,
+  AnimatedArrowRightIcon
+} from '../../components/ui';
 
 const router = useRouter();
 const toast = useToast();
@@ -418,7 +547,7 @@ const fetchDashboardData = async () => {
       // MODO ADMIN: ver informes de hoy de todos los operadores
       const { data: infsToday } = await supabase
         .from('logistica_informes_diarios')
-        .select('*')
+        .select('*, movimientos:logistica_informe_movimientos(id, cantidad_cajas, cantidad_bultos, tiene_pendiente)')
         .eq('fecha', todayISO)
         .order('created_at', { ascending: false });
 
@@ -438,7 +567,7 @@ const fetchDashboardData = async () => {
 
       const { data: recents } = await supabase
         .from('logistica_informes_diarios')
-        .select('*')
+        .select('*, movimientos:logistica_informe_movimientos(id, cantidad_cajas, cantidad_bultos, tiene_pendiente)')
         .eq('estado', 'enviado')
         .order('fecha', { ascending: false })
         .order('enviado_at', { ascending: false })
@@ -449,27 +578,17 @@ const fetchDashboardData = async () => {
       // 1. Obtener todos los borradores activos del usuario
       const { data: rawDrafts } = await supabase
         .from('logistica_informes_diarios')
-        .select('*')
+        .select('*, movimientos:logistica_informe_movimientos(id, cantidad_cajas, cantidad_bultos, tiene_pendiente)')
         .eq('responsable_user_id', session.user.id)
         .eq('estado', 'borrador')
         .order('created_at', { ascending: false });
 
       if (rawDrafts && rawDrafts.length > 0) {
-        const activeDrafts = [];
-        for (const draft of rawDrafts) {
-          const { count } = await supabase
-            .from('logistica_informe_movimientos')
-            .select('id', { count: 'exact', head: true })
-            .eq('informe_id', draft.id);
-
-          const hasMovs = (count || 0) > 0;
+        activeOperatorDrafts.value = rawDrafts.filter(draft => {
+          const hasMovs = (draft.movimientos?.length || 0) > 0;
           const hasObs = draft.observacion_general && draft.observacion_general.trim().length > 0;
-
-          if (hasMovs || hasObs) {
-            activeDrafts.push(draft);
-          }
-        }
-        activeOperatorDrafts.value = activeDrafts;
+          return hasMovs || hasObs;
+        });
       } else {
         activeOperatorDrafts.value = [];
       }
@@ -477,7 +596,7 @@ const fetchDashboardData = async () => {
       // 2. Obtener informe de hoy del usuario logueado
       const { data: infToday } = await supabase
         .from('logistica_informes_diarios')
-        .select('*')
+        .select('*, movimientos:logistica_informe_movimientos(id, cantidad_cajas, cantidad_bultos, tiene_pendiente)')
         .eq('responsable_user_id', session.user.id)
         .eq('fecha', todayISO)
         .order('created_at', { ascending: false })
@@ -499,11 +618,11 @@ const fetchDashboardData = async () => {
 
       const { data: recents } = await supabase
         .from('logistica_informes_diarios')
-        .select('*')
+        .select('*, movimientos:logistica_informe_movimientos(id, cantidad_cajas, cantidad_bultos, tiene_pendiente)')
         .eq('responsable_user_id', session.user.id)
         .eq('estado', 'enviado')
         .order('fecha', { ascending: false })
-        .limit(5);
+        .limit(6);
 
       recentInformes.value = recents || [];
     }
@@ -512,6 +631,21 @@ const fetchDashboardData = async () => {
   } finally {
     loading.value = false;
   }
+};
+
+const getCajasTotal = (inf) => {
+  if (!inf || !inf.movimientos || !Array.isArray(inf.movimientos)) return 0;
+  return inf.movimientos.reduce((sum, m) => sum + (Number(m.cantidad_cajas) || 0), 0);
+};
+
+const getBultosTotal = (inf) => {
+  if (!inf || !inf.movimientos || !Array.isArray(inf.movimientos)) return 0;
+  return inf.movimientos.reduce((sum, m) => sum + (Number(m.cantidad_bultos) || 0), 0);
+};
+
+const getPendientesTotal = (inf) => {
+  if (!inf || !inf.movimientos || !Array.isArray(inf.movimientos)) return 0;
+  return inf.movimientos.filter(m => m.tiene_pendiente).length;
 };
 
 const deleteDraft = async (draftId) => {
