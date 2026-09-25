@@ -17,8 +17,9 @@ RPCs consumidas
 | RPC | Consumidores | Modulo | Estado | Riesgo si cambia |
 | ------ | ------ | ------ | ------ | ------ |
 | buscar_cirugias_logistica | LogisticaNuevoInformeView.vue | Logistica | Confirmado por codigo y Supabase | Medio: Búsqueda acotada read-only de cirugías |
-| guardar_borrador_informe_logistica | LogisticaNuevoInformeView.vue | Logistica | Confirmado por codigo y Supabase | Alto: Persistencia atómica transaccional de borradores y control de versiones |
+| guardar_borrador_informe_logistica | LogisticaNuevoInformeView.vue | Logistica | Confirmado por codigo y Supabase | Alto: Persistencia atómica transaccional de borradores, control de versiones y soporte force_override |
 | enviar_informe_logistica | LogisticaNuevoInformeView.vue | Logistica | Confirmado por codigo y Supabase | Alto: Transaccional de envío e inmutabilidad de informe diario |
+| reabrir_informe_logistica | LogisticaDetalleInformeView.vue, LogisticaNuevoInformeView.vue, LogisticaInformesView.vue | Logistica | Confirmado por codigo y Supabase | Alto: Reapertura controlada de jornadas cerradas para edición de movimientos |
 | obtener_informe_logistica_publico | LogisticaDetalleInformeView.vue | Logistica | Confirmado por codigo y Supabase | Medio: Lectura pública SECURITY DEFINER por UUID de informes diarios |
 | search_reportes_avanzado | AdminView.vue | Reportes | Confirmado por codigo | Alto: rompe panel principal y exportaciones |
 | create_instrumentador_token | FichaView.vue | Ficha/instrumentadores | Confirmado por codigo | Medio: rompe link a resumen |

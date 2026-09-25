@@ -9,16 +9,29 @@
       </router-link>
 
       <div class="flex items-center gap-2">
-        <!-- BOTÓN EDITAR INFORME (Solo usuarios autenticados) -->
-        <router-link 
-          v-if="informe && !isPublicView"
-          :to="{ name: 'LogisticaNuevoInforme', query: { id: informe.id } }"
-          class="px-3.5 py-2 bg-amber-500 hover:bg-amber-600 text-white font-extrabold text-xs rounded-xl shadow-xs flex items-center gap-1.5 transition-all active:scale-98"
-          title="Editar datos, movimientos u observaciones de este informe"
-        >
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-          <span>✏️ Editar Informe</span>
-        </router-link>
+        <!-- BOTÓN EDITAR / REABRIR INFORME (Solo usuarios autenticados) -->
+        <template v-if="informe && !isPublicView">
+          <router-link 
+            v-if="informe.estado === 'borrador'"
+            :to="{ name: 'LogisticaNuevoInforme', query: { id: informe.id } }"
+            class="px-3.5 py-2 bg-amber-500 hover:bg-amber-600 text-white font-extrabold text-xs rounded-xl shadow-xs flex items-center gap-1.5 transition-all active:scale-98"
+            title="Continuar editando este borrador"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+            <span>✏️ Continuar Editando</span>
+          </router-link>
+
+          <button 
+            v-else
+            type="button" 
+            @click="showReopenModal = true"
+            class="px-3.5 py-2 bg-amber-600 hover:bg-amber-700 text-white font-extrabold text-xs rounded-xl shadow-xs flex items-center gap-1.5 transition-all active:scale-98 cursor-pointer"
+            title="Reabrir esta jornada para agregar o corregir movimientos"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"/></svg>
+            <span>🔓 Reabrir para Editar</span>
+          </button>
+        </template>
 
         <button 
           v-if="!isPublicView"
@@ -468,12 +481,65 @@
       @close="showEmailModal = false"
       @copy-table="copyDirectToEmailClipboard"
     />
+
+    <!-- Modal Confirmación de Reapertura de Jornada -->
+    <div 
+      v-if="showReopenModal" 
+      class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-fadeIn"
+    >
+      <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 max-w-md w-full shadow-2xl space-y-4">
+        <div class="flex items-start gap-3">
+          <div class="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-950 text-amber-600 flex items-center justify-center shrink-0 font-bold text-lg">
+            🔓
+          </div>
+          <div>
+            <h3 class="text-sm font-black text-slate-900 dark:text-white">
+              ¿Reabrir esta jornada para edición?
+            </h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+              El informe del <strong>{{ formatDate(informe?.fecha) }}</strong> volverá a estado <strong>borrador</strong> para que puedas agregar o modificar movimientos. Podrás reenviarlo formalmente cuando finalices.
+            </p>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+            Motivo de reapertura (Opcional):
+          </label>
+          <input 
+            v-model="reopenReason"
+            type="text"
+            placeholder="Ej: Nuevas entregas de guardia / Corrección de cajas..."
+            class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-medium focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 focus:outline-none dark:text-white"
+          />
+        </div>
+
+        <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+          <button 
+            type="button" 
+            @click="showReopenModal = false"
+            :disabled="isReopening"
+            class="px-3.5 py-2 text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors cursor-pointer"
+          >
+            Cancelar
+          </button>
+          <button 
+            type="button" 
+            @click="handleReopenInforme"
+            :disabled="isReopening"
+            class="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white font-extrabold text-xs rounded-xl shadow-xs transition-all flex items-center gap-1.5 active:scale-98 cursor-pointer disabled:opacity-50"
+          >
+            <span>{{ isReopening ? 'Reabriendo...' : '✓ Confirmar Reapertura' }}</span>
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { supabase } from '../../services/supabase';
 import { useToast } from 'vue-toastification';
 import EmailReporteModal from '../../components/logistica/EmailReporteModal.vue';
@@ -487,9 +553,13 @@ import {
 } from '../../services/logisticaReportHelpers';
 
 const route = useRoute();
+const router = useRouter();
 const toast = useToast();
 const loading = ref(true);
 const showEmailModal = ref(false);
+const showReopenModal = ref(false);
+const isReopening = ref(false);
+const reopenReason = ref('');
 const reportContentRef = ref(null);
 const isExportingPDF = ref(false);
 
@@ -1018,6 +1088,30 @@ const copyDirectToEmailClipboard = async () => {
   } catch (err) {
     console.error(err);
     toast.error('No se pudo copiar la tabla: ' + err.message);
+  }
+};
+
+const handleReopenInforme = async () => {
+  if (!informe.value?.id) return;
+  try {
+    isReopening.value = true;
+    const { data: res, error } = await supabase.rpc('reabrir_informe_logistica', {
+      p_informe_id: informe.value.id,
+      p_motivo: reopenReason.value.trim() || null
+    });
+
+    if (error) throw error;
+    if (res && !res.success) {
+      throw new Error(res.error || 'No se pudo reabrir el informe');
+    }
+
+    toast.success('Jornada reabierta exitosamente.');
+    showReopenModal.value = false;
+    router.push({ name: 'LogisticaNuevoInforme', query: { id: informe.value.id } });
+  } catch (err) {
+    toast.error('Error al reabrir el informe: ' + (err.message || 'Error inesperado'));
+  } finally {
+    isReopening.value = false;
   }
 };
 </script>

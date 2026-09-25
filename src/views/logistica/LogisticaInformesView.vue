@@ -171,20 +171,27 @@
             <span>Continuar Editando Borrador de Hoy</span>
           </router-link>
 
-          <router-link 
-            v-else-if="todayInforme && todayInforme.estado === 'enviado'"
-            :to="{ name: 'LogisticaDetalleInforme', params: { id: todayInforme.id } }"
-            class="py-3.5 px-4 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-white font-extrabold text-xs rounded-xl flex items-center justify-center gap-2 transition-all min-h-[44px]"
-          >
-            <span>Ver Informe Enviado de Hoy</span>
-          </router-link>
+          <template v-else-if="todayInforme && todayInforme.estado === 'enviado'">
+            <router-link 
+              :to="{ name: 'LogisticaDetalleInforme', params: { id: todayInforme.id } }" 
+              class="py-3.5 px-4 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-white font-extrabold text-xs rounded-xl flex items-center justify-center gap-2 transition-all min-h-[44px]"
+            >
+              <span>Ver Informe Enviado de Hoy</span>
+            </router-link>
+
+            <button 
+              type="button" 
+              @click="reabrirTodayInforme"
+              class="py-3.5 px-4 bg-amber-600 hover:bg-amber-700 text-white font-extrabold text-xs rounded-xl shadow-xs flex items-center justify-center gap-2 transition-all active:scale-98 min-h-[44px] cursor-pointer"
+            >
+              <span>🔓 Reabrir y Agregar Movimientos</span>
+            </button>
+          </template>
 
           <router-link 
+            v-if="!todayInforme"
             :to="{ name: 'LogisticaNuevoInforme', query: { mode: 'new' } }"
-            :class="[
-              'py-3.5 px-4 font-extrabold text-xs rounded-xl shadow-xs flex items-center justify-center gap-2 transition-all active:scale-98 min-h-[44px]',
-              (!todayInforme || todayInforme.estado === 'enviado') ? 'bg-blue-600 hover:bg-blue-700 text-white sm:col-span-2' : 'bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700'
-            ]"
+            class="py-3.5 px-4 bg-blue-600 hover:bg-blue-700 text-white sm:col-span-2 font-extrabold text-xs rounded-xl shadow-xs flex items-center justify-center gap-2 transition-all active:scale-98 min-h-[44px]"
           >
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
             <span>Crear Informe Diario Nuevo</span>
@@ -357,9 +364,11 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import { supabase } from '../../services/supabase';
 import { useToast } from 'vue-toastification';
 
+const router = useRouter();
 const toast = useToast();
 const userName = ref('Usuario Logística');
 const userRole = ref('logistica');
@@ -522,6 +531,24 @@ const deleteDraft = async (draftId) => {
     await fetchDashboardData();
   } catch (err) {
     toast.error('Error al eliminar borrador: ' + err.message);
+  }
+};
+
+const reabrirTodayInforme = async () => {
+  if (!todayInforme.value?.id) return;
+  try {
+    const { data: res, error } = await supabase.rpc('reabrir_informe_logistica', {
+      p_informe_id: todayInforme.value.id,
+      p_motivo: 'Reapertura desde panel de inicio de logística'
+    });
+
+    if (error) throw error;
+    if (res && !res.success) throw new Error(res.error || 'No se pudo reabrir');
+
+    toast.success('Jornada de hoy reabierta exitosamente.');
+    router.push({ name: 'LogisticaNuevoInforme', query: { id: todayInforme.value.id } });
+  } catch (err) {
+    toast.error('Error al reabrir la jornada: ' + (err.message || 'Error inesperado'));
   }
 };
 

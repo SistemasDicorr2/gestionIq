@@ -257,6 +257,26 @@
           </span>
         </div>
 
+        <!-- BANNER ADVERTENCIA FECHA ANTERIOR (NO ES HOY) -->
+        <div v-if="informe.fecha && informe.fecha !== todayISO" class="p-3 bg-sky-50 dark:bg-sky-950/50 border border-sky-300 dark:border-sky-800 rounded-xl text-xs text-sky-950 dark:text-sky-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5 animate-fadeIn">
+          <div class="flex items-start gap-2">
+            <span class="text-base shrink-0">📅</span>
+            <div class="space-y-0.5">
+              <span class="font-black text-xs block text-sky-900 dark:text-sky-100">Borrador del {{ formatDate(informe.fecha) }} (Fecha anterior)</span>
+              <p class="text-[11px] text-sky-800 dark:text-sky-300">
+                Estás editando una jornada anterior. Si estos movimientos son de hoy ({{ formatDate(todayISO) }}), podés reasignarlos con un clic.
+              </p>
+            </div>
+          </div>
+          <button 
+            type="button" 
+            @click="moverBorradorAHoy"
+            class="px-3 py-1.5 bg-sky-600 hover:bg-sky-700 text-white font-extrabold text-[11px] rounded-lg shadow-2xs transition-all cursor-pointer shrink-0 active:scale-95"
+          >
+            Pasar a Hoy ({{ formatDate(todayISO) }})
+          </button>
+        </div>
+
         <!-- ESTADO COLAPSADO DE LA JORNADA -->
         <div v-if="isJornadaCollapsed && informe.fecha" class="p-3.5 bg-slate-50 dark:bg-slate-800/80 rounded-xl border border-slate-200 dark:border-slate-700 flex items-center justify-between animate-fadeIn gap-3">
           <div class="flex items-center gap-3 text-xs flex-wrap">
@@ -268,7 +288,7 @@
             @click="isJornadaCollapsed = false" 
             class="px-3.5 py-1.5 text-xs font-extrabold text-blue-600 dark:text-blue-400 bg-white dark:bg-slate-900 border border-blue-200 dark:border-blue-800 rounded-lg hover:bg-blue-50 transition-all cursor-pointer active:scale-95 flex-shrink-0"
           >
-            Cambiar
+            Cambiar Fecha / Zona
           </button>
         </div>
 
@@ -310,22 +330,40 @@
           </div>
 
           <!-- BANNER ADVERTENCIA JORNADA YA ENVIADA -->
-          <div v-if="enviadoExistente" class="p-3 bg-amber-50 dark:bg-amber-950/60 border border-amber-300 dark:border-amber-800 rounded-xl text-xs text-amber-900 dark:text-amber-200 flex items-start gap-2 animate-fadeIn mt-1">
-            <svg class="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-            <div class="space-y-1">
-              <span class="font-extrabold block text-xs">⚠️ Atención: Jornada ya enviada</span>
-              <p class="text-[11px] leading-relaxed opacity-90">
-                Ya existe un informe formal enviado para la fecha {{ formatDate(enviadoExistente.fecha) }}. No es posible enviar dos informes para la misma fecha. Podés ver o editar el informe enviado o seleccionar otra fecha de jornada.
-              </p>
-              <div class="pt-0.5 flex items-center gap-3">
-                <router-link 
-                  :to="{ name: 'LogisticaDetalleInforme', params: { id: enviadoExistente.id } }" 
-                  class="text-[11px] font-extrabold text-amber-800 dark:text-amber-300 underline hover:opacity-80 flex items-center gap-1"
-                >
-                  <span>Ver informe enviado de esta fecha</span>
-                  <span>→</span>
-                </router-link>
+          <div v-if="enviadoExistente" class="p-3.5 bg-rose-50 dark:bg-rose-950/60 border border-rose-300 dark:border-rose-800 rounded-xl text-xs text-rose-950 dark:text-rose-200 space-y-2.5 animate-fadeIn mt-1">
+            <div class="flex items-start gap-2.5">
+              <svg class="w-5 h-5 text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+              <div class="space-y-1">
+                <span class="font-black block text-xs uppercase tracking-wide text-rose-900 dark:text-rose-200">⚠️ Atención: Jornada ya enviada y cerrada</span>
+                <p class="text-[11px] leading-relaxed text-rose-800 dark:text-rose-300">
+                  Ya existe un informe formal enviado para la fecha <strong>{{ formatDate(enviadoExistente.fecha) }}</strong>. No es posible crear ni guardar nuevos borradores para esta fecha porque ya fue finalizada.
+                </p>
               </div>
+            </div>
+
+            <div class="pt-1 flex flex-wrap items-center gap-2.5 border-t border-rose-200/80 dark:border-rose-900/60">
+              <button 
+                type="button" 
+                @click="reabrirJornadaEnviada(enviadoExistente.id)"
+                class="px-3.5 py-1.5 bg-amber-600 hover:bg-amber-700 text-white font-extrabold text-xs rounded-lg transition-all cursor-pointer shadow-2xs active:scale-95 flex items-center gap-1"
+              >
+                <span>🔓 Reabrir esta jornada para editar</span>
+              </button>
+              <button 
+                v-if="informe.fecha !== todayISO"
+                type="button" 
+                @click="moverBorradorAHoy" 
+                class="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-xs rounded-lg transition-all cursor-pointer shadow-2xs active:scale-95"
+              >
+                🔄 Pasar movimientos a Hoy ({{ formatDate(todayISO) }})
+              </button>
+              <router-link 
+                :to="{ name: 'LogisticaDetalleInforme', params: { id: enviadoExistente.id } }" 
+                class="text-xs font-extrabold text-rose-800 dark:text-rose-300 underline hover:opacity-80 flex items-center gap-1"
+              >
+                <span>Ver informe enviado</span>
+                <span>→</span>
+              </router-link>
             </div>
           </div>
         </div>
@@ -1309,6 +1347,50 @@ const checkEnviadoForDate = async (fecha) => {
   }
 };
 
+const moverBorradorAHoy = async () => {
+  if (informe.fecha === todayISO) return;
+  
+  clearTimeout(autoSaveTimer);
+  const prevId = informe.id;
+  informe.fecha = todayISO;
+  informe.id = null; // Desvincular de la fecha anterior para crear o enlazar la jornada de hoy
+  baseVersion.value = 1;
+  remoteVersion.value = null;
+  enviadoExistente.value = null;
+  
+  await checkEnviadoForDate(todayISO);
+  if (enviadoExistente.value) {
+    toast.warning(`La jornada de hoy (${formatDate(todayISO)}) ya cuenta con un informe formal enviado.`);
+    return;
+  }
+  
+  toast.info(`Fecha reasignada a hoy (${formatDate(todayISO)}). Guardando borrador...`);
+  await saveDraftInternal(false, 'move_to_today', true);
+};
+
+const reabrirJornadaEnviada = async (informeId) => {
+  if (!informeId) return;
+  try {
+    loading.value = true;
+    const { data: res, error } = await supabase.rpc('reabrir_informe_logistica', {
+      p_informe_id: informeId,
+      p_motivo: 'Reapertura desde formulario de nuevo informe'
+    });
+
+    if (error) throw error;
+    if (res && !res.success) throw new Error(res.error || 'No se pudo reabrir la jornada');
+
+    toast.success('Jornada reabierta exitosamente. Podés continuar agregando movimientos.');
+    enviadoExistente.value = null;
+    await loadDraftData(informeId);
+    await fetchUserDrafts(informe.responsable_user_id);
+  } catch (err) {
+    toast.error('Error al reabrir la jornada: ' + (err.message || 'Error inesperado'));
+  } finally {
+    loading.value = false;
+  }
+};
+
 const moveMovementUp = (idx) => {
   if (idx <= 0) return;
   const temp = movimientos.value[idx];
@@ -1494,6 +1576,7 @@ const scheduleAutoSave = (delayMs = 1200, reason = 'user_mutation') => {
   // Guardia estricta: Autoguardado completamente desactivado durante hidratación o conflicto
   if (loading.value || hydrationState.value !== 'ready' || isSending.value || isDeletingDraft.value || informe.estado === 'enviado' || !informe.responsable_user_id) return;
   if (isAdminViewingOtherDraft.value && !adminEditEnabled.value) return;
+  if (enviadoExistente.value) return; // No intentar autoguardar en jornadas ya cerradas/enviadas
 
   // 1. Respaldo local ultra-rápido en dispositivo (0ms)
   saveLocalBackup();
@@ -1971,6 +2054,11 @@ const confirmManualForm = () => {
 };
 
 const addMovementToList = () => {
+  if (enviadoExistente.value) {
+    toast.error('No es posible agregar movimientos: ya existe un informe enviado para esta fecha. Cambiá la fecha de la jornada.');
+    return;
+  }
+
   if ((builder.tipo_movimiento === 'Incidencia' || builder.tipo_movimiento === 'Otra gestión') && !builder.detalle_incidencia_o_gestion.trim()) {
     toast.error(`Ingresa el detalle de la ${builder.tipo_movimiento.toLowerCase()}.`);
     return;
@@ -2437,7 +2525,17 @@ onMounted(async () => {
     if (targetInformeId) {
       draftToLoadId = targetInformeId;
     } else if (!isExplicitNew && userDrafts.value.length > 0) {
-      draftToLoadId = userDrafts.value[0].id;
+      // Priorizar borrador que coincida con la fecha de hoy
+      const todayDraft = userDrafts.value.find(d => d.fecha === todayISO);
+      if (todayDraft) {
+        draftToLoadId = todayDraft.id;
+      }
+      // Si solo existen borradores de fechas anteriores, NO auto-cargarlos silenciosamente
+      // para evitar que el operador cargue datos de hoy sobre una fecha vieja sin darse cuenta.
+    }
+
+    if (!targetInformeId && !isExplicitNew && userDrafts.value.length > 0 && !draftToLoadId) {
+      toast.info(`Tienes ${userDrafts.value.length} ${userDrafts.value.length === 1 ? 'borrador guardado de una fecha anterior' : 'borradores de fechas anteriores'}. Podés seleccionarlo desde "Cambiar Borrador".`, { timeout: 5000 });
     }
 
     let remoteDraft = null;
@@ -2624,6 +2722,13 @@ const saveDraftInternal = async (isSilent = false, reason = 'user_mutation', for
   if (!informe.responsable_user_id) return false;
   if (isAdminViewingOtherDraft.value && !adminEditEnabled.value) return false;
 
+  // No intentar sincronizar con el backend si la fecha ya cuenta con informe enviado (a menos que sea forceOverride de reasignación)
+  if (enviadoExistente.value && !forceOverride) {
+    logDraftTrace('saveDraftInternal_aborted_enviado_existente', { fecha: informe.fecha, reason });
+    autoSaveStatus.value = 'idle';
+    return false;
+  }
+
   // Nunca sincronizar un estado vacío inicial sin ID, sin movimientos y sin observaciones
   if (!informe.id && movimientos.value.length === 0 && !informe.observacion_general.trim()) {
     logDraftTrace('saveDraftInternal_aborted_empty_state', { reason });
@@ -2710,7 +2815,8 @@ const saveDraftInternal = async (isSilent = false, reason = 'user_mutation', for
       p_observacion_general: informe.observacion_general || null,
       p_movimientos: movimientosPayload,
       p_expected_version: forceOverride ? null : (baseVersion.value || null),
-      p_deleted_movement_ids: deletedIdsToSend
+      p_deleted_movement_ids: deletedIdsToSend,
+      p_force_override: !!forceOverride
     });
 
     if (rpcErr) throw rpcErr;
