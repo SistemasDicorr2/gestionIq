@@ -208,6 +208,38 @@
       </GlowCard>
     </div>
 
+    <!-- Configuración de Avisos y Notificaciones de Pago -->
+    <GlowCard class="p-5 sm:p-6 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-2xl shadow-md" glow-color="rgba(37, 99, 235, 0.08)">
+      <div class="flex items-center justify-between gap-3 mb-4">
+        <h3 class="text-sm sm:text-base font-black text-slate-950 dark:text-white flex items-center gap-2">
+          <BellRing class="w-4 h-4 text-blue-600 dark:text-blue-400" />
+          Avisos y Notificaciones de Liquidación
+        </h3>
+        <button 
+          @click="$emit('openNotificationsModal')" 
+          type="button"
+          class="px-3 py-1.5 rounded-xl text-xs font-black text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/60 hover:bg-blue-100 dark:hover:bg-blue-900/50 transition cursor-pointer border border-blue-200 dark:border-blue-800"
+        >
+          ⚙️ Configurar avisos
+        </button>
+      </div>
+      <div class="grid gap-3 sm:grid-cols-2 text-xs sm:text-sm">
+        <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-950/50 border border-slate-300 dark:border-slate-800">
+          <p class="text-[10px] font-black tracking-wider uppercase text-slate-700 dark:text-slate-300">Notificaciones Push al Dispositivo</p>
+          <p class="mt-1 font-black text-slate-950 dark:text-white flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+            <span>Avisos habilitados en este navegador</span>
+          </p>
+        </div>
+        <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-950/50 border border-slate-300 dark:border-slate-800">
+          <p class="text-[10px] font-black tracking-wider uppercase text-slate-700 dark:text-slate-300">Correo Electrónico para Avisos</p>
+          <p class="mt-1 font-black text-slate-950 dark:text-white truncate">
+            {{ info?.email || 'Sin correo registrado (podés agregarlo al configurar)' }}
+          </p>
+        </div>
+      </div>
+    </GlowCard>
+
     <!-- Botón de Actualización por WhatsApp -->
     <div class="flex justify-center pt-2 sm:justify-start">
       <a 
@@ -238,7 +270,8 @@ import {
   Building2, 
   User, 
   Landmark, 
-  MessageCircle 
+  MessageCircle,
+  BellRing
 } from 'lucide-vue-next';
 
 const props = defineProps({
@@ -252,7 +285,7 @@ const props = defineProps({
   }
 });
 
-const emit = defineEmits(['openAccessHistory']);
+const emit = defineEmits(['openAccessHistory', 'openNotificationsModal']);
 
 // Calcula las iniciales para la foto de perfil vacía
 const iniciales = computed(() => {

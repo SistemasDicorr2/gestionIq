@@ -18,6 +18,10 @@
       </div>
 
       <div v-if="activeTab === 'lista'" class="flex items-center gap-2.5 w-full sm:w-auto">
+        <button @click="isEmailPreviewOpen = true" class="btn-secondary flex-1 sm:flex-none flex items-center justify-center gap-1.5 text-xs" title="Ver diseño y enviar prueba de email vía Resend">
+          <EnvelopeIcon class="w-4 h-4 text-blue-500" />
+          <span>Vista Previa Email</span>
+        </button>
         <button @click="openImportModal" class="btn-secondary flex-1 sm:flex-none flex items-center justify-center gap-1.5 text-xs">
           <ArrowUpTrayIcon class="w-4 h-4 text-slate-500" />
           <span>Importar XLS</span>
@@ -125,24 +129,35 @@
                     </span>
                   </td>
 
-                  <!-- Acceso al Portal (ENLACES EXPUESTOS) -->
+                  <!-- Acceso al Portal (ENLACES EXPUESTOS Y CANALES) -->
                   <td class="px-6 py-4 whitespace-nowrap text-center">
                     <div class="inline-flex items-center gap-1 bg-slate-50 dark:bg-slate-900/60 p-1 rounded-xl border border-slate-200 dark:border-slate-700">
+                      <!-- Copiar Aviso de Notificaciones (1 Clic) -->
+                      <button 
+                        @click="copyNotificationInvite(iq)"
+                        title="Copiar texto para activar notificaciones (Link + DNI + Leyenda)"
+                        class="px-2 py-1.5 text-xs font-bold text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/60 hover:bg-blue-100 dark:hover:bg-blue-900/40 rounded-lg transition-all flex items-center gap-1 shadow-xs border border-blue-200/80 dark:border-blue-800/60"
+                      >
+                        <CheckIcon v-if="copiedNotifDni === iq.dni" class="w-3.5 h-3.5 text-emerald-600" />
+                        <BellIcon v-else class="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 animate-pulse" />
+                        <span class="text-[11px]">{{ copiedNotifDni === iq.dni ? '¡Copiado!' : '+ Aviso' }}</span>
+                      </button>
+
                       <!-- Copiar Link -->
                       <button 
                         @click="copyPermanentLink(iq)"
-                        title="Copiar Enlace del Portal"
-                        class="px-2.5 py-1.5 text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-white dark:hover:bg-slate-700 rounded-lg transition-all flex items-center gap-1 shadow-sm"
+                        title="Copiar solo enlace"
+                        class="px-2 py-1.5 text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-white dark:hover:bg-slate-700 rounded-lg transition-all flex items-center gap-1 shadow-sm"
                       >
                         <CheckIcon v-if="copiedDni === iq.dni" class="w-3.5 h-3.5 text-emerald-600" />
                         <ClipboardDocumentIcon v-else class="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
-                        <span class="text-[11px]">{{ copiedDni === iq.dni ? 'Copiado' : 'Link' }}</span>
+                        <span class="text-[11px]">{{ copiedDni === iq.dni ? 'Listo' : 'Link' }}</span>
                       </button>
 
-                      <!-- WhatsApp -->
+                      <!-- Abrir Modal de Compartir / Personalizar -->
                       <button 
-                        @click="shareViaWhatsApp(iq)"
-                        title="Enviar por WhatsApp"
+                        @click="openShareModal(iq)"
+                        title="Personalizar o enviar por WhatsApp"
                         class="p-1.5 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 rounded-lg transition-all"
                       >
                         <ChatBubbleLeftEllipsisIcon class="w-4 h-4" />
@@ -159,8 +174,31 @@
                       </button>
                     </div>
 
+                    <!-- Canales de Notificación: Push & Email -->
+                    <div class="mt-1 flex items-center justify-center gap-1.5 flex-wrap">
+                      <!-- Push -->
+                      <span 
+                        :class="iq.has_push ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800' : 'bg-slate-50 text-slate-400 dark:bg-slate-900/60 dark:text-slate-500 border-slate-200 dark:border-slate-800'"
+                        class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] border font-bold"
+                        :title="iq.has_push ? 'Notificaciones Push activas' : 'Notificaciones Push no activadas'"
+                      >
+                        <span :class="iq.has_push ? 'bg-emerald-500' : 'bg-slate-300 dark:bg-slate-600'" class="w-1.5 h-1.5 rounded-full"></span>
+                        Push: {{ iq.has_push ? 'Sí' : 'No' }}
+                      </span>
+
+                      <!-- Email -->
+                      <span 
+                        :class="iq.has_email ? 'bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 border-blue-200 dark:border-blue-800' : 'bg-slate-50 text-slate-400 dark:bg-slate-900/60 dark:text-slate-500 border-slate-200 dark:border-slate-800'"
+                        class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] border font-bold"
+                        :title="iq.has_email ? `Email registrado: ${iq.email}` : 'Sin email registrado'"
+                      >
+                        <span :class="iq.has_email ? 'bg-blue-500' : 'bg-slate-300 dark:bg-slate-600'" class="w-1.5 h-1.5 rounded-full"></span>
+                        Email: {{ iq.has_email ? 'Sí' : 'No' }}
+                      </span>
+                    </div>
+
                     <!-- Indicador visual de Último Ingreso -->
-                    <div class="mt-1.5 flex items-center justify-center gap-1" :title="formatFullDate(iq.ultimo_ingreso)">
+                    <div class="mt-1 flex items-center justify-center gap-1" :title="formatFullDate(iq.ultimo_ingreso)">
                       <span v-if="iq.ultimo_ingreso" class="inline-flex items-center gap-1 text-[11px] font-medium text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/50 px-2 py-0.5 rounded-full border border-amber-200/70 dark:border-amber-900/40">
                         <ClockIcon class="w-3 h-3 text-amber-500 shrink-0" />
                         <span>{{ formatRelativeTime(iq.ultimo_ingreso) }}</span>
@@ -263,30 +301,68 @@
                 </div>
               </div>
               
-              <div class="grid grid-cols-3 gap-2">
+              <div class="grid grid-cols-5 gap-1">
+                <!-- Copiar Aviso Notificaciones (Link + Leyenda) -->
+                <button 
+                  @click="copyNotificationInvite(iq)"
+                  class="px-1 py-1.5 bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800 rounded-lg text-xs font-bold flex flex-col items-center justify-center gap-0.5 shadow-xs"
+                  title="Copiar texto para activar notificaciones"
+                >
+                  <CheckIcon v-if="copiedNotifDni === iq.dni" class="w-3.5 h-3.5 text-emerald-600" />
+                  <BellIcon v-else class="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 animate-pulse" />
+                  <span class="text-[10px]">{{ copiedNotifDni === iq.dni ? 'Listo' : 'Aviso' }}</span>
+                </button>
+
+                <!-- Copiar Enlace Directo -->
                 <button 
                   @click="copyPermanentLink(iq)"
-                  class="px-2 py-1.5 bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-700/60 rounded-lg text-xs font-semibold flex items-center justify-center gap-1 shadow-sm"
+                  class="px-1 py-1.5 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700/60 rounded-lg text-xs font-medium flex flex-col items-center justify-center gap-0.5 shadow-xs"
+                  title="Copiar Solo Link"
                 >
-                  <ClipboardDocumentIcon class="w-3.5 h-3.5" />
-                  <span>{{ copiedDni === iq.dni ? '¡Listo!' : 'Copiar' }}</span>
+                  <CheckIcon v-if="copiedDni === iq.dni" class="w-3.5 h-3.5 text-emerald-600" />
+                  <ClipboardDocumentIcon v-else class="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
+                  <span class="text-[10px]">{{ copiedDni === iq.dni ? 'Listo' : 'Link' }}</span>
                 </button>
 
+                <!-- Modal Personalizado / WhatsApp -->
+                <button 
+                  @click="openShareModal(iq)"
+                  class="px-1 py-1.5 bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 rounded-lg text-xs font-semibold flex flex-col items-center justify-center gap-0.5 shadow-xs"
+                  title="Compartir o Personalizar Mensaje"
+                >
+                  <ChatBubbleLeftEllipsisIcon class="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
+                  <span class="text-[10px]">Mensaje</span>
+                </button>
+
+                <!-- WhatsApp Directo -->
                 <button 
                   @click="shareViaWhatsApp(iq)"
-                  class="px-2 py-1.5 bg-emerald-600 text-white rounded-lg text-xs font-semibold flex items-center justify-center gap-1 shadow-sm"
+                  class="px-1 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold flex flex-col items-center justify-center gap-0.5 shadow-xs"
+                  title="Enviar por WhatsApp"
                 >
-                  <ChatBubbleLeftEllipsisIcon class="w-3.5 h-3.5" />
-                  <span>WhatsApp</span>
+                  <ChatBubbleLeftRightIcon class="w-3.5 h-3.5" />
+                  <span class="text-[10px]">WApp</span>
                 </button>
 
+                <!-- Abrir Portal -->
                 <button 
                   @click="openPortalDirect(iq)"
-                  class="px-2 py-1.5 bg-slate-200 dark:bg-slate-600 text-slate-700 dark:text-slate-200 rounded-lg text-xs font-semibold flex items-center justify-center gap-1"
+                  class="px-1 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-lg text-xs font-semibold flex flex-col items-center justify-center gap-0.5"
+                  title="Ver Portal"
                 >
                   <ArrowTopRightOnSquareIcon class="w-3.5 h-3.5" />
-                  <span>Ver</span>
+                  <span class="text-[10px]">Ver</span>
                 </button>
+              </div>
+
+              <!-- Canales Activos Mobile -->
+              <div class="flex items-center justify-between pt-1 text-[10px] font-bold border-t border-indigo-100/60 dark:border-slate-700">
+                <span :class="iq.has_push ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400'">
+                  ● Push: {{ iq.has_push ? 'Sí' : 'No' }}
+                </span>
+                <span :class="iq.has_email ? 'text-blue-600 dark:text-blue-400' : 'text-slate-400'">
+                  ● Email: {{ iq.has_email ? 'Sí' : 'No' }}
+                </span>
               </div>
             </div>
 
@@ -430,6 +506,8 @@
     <NewInstrumentadorModal :show="isNewModalOpen" @close="isNewModalOpen = false" @created="handleUpdate"/>
     <ImportInstrumentadoresModal :show="isImportModalOpen" @close="isImportModalOpen = false" @imported="handleUpdate"/>
     <AccessHistoryModal :show="isAccessModalOpen" :token="selectedAccessToken" :dni="selectedAccessDni" @close="isAccessModalOpen = false" />
+    <ModalCompartirNotificaciones :show="isShareModalOpen" :instrumentador="selectedShareInstrumentador" :token="selectedShareToken" @close="isShareModalOpen = false" />
+    <EmailComprobantePreviewModal :show="isEmailPreviewOpen" @close="isEmailPreviewOpen = false" />
   </div>
 </template>
 
@@ -447,6 +525,8 @@ import EstadisticasInstrumentadorModal from '../components/EstadisticasInstrumen
 import NewInstrumentadorModal from '../components/NewInstrumentadorModal.vue';
 import ImportInstrumentadoresModal from '../components/ImportInstrumentadoresModal.vue';
 import AccessHistoryModal from '../components/AccessHistoryModal.vue';
+import ModalCompartirNotificaciones from '../components/admin/ModalCompartirNotificaciones.vue';
+import EmailComprobantePreviewModal from '../components/admin/EmailComprobantePreviewModal.vue';
 import PaginationControls from '../components/PaginationControls.vue';
 import InstrumentadoresFilters from '../components/InstrumentadoresFilters.vue';
 
@@ -458,18 +538,20 @@ import {
   ClockIcon, 
   ChatBubbleLeftRightIcon, 
   ClipboardDocumentListIcon, 
-  ExclamationTriangleIcon,
-  PlusIcon,
-  ArrowUpTrayIcon,
-  TrophyIcon,
-  LinkIcon,
-  ClipboardDocumentIcon,
-  CheckIcon,
-  ChatBubbleLeftEllipsisIcon,
-  ArrowTopRightOnSquareIcon,
-  PencilSquareIcon,
-  SparklesIcon,
-  DocumentArrowDownIcon
+  ExclamationTriangleIcon, 
+  PlusIcon, 
+  ArrowUpTrayIcon, 
+  TrophyIcon, 
+  LinkIcon, 
+  ClipboardDocumentIcon, 
+  CheckIcon, 
+  ChatBubbleLeftEllipsisIcon, 
+  ArrowTopRightOnSquareIcon, 
+  PencilSquareIcon, 
+  SparklesIcon, 
+  DocumentArrowDownIcon, 
+  EnvelopeIcon,
+  BellIcon
 } from '@heroicons/vue/24/outline';
 
 const { showSuccessToast, showErrorToast } = useToasts();
@@ -488,6 +570,11 @@ const selectedInstrumentador = ref(null);
 const currentPage = ref(1);
 const itemsPerPage = ref(10);
 const copiedDni = ref(null);
+const copiedNotifDni = ref(null);
+const isShareModalOpen = ref(false);
+const isEmailPreviewOpen = ref(false);
+const selectedShareInstrumentador = ref(null);
+const selectedShareToken = ref('');
 
 const openAccessHistoryModal = (iq) => {
   selectedAccessDni.value = iq.dni || '';
@@ -617,7 +704,7 @@ const fetchInstrumentadores = async () => {
     }
 
     const list = data || [];
-    // Enriquecer cada instrumentador con score unificado e historial de ingresos
+    // Enriquecer cada instrumentador con score unificado, historial de ingresos y estado de canales
     instrumentadores.value = list.map(iq => {
       const dniStr = String(iq.dni || '').trim();
       let unifiedIvo = 0;
@@ -633,12 +720,17 @@ const fetchInstrumentadores = async () => {
       }
 
       const accessInfo = accessMap.get(dniStr) || { ultimo_ingreso: null, total_ingresos: 0 };
+      const hasEmail = Boolean(iq.email && String(iq.email).trim().includes('@'));
+      // Solo marcar 'Sí' si el instrumentador otorgó/activó explícitamente el permiso de notificaciones push
+      const hasPush = Boolean(typeof localStorage !== 'undefined' && localStorage.getItem(`gestion_iq_push_optin_${dniStr}`) === 'granted');
 
       return {
         ...iq,
         ivo_score: unifiedIvo,
         ultimo_ingreso: accessInfo.ultimo_ingreso,
-        total_ingresos: accessInfo.total_ingresos
+        total_ingresos: accessInfo.total_ingresos,
+        has_email: hasEmail,
+        has_push: hasPush
       };
     });
   } catch (err) {
@@ -759,6 +851,51 @@ const copyPermanentLink = async (instrumentador) => {
     setTimeout(() => { copiedDni.value = null; }, 2000);
   } catch (err) {
     showErrorToast(err, 'No se pudo copiar el enlace.');
+  }
+};
+
+const openShareModal = async (instrumentador) => {
+  const token = await getOrCreateToken(instrumentador);
+  selectedShareInstrumentador.value = instrumentador;
+  selectedShareToken.value = token || '';
+  isShareModalOpen.value = true;
+};
+
+const copyNotificationInvite = async (instrumentador) => {
+  const token = await getOrCreateToken(instrumentador);
+  if (!token) return;
+  const url = `${window.location.origin}/resumen/${token}`;
+  const firstName = instrumentador.nombre_completo ? capitalizeName(instrumentador.nombre_completo.split(' ')[0]) : 'Estimado/a';
+  const dni = instrumentador.dni || '';
+  const message = `🔔 *Gestión IQ · Activación de Avisos de Pago*\n\nHola *${firstName}*, desde Districorr habilitamos las notificaciones automáticas para que recibas un aviso en tu celular cada vez que se liquide y cargue un comprobante de pago de tus cirugías.\n\n👉 *Ingresá aquí para activar tus avisos:*\n🔗 ${url}?notif=1\n\n🔒 *Tu DNI de acceso:* ${dni}\n\n_Al entrar, tocá en "Activar notificaciones" y seleccioná "Permitir" en tu navegador._`;
+
+  try {
+    await navigator.clipboard.writeText(message);
+    copiedNotifDni.value = instrumentador.dni;
+    showSuccessToast(`¡Aviso de notificaciones copiado para ${capitalizeName(instrumentador.nombre_completo)}!`);
+    setTimeout(() => { copiedNotifDni.value = null; }, 2000);
+  } catch (err) {
+    showErrorToast(err, 'No se pudo copiar el aviso.');
+  }
+};
+
+const copiedMsgDni = ref(null);
+
+const copyFullInvitationMessage = async (instrumentador) => {
+  const token = await getOrCreateToken(instrumentador);
+  if (!token) return;
+  const url = `${window.location.origin}/resumen/${token}`;
+  const firstName = instrumentador.nombre_completo ? capitalizeName(instrumentador.nombre_completo.split(' ')[0]) : 'Estimado/a';
+  const dniText = instrumentador.dni ? `🔒 Ingreso con tu DNI: ${instrumentador.dni}\n` : '';
+  const message = `Hola ${firstName}, te compartimos tu enlace de acceso oficial al Portal de Gestión IQ para que puedas consultar tus cirugías y comprobantes de liquidación:\n\n🔗 Enlace de acceso: ${url}\n${dniText}\n💡 Al ingresar por primera vez, podés activar las notificaciones push o por correo para enterarte en cuanto se suba un comprobante.`;
+
+  try {
+    await navigator.clipboard.writeText(message);
+    copiedMsgDni.value = instrumentador.dni;
+    showSuccessToast(`¡Mensaje de invitación copiado para ${capitalizeName(instrumentador.nombre_completo)}!`);
+    setTimeout(() => { copiedMsgDni.value = null; }, 2000);
+  } catch (err) {
+    showErrorToast(err, 'No se pudo copiar el mensaje.');
   }
 };
 

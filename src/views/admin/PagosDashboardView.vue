@@ -516,6 +516,7 @@ import FileUpload from '../../components/uploader/FileUpload.vue';
 import PostPagoModal from '../../components/PostPagoModal.vue';
 import ModalRegularizacionAntiguos from '../../components/admin/ModalRegularizacionAntiguos.vue';
 import ModalResumenPendientesImprimible from '../../components/admin/ModalResumenPendientesImprimible.vue';
+import { notificarComprobanteAInstrumentador } from '../../services/comprobanteNotificationService';
 
 const { showSuccessToast, showErrorToast, showInfoToast, showLoadingToast, updateToast } = useToasts();
 
@@ -1219,10 +1220,35 @@ const registrarPago = async () => {
       throw new Error("No hay pagos válidos para registrar (verifique asignación de instrumentadores).");
     }
 
-    const { error: rpcError } = await supabase.rpc('registrar_orden_de_pago', { p_orden: ordenDePago });
+    const { data: newOrdenId, error: rpcError } = await supabase.rpc('registrar_orden_de_pago', { p_orden: ordenDePago });
     if (rpcError) throw rpcError;
 
     updateToast(toastId, "¡Orden de pago registrada con éxito!", 'success');
+
+    // Notificación multicanal automática (Resend Email + Web Push) si hay comprobante adjunto
+    if (objectKey) {
+      ordenDePago.pagos.forEach(pago => {
+        const inst = paymentSummary.value.instrumentadores.find(i => i.dni === pago.instrumentador_dni);
+        const nombresPacientes = Array.isArray(pago.cirugias) 
+          ? pago.cirugias.map(c => {
+              const pName = c.paciente_nombre || c.paciente || '';
+              const instName = c.institucion || c.sanatorio ? `(${c.institucion || c.sanatorio})` : '';
+              return [pName, instName].filter(Boolean).join(' ') || 'Cirugía realizada';
+            })
+          : [];
+
+        notificarComprobanteAInstrumentador({
+          instrumentadorDni: pago.instrumentador_dni,
+          instrumentadorNombre: inst?.nombre,
+          montoTotal: pago.monto_total_instrumentador,
+          fechaEmision: new Date().toISOString().split('T')[0],
+          cirugiasCount: pago.cirugias?.length || 0,
+          pacientes: nombresPacientes,
+          ordenId: newOrdenId,
+          comprobanteObjectKey: objectKey
+        }).catch(err => console.warn('[NotificacionComprobante] Error silencioso:', err));
+      });
+    }
     
     lastPaymentData.value = JSON.parse(JSON.stringify(paymentSummary.value));
     

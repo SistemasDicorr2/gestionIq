@@ -1796,6 +1796,7 @@ import { parsearComprobanteBancarioTexto, findExactSurgerySubset, parseImporteMo
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
+import { notificarComprobanteAInstrumentador } from '../../services/comprobanteNotificationService';
 
 // ICONOS LUCIDE
 import {
@@ -2612,7 +2613,7 @@ const confirmarLoteAutomatico = async () => {
         ]
       };
 
-      const { error: rpcErr } = await supabase.rpc('registrar_orden_de_pago', { p_orden: ordenDePago });
+      const { data: batchOrdenId, error: rpcErr } = await supabase.rpc('registrar_orden_de_pago', { p_orden: ordenDePago });
       fileItem.isSubmitting = false;
 
       if (!rpcErr) {
@@ -2620,6 +2621,28 @@ const confirmarLoteAutomatico = async () => {
         fileItem.saldoPendienteInterno = 0;
         fileItem.uploadedObjectKey = objectKey;
         successCount++;
+
+        // Notificación automática al instrumentador (Resend Email + Web Push)
+        if (objectKey && fileItem.matchedInstrumentador?.dni) {
+          const nombresPacientes = Array.isArray(fileCirugias)
+            ? fileCirugias.map(c => {
+                const pName = c.paciente_nombre || c.paciente || '';
+                const instName = c.institucion || c.sanatorio ? `(${c.institucion || c.sanatorio})` : '';
+                return [pName, instName].filter(Boolean).join(' ') || 'Cirugía realizada';
+              })
+            : [];
+
+          notificarComprobanteAInstrumentador({
+            instrumentadorDni: fileItem.matchedInstrumentador.dni,
+            instrumentadorNombre: fileItem.matchedInstrumentador.nombre_completo || fileItem.extractedData?.destinatario_nombre,
+            montoTotal: montoFinalGeneral,
+            fechaEmision: fileItem.extractedData?.fecha || new Date().toISOString().split('T')[0],
+            cirugiasCount: fileCirugias?.length || 0,
+            pacientes: nombresPacientes,
+            ordenId: batchOrdenId,
+            comprobanteObjectKey: objectKey
+          }).catch(e => console.warn('[NotificacionComprobante] Error silencioso:', e));
+        }
       } else {
         fileItem.submittingError = rpcErr.message;
         console.error(`Error RPC al registrar orden para ${fileItem.name}:`, rpcErr);
@@ -4004,13 +4027,35 @@ const ejecutarConfirmacionConciliacion = async (allowZero = false) => {
       ]
     };
 
-    const { error: rpcErr } = await supabase.rpc('registrar_orden_de_pago', { p_orden: ordenDePago });
+    const { data: newOrdenId, error: rpcErr } = await supabase.rpc('registrar_orden_de_pago', { p_orden: ordenDePago });
     if (rpcErr) throw rpcErr;
 
     if (activeFile.value) {
       activeFile.value.isConfirmed = true;
       activeFile.value.saldoPendienteInterno = activeSaldoPendiente.value;
       activeFile.value.uploadedObjectKey = objectKey;
+    }
+
+    // Notificación automática al instrumentador (Resend Email + Web Push)
+    if (objectKey && activeFile.value?.matchedInstrumentador?.dni) {
+      const nombresPacientes = Array.isArray(targetCirugias)
+        ? targetCirugias.map(c => {
+            const pName = c.paciente_nombre || c.paciente || '';
+            const instName = c.institucion || c.sanatorio ? `(${c.institucion || c.sanatorio})` : '';
+            return [pName, instName].filter(Boolean).join(' ') || 'Cirugía realizada';
+          })
+        : [];
+
+      notificarComprobanteAInstrumentador({
+        instrumentadorDni: activeFile.value.matchedInstrumentador.dni,
+        instrumentadorNombre: activeFile.value.matchedInstrumentador.nombre_completo || activeFile.value.matchedInstrumentador.nombre || activeFile.value.extractedData?.destinatario_nombre,
+        montoTotal: activeAsignadoMonto.value,
+        fechaEmision: activeFile.value.extractedData?.fecha || new Date().toISOString().split('T')[0],
+        cirugiasCount: targetCirugias.length,
+        pacientes: nombresPacientes,
+        ordenId: newOrdenId,
+        comprobanteObjectKey: objectKey
+      }).catch(e => console.warn('[NotificacionComprobante] Error silencioso:', e));
     }
 
     toast.success(`🚀 ¡Conciliación confirmada para ${activeFile.value.matchedInstrumentador.nombre}! ${activeSaldoPendiente.value > 0 ? `(Queda saldo pendiente interno: $${formatNumber(activeSaldoPendiente.value)})` : ''}`);

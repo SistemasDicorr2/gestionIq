@@ -33,7 +33,7 @@ export async function getCurrentResendUser() {
 /**
  * Enviar correo a través de la Edge Function 'send-email' (basada en el usuario autenticado activo en Supabase Auth)
  */
-export async function sendEmailWithResend({ to, bcc, subject, html, attachments }) {
+export async function sendEmailWithResend({ to, bcc, subject, html, attachments, type, dni }) {
   const recipients = Array.isArray(to) ? to.filter(Boolean) : [to].filter(Boolean);
   if (recipients.length === 0) {
     throw new Error('Debes especificar al menos un correo de destino.');
@@ -41,39 +41,43 @@ export async function sendEmailWithResend({ to, bcc, subject, html, attachments 
 
   const bccRecipients = bcc ? (Array.isArray(bcc) ? bcc.filter(Boolean) : [bcc].filter(Boolean)) : undefined;
 
-  // 1. En producción, invocar Supabase Edge Function 'send-email'
-  if (!import.meta.env.DEV) {
-    try {
-      const { data: edgeData, error: edgeErr } = await supabase.functions.invoke('send-email', {
-        body: { to: recipients, bcc: bccRecipients, subject, html, attachments }
-      });
+  // 1. Intentar invocar la Supabase Edge Function 'send-email' (utiliza el secreto RESEND_APIKEY en el servidor)
+  try {
+    const { data: edgeData, error: edgeErr } = await supabase.functions.invoke('send-email', {
+      body: { to: recipients, bcc: bccRecipients, subject, html, attachments, type, dni }
+    });
 
-      if (edgeErr) {
-        let msg = edgeErr.message || 'Error al invocar la Edge Function send-email';
-        if (edgeErr.status === 403) {
-          msg = `403 Forbidden: ${msg}`;
-        } else if (edgeErr.status === 401) {
-          msg = `401 Unauthorized: Debe iniciar sesión con una cuenta de @districorr.com.ar autorizada.`;
-        }
-        throw new Error(msg);
+    if (edgeErr) {
+      let msg = edgeErr.message || 'Error al invocar la Edge Function send-email';
+      if (edgeErr.status === 403) {
+        msg = `403 Forbidden: Tu cuenta no tiene permisos para enviar correos (${msg}).`;
+      } else if (edgeErr.status === 401) {
+        msg = `401 Unauthorized: Debe iniciar sesión con una cuenta de @districorr.com.ar autorizada.`;
       }
-
-      if (edgeData && (edgeData.success || edgeData.id)) {
-        return edgeData;
-      }
-
-      if (edgeData && edgeData.error) {
-        throw new Error(edgeData.error);
-      }
-    } catch (fnErr) {
-      if (fnErr.message && (fnErr.message.includes('403') || fnErr.message.includes('401') || fnErr.message.includes('denegado'))) {
-        throw fnErr;
-      }
-      console.warn('[resendService] Edge Function no disponible o error de red, ejecutando fallback dev local:', fnErr.message);
+      throw new Error(msg);
     }
+
+    if (edgeData && (edgeData.success || edgeData.id)) {
+      return edgeData;
+    }
+
+    if (edgeData && edgeData.error) {
+      throw new Error(edgeData.error);
+    }
+  } catch (fnErr) {
+    // Si es un error de autorización explícito, relanzar para informar al usuario
+    if (fnErr.message && (fnErr.message.includes('403') || fnErr.message.includes('401') || fnErr.message.includes('denegado') || fnErr.message.includes('Unauthorized') || fnErr.message.includes('Forbidden'))) {
+      throw fnErr;
+    }
+    console.warn('[resendService] Edge Function send-email no respondió, intentando fallback directo:', fnErr.message);
   }
 
-  // 2. Fallback de desarrollo local (Vite Proxy '/api-resend/emails')
+  // 2. Fallback con API Key directa si está configurada en variables de entorno locales
+  const apiKey = import.meta.env.VITE_RESEND_API_KEY || import.meta.env.RESEND_APIKEY;
+  if (!apiKey) {
+    throw new Error('Para enviar correos, iniciá sesión con una cuenta de @districorr.com.ar autorizada en la plataforma o configurá VITE_RESEND_API_KEY en el entorno.');
+  }
+
   const activeUser = await getCurrentResendUser();
   const fromAddress = (activeUser && activeUser.from) 
     ? activeUser.from 
@@ -81,11 +85,6 @@ export async function sendEmailWithResend({ to, bcc, subject, html, attachments 
   const replyToAddress = (activeUser && activeUser.email) 
     ? activeUser.email 
     : 'sistemas@districorr.com.ar';
-
-  const apiKey = import.meta.env.VITE_RESEND_API_KEY || import.meta.env.RESEND_APIKEY;
-  if (!apiKey) {
-    throw new Error('No se encontró la API Key de Resend (RESEND_APIKEY / VITE_RESEND_API_KEY en .env).');
-  }
 
   const endpoint = import.meta.env.DEV ? '/api-resend/emails' : 'https://api.resend.com/emails';
 
@@ -124,7 +123,7 @@ export async function sendEmailWithResend({ to, bcc, subject, html, attachments 
   return {
     success: true,
     id: data.id,
-    sender: activeUser.from,
-    reply_to: activeUser.reply_to
+    sender: activeUser?.from || fromAddress,
+    reply_to: activeUser?.reply_to || replyToAddress
   };
 }

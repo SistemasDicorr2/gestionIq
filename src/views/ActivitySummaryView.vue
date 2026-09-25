@@ -208,6 +208,46 @@
           </button>
         </header>
 
+        <!-- BANNER DE NOTIFICACIONES WEB PUSH Y CORREO EN DISPOSITIVO -->
+        <div v-if="pushPermissionStatus !== 'granted'" class="mb-5 p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-blue-600/10 via-indigo-600/10 to-blue-500/10 dark:from-blue-950/40 dark:via-indigo-950/40 dark:to-blue-900/30 border border-blue-200 dark:border-blue-800/80 shadow-sm transition-all duration-300">
+          <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
+            <div class="flex items-start gap-3">
+              <div class="p-2.5 rounded-xl bg-blue-600 text-white shadow-md shadow-blue-500/20 shrink-0">
+                <BellRing class="w-5 h-5 animate-pulse" />
+              </div>
+              <div>
+                <h3 class="text-sm font-black text-slate-900 dark:text-white">
+                  ¿Querés recibir aviso cuando se cargue un nuevo comprobante?
+                </h3>
+                <p class="text-xs text-slate-600 dark:text-slate-300 mt-0.5 font-medium">
+                  Activá las notificaciones push o por correo y te avisaremos en cuanto tu liquidación esté disponible.
+                </p>
+              </div>
+            </div>
+            <button 
+              @click="isNotificationModalOpen = true" 
+              class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-black text-white bg-blue-600 hover:bg-blue-700 active:scale-95 transition-all duration-200 shadow-md shadow-blue-600/25 cursor-pointer shrink-0"
+            >
+              <Bell class="w-4 h-4" />
+              <span>Configurar avisos</span>
+            </button>
+          </div>
+        </div>
+
+        <div v-else class="mb-5 px-4 py-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200/80 dark:border-emerald-800/60 text-emerald-800 dark:text-emerald-300 text-xs font-bold flex items-center justify-between gap-2 shadow-xs">
+          <div class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+            <span>Avisos de comprobantes activos en este dispositivo</span>
+          </div>
+          <button 
+            @click="isNotificationModalOpen = true" 
+            class="text-[11px] font-bold text-emerald-700 dark:text-emerald-400 hover:underline cursor-pointer"
+            title="Ajustar preferencias de notificación"
+          >
+            Ajustar avisos
+          </button>
+        </div>
+
         <!-- Tabs de Navegación Estilo Animate UI -->
         <div class="mb-6">
           <nav class="grid grid-cols-4 gap-1 p-1.5 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-slate-300 dark:border-slate-800 rounded-2xl shadow-md sm:flex sm:items-center sm:gap-2 sm:w-fit">
@@ -368,9 +408,14 @@
                       <Calendar class="w-3.5 h-3.5 text-slate-500" />
                       {{ comp.fecha_pago ? formatDate(comp.fecha_pago) : 'Fecha no disponible' }}
                     </span>
-                    <AnimatedBadge variant="success" dot>
-                      Abonado
-                    </AnimatedBadge>
+                    <div class="flex items-center gap-1.5">
+                      <span v-if="isRecent(comp.fecha_pago)" class="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-500 text-white shadow-xs animate-pulse">
+                        Nuevo
+                      </span>
+                      <AnimatedBadge variant="success" dot>
+                        Abonado
+                      </AnimatedBadge>
+                    </div>
                   </div>
                   
                   <div class="p-3.5 mb-4 border rounded-xl bg-slate-50 border-slate-200 dark:border-slate-800 dark:bg-slate-950/50">
@@ -491,12 +536,17 @@
                       <span class="font-bold text-slate-800 dark:text-slate-200">{{ liq.fecha_pago ? formatDate(liq.fecha_pago) : 'Fecha no disponible' }}</span>
                     </p>
                   </div>
-                  <AnimatedBadge v-if="liq.comprobante_object_key" variant="success" dot>
-                    Comprobante cargado
-                  </AnimatedBadge>
-                  <AnimatedBadge v-else variant="neutral">
-                    Comprobante pendiente
-                  </AnimatedBadge>
+                  <div class="flex items-center gap-1.5">
+                    <span v-if="isRecent(liq.fecha_pago)" class="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-500 text-white shadow-xs animate-pulse">
+                      Nuevo
+                    </span>
+                    <AnimatedBadge v-if="liq.comprobante_object_key" variant="success" dot>
+                      Comprobante cargado
+                    </AnimatedBadge>
+                    <AnimatedBadge v-else variant="neutral">
+                      Comprobante pendiente
+                    </AnimatedBadge>
+                  </div>
                 </div>
 
                 <div class="p-4 mb-4 border rounded-xl bg-slate-50 border-slate-100 dark:bg-slate-950/50 dark:border-slate-800">
@@ -561,6 +611,7 @@
           :info="instrumentadorInfo" 
           :activity="allActivityData" 
           @openAccessHistory="isAccessModalOpen = true" 
+          @openNotificationsModal="isNotificationModalOpen = true"
         />
 
         <!-- TAB 4: FAQ -->
@@ -594,6 +645,15 @@
         :liquidaciones="historialLiquidaciones" 
         @close="isReportModalOpen = false" 
       />
+
+      <!-- Modal Interactivo de Avisos y Notificaciones (Onboarding) -->
+      <NotificationOnboardingModal 
+        :show="isNotificationModalOpen" 
+        :instrumentador="instrumentadorInfo" 
+        :dni="dni" 
+        @close="isNotificationModalOpen = false" 
+        @updated="handleNotificationSettingsUpdated" 
+      />
     </div>
   </div>
 </template>
@@ -607,6 +667,7 @@ import FaqSection from '../components/FaqSection.vue';
 import PaymentDetailModal from '../components/PaymentDetailModal.vue';
 import MyDataSection from '../components/MyDataSection.vue';
 import ReportePagosModal from '../components/ReportePagosModal.vue';
+import NotificationOnboardingModal from '../components/NotificationOnboardingModal.vue';
 import { useReportePagosPDF } from '../composables/useReportePagosPDF';
 import { 
   GlowCard, 
@@ -635,8 +696,17 @@ import {
   ArrowRight, 
   FileDown, 
   Search,
-  MessageCircle
+  MessageCircle,
+  Bell,
+  BellRing,
+  BellOff
 } from 'lucide-vue-next';
+import { 
+  isWebNotificationSupported, 
+  getNotificationPermissionStatus, 
+  requestWebNotificationPermission, 
+  showDeviceNotification 
+} from '../services/webPushService';
 
 const isAuthenticated = ref(false);
 const isLoading = ref(false);
@@ -647,11 +717,14 @@ const instrumentadorInfo = ref(null);
 const activeTab = ref('resumen');
 const isDetailModalOpen = ref(false);
 const isReportModalOpen = ref(false);
+const isNotificationModalOpen = ref(false);
 const selectedLiquidacion = ref(null);
 const isDarkMode = ref(false);
 const searchPagosQuery = ref('');
 const formattedPreviousAccess = ref('');
 const isFirstAccess = ref(false);
+const isPushSupported = ref(isWebNotificationSupported());
+const pushPermissionStatus = ref(getNotificationPermissionStatus());
 
 const route = useRoute();
 const toast = useToast();
@@ -765,6 +838,19 @@ const authenticate = async (overrideDni = null) => {
       }
 
       toast.success("Acceso concedido.");
+
+      // Verificar si debe mostrarse el modal de onboarding de notificaciones
+      try {
+        const notifPrompted = localStorage.getItem(`gestioniq_notif_prompted_${cleanDni}`);
+        const forceFromUrl = route.query.notif === '1' || route.query.activar === '1';
+        if (!notifPrompted || forceFromUrl) {
+          setTimeout(() => {
+            isNotificationModalOpen.value = true;
+          }, 450);
+        }
+      } catch (e) {
+        // Ignore localStorage error
+      }
     } else {
       error.value = "Verificá tu DNI. No coincide con la ficha o el enlace expiró.";
       toast.error("Acceso denegado.");
@@ -776,6 +862,13 @@ const authenticate = async (overrideDni = null) => {
   } finally {
     isLoading.value = false;
   }
+};
+
+const handleNotificationSettingsUpdated = ({ email, pushEnabled }) => {
+  if (instrumentadorInfo.value && email !== undefined) {
+    instrumentadorInfo.value.email = email;
+  }
+  pushPermissionStatus.value = getNotificationPermissionStatus();
 };
 
 const login = authenticate;
@@ -931,6 +1024,48 @@ const openDetailModal = (item, isGroup = false) => {
 const formatDate = (dateString) => {
   if (!dateString) return 'N/A';
   return new Date(dateString).toLocaleDateString('es-AR', { timeZone: 'UTC' });
+};
+
+const isRecent = (dateString) => {
+  if (!dateString) return false;
+  const d = new Date(dateString);
+  if (isNaN(d.getTime())) return false;
+  const diffDays = (new Date() - d) / (1000 * 60 * 60 * 24);
+  return diffDays >= 0 && diffDays <= 7;
+};
+
+const togglePushNotifications = async () => {
+  if (!isPushSupported.value) {
+    toast.info("Las notificaciones web no están soportadas en este navegador.");
+    return;
+  }
+
+  const granted = await requestWebNotificationPermission(dni.value);
+  pushPermissionStatus.value = getNotificationPermissionStatus();
+
+  if (granted) {
+    toast.success("¡Notificaciones activadas en este dispositivo!");
+    await showDeviceNotification({
+      title: "🔔 ¡Notificaciones activadas!",
+      body: "Te avisaremos en cuanto se cargue un nuevo comprobante de liquidación.",
+      url: window.location.href
+    });
+  } else {
+    toast.info("No se activaron las notificaciones. Podés habilitarlas desde los permisos del navegador.");
+  }
+};
+
+const testPushNotification = async () => {
+  const sent = await showDeviceNotification({
+    title: "💳 Notificación de Prueba",
+    body: "¡Tu dispositivo está configurado correctamente para recibir avisos de comprobantes!",
+    url: window.location.href
+  });
+  if (sent) {
+    toast.success("Notificación de prueba emitida.");
+  } else {
+    toast.warning("No se pudo mostrar la notificación. Verificá los permisos del navegador.");
+  }
 };
 
 const getComprobanteUrl = (objectKey) => {
