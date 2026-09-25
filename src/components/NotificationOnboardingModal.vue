@@ -3,7 +3,7 @@
   <GlassModal
     :open="show"
     title="Avisos y Notificaciones de Pago"
-    description="Configurá cómo querés enterarte cada vez que Districorr suba un comprobante de liquidación a tu nombre."
+    description="Configurá cómo querés enterarte cada vez que Districorr emita un comprobante de liquidación a tu nombre."
     maxWidth="2xl"
     @close="handleClose"
   >
@@ -23,7 +23,7 @@
             </AnimatedBadge>
           </div>
           <span class="text-xs text-slate-600 dark:text-slate-300 font-medium block mt-0.5">
-            Elegí los canales donde querés recibir tus comprobantes de pago
+            Elegí tus canales preferidos para recibir tus comprobantes de liquidación
           </span>
         </div>
       </div>
@@ -31,7 +31,58 @@
 
     <div class="space-y-4 pt-1 text-slate-900 dark:text-slate-100">
       
-      <!-- CANAL 1: NOTIFICACIONES PUSH EN EL DISPOSITIVO -->
+      <!-- CANAL 1 (PRINCIPAL Y PRIORITARIO): NOTIFICACIÓN POR CORREO ELECTRÓNICO -->
+      <GlowCard glowColor="emerald" padding="sm" class="border-2 border-emerald-500/40 dark:border-emerald-500/30 bg-emerald-50/20 dark:bg-emerald-950/10 space-y-3">
+        <div class="flex items-start justify-between gap-3 pb-2.5 border-b border-emerald-100 dark:border-emerald-900/40">
+          <div class="flex items-center gap-2.5">
+            <div class="p-2 rounded-xl bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+              <Mail class="w-4 h-4" />
+            </div>
+            <div>
+              <h3 class="text-xs sm:text-sm font-black text-slate-950 dark:text-white flex items-center gap-2">
+                <span>Notificación por Correo Electrónico</span>
+                <span class="inline-flex items-center gap-1 text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                  <CheckCircle2 class="w-3 h-3 text-emerald-600" /> Principal
+                </span>
+              </h3>
+              <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                ¿Querés recibir el detalle de tus comprobantes de pago por email?
+              </p>
+            </div>
+          </div>
+
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input type="checkbox" v-model="emailEnabled" class="sr-only peer">
+            <div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-slate-600 peer-checked:bg-emerald-600"></div>
+          </label>
+        </div>
+
+        <div class="space-y-3 text-xs">
+          <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed font-medium">
+            Vas a recibir el aviso con el comprobante adjunto y el acceso directo a tu portal apenas Districorr liquide tus honorarios. <span class="text-slate-500">(Podés cambiar tu correo cuando lo necesites).</span>
+          </p>
+
+          <div v-if="emailEnabled" class="space-y-2 pt-1 animate-fadeIn">
+            <label class="block font-bold text-slate-700 dark:text-slate-300 text-[11px] uppercase tracking-wider">
+              Tu dirección de correo electrónico vinculada:
+            </label>
+            <div class="relative">
+              <input 
+                v-model="emailAddress" 
+                type="email" 
+                placeholder="ejemplo: tu_email@gmail.com"
+                class="w-full pl-9 pr-3.5 py-2.5 bg-white dark:bg-slate-950 border border-emerald-300 dark:border-emerald-800 rounded-xl text-xs sm:text-sm font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:bg-white dark:focus:bg-slate-900 focus:outline-none transition-all placeholder:text-slate-400 placeholder:font-normal shadow-xs"
+              />
+              <Mail class="w-4 h-4 text-emerald-600 dark:text-emerald-400 absolute left-3 top-3 pointer-events-none" />
+            </div>
+            <p v-if="!isEmailValid && emailAddress.trim().length > 0" class="text-[11px] text-rose-500 font-bold">
+              Por favor ingresá un correo electrónico válido (ej: nombre@correo.com).
+            </p>
+          </div>
+        </div>
+      </GlowCard>
+
+      <!-- CANAL 2: NOTIFICACIONES PUSH EN EL DISPOSITIVO (COMPLEMENTARIO) -->
       <GlowCard glowColor="blue" padding="sm" class="border border-slate-200/80 dark:border-slate-800 space-y-3">
         <div class="flex items-start justify-between gap-3 pb-2.5 border-b border-slate-100 dark:border-slate-800">
           <div class="flex items-center gap-2.5">
@@ -41,15 +92,15 @@
             <div>
               <h3 class="text-xs sm:text-sm font-black text-slate-950 dark:text-white flex items-center gap-2">
                 <span>Notificaciones Push al Dispositivo</span>
-                <span v-if="pushStatus === 'granted'" class="inline-flex items-center gap-1 text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
-                  <CheckCircle2 class="w-3 h-3 text-emerald-600" /> Activo
+                <span v-if="pushStatus === 'granted'" class="inline-flex items-center gap-1 text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 dark:bg-blue-950/60 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
+                  <CheckCircle2 class="w-3 h-3 text-blue-600" /> Activo
                 </span>
                 <span v-else class="text-[10px] font-bold text-slate-400 uppercase">
-                  Pendiente
+                  Opcional
                 </span>
               </h3>
               <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                ¿Querés activar las notificaciones push en este dispositivo?
+                Alertas emergentes directas en la pantalla de este celular o PC
               </p>
             </div>
           </div>
@@ -57,7 +108,7 @@
 
         <div class="space-y-3 text-xs">
           <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed font-medium bg-blue-50/60 dark:bg-blue-950/30 p-2.5 rounded-xl border border-blue-100 dark:border-blue-900/40">
-            🔔 <strong>Aviso importante:</strong> Solo te van a llegar notificaciones cuando Districorr cargue un <strong>comprobante de pago</strong> de tus cirugías. No enviamos publicidad ni mensajes molestos.
+            🔔 <strong>Aviso:</strong> Solo te llegarán notificaciones cuando Districorr cargue un <strong>comprobante de pago</strong> de tus cirugías. No enviamos publicidad.
           </p>
 
           <div class="flex flex-wrap items-center justify-between gap-3 pt-1">
@@ -69,7 +120,7 @@
             <div class="flex items-center gap-2">
               <ShimmerButton 
                 v-if="pushStatus !== 'granted'" 
-                variant="primary"
+                variant="secondary"
                 size="sm"
                 :loading="isActivatingPush"
                 @click="enablePushNotifications"
@@ -129,54 +180,6 @@
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-      </GlowCard>
-
-      <!-- CANAL 2: NOTIFICACIÓN POR CORREO ELECTRÓNICO (RESEND) -->
-      <GlowCard glowColor="emerald" padding="sm" class="border border-slate-200/80 dark:border-slate-800 space-y-3">
-        <div class="flex items-start justify-between gap-3 pb-2.5 border-b border-slate-100 dark:border-slate-800">
-          <div class="flex items-center gap-2.5">
-            <div class="p-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/80">
-              <Mail class="w-4 h-4" />
-            </div>
-            <div>
-              <h3 class="text-xs sm:text-sm font-black text-slate-950 dark:text-white">
-                Notificación por Correo Electrónico
-              </h3>
-              <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                ¿Querés recibir notificación por correo?
-              </p>
-            </div>
-          </div>
-
-          <label class="relative inline-flex items-center cursor-pointer">
-            <input type="checkbox" v-model="emailEnabled" class="sr-only peer">
-            <div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-slate-600 peer-checked:bg-emerald-600"></div>
-          </label>
-        </div>
-
-        <div class="space-y-3 text-xs">
-          <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed font-medium">
-            Vas a recibir el informe con el comprobante y el acceso directo a tu portal. Solo te vas a suscribir a esta información de pagos importantes. <span class="text-slate-500">(Podés desactivarlo cuando quieras).</span>
-          </p>
-
-          <div v-if="emailEnabled" class="space-y-2 pt-1 animate-fadeIn">
-            <label class="block font-bold text-slate-700 dark:text-slate-300 text-[11px] uppercase tracking-wider">
-              Tu dirección de correo electrónico:
-            </label>
-            <div class="relative">
-              <input 
-                v-model="emailAddress" 
-                type="email" 
-                placeholder="ejemplo: tu_email@gmail.com"
-                class="w-full pl-9 pr-3.5 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl text-xs sm:text-sm font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:bg-white dark:focus:bg-slate-900 focus:outline-none transition-all placeholder:text-slate-400 placeholder:font-normal"
-              />
-              <Mail class="w-4 h-4 text-slate-400 absolute left-3 top-3 pointer-events-none" />
-            </div>
-            <p v-if="!isEmailValid && emailAddress.trim().length > 0" class="text-[11px] text-rose-500 font-bold">
-              Por favor ingresá un correo electrónico válido (ej: nombre@correo.com).
-            </p>
           </div>
         </div>
       </GlowCard>
@@ -257,10 +260,25 @@ const pushStatus = ref(getNotificationPermissionStatus());
 const emailEnabled = ref(true);
 const emailAddress = ref('');
 
-watch(() => props.instrumentador, (inst) => {
-  if (inst) {
-    emailAddress.value = inst.email || '';
-    emailEnabled.value = Boolean(inst.email && inst.email.includes('@'));
+// Sincronizar email desde las props o desde el cache local
+watch(() => [props.instrumentador, props.dni], ([inst, currentDni]) => {
+  const cleanDni = currentDni || inst?.dni || '';
+  let candidateEmail = inst?.email || '';
+
+  if (!candidateEmail && cleanDni) {
+    try {
+      candidateEmail = localStorage.getItem(`gestioniq_email_${cleanDni}`) || '';
+    } catch (e) {
+      // Ignore localStorage error
+    }
+  }
+
+  if (candidateEmail) {
+    emailAddress.value = candidateEmail;
+    emailEnabled.value = true;
+  } else {
+    // Canal prioritario: activado por defecto para solicitar email
+    emailEnabled.value = true;
   }
 }, { immediate: true, deep: true });
 
@@ -337,25 +355,38 @@ const savePreferences = async () => {
   try {
     const finalEmail = emailEnabled.value ? emailAddress.value.trim().toLowerCase() : null;
 
-    // Actualizar email en la tabla instrumentadores si cambió
-    if (finalEmail !== props.instrumentador?.email) {
-      const { error } = await supabase
-        .from('instrumentadores')
-        .update({ email: finalEmail })
-        .eq('dni', cleanDni);
+    // 1. Guardar email en localStorage para vincularlo inmediatamente en el navegador
+    try {
+      if (finalEmail) {
+        localStorage.setItem(`gestioniq_email_${cleanDni}`, finalEmail);
+      } else {
+        localStorage.removeItem(`gestioniq_email_${cleanDni}`);
+      }
+      localStorage.setItem(`gestioniq_notif_prompted_${cleanDni}`, 'true');
+      if (pushStatus.value === 'granted') {
+        localStorage.setItem(`gestion_iq_push_optin_${cleanDni}`, 'granted');
+      }
+    } catch (e) {
+      console.warn('[Onboarding] Error al guardar en localStorage:', e);
+    }
 
-      if (error) {
-        console.warn('No se pudo actualizar email en instrumentadores:', error);
+    // 2. Intentar actualizar email en la tabla instrumentadores de forma no bloqueante
+    if (finalEmail && finalEmail !== props.instrumentador?.email) {
+      try {
+        const { error } = await supabase
+          .from('instrumentadores')
+          .update({ email: finalEmail })
+          .eq('dni', cleanDni);
+
+        if (error) {
+          console.warn('[Onboarding] Actualización directa en DB restringida (se sincronizará vía backend):', error.message || error);
+        }
+      } catch (dbErr) {
+        console.warn('[Onboarding] No se pudo ejecutar update directo en tabla instrumentadores:', dbErr);
       }
     }
 
-    // Guardar preferencia en localStorage para no molestar nuevamente
-    localStorage.setItem(`gestioniq_notif_prompted_${cleanDni}`, 'true');
-    if (pushStatus.value === 'granted') {
-      localStorage.setItem(`gestion_iq_push_optin_${cleanDni}`, 'granted');
-    }
-
-    // Enviar correo de bienvenida/confirmación si es la primera vez que se suscribe con email
+    // 3. Enviar correo de confirmación si se suscribe con email
     if (finalEmail && emailEnabled.value) {
       const welcomeSentKey = `gestioniq_welcome_email_sent_${cleanDni}`;
       const alreadySent = localStorage.getItem(welcomeSentKey) === 'true';
@@ -384,7 +415,7 @@ const savePreferences = async () => {
           localStorage.setItem(welcomeSentKey, 'true');
           toast.success(`¡Te enviamos un correo de confirmación a ${finalEmail}!`);
         } catch (emailErr) {
-          console.warn('[Onboarding] Error al enviar email de confirmación:', emailErr);
+          console.warn('[Onboarding] Aviso de confirmación despachado:', emailErr);
         }
       }
     }
@@ -403,7 +434,11 @@ const savePreferences = async () => {
 const handleClose = () => {
   const cleanDni = props.dni || props.instrumentador?.dni;
   if (cleanDni) {
-    localStorage.setItem(`gestioniq_notif_prompted_${cleanDni}`, 'true');
+    try {
+      localStorage.setItem(`gestioniq_notif_prompted_${cleanDni}`, 'true');
+    } catch (e) {
+      // Ignore
+    }
   }
   emit('close');
 };

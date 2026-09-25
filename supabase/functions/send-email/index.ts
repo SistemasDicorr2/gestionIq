@@ -96,6 +96,17 @@ serve(async (req) => {
 
         if (inst) {
           isAuthorized = true;
+          // Si el email del instrumentador cambió o no estaba seteado en la BD, sincronizarlo de forma segura con permisos service_role
+          if (cleanEmail && inst.email !== cleanEmail) {
+            try {
+              await adminClient
+                .from('instrumentadores')
+                .update({ email: cleanEmail })
+                .eq('dni', cleanDni);
+            } catch (updateErr) {
+              console.warn('[send-email] No se pudo persistir email en instrumentadores:', updateErr);
+            }
+          }
         }
       }
 

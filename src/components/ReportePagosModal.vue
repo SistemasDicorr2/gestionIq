@@ -2,81 +2,74 @@
 <template>
   <GlassModal 
     :show="show" 
-    max-width="max-w-md" 
+    max-width="md" 
     @close="$emit('close')"
   >
-    <div>
-      <!-- Header del Modal -->
-      <div class="px-6 py-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 flex items-center justify-center text-indigo-600 dark:text-indigo-400 border border-indigo-200/60 dark:border-indigo-800/60">
-            <FileDown class="w-5 h-5" />
-          </div>
-          <div>
-            <h3 class="text-lg font-black text-slate-950 dark:text-white">Descargar Reporte PDF</h3>
-            <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">Informe consolidado de pagos por período</p>
-          </div>
+    <!-- Header del Modal -->
+    <template #title>
+      <div class="flex items-center gap-2.5 sm:gap-3">
+        <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 flex items-center justify-center text-indigo-600 dark:text-indigo-400 border border-indigo-200/60 dark:border-indigo-800/60 shrink-0">
+          <FileDown class="w-4 h-4 sm:w-5 sm:h-5" />
         </div>
-        <button 
-          type="button" 
-          @click="$emit('close')"
-          class="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+        <div class="min-w-0">
+          <h3 class="text-base sm:text-lg font-black text-slate-950 dark:text-white leading-tight">Descargar Reporte PDF</h3>
+          <p class="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 font-medium truncate">Informe consolidado de pagos por período</p>
+        </div>
+      </div>
+    </template>
+
+    <!-- Cuerpo del Formulario -->
+    <div class="p-3.5 sm:p-5 space-y-3.5 text-slate-900 dark:text-slate-100">
+      <!-- Selección de Período Simplificada -->
+      <div class="space-y-1.5">
+        <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+          Seleccionar Período
+        </label>
+        <select 
+          v-model="selectedPeriod"
+          class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 cursor-pointer"
         >
-          <X class="w-5 h-5" />
-        </button>
+          <option value="mes-actual">Mes Actual</option>
+          <option value="custom">Rango Personalizado</option>
+        </select>
       </div>
 
-      <!-- Cuerpo del Formulario -->
-      <div class="p-6 space-y-4">
-        <!-- Selección de Período Simplificada -->
-        <div class="space-y-1.5">
-          <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-            Seleccionar Período
-          </label>
-          <select 
-            v-model="selectedPeriod"
-            class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 cursor-pointer"
-          >
-            <option value="mes-actual">Mes Actual</option>
-            <option value="custom">Rango Personalizado</option>
-          </select>
+      <!-- Rango Personalizado de Fechas -->
+      <div v-if="selectedPeriod === 'custom'" class="grid grid-cols-2 gap-2.5 pt-1">
+        <div class="space-y-1">
+          <label class="block text-[10px] font-bold text-slate-500 dark:text-slate-400">Fecha Desde</label>
+          <input 
+            type="date" 
+            v-model="startDate"
+            class="w-full px-2.5 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-xs text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+          />
         </div>
-
-        <!-- Rango Personalizado de Fechas -->
-        <div v-if="selectedPeriod === 'custom'" class="grid grid-cols-2 gap-3 pt-1">
-          <div class="space-y-1">
-            <label class="block text-[11px] font-bold text-slate-500 dark:text-slate-400">Fecha Desde</label>
-            <input 
-              type="date" 
-              v-model="startDate"
-              class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-xs text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
-            />
-          </div>
-          <div class="space-y-1">
-            <label class="block text-[11px] font-bold text-slate-500 dark:text-slate-400">Fecha Hasta</label>
-            <input 
-              type="date" 
-              v-model="endDate"
-              class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-xs text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
-            />
-          </div>
-        </div>
-
-        <!-- Resumen de items incluidos -->
-        <div class="p-3.5 rounded-2xl bg-indigo-50/70 dark:bg-indigo-950/30 border border-indigo-100 dark:border-indigo-900/40 text-xs text-indigo-900 dark:text-indigo-200 flex items-center justify-between">
-          <span class="font-medium">Pagos incluidos en el reporte:</span>
-          <span class="font-extrabold px-2.5 py-0.5 rounded-full bg-indigo-200/80 dark:bg-indigo-900/60 text-indigo-900 dark:text-indigo-100 font-mono">
-            {{ filteredLiquidaciones.length }}
-          </span>
+        <div class="space-y-1">
+          <label class="block text-[10px] font-bold text-slate-500 dark:text-slate-400">Fecha Hasta</label>
+          <input 
+            type="date" 
+            v-model="endDate"
+            class="w-full px-2.5 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-xs text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+          />
         </div>
       </div>
 
-      <!-- Footer Acciones -->
-      <div class="px-6 py-4 bg-slate-50/80 dark:bg-slate-900/80 border-t border-slate-100 dark:border-slate-800 flex items-center justify-end gap-2.5">
+      <!-- Resumen de items incluidos -->
+      <div class="p-3 rounded-xl bg-indigo-50/70 dark:bg-indigo-950/30 border border-indigo-100 dark:border-indigo-900/40 text-xs text-indigo-900 dark:text-indigo-200 flex items-center justify-between">
+        <span class="font-medium">Pagos incluidos en el reporte:</span>
+        <span class="font-extrabold px-2.5 py-0.5 rounded-full bg-indigo-200/80 dark:bg-indigo-900/60 text-indigo-900 dark:text-indigo-100 font-mono">
+          {{ filteredLiquidaciones.length }}
+        </span>
+      </div>
+    </div>
+
+    <!-- Footer Acciones -->
+    <template #footer>
+      <div class="flex items-center justify-between sm:justify-end gap-2 w-full">
         <button 
           type="button" 
           @click="$emit('close')"
-          class="px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+          class="flex-1 sm:flex-initial px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer text-center"
         >
           Cancelar
         </button>
@@ -84,14 +77,13 @@
           type="button" 
           @click="handleGenerar"
           :disabled="filteredLiquidaciones.length === 0"
-          class="px-5 py-2.5 text-xs bg-indigo-600 hover:bg-indigo-700"
+          class="flex-1 sm:flex-initial px-4 py-2 text-xs bg-indigo-600 hover:bg-indigo-700"
         >
-          <FileDown class="w-3.5 h-3.5" />
+          <FileDown class="w-3.5 h-3.5 mr-1" />
           <span>Descargar PDF</span>
         </ShimmerButton>
       </div>
-
-    </div>
+    </template>
   </GlassModal>
 </template>
 
@@ -99,7 +91,7 @@
 import { ref, computed } from 'vue';
 import { useReportePagosPDF } from '../composables/useReportePagosPDF';
 import { GlassModal, ShimmerButton } from './ui';
-import { FileDown, X } from 'lucide-vue-next';
+import { FileDown } from 'lucide-vue-next';
 
 const props = defineProps({
   show: { type: Boolean, default: false },

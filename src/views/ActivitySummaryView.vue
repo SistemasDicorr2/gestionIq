@@ -822,7 +822,20 @@ const authenticate = async (overrideDni = null) => {
     if (rpcError) throw rpcError;
 
     if (data) {
-      instrumentadorInfo.value = data.instrumentador_info;
+      instrumentadorInfo.value = data.instrumentador_info || {};
+
+      // Vincular directamente el email: sincronización bidireccional inmediata
+      try {
+        const cachedEmail = localStorage.getItem(`gestioniq_email_${cleanDni}`);
+        if (!instrumentadorInfo.value.email && cachedEmail) {
+          instrumentadorInfo.value.email = cachedEmail;
+        } else if (instrumentadorInfo.value.email) {
+          localStorage.setItem(`gestioniq_email_${cleanDni}`, instrumentadorInfo.value.email);
+        }
+      } catch (e) {
+        console.warn("No se pudo sincronizar email local:", e);
+      }
+
       allActivityData.value = (data.activity_summary || []).filter(r => r.estado === 'Enviado');
       isAuthenticated.value = true;
       dni.value = cleanDni;
@@ -867,6 +880,18 @@ const authenticate = async (overrideDni = null) => {
 const handleNotificationSettingsUpdated = ({ email, pushEnabled }) => {
   if (instrumentadorInfo.value && email !== undefined) {
     instrumentadorInfo.value.email = email;
+  }
+  const cleanDni = dni.value || instrumentadorInfo.value?.dni;
+  if (cleanDni && email !== undefined) {
+    try {
+      if (email) {
+        localStorage.setItem(`gestioniq_email_${cleanDni}`, email);
+      } else {
+        localStorage.removeItem(`gestioniq_email_${cleanDni}`);
+      }
+    } catch (e) {
+      // Ignore
+    }
   }
   pushPermissionStatus.value = getNotificationPermissionStatus();
 };

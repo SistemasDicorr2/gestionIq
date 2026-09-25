@@ -10,7 +10,7 @@
     >
       <div 
         v-if="isVisible" 
-        class="fixed inset-0 z-50 bg-slate-950/75 dark:bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 overflow-y-auto"
+        class="fixed inset-0 z-50 bg-slate-950/75 dark:bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-2.5 sm:p-4 overflow-y-auto overscroll-contain"
         @click="handleBackdropClick"
         @keydown.esc="handleEsc"
       >
@@ -26,14 +26,14 @@
             v-if="isVisible"
             @click.stop
             :class="[
-              'relative w-full rounded-2xl bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 shadow-2xl flex flex-col max-h-[92vh] overflow-hidden',
+              'relative w-full rounded-2xl bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 shadow-2xl flex flex-col max-h-[calc(100dvh-1.5rem)] sm:max-h-[92vh] overflow-hidden',
               maxWidthClass,
               customClass
             ]"
           >
             <!-- Cabecera del Modal -->
-            <div v-if="$slots.title || title" class="px-5 py-4 border-b border-slate-100 dark:border-slate-800 flex items-start justify-between gap-3 shrink-0">
-              <div class="space-y-0.5">
+            <div v-if="$slots.title || title" class="px-4 py-3 sm:px-5 sm:py-4 border-b border-slate-100 dark:border-slate-800 flex items-start justify-between gap-2.5 sm:gap-3 shrink-0">
+              <div class="space-y-0.5 min-w-0 flex-1">
                 <h3 class="text-base sm:text-lg font-black text-slate-900 dark:text-white flex items-center gap-2">
                   <slot name="title">{{ title }}</slot>
                 </h3>
@@ -46,7 +46,7 @@
                 v-if="showCloseButton"
                 type="button"
                 @click="closeModal"
-                class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-bold text-xs flex items-center justify-center transition cursor-pointer shrink-0"
+                class="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-bold text-xs flex items-center justify-center transition cursor-pointer shrink-0"
                 title="Cerrar (Esc)"
               >
                 ✕
@@ -54,12 +54,12 @@
             </div>
 
             <!-- Cuerpo del Modal -->
-            <div class="overflow-y-auto grow scrollbar-thin">
+            <div class="overflow-y-auto grow scrollbar-thin overscroll-contain">
               <slot />
             </div>
 
             <!-- Footer del Modal -->
-            <div v-if="$slots.footer" class="px-5 py-3.5 bg-slate-50 dark:bg-slate-900/50 border-t border-slate-100 dark:border-slate-800 flex items-center justify-end gap-2 shrink-0">
+            <div v-if="$slots.footer" class="px-4 py-3 sm:px-5 sm:py-3.5 bg-slate-50 dark:bg-slate-900/50 border-t border-slate-100 dark:border-slate-800 flex items-center justify-end gap-2 shrink-0">
               <slot name="footer" />
             </div>
           </div>
