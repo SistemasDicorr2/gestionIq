@@ -92,17 +92,22 @@ const processFile = async () => {
       throw new Error("El archivo Excel está vacío o tiene un formato incorrecto.");
     }
 
-    const instrumentadoresToUpsert = jsonData.map(row => ({
-      dni: String(row.dni).replace(/\D/g, ''),
-      nombre_completo: row.nombre_completo,
-      cuil: row.cuil,
-      telefono: row.telefono,
-      alias: row.alias,
-      banco: row.banco,
-      alias_bancario: row.alias_bancario,
-      cbu: row.cbu,
-      lugar_trabajo: row.lugar_trabajo
-    })).filter(iq => iq.dni && iq.nombre_completo);
+    const instrumentadoresToUpsert = jsonData.map(row => {
+      const emailRaw = row.email || row.correo || row.mail || row['correo electronico'] || row['correo_electronico'] || '';
+      const emailClean = String(emailRaw).trim().toLowerCase();
+      return {
+        dni: String(row.dni).replace(/\D/g, ''),
+        nombre_completo: row.nombre_completo,
+        email: emailClean && emailClean.includes('@') ? emailClean : undefined,
+        cuil: row.cuil,
+        telefono: row.telefono,
+        alias: row.alias,
+        banco: row.banco,
+        alias_bancario: row.alias_bancario,
+        cbu: row.cbu,
+        lugar_trabajo: row.lugar_trabajo
+      };
+    }).filter(iq => iq.dni && iq.nombre_completo);
 
     const { error } = await supabase
       .from('instrumentadores')

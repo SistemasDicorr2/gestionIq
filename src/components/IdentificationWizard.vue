@@ -61,8 +61,8 @@
           <!-- Caso: Instrumentador Nuevo -->
           <div v-if="!instrumentadorFound" class="space-y-4">
             <div>
-              <label for="nombre" class="block text-xs font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Nombre y Apellido</label>
-              <p class="text-xs text-slate-500 dark:text-slate-400 mb-2">Es tu primera vez en Gestión IQ. Registrá tu nombre completo para continuar.</p>
+              <label for="nombre" class="block text-xs font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Nombre y Apellido <span class="text-rose-500">*</span></label>
+              <p class="text-xs text-slate-500 dark:text-slate-400 mb-2">Es tu primera vez en Gestión IQ. Registrá tus datos para continuar.</p>
               <input 
                 type="text" 
                 id="nombre" 
@@ -73,9 +73,24 @@
               >
             </div>
 
+            <div>
+              <label for="wizard-email" class="block text-xs font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Correo Electrónico <span class="text-rose-500">*</span></label>
+              <input 
+                type="email" 
+                id="wizard-email" 
+                v-model="email" 
+                placeholder="Ej: juan.perez@gmail.com" 
+                required 
+                class="w-full p-3.5 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700/80 rounded-2xl text-base font-extrabold text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-600 focus:ring-2 focus:ring-blue-500 outline-none"
+              >
+              <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
+                📧 Recibirás avisos automáticos y tus comprobantes cuando se liquide la cirugía.
+              </p>
+            </div>
+
             <button 
               @click="registerAndProceed" 
-              :disabled="!nombreCompleto.trim() || isSaving" 
+              :disabled="!nombreCompleto.trim() || !isEmailValid || isSaving" 
               class="w-full bg-emerald-600 hover:bg-emerald-700 active:scale-98 text-white font-black py-3.5 px-6 rounded-2xl text-base transition-all disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer shadow-sm"
             >
               <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
@@ -118,18 +133,24 @@
 </template>
 
 <script setup>
-import { ref, watch, onMounted } from 'vue';
+import { ref, computed, watch, onMounted } from 'vue';
 import { supabase } from '../services/supabase.js';
 
 const emit = defineEmits(['identification-complete', 'request-update']);
 
 const dni = ref('');
 const nombreCompleto = ref('');
+const email = ref('');
 const instrumentador = ref(null);
 const instrumentadorFound = ref(null);
 const isCheckingDni = ref(false);
 const isSaving = ref(false);
 const dniError = ref('');
+
+const isEmailValid = computed(() => {
+  const e = (email.value || '').trim().toLowerCase();
+  return e.length > 5 && e.includes('@') && e.includes('.');
+});
 
 const DNI_STORAGE_KEY = 'gestion-iq-dni';
 
@@ -146,6 +167,8 @@ const saveDniToStorage = (dniToSave) => {
 
 const resetIdentification = () => {
   dni.value = '';
+  nombreCompleto.value = '';
+  email.value = '';
   instrumentador.value = null;
   instrumentadorFound.value = null;
   dniError.value = '';
@@ -204,7 +227,12 @@ const registerAndProceed = async () => {
   isSaving.value = true;
   try {
     const cleanDni = dni.value.replace(/\D/g, '');
-    const newInstrumentador = { dni: cleanDni, nombre_completo: nombreCompleto.value.trim() };
+    const cleanEmail = email.value.trim().toLowerCase();
+    const newInstrumentador = { 
+      dni: cleanDni, 
+      nombre_completo: nombreCompleto.value.trim(),
+      email: cleanEmail
+    };
     const { data, error } = await supabase.from('instrumentadores').insert(newInstrumentador).select().single();
     if (error) throw error;
     saveDniToStorage(dni.value);

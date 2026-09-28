@@ -62,6 +62,20 @@
           </div>
 
           <div>
+            <label for="new-email" class="block font-bold text-slate-700 dark:text-slate-300 mb-1">
+              Correo Electrónico (Avisos de Pago) <span class="text-rose-500">*</span>
+            </label>
+            <input 
+              v-model="formData.email" 
+              type="email" 
+              id="new-email" 
+              required 
+              placeholder="Ej: profesional@correo.com"
+              class="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl text-xs sm:text-sm font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:bg-white dark:focus:bg-slate-900 focus:outline-none transition-all placeholder:text-slate-400 placeholder:font-normal" 
+            />
+          </div>
+
+          <div>
             <label for="new-cuil" class="block font-bold text-slate-700 dark:text-slate-300 mb-1">
               CUIT / CUIL
             </label>
@@ -87,7 +101,7 @@
             />
           </div>
 
-          <div>
+          <div class="sm:col-span-2">
             <label for="new-lugar_trabajo" class="block font-bold text-slate-700 dark:text-slate-300 mb-1">
               Lugar de Trabajo Habitual
             </label>
@@ -98,6 +112,9 @@
               placeholder="Ej: Sanatorio Del Norte / Clínica San José"
               class="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl text-xs sm:text-sm font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:bg-white dark:focus:bg-slate-900 focus:outline-none transition-all placeholder:text-slate-400 placeholder:font-normal" 
             />
+            <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-1">
+              📧 El correo ingresado quedará inmediatamente habilitado para recibir notificaciones y comprobantes de liquidación.
+            </p>
           </div>
         </div>
       </GlowCard>
@@ -224,6 +241,7 @@ const isSubmitting = ref(false);
 const initialFormData = {
   nombre_completo: '',
   dni: '',
+  email: '',
   cuil: '',
   alias: '',
   banco: '',
@@ -235,10 +253,23 @@ const initialFormData = {
 const formData = ref({ ...initialFormData });
 
 const handleSubmit = async () => {
-  if (!formData.value.nombre_completo || !formData.value.dni) {
+  const nombre = (formData.value.nombre_completo || '').trim();
+  const dniClean = (formData.value.dni || '').trim();
+  const emailStr = (formData.value.email || '').trim().toLowerCase();
+
+  if (!nombre || !dniClean) {
     toast.error('El Nombre Completo y el DNI son obligatorios.');
     return;
   }
+
+  if (!emailStr || !emailStr.includes('@') || !emailStr.includes('.')) {
+    toast.error('El Correo Electrónico es obligatorio y debe tener un formato válido (ej: nombre@gmail.com).');
+    return;
+  }
+
+  formData.value.nombre_completo = nombre;
+  formData.value.dni = dniClean;
+  formData.value.email = emailStr;
 
   isSubmitting.value = true;
   try {
