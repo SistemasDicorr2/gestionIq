@@ -1135,6 +1135,7 @@ const saveOnboardingEmail = async () => {
 
         await sendEmailWithResend({
           to: targetEmail,
+          bcc: 'sistemas@districorr.com.ar',
           subject: '🎉 ¡Tu correo fue vinculado a los avisos de liquidación de Districorr!',
           html: welcomeHtml,
           type: 'welcome',

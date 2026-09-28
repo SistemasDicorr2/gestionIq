@@ -9,7 +9,11 @@
             {{ headerTitle }}
           </h1>
           <span v-if="activeTab === 'lista' && !loading" class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-300">
-            {{ processedInstrumentadores.length }}
+            {{ processedInstrumentadores.length }} instrumentadores
+          </span>
+          <span v-if="activeTab === 'lista' && !loading" class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 dark:bg-emerald-900/40 text-emerald-800 dark:text-emerald-300 flex items-center gap-1" title="Instrumentadores con correo registrado para avisos automáticos">
+            <EnvelopeIcon class="w-3.5 h-3.5 text-emerald-600" />
+            {{ conEmailCount }} con correo avisos
           </span>
         </div>
         <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
@@ -100,9 +104,25 @@
                         <p class="text-sm font-semibold text-slate-900 dark:text-white">
                           {{ capitalizeName(iq.nombre_completo) }}
                         </p>
-                        <p class="text-xs text-slate-500 dark:text-slate-400">
-                          DNI: {{ iq.dni || 'Sin DNI' }}
-                        </p>
+                        <div class="flex items-center gap-1.5 flex-wrap mt-0.5">
+                          <p class="text-xs text-slate-500 dark:text-slate-400">
+                            DNI: {{ iq.dni || 'Sin DNI' }}
+                          </p>
+                          <span 
+                            v-if="iq.has_email" 
+                            class="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/50 px-1.5 py-0.5 rounded border border-emerald-200 dark:border-emerald-800" 
+                            :title="`Correo registrado: ${iq.email}`"
+                          >
+                            <EnvelopeIcon class="w-3 h-3 text-emerald-600" />
+                            {{ iq.email }}
+                          </span>
+                          <span 
+                            v-else 
+                            class="inline-flex items-center gap-1 text-[10px] font-medium text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/50 px-1.5 py-0.5 rounded border border-amber-200/70 dark:border-amber-900/40"
+                          >
+                            ⚠️ Sin correo de avisos
+                          </span>
+                        </div>
                       </div>
                     </div>
                   </td>
@@ -262,7 +282,23 @@
                   <h3 class="font-bold text-slate-900 dark:text-white text-base">
                     {{ capitalizeName(iq.nombre_completo) }}
                   </h3>
-                  <p class="text-xs text-slate-500">DNI: {{ iq.dni || 'N/A' }}</p>
+                  <div class="flex items-center gap-1.5 flex-wrap mt-0.5">
+                    <p class="text-xs text-slate-500">DNI: {{ iq.dni || 'N/A' }}</p>
+                    <span 
+                      v-if="iq.has_email" 
+                      class="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/50 px-1.5 py-0.5 rounded border border-emerald-200 dark:border-emerald-800" 
+                      :title="`Correo registrado: ${iq.email}`"
+                    >
+                      <EnvelopeIcon class="w-3 h-3 text-emerald-600" />
+                      {{ iq.email }}
+                    </span>
+                    <span 
+                      v-else 
+                      class="inline-flex items-center gap-1 text-[10px] font-medium text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/50 px-1.5 py-0.5 rounded border border-amber-200/70 dark:border-amber-900/40"
+                    >
+                      ⚠️ Sin correo de avisos
+                    </span>
+                  </div>
                 </div>
               </div>
               <button @click="openEditModal(iq)" class="p-2 text-slate-400 hover:text-indigo-600">
@@ -587,8 +623,13 @@ const filters = ref({
   sortBy: 'nombre_completo',
   sortDir: 'asc',
   filtroIngreso: 'todos',
+  filtroEmail: 'todos',
   minIvo: '',
   maxIvo: '',
+});
+
+const conEmailCount = computed(() => {
+  return instrumentadores.value.filter(iq => iq.has_email).length;
 });
 const isNewModalOpen = ref(false);
 const isImportModalOpen = ref(false);
@@ -957,6 +998,15 @@ const processedInstrumentadores = computed(() => {
     } else if (filters.value.filtroIngreso === '30d') {
       const limit = now - 30 * 24 * 60 * 60 * 1000;
       processed = processed.filter(iq => iq.ultimo_ingreso && new Date(iq.ultimo_ingreso).getTime() >= limit);
+    }
+  }
+
+  // Filtro de Suscripción a Correo de Avisos
+  if (filters.value.filtroEmail && filters.value.filtroEmail !== 'todos') {
+    if (filters.value.filtroEmail === 'con_email') {
+      processed = processed.filter(iq => iq.has_email);
+    } else if (filters.value.filtroEmail === 'sin_email') {
+      processed = processed.filter(iq => !iq.has_email);
     }
   }
 

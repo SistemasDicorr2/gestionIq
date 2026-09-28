@@ -87,7 +87,7 @@
       </div>
     </div>
 
-    <!-- Filtros Avanzados (Historial de Ingresos + Rango IVO) -->
+    <!-- Filtros Avanzados (Historial de Ingresos + Suscripción a Avisos + Rango IVO) -->
     <div class="mt-3 pt-3 border-t border-slate-100 dark:border-slate-700/60 flex flex-wrap items-center justify-between gap-4 text-xs">
       <!-- Filtro Historial de Ingresos -->
       <div class="flex items-center gap-2">
@@ -101,12 +101,30 @@
           @change="update('filtroIngreso', $event.target.value)" 
           class="filter-input-sm cursor-pointer font-medium bg-slate-50 dark:bg-slate-700"
         >
-          <option value="todos">Todos los instrumentadores</option>
+          <option value="todos">Todos los ingresos</option>
           <option value="con_ingresos">Con ingresos al portal</option>
           <option value="24h">Últimas 24 horas</option>
           <option value="7d">Últimos 7 días</option>
           <option value="30d">Últimos 30 días</option>
           <option value="sin_ingresos">Sin ingresos registrados</option>
+        </select>
+      </div>
+
+      <!-- Filtro Estado de Suscripción a Avisos de Pago -->
+      <div class="flex items-center gap-2">
+        <span class="font-semibold text-slate-600 dark:text-slate-300 flex items-center gap-1">
+          <EnvelopeIcon class="w-3.5 h-3.5 text-emerald-500" />
+          Avisos de Pago:
+        </span>
+        <select 
+          id="filter-email"
+          :value="modelValue.filtroEmail || 'todos'" 
+          @change="update('filtroEmail', $event.target.value)" 
+          class="filter-input-sm cursor-pointer font-medium bg-slate-50 dark:bg-slate-700"
+        >
+          <option value="todos">Todos los estados</option>
+          <option value="con_email">📧 Suscritos (Con Correo)</option>
+          <option value="sin_email">⚠️ Sin Correo Registrado</option>
         </select>
       </div>
 
@@ -149,7 +167,8 @@ import {
   ArrowDownTrayIcon, 
   FunnelIcon, 
   XMarkIcon,
-  ClockIcon
+  ClockIcon,
+  EnvelopeIcon
 } from '@heroicons/vue/24/outline';
 
 const props = defineProps({
@@ -171,6 +190,7 @@ const hasActiveFilters = computed(() => {
     props.modelValue.minIvo || 
     props.modelValue.maxIvo || 
     (props.modelValue.filtroIngreso && props.modelValue.filtroIngreso !== 'todos') ||
+    (props.modelValue.filtroEmail && props.modelValue.filtroEmail !== 'todos') ||
     props.modelValue.sortBy !== 'nombre_completo' ||
     props.modelValue.sortDir !== 'asc'
   );

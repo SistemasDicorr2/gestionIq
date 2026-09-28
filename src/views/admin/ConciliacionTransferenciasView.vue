@@ -4013,10 +4013,17 @@ const ejecutarConfirmacionConciliacion = async (allowZero = false) => {
 
   isSubmitting.value = true;
   try {
-    // 1. Subida segura y automática del comprobante a Cloudflare R2
+    // 1. Subida segura y obligatoria del comprobante a Cloudflare R2 si existe archivo
     let objectKey = activeFile.value?.uploadedObjectKey || null;
     if (!objectKey && activeFile.value) {
-      objectKey = await uploadComprobanteToR2(activeFile.value);
+      try {
+        objectKey = await uploadComprobanteToR2(activeFile.value);
+      } catch (uploadErr) {
+        console.error("Error al subir comprobante a Cloudflare R2:", uploadErr);
+        toast.error(`⚠️ No se pudo subir el comprobante digital a Cloudflare R2: ${uploadErr.message}`);
+        isSubmitting.value = false;
+        return;
+      }
     }
 
     const notasConciliacion = [
