@@ -314,23 +314,18 @@
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
-                  <span>Guardando...</span>
+                  <span>Guardando y accediendo...</span>
                 </span>
                 <span v-else class="flex items-center justify-center gap-2 relative z-10">
-                  <span>Guardar correo y ver mi actividad</span>
+                  <span>Guardar correo y acceder al Portal</span>
                   <ArrowRight class="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" />
                 </span>
               </button>
 
-              <!-- Botón Omitir / Continuar sin Correo -->
               <div class="pt-1 text-center">
-                <button 
-                  type="button" 
-                  @click="skipOnboardingEmail()" 
-                  class="text-xs font-bold text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 underline underline-offset-2 transition-colors cursor-pointer"
-                >
-                  Continuar sin correo por ahora
-                </button>
+                <p class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
+                  🔒 El correo es obligatorio para garantizar la recepción segura de tus comprobantes de pago.
+                </p>
               </div>
             </form>
 
@@ -1058,16 +1053,10 @@ const authenticate = async (overrideDni = null) => {
 
       toast.success("Acceso concedido.");
 
-      // Determinar si debe mostrarse la pantalla de ingreso / vinculación de correo inicial
+      // Determinar si debe mostrarse la pantalla de ingreso / vinculación de correo obligatoria
       const hasValidEmail = Boolean(instrumentadorInfo.value?.email && instrumentadorInfo.value.email.trim().includes('@'));
-      let hasSkippedInSession = false;
-      try {
-        hasSkippedInSession = sessionStorage.getItem(`gestioniq_email_setup_skipped_${cleanDni}`) === 'true';
-      } catch (e) {
-        // Ignore
-      }
 
-      if (!hasValidEmail && !hasSkippedInSession) {
+      if (!hasValidEmail) {
         showEmailOnboardingScreen.value = true;
         onboardingEmail.value = '';
       } else {
@@ -1162,22 +1151,10 @@ const saveOnboardingEmail = async () => {
     showEmailOnboardingScreen.value = false;
   } catch (err) {
     console.error("Error al vincular correo:", err);
-    toast.error("Ocurrió un error al guardar. Podés continuar a tu portal.");
-    showEmailOnboardingScreen.value = false;
+    toast.error("Ocurrió un error al guardar tu correo. Por favor, verificá e intentá nuevamente.");
   } finally {
     isOnboardingSaving.value = false;
   }
-};
-
-const skipOnboardingEmail = () => {
-  const cleanDni = dni.value || instrumentadorInfo.value?.dni;
-  try {
-    sessionStorage.setItem(`gestioniq_email_setup_skipped_${cleanDni}`, 'true');
-  } catch (e) {
-    // Ignore
-  }
-  showEmailOnboardingScreen.value = false;
-  toast.info("Ingresando al portal. Podés vincular tu correo en cualquier momento desde 'Mi Perfil' o 'Ajustar avisos'.");
 };
 
 const handleNotificationSettingsUpdated = ({ email, pushEnabled }) => {
