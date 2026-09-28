@@ -1,6 +1,7 @@
 // src/services/comprobanteNotificationService.js
-// Servicio unificado y blindado de notificaciones para instrumentadores (Resend Email + Web Push + WhatsApp)
-// Incorpora guardias anti-cero ($0 / falsos positivos), idempotencia, validación de email y plantilla responsive oficial.
+// Servicio unificado y optimizado de notificaciones para instrumentadores (Resend Email + Web Push + WhatsApp)
+// Incorpora guardias anti-cero ($0 / falsos positivos), cache en memoria de tokens/contactos,
+// pre-fetching agrupado en batch para lotes (elimina consultas N+1), idempotencia y plantilla responsive oficial.
 
 import { supabase } from './supabase';
 import { sendEmailWithResend } from './resendService';
@@ -11,6 +12,11 @@ import { generateComprobanteEmailHtml } from './emailComprobanteTemplateService'
  * Cache de idempotencia en memoria para evitar envíos duplicados en la misma sesión
  */
 const recentNotificationsCache = new Set();
+
+/**
+ * Cache en memoria de tokens de instrumentadores activos por DNI (reduce latencia a 0ms en llamadas sucesivas)
+ */
+const tokenCacheByDni = new Map();
 
 /**
  * Formatea valores numéricos como moneda ARS con separadores correctos
@@ -55,6 +61,22 @@ export const isValidEmail = (email) => {
 };
 
 /**
+ * Extrae y sanitiza correos válidos a partir de una cadena que puede contener múltiples direcciones (separadas por coma, punto y coma o espacio)
+ * @param {string} rawEmail 
+ * @returns {string[]} Lista de emails válidos únicos
+ */
+export const extractValidEmails = (rawEmail) => {
+  if (!rawEmail || typeof rawEmail !== 'string') return [];
+  const candidates = rawEmail
+    .split(/[,;\s]+/)
+    .map(e => e.trim().toLowerCase())
+    .filter(Boolean);
+  
+  const validList = candidates.filter(isValidEmail);
+  return [...new Set(validList)];
+};
+
+/**
  * Sanitiza y formatea nombres a Title Case (ej: "ALEJANDRA TORRES" -> "Alejandra Torres")
  */
 export const sanitizeName = (rawName) => {
@@ -69,15 +91,20 @@ export const sanitizeName = (rawName) => {
 };
 
 /**
- * Obtiene o genera el token de acceso al resumen del instrumentador por su DNI
+ * Obtiene o genera el token de acceso al resumen del instrumentador por su DNI (con cache en memoria)
  */
 export async function getOrGenerateInstrumentadorToken(dni) {
   if (!dni) return null;
   const cleanDni = String(dni).replace(/\D/g, '');
   if (!cleanDni) return null;
 
+  // 1. Revisar cache en memoria
+  if (tokenCacheByDni.has(cleanDni)) {
+    return tokenCacheByDni.get(cleanDni);
+  }
+
   try {
-    // 1. Intentar buscar token activo existente
+    // 2. Intentar buscar token activo existente en Supabase
     const { data: existingToken, error: selectErr } = await supabase
       .from('instrumentador_tokens')
       .select('token')
@@ -88,15 +115,17 @@ export async function getOrGenerateInstrumentadorToken(dni) {
       .maybeSingle();
 
     if (!selectErr && existingToken?.token) {
+      tokenCacheByDni.set(cleanDni, existingToken.token);
       return existingToken.token;
     }
 
-    // 2. Si no existe, invocar la RPC para generarlo
+    // 3. Si no existe, invocar la RPC para generarlo
     const { data: newToken, error: rpcErr } = await supabase.rpc('generar_activity_token', {
       p_dni: cleanDni
     });
 
     if (!rpcErr && newToken) {
+      tokenCacheByDni.set(cleanDni, newToken);
       return newToken;
     }
 
@@ -108,7 +137,7 @@ export async function getOrGenerateInstrumentadorToken(dni) {
 }
 
 /**
- * Envía la notificación al instrumentador por Resend Email y Web Push con protecciones exhaustivas
+ * Envía la notificación individual al instrumentador por Resend Email y Web Push con protecciones exhaustivas
  * @param {Object} payload
  * @param {string} payload.instrumentadorDni
  * @param {string} [payload.instrumentadorNombre]
@@ -120,7 +149,8 @@ export async function getOrGenerateInstrumentadorToken(dni) {
  * @param {string|number} [payload.ordenId]
  * @param {string} [payload.comprobanteObjectKey]
  * @param {boolean} [payload.forceSend] Si es true, omite la comprobación de duplicados de sesión
- * @returns {Promise<{ emailSent: boolean, pushSent: boolean, portalUrl: string, reason?: string }>}
+ * @param {string} [payload.prefetchedToken] Token ya precargado en batch
+ * @returns {Promise<{ emailSent: boolean, pushSent: boolean, portalUrl: string, instrumentadorNombre: string, reason?: string }>}
  */
 export async function notificarComprobanteAInstrumentador({
   instrumentadorDni,
@@ -132,9 +162,10 @@ export async function notificarComprobanteAInstrumentador({
   pacientes = [],
   ordenId,
   comprobanteObjectKey,
-  forceSend = false
+  forceSend = false,
+  prefetchedToken = null
 }) {
-  const result = { emailSent: false, pushSent: false, portalUrl: '', reason: '' };
+  const result = { emailSent: false, pushSent: false, portalUrl: '', instrumentadorNombre: '', reason: '' };
 
   // GUARDIA 1: Validación de DNI
   const cleanDni = instrumentadorDni ? String(instrumentadorDni).replace(/\D/g, '') : '';
@@ -147,7 +178,7 @@ export async function notificarComprobanteAInstrumentador({
   // GUARDIA 2: Anti-$0 y Anti-Falsos Positivos
   const numericMonto = Number(montoTotal);
   if (isNaN(numericMonto) || numericMonto <= 0) {
-    console.warn(`[NotificationService] ⚠️ Notificación cancelada para DNI ${cleanDni}: Monto total ($${montoTotal}) es <= 0 o no numérico. Se evita falso positivo.`);
+    console.warn(`[NotificationService] ⚠️ Notificación cancelada para DNI ${cleanDni}: Monto total ($${montoTotal}) es <= 0 o no numérico.`);
     result.reason = 'MONTO_CERO_O_INVALIDO';
     return result;
   }
@@ -163,9 +194,9 @@ export async function notificarComprobanteAInstrumentador({
   try {
     // 1. Obtener datos actualizados del instrumentador si faltan
     let finalNombre = sanitizeName(instrumentadorNombre);
-    let finalEmail = instrumentadorEmail?.trim();
+    let finalEmails = extractValidEmails(instrumentadorEmail);
 
-    if (!finalEmail || finalNombre === 'Instrumentador/a') {
+    if (finalEmails.length === 0 || finalNombre === 'Instrumentador/a') {
       const { data: instData } = await supabase
         .from('instrumentadores')
         .select('nombre_completo, email')
@@ -173,15 +204,19 @@ export async function notificarComprobanteAInstrumentador({
         .maybeSingle();
 
       if (instData) {
-        if (!finalEmail && instData.email) finalEmail = instData.email.trim();
+        if (finalEmails.length === 0 && instData.email) {
+          finalEmails = extractValidEmails(instData.email);
+        }
         if (finalNombre === 'Instrumentador/a' && instData.nombre_completo) {
           finalNombre = sanitizeName(instData.nombre_completo);
         }
       }
     }
 
-    // 2. Obtener Token Seguro de Acceso al Portal
-    const token = await getOrGenerateInstrumentadorToken(cleanDni);
+    result.instrumentadorNombre = finalNombre;
+
+    // 2. Obtener Token Seguro de Acceso al Portal (usando prefetched si está disponible)
+    const token = prefetchedToken || await getOrGenerateInstrumentadorToken(cleanDni);
     const origin = typeof window !== 'undefined' ? window.location.origin : 'https://gestion-iq.districorr.com.ar';
     const portalUrl = token ? `${origin}/resumen/${token}` : `${origin}/resumen`;
     result.portalUrl = portalUrl;
@@ -190,7 +225,7 @@ export async function notificarComprobanteAInstrumentador({
     const formattedFecha = formatDateStr(fechaEmision);
 
     // 3. CANAL 1: Email Automático vía Resend con Plantilla Oficial Responsive
-    if (isValidEmail(finalEmail)) {
+    if (finalEmails.length > 0) {
       try {
         const htmlContent = generateComprobanteEmailHtml({
           nombreCompleto: finalNombre,
@@ -203,7 +238,7 @@ export async function notificarComprobanteAInstrumentador({
         });
 
         await sendEmailWithResend({
-          to: finalEmail,
+          to: finalEmails,
           subject: `💳 Nuevo Comprobante de Liquidación (${formattedMonto}) · Gestión IQ`,
           html: htmlContent,
           type: 'comprobante',
@@ -212,13 +247,13 @@ export async function notificarComprobanteAInstrumentador({
 
         result.emailSent = true;
         recentNotificationsCache.add(deduplicationKey);
-        console.log(`[NotificationService] ✓ Email de comprobante enviado a: ${finalEmail} (Orden #${ordenId || 'N/A'})`);
+        console.log(`[NotificationService] ✓ Email de comprobante enviado a: ${finalEmails.join(', ')} (Orden #${ordenId || 'N/A'})`);
       } catch (emailErr) {
-        console.warn(`[NotificationService] ✕ Error al enviar correo Resend a ${finalEmail}:`, emailErr);
+        console.warn(`[NotificationService] ✕ Error al enviar correo Resend a ${finalEmails.join(', ')}:`, emailErr);
         result.reason = `ERROR_EMAIL: ${emailErr.message || 'Fallo de entrega'}`;
       }
     } else {
-      console.warn(`[NotificationService] ⚠️ Instrumentador DNI ${cleanDni} (${finalNombre}) no tiene un email válido registrado (${finalEmail || 'vacío'}).`);
+      console.warn(`[NotificationService] ⚠️ Instrumentador DNI ${cleanDni} (${finalNombre}) no tiene un email válido registrado.`);
       result.reason = 'EMAIL_NO_CONFIGURADO';
     }
 
@@ -243,6 +278,118 @@ export async function notificarComprobanteAInstrumentador({
 }
 
 /**
+ * Despacho optimizado en batch para múltiples comprobantes (elimina consultas N+1 con pre-fetching único)
+ * @param {Array<Object>} items Lista de payloads para notificar
+ * @returns {Promise<{ total: number, emailsSent: number, pushSent: number, sinEmail: number, duplicados: number, fallidos: number, resumenText: string }>}
+ */
+export async function notificarLoteComprobantes(items = []) {
+  const summary = {
+    total: items.length,
+    emailsSent: 0,
+    pushSent: 0,
+    sinEmail: 0,
+    duplicados: 0,
+    fallidos: 0,
+    resumenText: ''
+  };
+
+  if (!Array.isArray(items) || items.length === 0) {
+    summary.resumenText = 'No hay items para notificar.';
+    return summary;
+  }
+
+  try {
+    // 1. Recopilar todos los DNIs únicos válidos que requieran pre-fetch
+    const dnis = [...new Set(
+      items
+        .map(it => it.instrumentadorDni ? String(it.instrumentadorDni).replace(/\D/g, '') : '')
+        .filter(Boolean)
+    )];
+
+    if (dnis.length > 0) {
+      // 2. PRE-FETCH 1: Obtener emails y nombres en UNA sola consulta SQL
+      const { data: instList } = await supabase
+        .from('instrumentadores')
+        .select('dni, nombre_completo, email')
+        .in('dni', dnis);
+
+      const instMap = new Map();
+      if (Array.isArray(instList)) {
+        instList.forEach(inst => {
+          if (inst?.dni) instMap.set(String(inst.dni), inst);
+        });
+      }
+
+      // 3. PRE-FETCH 2: Obtener tokens activos en UNA sola consulta SQL
+      const dnisSinCache = dnis.filter(d => !tokenCacheByDni.has(d));
+      if (dnisSinCache.length > 0) {
+        const { data: tokenList } = await supabase
+          .from('instrumentador_tokens')
+          .select('instrumentador_dni, token')
+          .in('instrumentador_dni', dnisSinCache)
+          .eq('is_active', true);
+
+        if (Array.isArray(tokenList)) {
+          tokenList.forEach(t => {
+            if (t?.instrumentador_dni && t?.token) {
+              tokenCacheByDni.set(String(t.instrumentador_dni), t.token);
+            }
+          });
+        }
+      }
+
+      // 4. Inyectar datos precargados a cada item
+      items.forEach(item => {
+        const cleanDni = item.instrumentadorDni ? String(item.instrumentadorDni).replace(/\D/g, '') : '';
+        const prefetchedInst = instMap.get(cleanDni);
+        if (prefetchedInst) {
+          if (!item.instrumentadorEmail && prefetchedInst.email) {
+            item.instrumentadorEmail = prefetchedInst.email;
+          }
+          if ((!item.instrumentadorNombre || item.instrumentadorNombre === 'Instrumentador/a') && prefetchedInst.nombre_completo) {
+            item.instrumentadorNombre = prefetchedInst.nombre_completo;
+          }
+        }
+        if (cleanDni && tokenCacheByDni.has(cleanDni)) {
+          item.prefetchedToken = tokenCacheByDni.get(cleanDni);
+        }
+      });
+    }
+
+    // 5. Despacho concurrente protegido con Promise.allSettled
+    const results = await Promise.allSettled(
+      items.map(item => notificarComprobanteAInstrumentador(item))
+    );
+
+    // 6. Consolidar métricas
+    results.forEach(res => {
+      if (res.status === 'fulfilled') {
+        const r = res.value;
+        if (r.emailSent) summary.emailsSent++;
+        if (r.pushSent) summary.pushSent++;
+        if (r.reason === 'EMAIL_NO_CONFIGURADO') summary.sinEmail++;
+        if (r.reason === 'DUPLICADO_PREVENIDO') summary.duplicados++;
+        if (r.reason && r.reason.startsWith('ERROR_')) summary.fallidos++;
+      } else {
+        summary.fallidos++;
+      }
+    });
+
+    const partes = [];
+    if (summary.emailsSent > 0) partes.push(`✓ ${summary.emailsSent} correo(s) enviado(s)`);
+    if (summary.sinEmail > 0) partes.push(`⚠️ ${summary.sinEmail} sin email registrado`);
+    if (summary.fallidos > 0) partes.push(`✕ ${summary.fallidos} error(es) de envío`);
+    summary.resumenText = partes.length > 0 ? partes.join(' · ') : 'Notificaciones procesadas.';
+
+    return summary;
+  } catch (err) {
+    console.error('[NotificationService] Error al procesar lote de notificaciones:', err);
+    summary.resumenText = `Error al notificar lote: ${err.message}`;
+    return summary;
+  }
+}
+
+/**
  * Genera el enlace directo a WhatsApp con mensaje personalizado para el instrumentador
  */
 export function buildComprobanteWhatsAppUrl({
@@ -262,4 +409,5 @@ export function buildComprobanteWhatsAppUrl({
 
   return `https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`;
 }
+
 

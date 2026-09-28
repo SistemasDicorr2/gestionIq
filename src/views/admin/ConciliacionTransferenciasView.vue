@@ -1796,7 +1796,7 @@ import { parsearComprobanteBancarioTexto, findExactSurgerySubset, parseImporteMo
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
-import { notificarComprobanteAInstrumentador } from '../../services/comprobanteNotificationService';
+import { notificarComprobanteAInstrumentador, notificarLoteComprobantes } from '../../services/comprobanteNotificationService';
 
 // ICONOS LUCIDE
 import {
@@ -2572,6 +2572,7 @@ const confirmarLoteAutomatico = async () => {
 
   isSubmitting.value = true;
   let successCount = 0;
+  const notificationsQueue = [];
 
   try {
     for (const fileItem of readyList) {
@@ -2622,7 +2623,7 @@ const confirmarLoteAutomatico = async () => {
         fileItem.uploadedObjectKey = objectKey;
         successCount++;
 
-        // Notificación automática al instrumentador (Resend Email + Web Push)
+        // Recopilar para despacho en lote optimizado (Resend Email + Web Push)
         if (objectKey && fileItem.matchedInstrumentador?.dni) {
           const nombresPacientes = Array.isArray(fileCirugias)
             ? fileCirugias.map(c => {
@@ -2632,21 +2633,36 @@ const confirmarLoteAutomatico = async () => {
               })
             : [];
 
-          notificarComprobanteAInstrumentador({
+          notificationsQueue.push({
             instrumentadorDni: fileItem.matchedInstrumentador.dni,
             instrumentadorNombre: fileItem.matchedInstrumentador.nombre_completo || fileItem.extractedData?.destinatario_nombre,
+            instrumentadorEmail: fileItem.matchedInstrumentador.email,
             montoTotal: montoFinalGeneral,
             fechaEmision: fileItem.extractedData?.fecha || new Date().toISOString().split('T')[0],
             cirugiasCount: fileCirugias?.length || 0,
             pacientes: nombresPacientes,
             ordenId: batchOrdenId,
             comprobanteObjectKey: objectKey
-          }).catch(e => console.warn('[NotificacionComprobante] Error silencioso:', e));
+          });
         }
       } else {
         fileItem.submittingError = rpcErr.message;
         console.error(`Error RPC al registrar orden para ${fileItem.name}:`, rpcErr);
       }
+    }
+
+    // Despacho optimizado en batch de todas las notificaciones
+    if (notificationsQueue.length > 0) {
+      notificarLoteComprobantes(notificationsQueue)
+        .then(summary => {
+          if (summary.emailsSent > 0) {
+            toast.info(`📧 ${summary.emailsSent} correo(s) de liquidación enviados a instrumentadores.`);
+          }
+          if (summary.sinEmail > 0) {
+            console.warn(`[Conciliador] ${summary.sinEmail} instrumentadores no tienen email configurado.`);
+          }
+        })
+        .catch(err => console.warn('[Conciliador] Error en notificaciones de lote:', err));
     }
 
     toast.success(`⚡ ¡Lote procesado! Se conciliaron ${successCount} comprobantes con sus comprobantes adjuntos.`);
@@ -4049,12 +4065,17 @@ const ejecutarConfirmacionConciliacion = async (allowZero = false) => {
       notificarComprobanteAInstrumentador({
         instrumentadorDni: activeFile.value.matchedInstrumentador.dni,
         instrumentadorNombre: activeFile.value.matchedInstrumentador.nombre_completo || activeFile.value.matchedInstrumentador.nombre || activeFile.value.extractedData?.destinatario_nombre,
+        instrumentadorEmail: activeFile.value.matchedInstrumentador.email,
         montoTotal: activeAsignadoMonto.value,
         fechaEmision: activeFile.value.extractedData?.fecha || new Date().toISOString().split('T')[0],
         cirugiasCount: targetCirugias.length,
         pacientes: nombresPacientes,
         ordenId: newOrdenId,
         comprobanteObjectKey: objectKey
+      }).then(res => {
+        if (res?.emailSent) {
+          toast.info(`📧 Correo de liquidación enviado a ${res.instrumentadorNombre || 'el instrumentador'}.`);
+        }
       }).catch(e => console.warn('[NotificacionComprobante] Error silencioso:', e));
     }
 

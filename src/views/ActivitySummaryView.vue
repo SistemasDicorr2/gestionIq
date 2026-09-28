@@ -182,7 +182,186 @@
 
       </div>
 
-      <!-- ESTADO 2: VISTA DE DATOS CON ALTO CONTRASTE -->
+      <!-- ESTADO 2: PANTALLA DE VINCULACIÓN INICIAL DE CORREO DE AVISOS (FIT 100vh) -->
+      <div v-else-if="showEmailOnboardingScreen" class="relative min-h-[100dvh] flex flex-col justify-between max-w-lg px-4 sm:px-6 mx-auto py-4 sm:py-6 overflow-y-auto">
+        
+        <!-- Ambient Animated Mesh & Glow Orbs -->
+        <div class="fixed inset-0 pointer-events-none overflow-hidden -z-10">
+          <div class="absolute -top-10 -left-10 w-72 h-72 sm:w-96 sm:h-96 bg-emerald-500/20 dark:bg-emerald-600/15 rounded-full blur-3xl animate-blob"></div>
+          <div class="absolute -bottom-10 -right-10 w-72 h-72 sm:w-96 sm:h-96 bg-blue-500/20 dark:bg-blue-600/15 rounded-full blur-3xl animate-blob [animation-delay:3s]"></div>
+          <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-teal-500/10 dark:bg-teal-600/10 rounded-full blur-[100px] animate-blob [animation-delay:5s]"></div>
+          <div class="absolute inset-0 bg-[radial-gradient(#94a3b8_1px,transparent_1px)] [background-size:24px_24px] dark:bg-[radial-gradient(#334155_1px,transparent_1px)] opacity-40 dark:opacity-20"></div>
+        </div>
+
+        <!-- Top Bar Compacta con Branding y Controles -->
+        <header class="flex items-center justify-between gap-3 shrink-0 mb-4 animate-fadeIn">
+          <div class="flex items-center gap-2 group">
+            <img src="/ISologo  (1).svg" alt="Districorr" class="h-8 sm:h-9 w-auto object-contain transition-transform duration-300 group-hover:scale-105">
+            <div class="border-l border-slate-300 dark:border-slate-800 pl-2">
+              <span class="block text-[11px] sm:text-xs font-black tracking-wider uppercase text-slate-800 dark:text-slate-200">
+                Gestión <span class="text-blue-600 dark:text-blue-400">IQ</span>
+              </span>
+              <span class="block text-[9px] font-medium text-slate-500 dark:text-slate-400 -mt-0.5">
+                Portal Profesional
+              </span>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <!-- Toggle Modo Oscuro -->
+            <button 
+              @click="isDarkMode = !isDarkMode" 
+              class="p-2 text-slate-800 dark:text-slate-200 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border border-slate-300/80 dark:border-slate-800/80 shadow-sm hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-all duration-200 hover:scale-105 active:scale-95 focus:outline-none cursor-pointer" 
+              :title="isDarkMode ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'"
+            >
+              <Sun v-if="isDarkMode" class="w-4 h-4 text-amber-400 transition-transform rotate-0 hover:rotate-45" />
+              <Moon v-else class="w-4 h-4 text-slate-800 transition-transform rotate-0 hover:-rotate-12" />
+            </button>
+          </div>
+        </header>
+
+        <!-- Centro: Tarjeta Hero de Configuración de Correo -->
+        <main class="my-auto py-2 sm:py-4 w-full flex items-center justify-center">
+          <div class="relative w-full max-w-sm sm:max-w-md bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl border border-slate-200/90 dark:border-slate-800/90 rounded-3xl p-6 sm:p-8 shadow-2xl shadow-emerald-500/10 dark:shadow-black/60 transition-all duration-300 overflow-hidden animate-scale-in">
+            
+            <!-- Acento Superior de Luz Gradiente -->
+            <div class="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-[2px] bg-gradient-to-r from-transparent via-emerald-500 to-transparent"></div>
+            
+            <!-- Cabecera de la Tarjeta con Icono de Notificación -->
+            <div class="text-center relative z-10">
+              
+              <!-- Badge Informativo -->
+              <div class="inline-flex items-center gap-1.5 px-3 py-1 mb-3 rounded-full bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200/80 dark:border-emerald-800/60 text-[11px] font-bold text-emerald-800 dark:text-emerald-300 shadow-xs">
+                <Sparkles class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                <span>Avisos de Pago y Liquidación</span>
+              </div>
+
+              <!-- Icono Ilustrativo con Halo -->
+              <div class="relative flex justify-center mb-3">
+                <div class="relative group cursor-default">
+                  <div class="absolute -inset-1.5 bg-gradient-to-tr from-emerald-600 to-teal-600 rounded-2xl blur-md opacity-30"></div>
+                  <div class="relative w-16 h-16 sm:w-18 sm:h-18 rounded-2xl bg-gradient-to-b from-white to-emerald-50 dark:from-slate-800 dark:to-slate-900 border border-emerald-200 dark:border-emerald-800/60 flex items-center justify-center shadow-md text-emerald-600 dark:text-emerald-400">
+                    <Mail class="w-8 h-8" />
+                  </div>
+                </div>
+              </div>
+
+              <!-- Título y Saludo Personalizado -->
+              <h1 class="text-xl sm:text-2xl font-black tracking-tight text-slate-950 dark:text-white">
+                ¡Hola, {{ primerNombreInstrumentador }}!
+              </h1>
+              <p class="mt-2 text-xs sm:text-sm text-slate-600 dark:text-slate-300 font-medium max-w-xs mx-auto leading-relaxed">
+                Ingresá tu correo para recibir un <strong class="text-slate-900 dark:text-white font-bold">aviso automático con el comprobante</strong> cada vez que Districorr liquide tus cirugías.
+              </p>
+            </div>
+
+            <!-- Formulario de Configuración de Correo -->
+            <form @submit.prevent="saveOnboardingEmail()" class="mt-5 space-y-4 max-w-xs sm:max-w-sm mx-auto relative z-10">
+              
+              <div>
+                <label class="block text-left text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1.5">
+                  Correo electrónico para avisos
+                </label>
+                <div class="relative group">
+                  <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 dark:text-slate-500 group-focus-within:text-emerald-600 dark:group-focus-within:text-emerald-400 transition-colors duration-200">
+                    <Mail class="w-4 h-4" />
+                  </div>
+                  <input
+                    v-model="onboardingEmail"
+                    type="email"
+                    required
+                    placeholder="ej: tu_nombre@gmail.com"
+                    class="block w-full pl-10 pr-3.5 py-3 text-sm sm:text-base font-bold bg-slate-50 dark:bg-slate-950/80 border border-slate-300 dark:border-slate-700 rounded-xl focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-600 dark:focus:border-emerald-400 text-slate-950 dark:text-white placeholder:text-slate-400 placeholder:font-normal transition-all duration-200 shadow-inner"
+                    autocomplete="email"
+                    :disabled="isOnboardingSaving"
+                    autofocus
+                  />
+                </div>
+                <p v-if="onboardingEmailError" class="mt-1 text-[11px] text-rose-500 font-bold text-left">
+                  {{ onboardingEmailError }}
+                </p>
+              </div>
+
+              <!-- Opción Switch de Alertas Push -->
+              <div v-if="isPushSupported" class="p-3 rounded-xl bg-slate-50 dark:bg-slate-950/50 border border-slate-200/80 dark:border-slate-800 flex items-center justify-between gap-3 text-left">
+                <div class="flex items-center gap-2">
+                  <Smartphone class="w-4 h-4 text-slate-500 dark:text-slate-400 shrink-0" />
+                  <div>
+                    <span class="block text-xs font-bold text-slate-900 dark:text-white leading-tight">
+                      Alertas en este dispositivo
+                    </span>
+                    <span class="block text-[10px] text-slate-500 dark:text-slate-400">
+                      Notificación emergente en pantalla
+                    </span>
+                  </div>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer shrink-0">
+                  <input type="checkbox" v-model="onboardingPushEnabled" class="sr-only peer">
+                  <div class="w-8 h-4.5 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3.5 after:w-3.5 after:transition-all dark:border-slate-600 peer-checked:bg-emerald-600"></div>
+                </label>
+              </div>
+
+              <!-- Botón Guardar Shimmer -->
+              <button 
+                type="submit" 
+                :disabled="isOnboardingSaving"
+                class="w-full relative inline-flex items-center justify-center py-3.5 px-5 text-sm font-extrabold tracking-wide text-white rounded-xl bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 hover:from-emerald-500 hover:to-teal-500 active:scale-[0.98] transition-all duration-200 shadow-lg shadow-emerald-600/30 hover:shadow-emerald-600/40 disabled:opacity-50 disabled:pointer-events-none cursor-pointer overflow-hidden group"
+              >
+                <span class="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/25 to-transparent animate-shimmer pointer-events-none"></span>
+
+                <span v-if="isOnboardingSaving" class="flex items-center justify-center gap-2 relative z-10">
+                  <svg class="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  <span>Guardando...</span>
+                </span>
+                <span v-else class="flex items-center justify-center gap-2 relative z-10">
+                  <span>Guardar correo y ver mi actividad</span>
+                  <ArrowRight class="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" />
+                </span>
+              </button>
+
+              <!-- Botón Omitir / Continuar sin Correo -->
+              <div class="pt-1 text-center">
+                <button 
+                  type="button" 
+                  @click="skipOnboardingEmail()" 
+                  class="text-xs font-bold text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 underline underline-offset-2 transition-colors cursor-pointer"
+                >
+                  Continuar sin correo por ahora
+                </button>
+              </div>
+            </form>
+
+            <!-- Footer interno de la tarjeta: Información de privacidad -->
+            <div class="mt-5 pt-3.5 border-t border-slate-200/80 dark:border-slate-800/80 flex items-center justify-center gap-1.5 text-[11px] text-slate-500 dark:text-slate-400 relative z-10">
+              <ShieldCheck class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+              <span>Solo te enviaremos avisos oficiales de pago</span>
+            </div>
+
+          </div>
+        </main>
+
+        <!-- Footer Institucional -->
+        <footer class="py-2 text-center shrink-0 animate-fadeIn">
+          <p class="text-[11px] sm:text-xs text-slate-600 dark:text-slate-400 font-medium">
+            Districorr • Trazabilidad Quirúrgica — 
+            <a 
+              href="https://www.districorr.com.ar" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              class="font-bold text-blue-600 dark:text-blue-400 hover:underline inline-flex items-center gap-0.5 ml-0.5"
+            >
+              <span>districorr.com.ar</span>
+              <ExternalLink class="w-2.5 h-2.5" />
+            </a>
+          </p>
+        </footer>
+
+      </div>
+
+      <!-- ESTADO 3: VISTA DE DATOS CON ALTO CONTRASTE -->
       <div v-else class="max-w-6xl px-4 mx-auto sm:px-6 lg:px-8">
         <header class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
           <div>
@@ -699,14 +878,20 @@ import {
   MessageCircle,
   Bell,
   BellRing,
-  BellOff
+  BellOff,
+  Mail,
+  Smartphone,
+  Sparkles
 } from 'lucide-vue-next';
 import { 
   isWebNotificationSupported, 
   getNotificationPermissionStatus, 
   requestWebNotificationPermission, 
-  showDeviceNotification 
+  showDeviceNotification,
+  subscribeUserToPush 
 } from '../services/webPushService';
+import { generateWelcomeEmailHtml } from '../services/emailComprobanteTemplateService';
+import { sendEmailWithResend } from '../services/resendService';
 
 const isAuthenticated = ref(false);
 const isLoading = ref(false);
@@ -725,6 +910,27 @@ const formattedPreviousAccess = ref('');
 const isFirstAccess = ref(false);
 const isPushSupported = ref(isWebNotificationSupported());
 const pushPermissionStatus = ref(getNotificationPermissionStatus());
+
+// ESTADOS PARA LA PANTALLA DE INGRESO / CONFIGURACIÓN DE CORREO INICIAL
+const showEmailOnboardingScreen = ref(false);
+const onboardingEmail = ref('');
+const onboardingPushEnabled = ref(true);
+const isOnboardingSaving = ref(false);
+const onboardingEmailError = ref('');
+
+const primerNombreInstrumentador = computed(() => {
+  const full = instrumentadorInfo.value?.nombre_completo || '';
+  if (!full) return 'Instrumentador/a';
+  const first = full.trim().split(' ')[0];
+  return first.charAt(0).toUpperCase() + first.slice(1).toLowerCase();
+});
+
+const isOnboardingEmailValid = computed(() => {
+  const val = onboardingEmail.value.trim();
+  if (!val) return false;
+  const re = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  return re.test(val);
+});
 
 const route = useRoute();
 const toast = useToast();
@@ -852,17 +1058,20 @@ const authenticate = async (overrideDni = null) => {
 
       toast.success("Acceso concedido.");
 
-      // Verificar si debe mostrarse el modal de onboarding de notificaciones
+      // Determinar si debe mostrarse la pantalla de ingreso / vinculación de correo inicial
+      const hasValidEmail = Boolean(instrumentadorInfo.value?.email && instrumentadorInfo.value.email.trim().includes('@'));
+      let hasSkippedInSession = false;
       try {
-        const notifPrompted = localStorage.getItem(`gestioniq_notif_prompted_${cleanDni}`);
-        const forceFromUrl = route.query.notif === '1' || route.query.activar === '1';
-        if (!notifPrompted || forceFromUrl) {
-          setTimeout(() => {
-            isNotificationModalOpen.value = true;
-          }, 450);
-        }
+        hasSkippedInSession = sessionStorage.getItem(`gestioniq_email_setup_skipped_${cleanDni}`) === 'true';
       } catch (e) {
-        // Ignore localStorage error
+        // Ignore
+      }
+
+      if (!hasValidEmail && !hasSkippedInSession) {
+        showEmailOnboardingScreen.value = true;
+        onboardingEmail.value = '';
+      } else {
+        showEmailOnboardingScreen.value = false;
       }
     } else {
       error.value = "Verificá tu DNI. No coincide con la ficha o el enlace expiró.";
@@ -875,6 +1084,100 @@ const authenticate = async (overrideDni = null) => {
   } finally {
     isLoading.value = false;
   }
+};
+
+const saveOnboardingEmail = async () => {
+  const cleanDni = dni.value || instrumentadorInfo.value?.dni;
+  const targetEmail = onboardingEmail.value.trim().toLowerCase();
+
+  if (!isOnboardingEmailValid.value) {
+    onboardingEmailError.value = "Por favor, ingresá una dirección de correo válida (ej: tu_nombre@gmail.com).";
+    return;
+  }
+
+  onboardingEmailError.value = "";
+  isOnboardingSaving.value = true;
+
+  try {
+    // 1. Guardar en memoria y localStorage
+    if (instrumentadorInfo.value) {
+      instrumentadorInfo.value.email = targetEmail;
+    }
+    try {
+      localStorage.setItem(`gestioniq_email_${cleanDni}`, targetEmail);
+      localStorage.setItem(`gestioniq_notif_prompted_${cleanDni}`, 'true');
+    } catch (e) {
+      console.warn("Error localStorage:", e);
+    }
+
+    // 2. Intentar actualizar en Supabase (no bloqueante)
+    try {
+      await supabase
+        .from('instrumentadores')
+        .update({ email: targetEmail })
+        .eq('dni', cleanDni);
+    } catch (dbErr) {
+      console.warn("Advertencia al actualizar DB:", dbErr);
+    }
+
+    // 3. Activar Push si el usuario lo dejó marcado
+    if (onboardingPushEnabled.value && isPushSupported.value) {
+      try {
+        await subscribeUserToPush(cleanDni);
+        pushPermissionStatus.value = getNotificationPermissionStatus();
+      } catch (pushErr) {
+        console.warn("Push error:", pushErr);
+      }
+    }
+
+    // 4. Enviar email de bienvenida/confirmación
+    try {
+      const welcomeSentKey = `gestioniq_welcome_email_sent_${cleanDni}`;
+      if (localStorage.getItem(welcomeSentKey) !== 'true') {
+        const origin = typeof window !== 'undefined' ? window.location.origin : 'https://gestion-iq.districorr.com.ar';
+        const portalUrl = token ? `${origin}/resumen/${token}` : origin;
+
+        const welcomeHtml = generateWelcomeEmailHtml({
+          nombreCompleto: instrumentadorInfo.value?.nombre_completo || 'Instrumentador/a',
+          dni: cleanDni,
+          email: targetEmail,
+          portalUrl
+        });
+
+        await sendEmailWithResend({
+          to: targetEmail,
+          subject: '🎉 ¡Tu correo fue vinculado a los avisos de liquidación de Districorr!',
+          html: welcomeHtml,
+          type: 'welcome',
+          dni: cleanDni
+        });
+
+        localStorage.setItem(welcomeSentKey, 'true');
+      }
+    } catch (emailErr) {
+      console.warn("Aviso email bienvenida:", emailErr);
+    }
+
+    toast.success("¡Correo vinculado con éxito! Accediendo a tu actividad...");
+    showEmailOnboardingScreen.value = false;
+  } catch (err) {
+    console.error("Error al vincular correo:", err);
+    toast.error("Ocurrió un error al guardar. Podés continuar a tu portal.");
+    showEmailOnboardingScreen.value = false;
+  } finally {
+    isOnboardingSaving.value = false;
+  }
+};
+
+const skipOnboardingEmail = () => {
+  const cleanDni = dni.value || instrumentadorInfo.value?.dni;
+  try {
+    sessionStorage.setItem(`gestioniq_email_setup_skipped_${cleanDni}`, 'true');
+  } catch (e) {
+    // Ignore
+  }
+  showEmailOnboardingScreen.value = false;
+  toast.info("Ingresando al portal. Podés vincular tu correo en cualquier momento desde 'Mi Perfil' o 'Ajustar avisos'.");
 };
 
 const handleNotificationSettingsUpdated = ({ email, pushEnabled }) => {
@@ -895,6 +1198,7 @@ const handleNotificationSettingsUpdated = ({ email, pushEnabled }) => {
   }
   pushPermissionStatus.value = getNotificationPermissionStatus();
 };
+
 
 const login = authenticate;
 

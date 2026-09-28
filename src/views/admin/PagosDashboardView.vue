@@ -516,7 +516,7 @@ import FileUpload from '../../components/uploader/FileUpload.vue';
 import PostPagoModal from '../../components/PostPagoModal.vue';
 import ModalRegularizacionAntiguos from '../../components/admin/ModalRegularizacionAntiguos.vue';
 import ModalResumenPendientesImprimible from '../../components/admin/ModalResumenPendientesImprimible.vue';
-import { notificarComprobanteAInstrumentador } from '../../services/comprobanteNotificationService';
+import { notificarComprobanteAInstrumentador, notificarLoteComprobantes } from '../../services/comprobanteNotificationService';
 
 const { showSuccessToast, showErrorToast, showInfoToast, showLoadingToast, updateToast } = useToasts();
 
@@ -1225,9 +1225,9 @@ const registrarPago = async () => {
 
     updateToast(toastId, "¡Orden de pago registrada con éxito!", 'success');
 
-    // Notificación multicanal automática (Resend Email + Web Push) si hay comprobante adjunto
+    // Notificación multicanal automática optimizada (Resend Email + Web Push) si hay comprobante adjunto
     if (objectKey) {
-      ordenDePago.pagos.forEach(pago => {
+      const notifQueue = ordenDePago.pagos.map(pago => {
         const inst = paymentSummary.value.instrumentadores.find(i => i.dni === pago.instrumentador_dni);
         const nombresPacientes = Array.isArray(pago.cirugias) 
           ? pago.cirugias.map(c => {
@@ -1237,17 +1237,28 @@ const registrarPago = async () => {
             })
           : [];
 
-        notificarComprobanteAInstrumentador({
+        return {
           instrumentadorDni: pago.instrumentador_dni,
           instrumentadorNombre: inst?.nombre,
+          instrumentadorEmail: inst?.email,
           montoTotal: pago.monto_total_instrumentador,
           fechaEmision: new Date().toISOString().split('T')[0],
           cirugiasCount: pago.cirugias?.length || 0,
           pacientes: nombresPacientes,
           ordenId: newOrdenId,
           comprobanteObjectKey: objectKey
-        }).catch(err => console.warn('[NotificacionComprobante] Error silencioso:', err));
+        };
       });
+
+      if (notifQueue.length > 0) {
+        notificarLoteComprobantes(notifQueue)
+          .then(summary => {
+            if (summary.emailsSent > 0) {
+              showInfoToast(`📧 ${summary.emailsSent} correo(s) de aviso enviados a los instrumentadores.`);
+            }
+          })
+          .catch(err => console.warn('[PagosDashboard] Error en despacho de notificaciones:', err));
+      }
     }
     
     lastPaymentData.value = JSON.parse(JSON.stringify(paymentSummary.value));

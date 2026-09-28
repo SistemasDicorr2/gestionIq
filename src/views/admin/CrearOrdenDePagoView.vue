@@ -91,7 +91,7 @@ import { useToast } from 'vue-toastification';
 import { supabase } from '../../services/supabase';
 import FileUpload from '../../components/uploader/FileUpload.vue';
 import { useOrdenDePagoPDF } from '../../composables/useOrdenDePagoPDF';
-import { notificarComprobanteAInstrumentador } from '../../services/comprobanteNotificationService';
+import { notificarComprobanteAInstrumentador, notificarLoteComprobantes } from '../../services/comprobanteNotificationService';
 
 const route = useRoute();
 const router = useRouter();
@@ -224,8 +224,8 @@ const confirmarYRegistrar = async () => {
 
     toast.success(`¡Orden de Pago #${newOrdenId} registrada con éxito!`);
 
-    // Notificación multicanal automática (Resend Email + Web Push)
-    ordenPayload.lotes_instrumentadores.forEach(lote => {
+    // Notificación multicanal automática optimizada (Resend Email + Web Push)
+    const notifQueue = ordenPayload.lotes_instrumentadores.map(lote => {
       const inst = instrumentadoresConCirugias.value.find(i => i.dni === lote.instrumentador_dni);
       const cirugiasDelInstrumentador = inst ? inst.cirugias.filter(c => selectedCirugiaIds.value.includes(c.id)) : [];
       const nombresPacientes = cirugiasDelInstrumentador.map(c => {
@@ -234,17 +234,28 @@ const confirmarYRegistrar = async () => {
         return [pName, instName].filter(Boolean).join(' ') || 'Cirugía realizada';
       });
 
-      notificarComprobanteAInstrumentador({
+      return {
         instrumentadorDni: lote.instrumentador_dni,
         instrumentadorNombre: inst?.nombre_completo,
+        instrumentadorEmail: inst?.email,
         montoTotal: lote.monto_total_instrumentador,
         fechaEmision: paymentDetails.fecha_emision,
         cirugiasCount: lote.reporte_ids?.length || 0,
         pacientes: nombresPacientes,
         ordenId: newOrdenId,
         comprobanteObjectKey: uploadedFiles[0]?.object_key
-      }).catch(err => console.warn('[NotificacionComprobante] Error silencioso:', err));
+      };
     });
+
+    if (notifQueue.length > 0) {
+      notificarLoteComprobantes(notifQueue)
+        .then(summary => {
+          if (summary.emailsSent > 0) {
+            toast.info(`📧 ${summary.emailsSent} correo(s) de aviso enviados a instrumentadores.`);
+          }
+        })
+        .catch(err => console.warn('[CrearOrdenDePago] Error en notificaciones:', err));
+    }
 
     // Generamos el PDF
     const { data: ordenDetails, error: detailsError } = await supabase.rpc('obtener_detalle_orden_pago', { p_orden_id: newOrdenId });
