@@ -5,8 +5,8 @@
     "semantic_hash": ""
   },
   "package.json": {
-    "mtime": 1782850006.978014,
-    "ast_hash": "3533aeb6c3259cbc36e8893a3ffc0e9b",
+    "mtime": 1789095894.250599,
+    "ast_hash": "7ea12bf06c005fd8e98a0f0de4ca45d7",
     "semantic_hash": ""
   },
   "postcss.config.js": {
@@ -20,13 +20,13 @@
     "semantic_hash": ""
   },
   "skills-lock.json": {
-    "mtime": 1786377309.015452,
-    "ast_hash": "1ab7381e2084c594536c11cb03c40849",
+    "mtime": 1787977006.4088051,
+    "ast_hash": "8eb4f7a8c6f638a3d07d5c11f69b2d46",
     "semantic_hash": ""
   },
   "src/App.vue": {
-    "mtime": 1782850006.9844005,
-    "ast_hash": "a2ee90ab8c7522d5c747a0c1d7c758f2",
+    "mtime": 1788152479.5803764,
+    "ast_hash": "b968c51f626b61cba6599433c6fcf9e9",
     "semantic_hash": ""
   },
   "src/HomeView.vue": {
@@ -55,8 +55,8 @@
     "semantic_hash": ""
   },
   "src/components/EditInstrumentadorModal.vue": {
-    "mtime": 1782850006.9844005,
-    "ast_hash": "b732de42a82143916d169f870938a004",
+    "mtime": 1790609182.9977915,
+    "ast_hash": "d883bf2112169bd8f9415170e4f53440",
     "semantic_hash": ""
   },
   "src/components/EditableField.vue": {
@@ -65,8 +65,8 @@
     "semantic_hash": ""
   },
   "src/components/EstadisticasInstrumentadorModal.vue": {
-    "mtime": 1782850006.9901142,
-    "ast_hash": "4b8a0f81b931f200dab02e009d350dd3",
+    "mtime": 1787932119.159217,
+    "ast_hash": "1187c1bccc325f14280a11ab8f867a58",
     "semantic_hash": ""
   },
   "src/components/ExportModal.vue": {
@@ -75,8 +75,8 @@
     "semantic_hash": ""
   },
   "src/components/FaqSection.vue": {
-    "mtime": 1782850006.9906287,
-    "ast_hash": "2910b181044cd3a358766b7b7b7a00ed",
+    "mtime": 1789752010.6069577,
+    "ast_hash": "1e99948200ff47b10466d74741407632",
     "semantic_hash": ""
   },
   "src/components/FichaForm.vue": {
@@ -85,8 +85,8 @@
     "semantic_hash": ""
   },
   "src/components/FilterBar.vue": {
-    "mtime": 1785959036.0189981,
-    "ast_hash": "dd2353498377427e9e305ec3641acc07",
+    "mtime": 1788174773.9798038,
+    "ast_hash": "9ac9caa67020b512e9c728e0fdc415a7",
     "semantic_hash": ""
   },
   "src/components/FormStepComments.vue": {
@@ -115,8 +115,8 @@
     "semantic_hash": ""
   },
   "src/components/ImportInstrumentadoresModal.vue": {
-    "mtime": 1782850006.9921446,
-    "ast_hash": "53024483f525fc1f6645824d74cca8d2",
+    "mtime": 1787932162.9860525,
+    "ast_hash": "fd17ef0b0c26dfc256fd9a430d034d05",
     "semantic_hash": ""
   },
   "src/components/IncidenceDrawer.vue": {
@@ -130,8 +130,8 @@
     "semantic_hash": ""
   },
   "src/components/InstrumentadoresFilters.vue": {
-    "mtime": 1782850006.9921446,
-    "ast_hash": "4cac4cf32c60dbc3d44eb4af3434502e",
+    "mtime": 1789065047.3992822,
+    "ast_hash": "ce2fa9c8bc14d549e196e2687f1bfc7e",
     "semantic_hash": ""
   },
   "src/components/InstrumentadoresRanking.vue": {
@@ -140,8 +140,8 @@
     "semantic_hash": ""
   },
   "src/components/MyDataSection.vue": {
-    "mtime": 1786364803.541332,
-    "ast_hash": "58d29f25914e7b86050d7a50f3a30b86",
+    "mtime": 1790349061.3799763,
+    "ast_hash": "093fff7a1c0f2545dcbf69cfe212790d",
     "semantic_hash": ""
   },
   "src/components/NewIncidenceModal.vue": {
@@ -150,8 +150,8 @@
     "semantic_hash": ""
   },
   "src/components/NewInstrumentadorModal.vue": {
-    "mtime": 1782850006.9921446,
-    "ast_hash": "a4193d6954783f6a20f9104c3986f66a",
+    "mtime": 1789751705.8958547,
+    "ast_hash": "2ddc7339beda8b487b7f1c2decae0ebf",
     "semantic_hash": ""
   },
   "src/components/NewSurgeryModal.vue": {
@@ -165,8 +165,8 @@
     "semantic_hash": ""
   },
   "src/components/NotificationDropdown.vue": {
-    "mtime": 1785961296.418334,
-    "ast_hash": "7a838de3ad39b79d535f47152beb2f52",
+    "mtime": 1788179052.7511475,
+    "ast_hash": "31bd5c00cf412d53abbe419cf2717f78",
     "semantic_hash": ""
   },
   "src/components/NotificationsView.vue": {
@@ -180,8 +180,8 @@
     "semantic_hash": ""
   },
   "src/components/PaymentDetailModal.vue": {
-    "mtime": 1782850006.9993885,
-    "ast_hash": "4a790bb75ff20f4e64c6d0b1989a4d8b",
+    "mtime": 1790349176.9161441,
+    "ast_hash": "c8792d590d7440581e5ecf7a2f5d5ea8",
     "semantic_hash": ""
   },
   "src/components/PostPagoModal.vue": {
@@ -195,8 +195,8 @@
     "semantic_hash": ""
   },
   "src/components/RatingChart.vue": {
-    "mtime": 1785510720.0674362,
-    "ast_hash": "b54a30ab279277cfd5f73048de935927",
+    "mtime": 1789996506.0923984,
+    "ast_hash": "7041a745b82a9b4b2e63d751a5880a45",
     "semantic_hash": ""
   },
   "src/components/RatingRow.vue": {
@@ -225,13 +225,13 @@
     "semantic_hash": ""
   },
   "src/components/ReportPDF.vue": {
-    "mtime": 1783353378.30801,
-    "ast_hash": "5bbd5faa5a8015886c800ed8a136a0dc",
+    "mtime": 1788379617.914637,
+    "ast_hash": "eeed16745595e7a02ae917107da0753d",
     "semantic_hash": ""
   },
   "src/components/ReportTable.vue": {
-    "mtime": 1783598725.4298396,
-    "ast_hash": "7bd98566f4bff2ca1ab7a3f4cf51cabd",
+    "mtime": 1788173837.3775136,
+    "ast_hash": "a956806afde22dbc27d6e03d15f65428",
     "semantic_hash": ""
   },
   "src/components/ReporteModal.vue": {
@@ -245,8 +245,8 @@
     "semantic_hash": ""
   },
   "src/components/Sidebar.vue": {
-    "mtime": 1785954771.2808044,
-    "ast_hash": "b36397cc1de4f2d2ce2e752beb030ff2",
+    "mtime": 1789754052.2475238,
+    "ast_hash": "85c62d1a8c620a6dba3e75751328ba87",
     "semantic_hash": ""
   },
   "src/components/SignatureModal.vue": {
@@ -285,8 +285,8 @@
     "semantic_hash": ""
   },
   "src/components/admin/AuthorizationModal.vue": {
-    "mtime": 1782850007.0085752,
-    "ast_hash": "45d747a30ab82819c663a22e238ee4be",
+    "mtime": 1788137994.1656873,
+    "ast_hash": "fcfa4ebe9a6af6329111c4b2b4a2361d",
     "semantic_hash": ""
   },
   "src/components/admin/DividirOrdenDePago.vue": {
@@ -300,8 +300,8 @@
     "semantic_hash": ""
   },
   "src/components/admin/OrdenDePagoDetalleModal.vue": {
-    "mtime": 1783943621.1617374,
-    "ast_hash": "97460d8ac36abae328787ecb51d828b3",
+    "mtime": 1789753508.7265432,
+    "ast_hash": "eb504b56ce2cded772f7603c63934609",
     "semantic_hash": ""
   },
   "src/components/admin/RegistrarIntervencionModal.vue": {
@@ -310,8 +310,8 @@
     "semantic_hash": ""
   },
   "src/components/admin/corrections/CorrectionWorkspace.vue": {
-    "mtime": 1783943231.3090465,
-    "ast_hash": "3d1a3afa053e6bcbe547f8babf19cced",
+    "mtime": 1789043753.4426625,
+    "ast_hash": "e517a96b17ca38c4244852babfd129d5",
     "semantic_hash": ""
   },
   "src/components/admin/corrections/ToolAnularPago.vue": {
@@ -360,8 +360,8 @@
     "semantic_hash": ""
   },
   "src/components/report-details/LogisticaTimeline.vue": {
-    "mtime": 1783351605.3176208,
-    "ast_hash": "d3d82f879bf93d678483e57ebebfcf17",
+    "mtime": 1790260357.5998168,
+    "ast_hash": "8fdb351eaab118d28a5670968ad18784",
     "semantic_hash": ""
   },
   "src/components/report-details/PhotoCard.vue": {
@@ -430,13 +430,13 @@
     "semantic_hash": ""
   },
   "src/composables/useOrdenDePagoPDF.js": {
-    "mtime": 1782850007.022679,
-    "ast_hash": "f412db95620ab12ddac338af119a2ad0",
+    "mtime": 1788893336.0584934,
+    "ast_hash": "3f7c7486e6dbc26603dcca0d09d78b74",
     "semantic_hash": ""
   },
   "src/composables/useToasts.js": {
-    "mtime": 1783351873.5453782,
-    "ast_hash": "faf08eeca29c98bbcc605a79021f989f",
+    "mtime": 1788152487.2911663,
+    "ast_hash": "939d3e9722917fd959e073f6599830d8",
     "semantic_hash": ""
   },
   "src/directives/autosize.js": {
@@ -445,23 +445,23 @@
     "semantic_hash": ""
   },
   "src/layouts/AdminLayout.vue": {
-    "mtime": 1785961355.3076525,
-    "ast_hash": "ef8e3451646050ac6e5e79d0fc34dcb9",
+    "mtime": 1789754061.5502076,
+    "ast_hash": "97f69da9405bdc787b842d1d533f674c",
     "semantic_hash": ""
   },
   "src/main.js": {
-    "mtime": 1782850007.022679,
-    "ast_hash": "ef3660b27bc7e383eda2f04a76a5d266",
+    "mtime": 1788151537.0895336,
+    "ast_hash": "27125e2e071c81cf6752150304e976df",
     "semantic_hash": ""
   },
   "src/router/index.js": {
-    "mtime": 1786450579.4188101,
-    "ast_hash": "c54b6077a0e6dd7817ba0411f106c62e",
+    "mtime": 1789143338.7419243,
+    "ast_hash": "552d68792e1190d3e2bb2857bd347f51",
     "semantic_hash": ""
   },
   "src/services/pdfGenerator.js": {
-    "mtime": 1782850007.022679,
-    "ast_hash": "9eae17f3120be91e7b595e82f5762d8d",
+    "mtime": 1787947287.3440363,
+    "ast_hash": "eab9e4d997a56f48d82707fbf4fb3b40",
     "semantic_hash": ""
   },
   "src/services/reportGeneratorService.js": {
@@ -480,13 +480,13 @@
     "semantic_hash": ""
   },
   "src/views/ActivitySummaryView.vue": {
-    "mtime": 1786365050.6697412,
-    "ast_hash": "4e0f9f7c8c45f1f61f01d2d23dfb169f",
+    "mtime": 1790349045.8617618,
+    "ast_hash": "fd696fdca82f4e1764ca30b5b30d7b6a",
     "semantic_hash": ""
   },
   "src/views/AdminView.vue": {
-    "mtime": 1785502583.448711,
-    "ast_hash": "e7f0c318de0b5a96371cf2f00c1854bd",
+    "mtime": 1788174783.9187899,
+    "ast_hash": "c8252df3038ca74523aacd0c71b21a99",
     "semantic_hash": ""
   },
   "src/views/ConfigView.vue": {
@@ -510,18 +510,18 @@
     "semantic_hash": ""
   },
   "src/views/InstrumentadoresView.vue": {
-    "mtime": 1782850007.0307822,
-    "ast_hash": "4e9e5d06f9c6ca9b41dd5df74e611ec2",
+    "mtime": 1790343182.5328126,
+    "ast_hash": "a83d873b07af92e0ba0a0f266846a962",
     "semantic_hash": ""
   },
   "src/views/LoginView.vue": {
-    "mtime": 1785958581.5565803,
-    "ast_hash": "271bd8fd3735f5eac229226b19131f97",
+    "mtime": 1788729122.6729426,
+    "ast_hash": "8acf6a70bf1a24683f20a5b27bb402ff",
     "semantic_hash": ""
   },
   "src/views/NotificationsView.vue": {
-    "mtime": 1782850007.0307822,
-    "ast_hash": "4c22f066b118387820f353f6e065a898",
+    "mtime": 1788179059.7620244,
+    "ast_hash": "93a91ad8a57ff4aed730c8a5cbb37df5",
     "semantic_hash": ""
   },
   "src/views/PedidosEspecialesView.vue": {
@@ -540,8 +540,8 @@
     "semantic_hash": ""
   },
   "src/views/StatsView.vue": {
-    "mtime": 1785505365.7565114,
-    "ast_hash": "d778dfb66e54648171f31440bfcab1bb",
+    "mtime": 1790000483.1146107,
+    "ast_hash": "c2edf7b5f1ec72e520b597065d82e240",
     "semantic_hash": ""
   },
   "src/views/TestUploaderView.vue": {
@@ -550,8 +550,8 @@
     "semantic_hash": ""
   },
   "src/views/admin/CrearOrdenDePagoView.vue": {
-    "mtime": 1782850007.0344281,
-    "ast_hash": "d749ba853728879573715f5831272d3d",
+    "mtime": 1790344541.4698336,
+    "ast_hash": "aaf0a458f38b44b6abf681583e6fdd97",
     "semantic_hash": ""
   },
   "src/views/admin/GestionPagosView.vue": {
@@ -560,13 +560,13 @@
     "semantic_hash": ""
   },
   "src/views/admin/HistorialPagosView.vue": {
-    "mtime": 1783942879.7023864,
-    "ast_hash": "031550e11724aee2af5054b221b856f0",
+    "mtime": 1789753813.361843,
+    "ast_hash": "14cb2fc078f5f1f105c59508e3c47b03",
     "semantic_hash": ""
   },
   "src/views/admin/PagosDashboardView.vue": {
-    "mtime": 1786136742.9216132,
-    "ast_hash": "1099addec826f3e6c1036c415d5a0e54",
+    "mtime": 1790344553.9174943,
+    "ast_hash": "2bb207c3841f83ada93d07bd359edec8",
     "semantic_hash": ""
   },
   "src/views/instrumentadores/InstrumentadorUpload.vue": {
@@ -575,8 +575,8 @@
     "semantic_hash": ""
   },
   "src/views/logistica/ConsumoView.vue": {
-    "mtime": 1786366781.8394828,
-    "ast_hash": "ed9b5392c66f56d34763ea13eb0ebe4a",
+    "mtime": 1790260382.6468668,
+    "ast_hash": "0d755ad1311b3a5da989861f6b5070b9",
     "semantic_hash": ""
   },
   "src/views/logistica/LogisticaControl.vue": {
@@ -590,13 +590,13 @@
     "semantic_hash": ""
   },
   "supabase/functions/b2-presigned-url/index.ts": {
-    "mtime": 1782850007.0394015,
-    "ast_hash": "726cf0455ba0e733d051a364a1a747af",
+    "mtime": 1786454699.778606,
+    "ast_hash": "96b26a4a824ff3e945c30438c9524889",
     "semantic_hash": ""
   },
   "tailwind.config.js": {
-    "mtime": 1782850007.0409179,
-    "ast_hash": "d79099276b0a7ca8418f7e3fb3ecf70b",
+    "mtime": 1789752167.0053368,
+    "ast_hash": "825436746bd8d13bfa6dddedcd6a6da9",
     "semantic_hash": ""
   },
   "vercel.json": {
@@ -605,8 +605,8 @@
     "semantic_hash": ""
   },
   "vite.config.js": {
-    "mtime": 1782850007.0409179,
-    "ast_hash": "a67f51ee0b4834670ddaac382debdbfe",
+    "mtime": 1789130103.3236718,
+    "ast_hash": "4f773b0d896c080563d9b25ff165e324",
     "semantic_hash": ""
   },
   ".agents/rules/graphify.md": {
@@ -810,8 +810,8 @@
     "semantic_hash": ""
   },
   "docs/03_FRONTEND_ARCHITECTURE.md": {
-    "mtime": 1782850006.9699202,
-    "ast_hash": "2b212151e2fab3146c7bfa4d182fdefa",
+    "mtime": 1788152595.5403595,
+    "ast_hash": "729ae74ef375dc458aca02fd60414f14",
     "semantic_hash": ""
   },
   "docs/04_SUPABASE_DATABASE_ARCHITECTURE.md": {
@@ -820,8 +820,8 @@
     "semantic_hash": ""
   },
   "docs/05_RPC_CATALOG.md": {
-    "mtime": 1785955941.993502,
-    "ast_hash": "822374f5d01ebb16babd888a29b7ce58",
+    "mtime": 1790334200.4598017,
+    "ast_hash": "827bac430934ecf2445063db23580a5e",
     "semantic_hash": ""
   },
   "docs/06_SECURITY_RLS_MODEL.md": {
@@ -830,8 +830,8 @@
     "semantic_hash": ""
   },
   "docs/07_DATA_FLOW_MAP.md": {
-    "mtime": 1785955925.360007,
-    "ast_hash": "590280c9782558797c7d62cb9eb87060",
+    "mtime": 1789078847.443971,
+    "ast_hash": "4a44b19e48dac915f4e16adadd89798c",
     "semantic_hash": ""
   },
   "docs/08_MODULE_MAP.md": {
@@ -850,8 +850,8 @@
     "semantic_hash": ""
   },
   "docs/11_AI_WORKING_CONTEXT.md": {
-    "mtime": 1782850006.9730132,
-    "ast_hash": "07000c164966ff827748286126b83650",
+    "mtime": 1788442232.583017,
+    "ast_hash": "5562e6352e87cba9737c5b336e7eb95f",
     "semantic_hash": ""
   },
   "docs/12_CONSOLIDATED_TECHNICAL_ARCHITECTURE.md": {
@@ -885,8 +885,8 @@
     "semantic_hash": ""
   },
   "index.html": {
-    "mtime": 1782850006.9760153,
-    "ast_hash": "7b26375e2a132b921befc1d3811c0421",
+    "mtime": 1788452173.816804,
+    "ast_hash": "1477bf4a0408ea89034b7f48244e1137",
     "semantic_hash": ""
   },
   "src/components/PORTAL_INSTRUMENTADOR_CHANGELOG.md": {
@@ -1330,63 +1330,58 @@
     "semantic_hash": ""
   },
   "src/components/logistica/ResumenEnvioModal.vue": {
-    "mtime": 1786405978.3204257,
-    "ast_hash": "01cc9cc2ebaeab1852634d80b00d19b9",
+    "mtime": 1788467373.6680806,
+    "ast_hash": "7f5238f7156a142e7e8d40482b964f90",
     "semantic_hash": ""
   },
   "src/layouts/LogisticaLayout.vue": {
-    "mtime": 1786450620.5291398,
-    "ast_hash": "76d48b0829fc3bfecbe901aba9add47c",
+    "mtime": 1788181863.5385408,
+    "ast_hash": "d7fb797f72caaefd1c312cedb7741df3",
     "semantic_hash": ""
   },
   "src/views/admin/ResumenOperativoView.vue": {
-    "mtime": 1785961360.137273,
-    "ast_hash": "4987a99cc60182f3e4b1fe01b6783276",
+    "mtime": 1789733889.6946003,
+    "ast_hash": "7e96ec99d1b2f9fd4d858522a7097f97",
     "semantic_hash": ""
   },
   "src/views/logistica/LogisticaDetalleInformeView.vue": {
-    "mtime": 1786406398.4657793,
-    "ast_hash": "9cf42c8df4148db409aa8f3fed05a591",
+    "mtime": 1790334070.2782757,
+    "ast_hash": "264284c3022445595ceb3ad39e647723",
     "semantic_hash": ""
   },
   "src/views/logistica/LogisticaHistorialView.vue": {
-    "mtime": 1786406378.0392907,
-    "ast_hash": "31507dd1f6eef11c85e34c89cdaa179a",
+    "mtime": 1790346489.464182,
+    "ast_hash": "200c63e62412772ba7a061439340a55d",
     "semantic_hash": ""
   },
   "src/views/logistica/LogisticaInformesView.vue": {
-    "mtime": 1786388642.1379557,
-    "ast_hash": "60c5441cbe1664d29b864ddd8ccf36fa",
+    "mtime": 1790347293.91778,
+    "ast_hash": "0d74a3eb880e0aa4cb3e20ca22db4e72",
     "semantic_hash": ""
   },
   "src/views/logistica/LogisticaNuevoInformeView.vue": {
-    "mtime": 1786406343.5048845,
-    "ast_hash": "152b33e1c383f3bdb060eac15db9b7fe",
+    "mtime": 1790334130.0995438,
+    "ast_hash": "e19e9df9e7e5eaca848e0dc0c4e20ecb",
     "semantic_hash": ""
   },
   "supabase/migrations/20260805_logistica_informes_diarios.sql": {
-    "mtime": 1785955615.7295024,
-    "ast_hash": "9ceeeff67b99297fa265aa61dbe4e4a6",
-    "semantic_hash": ""
-  },
-  "supabase/migrations/20260805_logistica_informes_diarios_rollback.sql": {
-    "mtime": 1785952480.574337,
-    "ast_hash": "e1a817c23562a38df8b631b6ae000dfe",
+    "mtime": 1788147510.4524965,
+    "ast_hash": "28c1e0e5ce785359386c79112a6772e8",
     "semantic_hash": ""
   },
   "src/components/ReportePagosModal.vue": {
-    "mtime": 1786204519.4495032,
-    "ast_hash": "6504f9591076176b3d2e4080f7fd9d42",
+    "mtime": 1790349203.4177005,
+    "ast_hash": "145e63caa37f82efdcff284840e29389",
     "semantic_hash": ""
   },
   "src/components/logistica/EmailReporteModal.vue": {
-    "mtime": 1786406127.0153265,
-    "ast_hash": "5e732dc4536ab3518d193cb93e615f92",
+    "mtime": 1790179666.0551288,
+    "ast_hash": "ad4a50686bf66fc2361aa65013ff0de0",
     "semantic_hash": ""
   },
   "src/composables/useReportePagosPDF.js": {
-    "mtime": 1786362424.7595928,
-    "ast_hash": "ab227aacf63f51798ff148c700a125bd",
+    "mtime": 1789040952.0907376,
+    "ast_hash": "a1524aeb115213b6c59a4fa7ffa70ad0",
     "semantic_hash": ""
   },
   "src/components/logistica/DraftOptionsModal.vue": {
@@ -5585,8 +5580,8 @@
     "semantic_hash": ""
   },
   "supabase/migrations/20260810_add_esterilizacion_tipo_movimiento.sql": {
-    "mtime": 1786394146.6214554,
-    "ast_hash": "ad06de5834f0d03332e264c351386982",
+    "mtime": 1788137088.7217245,
+    "ast_hash": "1e40d918b3d6dedf72a9badaa46ba424",
     "semantic_hash": ""
   },
   "tutorial_instrumentadores/.thumbnails/v4_v3_a1bd5cae2df5ab68_jpeg_preview_index.html_1920x1080_240x135_1786378592832_3.00.jpg": {
@@ -5600,18 +5595,748 @@
     "semantic_hash": ""
   },
   "src/components/logistica/GuiaEnvioPDF.vue": {
-    "mtime": 1786450498.8906531,
-    "ast_hash": "23c34c397133aa5212c6f45ee8a95ae7",
+    "mtime": 1790192880.5021112,
+    "ast_hash": "ed27f36926e697c4a4ae8593dae43457",
     "semantic_hash": ""
   },
   "src/views/logistica/GuiaEnvioLogisticaView.vue": {
-    "mtime": 1786450522.4597838,
-    "ast_hash": "79e6edd005dfa34f50b7773602a89069",
+    "mtime": 1790192850.5291536,
+    "ast_hash": "1ca01b172d4cf49a061c873336b218b1",
     "semantic_hash": ""
   },
   "supabase/migrations/20260811_create_logistica_guias_envio.sql": {
-    "mtime": 1786450481.8659153,
-    "ast_hash": "c419199866afb1d2ac4e7ca6b4bdbeae",
+    "mtime": 1788137097.5987642,
+    "ast_hash": "ba1cbbc927b62fe95b18c85c824e76c5",
+    "semantic_hash": ""
+  },
+  "public/sw.js": {
+    "mtime": 1790338167.4369743,
+    "ast_hash": "00267d0a4925d3296b053157d5fa47b6",
+    "semantic_hash": ""
+  },
+  "public/version.json": {
+    "mtime": 1790609191.2986996,
+    "ast_hash": "151577384c088843fce6db1b6cddd158",
+    "semantic_hash": ""
+  },
+  "src/components/AccessHistoryModal.vue": {
+    "mtime": 1788960866.75438,
+    "ast_hash": "c03cba66c32cbd06f54137d3281b05ab",
+    "semantic_hash": ""
+  },
+  "src/components/ForgotPasswordModal.vue": {
+    "mtime": 1788728858.3420575,
+    "ast_hash": "1b3e463471da6062d074235b5558089c",
+    "semantic_hash": ""
+  },
+  "src/components/NotificationOnboardingModal.vue": {
+    "mtime": 1790349026.6049364,
+    "ast_hash": "29a4941972e1ef0429b1ea0784a60157",
+    "semantic_hash": ""
+  },
+  "src/components/admin/ConfigurarAutomatizacionPagosModal.vue": {
+    "mtime": 1789040492.5486724,
+    "ast_hash": "5f988e2aa7ed2423be51755f5985257b",
+    "semantic_hash": ""
+  },
+  "src/components/admin/ConfigurarDestinatariosModal.vue": {
+    "mtime": 1789733838.9672673,
+    "ast_hash": "28c85398b3f255c902ab6178b7ad4e74",
+    "semantic_hash": ""
+  },
+  "src/components/admin/ConfigurarReporteCajasDevueltasModal.vue": {
+    "mtime": 1789142412.3168087,
+    "ast_hash": "f2a1c35e2bfa3577c8bf330d48511891",
+    "semantic_hash": ""
+  },
+  "src/components/admin/EmailComprobantePreviewModal.vue": {
+    "mtime": 1790343754.816491,
+    "ast_hash": "04430646a3a5eecfd0dd87eaa872edb9",
+    "semantic_hash": ""
+  },
+  "src/components/admin/ModalCompartirNotificaciones.vue": {
+    "mtime": 1790343121.5257802,
+    "ast_hash": "74fddeadb625d065038dd950bb1a8a26",
+    "semantic_hash": ""
+  },
+  "src/components/admin/ModalRegularizacionAntiguos.vue": {
+    "mtime": 1786626307.2508798,
+    "ast_hash": "50daf809f237cd12b462ea731f81c51a",
+    "semantic_hash": ""
+  },
+  "src/components/admin/ModalReportePagosPeriodo.vue": {
+    "mtime": 1789756107.211948,
+    "ast_hash": "52691873cfc6fbd80a602543af94fe7f",
+    "semantic_hash": ""
+  },
+  "src/components/admin/ModalResumenPendientesImprimible.vue": {
+    "mtime": 1788982283.2165208,
+    "ast_hash": "c7065c4100a4132f491f566bbeb26f08",
+    "semantic_hash": ""
+  },
+  "src/components/admin/corrections/AutoMatcherComprobantesModal.vue": {
+    "mtime": 1789045434.9269037,
+    "ast_hash": "901f09257496a8b8ccad6fd680125ddc",
+    "semantic_hash": ""
+  },
+  "src/components/cajas/CajaCodigoModal.vue": {
+    "mtime": 1788465353.712455,
+    "ast_hash": "80783bd632463967e430ff707dbf72e5",
+    "semantic_hash": ""
+  },
+  "src/components/cajas/CajaEditarCodigoModal.vue": {
+    "mtime": 1788465707.5516264,
+    "ast_hash": "00fcfb041cbee8b66ec671af987bb638",
+    "semantic_hash": ""
+  },
+  "src/components/cajas/CajaEtiquetaModal.vue": {
+    "mtime": 1788452484.3417604,
+    "ast_hash": "16a9c6fd4c2574fe8ad177f6dd7e5a7d",
+    "semantic_hash": ""
+  },
+  "src/components/cajas/CajaKnowledgeModal.vue": {
+    "mtime": 1788446774.3973508,
+    "ast_hash": "c2e51916e681718a41996183f44d4c5b",
+    "semantic_hash": ""
+  },
+  "src/components/cajas/CajaKnowledgeReaderModal.vue": {
+    "mtime": 1788448774.6463249,
+    "ast_hash": "731157be9b4bdc179facc5adbd745361",
+    "semantic_hash": ""
+  },
+  "src/components/cajas/CajasCodificacionTab.vue": {
+    "mtime": 1788465755.7822177,
+    "ast_hash": "5b439b82b294c3f3a6d1181cb71fff67",
+    "semantic_hash": ""
+  },
+  "src/components/cajas/CajasDiccionarioModal.vue": {
+    "mtime": 1788446746.0778682,
+    "ast_hash": "350618c4772393b23972ebc19c107f2f",
+    "semantic_hash": ""
+  },
+  "src/components/cajas/CajasKnowledgeTab.vue": {
+    "mtime": 1788465642.221255,
+    "ast_hash": "14e629be9a9b30093b0946baf7ced3f6",
+    "semantic_hash": ""
+  },
+  "src/components/logistica/EmailEnvioExitosoModal.vue": {
+    "mtime": 1787968270.6713026,
+    "ast_hash": "9aeba7053b21906a36bafc1cc486c6de",
+    "semantic_hash": ""
+  },
+  "src/components/logistica/ImageAnnotationModal.vue": {
+    "mtime": 1790262845.1376762,
+    "ast_hash": "2215f168c77af82c88d2b0c372ae1954",
+    "semantic_hash": ""
+  },
+  "src/components/logistica/ReporteDevolucionModal.vue": {
+    "mtime": 1790264995.726998,
+    "ast_hash": "fdac887b242e50d477263a6963a79aaf",
+    "semantic_hash": ""
+  },
+  "src/components/logistica/ReporteDevolucionPDF.vue": {
+    "mtime": 1790265027.5358012,
+    "ast_hash": "3410a3afa0c5d391741fe80a725a6cda",
+    "semantic_hash": ""
+  },
+  "src/components/ui/AnimatedBadge.vue": {
+    "mtime": 1789753369.5756922,
+    "ast_hash": "b519f657d12a874f41487b846f28c78d",
+    "semantic_hash": ""
+  },
+  "src/components/ui/GlassModal.vue": {
+    "mtime": 1790349158.269061,
+    "ast_hash": "31a671db24625a84c320cb74130410b8",
+    "semantic_hash": ""
+  },
+  "src/components/ui/GlowCard.vue": {
+    "mtime": 1789753201.3209453,
+    "ast_hash": "ab5e7454bbbd6d55581031932202dfbd",
+    "semantic_hash": ""
+  },
+  "src/components/ui/MorphingTabs.vue": {
+    "mtime": 1789750880.2419088,
+    "ast_hash": "8fefd4c51eed3187264e541b1b78154d",
+    "semantic_hash": ""
+  },
+  "src/components/ui/ShimmerButton.vue": {
+    "mtime": 1789750851.5866427,
+    "ast_hash": "6df60e0953ab267ff1d6d08b7f40e98c",
+    "semantic_hash": ""
+  },
+  "src/components/ui/SlidingNumber.vue": {
+    "mtime": 1789750840.643962,
+    "ast_hash": "622ae20917c72f5a63ea1892fd0b2f62",
+    "semantic_hash": ""
+  },
+  "src/components/ui/icons/AnimatedArrowRightIcon.vue": {
+    "mtime": 1790346390.7196858,
+    "ast_hash": "626332cb8e70bd47684d6ea5ea80513e",
+    "semantic_hash": ""
+  },
+  "src/components/ui/icons/AnimatedBoxIcon.vue": {
+    "mtime": 1790346382.5109694,
+    "ast_hash": "98e1df33eaffe7712bc82aa2008986cc",
+    "semantic_hash": ""
+  },
+  "src/components/ui/icons/AnimatedCalendarIcon.vue": {
+    "mtime": 1790346352.1561725,
+    "ast_hash": "284562f019be23354d69fc69770f1ea1",
+    "semantic_hash": ""
+  },
+  "src/components/ui/icons/AnimatedEyeIcon.vue": {
+    "mtime": 1790346373.8704245,
+    "ast_hash": "deddaaa5f9c24cc38ce761765f3af22a",
+    "semantic_hash": ""
+  },
+  "src/components/ui/icons/AnimatedFileTextIcon.vue": {
+    "mtime": 1790346364.8779151,
+    "ast_hash": "4ee17d0600dc04cd512f2da0a683de5a",
+    "semantic_hash": ""
+  },
+  "src/components/ui/icons/AnimatedHistoryIcon.vue": {
+    "mtime": 1790346327.8305795,
+    "ast_hash": "ded123123afb4d640b3c7112eb669e60",
+    "semantic_hash": ""
+  },
+  "src/components/ui/icons/AnimatedPackageIcon.vue": {
+    "mtime": 1790346342.5910606,
+    "ast_hash": "289b97e5cbf074cc8f00e72a9ed64cf1",
+    "semantic_hash": ""
+  },
+  "src/components/ui/icons/index.js": {
+    "mtime": 1790346398.4621406,
+    "ast_hash": "7eb4da4f694665b06a5e2b458b8afd1e",
+    "semantic_hash": ""
+  },
+  "src/components/ui/index.js": {
+    "mtime": 1790346419.2770114,
+    "ast_hash": "6e62589eb845a2a96b60afdb8b1a23c7",
+    "semantic_hash": ""
+  },
+  "src/composables/useReportePagosCSV.js": {
+    "mtime": 1789756071.7987926,
+    "ast_hash": "7ae2bdd60a3d841d509eebfd6038f2f8",
+    "semantic_hash": ""
+  },
+  "src/composables/useVersionCheck.js": {
+    "mtime": 1789130112.30788,
+    "ast_hash": "1a089caec390f7ecfa5517351c8c08b2",
+    "semantic_hash": ""
+  },
+  "src/services/comprobanteNotificationService.js": {
+    "mtime": 1790344906.10625,
+    "ast_hash": "d348bf2153c631945faac74ff5da9bb6",
+    "semantic_hash": ""
+  },
+  "src/services/emailComprobanteTemplateService.js": {
+    "mtime": 1790344248.7444088,
+    "ast_hash": "877e52341b403941aa47c61a67870b3d",
+    "semantic_hash": ""
+  },
+  "src/services/logisticaPdfGenerator.js": {
+    "mtime": 1790180541.844271,
+    "ast_hash": "5b80ce6a70c149d5b5277b434a13c3b4",
+    "semantic_hash": ""
+  },
+  "src/services/logisticaReportHelpers.js": {
+    "mtime": 1790179587.8292274,
+    "ast_hash": "06d117e1a943bbd62bec6e3519709ee5",
+    "semantic_hash": ""
+  },
+  "src/services/loteOperativoService.js": {
+    "mtime": 1789733813.0257137,
+    "ast_hash": "5106d5ad8ddcb51b6cdd25148778457b",
+    "semantic_hash": ""
+  },
+  "src/services/openrouterService.js": {
+    "mtime": 1788463196.5685632,
+    "ast_hash": "21e508c40bc2d5d0109724804b08fb7d",
+    "semantic_hash": ""
+  },
+  "src/services/resendService.js": {
+    "mtime": 1790344880.0448923,
+    "ast_hash": "67351429bf2b15e2170a542bc86bb65e",
+    "semantic_hash": ""
+  },
+  "src/services/webPushService.js": {
+    "mtime": 1790341733.3027315,
+    "ast_hash": "2ef498fc8066b39b84ef22911a916d56",
+    "semantic_hash": ""
+  },
+  "src/utils/bancosArgentinosParser.js": {
+    "mtime": 1789504832.0605571,
+    "ast_hash": "42bc63a8707f7a0252a3a3d3e8093d59",
+    "semantic_hash": ""
+  },
+  "src/utils/imageCorsHelper.js": {
+    "mtime": 1790261403.455091,
+    "ast_hash": "95696a56cf59b16b4568805c9c4270b3",
+    "semantic_hash": ""
+  },
+  "src/utils/reportMapper.js": {
+    "mtime": 1789064004.0262403,
+    "ast_hash": "551e9dd94d59d0b90e02ea19ed4ed113",
+    "semantic_hash": ""
+  },
+  "src/utils/reporteEmailTemplate.js": {
+    "mtime": 1789040332.4435866,
+    "ast_hash": "478be6ce0802f1430fe04bb38b79dcf7",
+    "semantic_hash": ""
+  },
+  "src/views/admin/CajasKnowledgeView.vue": {
+    "mtime": 1788465543.3500733,
+    "ast_hash": "cc0b51c148439d6d4c8f3e8f14aee50c",
+    "semantic_hash": ""
+  },
+  "src/views/admin/ConciliacionTransferenciasView.vue": {
+    "mtime": 1790344579.862978,
+    "ast_hash": "8f87c88866f5ec5b252308e9f7f2b019",
+    "semantic_hash": ""
+  },
+  "src/views/admin/ResumenOperativoLoteView.vue": {
+    "mtime": 1789733958.6966584,
+    "ast_hash": "5e2f4deb9f6bcd9d787adbe5bf429db4",
+    "semantic_hash": ""
+  },
+  "supabase/functions/enviar-notificacion-push/index.ts": {
+    "mtime": 1790341656.76492,
+    "ast_hash": "7d986f0975e568b012791fa979ef5742",
+    "semantic_hash": ""
+  },
+  "supabase/functions/procesar-comprobante-ia/index.ts": {
+    "mtime": 1788141078.17821,
+    "ast_hash": "a107f39cdaa543afbb9e56ee4a019282",
+    "semantic_hash": ""
+  },
+  "supabase/functions/send-email/index.ts": {
+    "mtime": 1790349073.725076,
+    "ast_hash": "f7c0e6004c93079a6c06727e65fe690c",
+    "semantic_hash": ""
+  },
+  "supabase/functions/send-reporte-cajas-sin-ficha/index.ts": {
+    "mtime": 1789142389.1442544,
+    "ast_hash": "8b6eaea8efa4ff1fe0fda346b1c963c5",
+    "semantic_hash": ""
+  },
+  "supabase/functions/send-reporte-pagos-semanal/index.ts": {
+    "mtime": 1789040360.1989937,
+    "ast_hash": "4662f1d8d2c61b9fabcd585d77541946",
+    "semantic_hash": ""
+  },
+  "supabase/functions/send-resumen-operativo-semanal/index.ts": {
+    "mtime": 1789142344.1879535,
+    "ast_hash": "323f9fb213c0581d5890fbfab5c568a3",
+    "semantic_hash": ""
+  },
+  "supabase/migrations/20260829_resumen_operativo_lotes.sql": {
+    "mtime": 1789064016.3172123,
+    "ast_hash": "cfac5ea4c1986f7604552e97aa26eb2d",
+    "semantic_hash": ""
+  },
+  "supabase/migrations/20260830_conciliacion_asociaciones.sql": {
+    "mtime": 1788138811.1721077,
+    "ast_hash": "045b217faf875f8d1f9c34cff8ebf039",
+    "semantic_hash": ""
+  },
+  "supabase/migrations/2026083101_conciliacion_cache_borradores.sql": {
+    "mtime": 1788143579.7704933,
+    "ast_hash": "1feb14b9a647d8ff198a56cba7bc7222",
+    "semantic_hash": ""
+  },
+  "supabase/migrations/20260903_cajas_knowledge_seed_historico.sql": {
+    "mtime": 1788449975.9805832,
+    "ast_hash": "ddc565d010797574c1656da178d65254",
+    "semantic_hash": ""
+  },
+  "supabase/migrations/20260903_cajas_knowledge_v1.sql": {
+    "mtime": 1788446736.615271,
+    "ast_hash": "6de93afbeccedf1fe0842ec3328c065b",
+    "semantic_hash": ""
+  },
+  "supabase/migrations/20260903_obtener_informe_logistica_publico.sql": {
+    "mtime": 1788441495.0066626,
+    "ast_hash": "f110b809b4f980341c975c7c3fcdfd7b",
+    "semantic_hash": ""
+  },
+  "supabase/migrations/20260909_actualizar_programacion_resumen.sql": {
+    "mtime": 1788967130.9074214,
+    "ast_hash": "9a39afc4f8edeacef70db384bc01f255",
+    "semantic_hash": ""
+  },
+  "supabase/migrations/20260909_ficha_access_logs.sql": {
+    "mtime": 1788960635.1591413,
+    "ast_hash": "13d1b4c40f983ed46875207313512624",
+    "semantic_hash": ""
+  },
+  "supabase/migrations/20260910_cron_reporte_pagos_semanal.sql": {
+    "mtime": 1789039030.7764673,
+    "ast_hash": "52cc163b7f0ed989ac22dd62d80cbd7a",
+    "semantic_hash": ""
+  },
+  "supabase/migrations/20260910_fix_obtener_lote_por_token_tipo_cirugia.sql": {
+    "mtime": 1789064024.2004428,
+    "ast_hash": "a36a7328fc8ccd825e88ccb7a9970918",
+    "semantic_hash": ""
+  },
+  "supabase/migrations/20260910_logistica_entrega_a_retiro.sql": {
+    "mtime": 1789126169.1960402,
+    "ast_hash": "508a92e945c7be30372cae2f2bb95824",
+    "semantic_hash": ""
+  },
+  "supabase/migrations/20260911_add_omitir_cirugias_resumen.sql": {
+    "mtime": 1789134642.113896,
+    "ast_hash": "8f2f5bf6cb7eca882bdcf9e0885b1cc6",
+    "semantic_hash": ""
+  },
+  "supabase/migrations/20260911_align_resumen_operativo_lote_pending_surgeries.sql": {
+    "mtime": 1789136630.2885344,
+    "ast_hash": "fe049790eedcc594233e054fa1db3860",
+    "semantic_hash": ""
+  },
+  "supabase/migrations/20260925_create_push_subscriptions.sql": {
+    "mtime": 1790341645.9445186,
+    "ast_hash": "5dd0dcf4f22e5e7db28f6215b473aa23",
+    "semantic_hash": ""
+  },
+  "supabase/migrations/20260925_logistica_reapertura_y_concurrencia.sql": {
+    "mtime": 1790333978.488933,
+    "ast_hash": "bfd05a7802a9ac3106b198fe3d931018",
+    "semantic_hash": ""
+  },
+  "supabase/rollbacks/20260805_logistica_informes_diarios_rollback.sql": {
+    "mtime": 1785952480.574337,
+    "ast_hash": "e1a817c23562a38df8b631b6ae000dfe",
+    "semantic_hash": ""
+  },
+  "tutorial-conciliacion/hyperframes.json": {
+    "mtime": 1788891107.2593532,
+    "ast_hash": "9aba7af72c9a867a940b5ea847eb18da",
+    "semantic_hash": ""
+  },
+  "tutorial-conciliacion/meta.json": {
+    "mtime": 1788891107.2573514,
+    "ast_hash": "77abb9778a395b72bce3520a40ffcc31",
+    "semantic_hash": ""
+  },
+  "tutorial-conciliacion/package.json": {
+    "mtime": 1788891107.2613842,
+    "ast_hash": "b1edf4966edb6feb0de0a25c332521f8",
+    "semantic_hash": ""
+  },
+  "tutorial-conciliacion/renders/tutorial-conciliacion_2026-09-08_15-28-38.meta.json": {
+    "mtime": 1788892124.732257,
+    "ast_hash": "97816351479ac35375c10e73546c9459",
+    "semantic_hash": ""
+  },
+  "tutorial-conciliacion/renders/tutorial-conciliacion_2026-09-08_15-39-30.meta.json": {
+    "mtime": 1788892773.8276188,
+    "ast_hash": "97816351479ac35375c10e73546c9459",
+    "semantic_hash": ""
+  },
+  "tutorial-conciliacion/renders/tutorial-conciliacion_2026-09-08_15-39-36.meta.json": {
+    "mtime": 1788892779.137064,
+    "ast_hash": "97816351479ac35375c10e73546c9459",
+    "semantic_hash": ""
+  },
+  "tutorial-conciliacion/renders/tutorial-conciliacion_2026-09-08_15-40-11.meta.json": {
+    "mtime": 1788892813.931362,
+    "ast_hash": "97816351479ac35375c10e73546c9459",
+    "semantic_hash": ""
+  },
+  ".agents/skills/email-html-mjml/SKILL.md": {
+    "mtime": 1787977005.2581446,
+    "ast_hash": "d459a2931c3c78aa3157e434f3c0f04b",
+    "semantic_hash": ""
+  },
+  ".agents/skills/email-html-mjml/compilation.md": {
+    "mtime": 1787977005.2670052,
+    "ast_hash": "624f3a9f32ff4cc83b658fd2d0208f7f",
+    "semantic_hash": ""
+  },
+  ".agents/skills/email-html-mjml/components/advanced.md": {
+    "mtime": 1787977005.2687542,
+    "ast_hash": "f2d358f0e54e644a1facdc00b1b08c84",
+    "semantic_hash": ""
+  },
+  ".agents/skills/email-html-mjml/components/content.md": {
+    "mtime": 1787977005.2692823,
+    "ast_hash": "f14c5e2771610e3ee0b74b1f9f38e8b6",
+    "semantic_hash": ""
+  },
+  ".agents/skills/email-html-mjml/components/head.md": {
+    "mtime": 1787977005.2698057,
+    "ast_hash": "b71a05fc153d615f159e6e9f966423a0",
+    "semantic_hash": ""
+  },
+  ".agents/skills/email-html-mjml/components/interactive.md": {
+    "mtime": 1787977005.2703307,
+    "ast_hash": "5b626440da359dffa188de672e53519d",
+    "semantic_hash": ""
+  },
+  ".agents/skills/email-html-mjml/components/layout.md": {
+    "mtime": 1787977005.2708454,
+    "ast_hash": "fbf79d7f8d1d971f4f762eb350840b8b",
+    "semantic_hash": ""
+  },
+  ".agents/skills/email-html-mjml/mjml-reference.md": {
+    "mtime": 1787977005.271359,
+    "ast_hash": "3621c75997cf08699e8681e2c48dde36",
+    "semantic_hash": ""
+  },
+  "docs/14_WEB_PUSH_VAPID_SETUP.md": {
+    "mtime": 1790341664.9860816,
+    "ast_hash": "82620ec3694e96e1b7a1ec5a523fd035",
+    "semantic_hash": ""
+  },
+  "public/DISTRICORR_KNOWLEDGE_CODIFICACION_CAJAS.md": {
+    "mtime": 1788445216.72781,
+    "ast_hash": "d0a10a4011fe393d3e789c0238730773",
+    "semantic_hash": ""
+  },
+  "public/DISTRICORR_PADRON_CAJAS_Y_CODIGOS (2).md": {
+    "mtime": 1788445229.5458312,
+    "ast_hash": "e1670e766c1712dc2b4848a4850a6267",
+    "semantic_hash": ""
+  },
+  "src/templates/emails/reporte-pagos.html": {
+    "mtime": 1789040302.2624688,
+    "ast_hash": "8bd7156d8d24b041d4c04048b34d0223",
+    "semantic_hash": ""
+  },
+  "tasks/lessons.md": {
+    "mtime": 1789142370.5560358,
+    "ast_hash": "ef30bfc13a9df5e0a123da7a8f82f9e4",
+    "semantic_hash": ""
+  },
+  "tasks/todo.md": {
+    "mtime": 1789142124.362571,
+    "ast_hash": "753067d6ed0a40b4e3fc02333a046df6",
+    "semantic_hash": ""
+  },
+  "tutorial-conciliacion/AGENTS.md": {
+    "mtime": 1788891049.7833488,
+    "ast_hash": "b0a9b0086f0f725e4b2544ae5599722f",
+    "semantic_hash": ""
+  },
+  "tutorial-conciliacion/CLAUDE.md": {
+    "mtime": 1788891049.7918966,
+    "ast_hash": "b0a9b0086f0f725e4b2544ae5599722f",
+    "semantic_hash": ""
+  },
+  "tutorial-conciliacion/index.html": {
+    "mtime": 1788892583.513478,
+    "ast_hash": "81bf207556ebd148ab84c4d8c2c73388",
+    "semantic_hash": ""
+  },
+  "public/ISologo  (1).svg": {
+    "mtime": 1788181409.7882795,
+    "ast_hash": "113ea2394371562b3c4bd3fbd039747c",
+    "semantic_hash": ""
+  },
+  "public/android-chrome-512x512.png": {
+    "mtime": 1788192390.0,
+    "ast_hash": "5903052220cf1388b1e9e1ca6bab479f",
+    "semantic_hash": ""
+  },
+  "public/favicon-96x96.png": {
+    "mtime": 1788192518.0,
+    "ast_hash": "a27fc9a116f21f29b122ba0e6694baf1",
+    "semantic_hash": ""
+  },
+  "public/web-app-manifest-192x192.png": {
+    "mtime": 1788192518.0,
+    "ast_hash": "88595018f3ae01005c5c09e6645d582a",
+    "semantic_hash": ""
+  },
+  "public/web-app-manifest-512x512.png": {
+    "mtime": 1788192518.0,
+    "ast_hash": "11b3e602ed19a5e6e8eee245e5ea13f2",
+    "semantic_hash": ""
+  },
+  "tutorial-conciliacion/.thumbnails/v4_v3_17109982d1e1795f_036acd33f29c1a8f_jpeg_preview_index.html_1920x1080_240x135_1788892068382_15.00.jpg": {
+    "mtime": 1788892073.6895936,
+    "ast_hash": "49817fc9c0c19792599d225f5bbcbce3",
+    "semantic_hash": ""
+  },
+  "tutorial-conciliacion/.thumbnails/v4_v3_17109982d1e1795f_036acd33f29c1a8f_jpeg_preview_index.html_1920x1080_240x135_1788892068382_15.00__scene2_0.jpg": {
+    "mtime": 1788892075.4370048,
+    "ast_hash": "49817fc9c0c19792599d225f5bbcbce3",
+    "semantic_hash": ""
+  },
+  "tutorial-conciliacion/.thumbnails/v4_v3_17109982d1e1795f_036acd33f29c1a8f_jpeg_preview_index.html_1920x1080_240x135_1788892068382_25.00.jpg": {
+    "mtime": 1788892076.2895129,
+    "ast_hash": "92f97d71baca885ed554abc8dcab6a02",
+    "semantic_hash": ""
+  },
+  "tutorial-conciliacion/.thumbnails/v4_v3_17109982d1e1795f_036acd33f29c1a8f_jpeg_preview_index.html_1920x1080_240x135_1788892068382_25.00__scene3_0.jpg": {
+    "mtime": 1788892077.8644848,
+    "ast_hash": "92f97d71baca885ed554abc8dcab6a02",
+    "semantic_hash": ""
+  },
+  "tutorial-conciliacion/.thumbnails/v4_v3_17109982d1e1795f_036acd33f29c1a8f_jpeg_preview_index.html_1920x1080_240x135_1788892068382_3.00.jpg": {
+    "mtime": 1788892112.7443452,
+    "ast_hash": "1a50bef41f4e6d69bd6e5c5c67f076b5",
+    "semantic_hash": ""
+  },
+  "tutorial-conciliacion/.thumbnails/v4_v3_17109982d1e1795f_036acd33f29c1a8f_jpeg_preview_index.html_1920x1080_240x135_1788892068382_35.00.jpg": {
+    "mtime": 1788892077.107072,
+    "ast_hash": "30a9e0799d5924c586a0fdc142b31dba",
+    "semantic_hash": ""
+  },
+  "tutorial-conciliacion/.thumbnails/v4_v3_17109982d1e1795f_036acd33f29c1a8f_jpeg_preview_index.html_1920x1080_240x135_1788892068382_35.00__scene4_0.jpg": {
+    "mtime": 1788892078.676271,
+    "ast_hash": "30a9e0799d5924c586a0fdc142b31dba",
+    "semantic_hash": ""
+  },
+  "tutorial-conciliacion/.thumbnails/v4_v3_17109982d1e1795f_036acd33f29c1a8f_jpeg_preview_index.html_1920x1080_240x135_1788892068382_5.00.jpg": {
+    "mtime": 1788892072.9205015,
+    "ast_hash": "1a50bef41f4e6d69bd6e5c5c67f076b5",
+    "semantic_hash": ""
+  },
+  "tutorial-conciliacion/.thumbnails/v4_v3_17109982d1e1795f_036acd33f29c1a8f_jpeg_preview_index.html_1920x1080_240x135_1788892068382_5.00__scene1_0.jpg": {
+    "mtime": 1788892074.6003084,
+    "ast_hash": "1a50bef41f4e6d69bd6e5c5c67f076b5",
+    "semantic_hash": ""
+  },
+  "tutorial-conciliacion/.thumbnails/v4_v3_192da323ef67b693_119edc8fe6322f89_jpeg_preview_index.html_1920x1080_240x135_1788891629065_15.00__scene2_0.jpg": {
+    "mtime": 1788891635.1396735,
+    "ast_hash": "c947366477b999b741b21ce2b461fe5e",
+    "semantic_hash": ""
+  },
+  "tutorial-conciliacion/.thumbnails/v4_v3_192da323ef67b693_119edc8fe6322f89_jpeg_preview_index.html_1920x1080_240x135_1788891629065_25.00__scene3_0.jpg": {
+    "mtime": 1788891635.7258158,
+    "ast_hash": "64aadf955dd1f952f25f823e9b6e821e",
+    "semantic_hash": ""
+  },
+  "tutorial-conciliacion/.thumbnails/v4_v3_192da323ef67b693_119edc8fe6322f89_jpeg_preview_index.html_1920x1080_240x135_1788891629065_3.00.jpg": {
+    "mtime": 1788891634.0651262,
+    "ast_hash": "e3f6ee980b8149f0bad4c765504ecf8d",
+    "semantic_hash": ""
+  },
+  "tutorial-conciliacion/.thumbnails/v4_v3_192da323ef67b693_119edc8fe6322f89_jpeg_preview_index.html_1920x1080_240x135_1788891629065_5.00__scene1_0.jpg": {
+    "mtime": 1788891634.5788574,
+    "ast_hash": "e3f6ee980b8149f0bad4c765504ecf8d",
+    "semantic_hash": ""
+  },
+  "tutorial-conciliacion/.thumbnails/v4_v3_34772828e6698498_0057bb7e68d03589_jpeg_preview_index.html_1920x1080_240x135_1788892583513_15.00__scene2_0.jpg": {
+    "mtime": 1788892588.63733,
+    "ast_hash": "4fc2670615f8530ffafabd84cfd07112",
+    "semantic_hash": ""
+  },
+  "tutorial-conciliacion/.thumbnails/v4_v3_34772828e6698498_0057bb7e68d03589_jpeg_preview_index.html_1920x1080_240x135_1788892583513_16.80.jpg": {
+    "mtime": 1788892591.6491883,
+    "ast_hash": "4fc2670615f8530ffafabd84cfd07112",
+    "semantic_hash": ""
+  },
+  "tutorial-conciliacion/.thumbnails/v4_v3_34772828e6698498_0057bb7e68d03589_jpeg_preview_index.html_1920x1080_240x135_1788892583513_25.00__scene3_0.jpg": {
+    "mtime": 1788892590.1804001,
+    "ast_hash": "a6334102dc1fc3ef74051304c390d6b1",
+    "semantic_hash": ""
+  },
+  "tutorial-conciliacion/.thumbnails/v4_v3_34772828e6698498_0057bb7e68d03589_jpeg_preview_index.html_1920x1080_240x135_1788892583513_3.00.jpg": {
+    "mtime": 1788892589.451989,
+    "ast_hash": "3330fb4dffe54363a95abba0cc5093b1",
+    "semantic_hash": ""
+  },
+  "tutorial-conciliacion/.thumbnails/v4_v3_34772828e6698498_0057bb7e68d03589_jpeg_preview_index.html_1920x1080_240x135_1788892583513_35.00__scene4_0.jpg": {
+    "mtime": 1788892590.9514384,
+    "ast_hash": "97fb430f6715822d5741ddfaec84ca9e",
+    "semantic_hash": ""
+  },
+  "tutorial-conciliacion/.thumbnails/v4_v3_34772828e6698498_0057bb7e68d03589_jpeg_preview_index.html_1920x1080_240x135_1788892583513_5.00__scene1_0.jpg": {
+    "mtime": 1788892587.948512,
+    "ast_hash": "3330fb4dffe54363a95abba0cc5093b1",
+    "semantic_hash": ""
+  },
+  "tutorial-conciliacion/.thumbnails/v4_v3_47309dbd733e3cb9_4d2d3268e5f01fc7_jpeg_preview_index.html_1920x1080_240x135_1788892482505_15.00__scene2_0.jpg": {
+    "mtime": 1788892487.6522598,
+    "ast_hash": "ded65aa798d958182b7c7b2383d54c4d",
+    "semantic_hash": ""
+  },
+  "tutorial-conciliacion/.thumbnails/v4_v3_47309dbd733e3cb9_4d2d3268e5f01fc7_jpeg_preview_index.html_1920x1080_240x135_1788892482505_16.80.jpg": {
+    "mtime": 1788892490.7021878,
+    "ast_hash": "ded65aa798d958182b7c7b2383d54c4d",
+    "semantic_hash": ""
+  },
+  "tutorial-conciliacion/.thumbnails/v4_v3_47309dbd733e3cb9_4d2d3268e5f01fc7_jpeg_preview_index.html_1920x1080_240x135_1788892482505_25.00__scene3_0.jpg": {
+    "mtime": 1788892489.284988,
+    "ast_hash": "43d92e565ff3ecc99f04d76ad327865e",
+    "semantic_hash": ""
+  },
+  "tutorial-conciliacion/.thumbnails/v4_v3_47309dbd733e3cb9_4d2d3268e5f01fc7_jpeg_preview_index.html_1920x1080_240x135_1788892482505_3.00.jpg": {
+    "mtime": 1788892488.5351017,
+    "ast_hash": "29ede19c6fc85416afb91fa10dfa84ab",
+    "semantic_hash": ""
+  },
+  "tutorial-conciliacion/.thumbnails/v4_v3_47309dbd733e3cb9_4d2d3268e5f01fc7_jpeg_preview_index.html_1920x1080_240x135_1788892482505_35.00__scene4_0.jpg": {
+    "mtime": 1788892489.9723966,
+    "ast_hash": "d3730d75dc64ca0270acf193b605d302",
+    "semantic_hash": ""
+  },
+  "tutorial-conciliacion/.thumbnails/v4_v3_47309dbd733e3cb9_4d2d3268e5f01fc7_jpeg_preview_index.html_1920x1080_240x135_1788892482505_5.00__scene1_0.jpg": {
+    "mtime": 1788892486.8104544,
+    "ast_hash": "29ede19c6fc85416afb91fa10dfa84ab",
+    "semantic_hash": ""
+  },
+  "tutorial-conciliacion/.thumbnails/v4_v3_679c0bacf70c458c_06c0efee3b33186e_jpeg_preview_index.html_1920x1080_240x135_1788892373618_15.00__scene2_0.jpg": {
+    "mtime": 1788892381.2639353,
+    "ast_hash": "7df11dd71d3040a8c49218a0e2d633c1",
+    "semantic_hash": ""
+  },
+  "tutorial-conciliacion/.thumbnails/v4_v3_679c0bacf70c458c_06c0efee3b33186e_jpeg_preview_index.html_1920x1080_240x135_1788892373618_16.80.jpg": {
+    "mtime": 1788892384.0609014,
+    "ast_hash": "330b563ed4210034122b6a3f6a574058",
+    "semantic_hash": ""
+  },
+  "tutorial-conciliacion/.thumbnails/v4_v3_679c0bacf70c458c_06c0efee3b33186e_jpeg_preview_index.html_1920x1080_240x135_1788892373618_25.00__scene3_0.jpg": {
+    "mtime": 1788892382.309419,
+    "ast_hash": "371390f6e6547b82fe4432868babc2ab",
+    "semantic_hash": ""
+  },
+  "tutorial-conciliacion/.thumbnails/v4_v3_679c0bacf70c458c_06c0efee3b33186e_jpeg_preview_index.html_1920x1080_240x135_1788892373618_3.00.jpg": {
+    "mtime": 1788892379.4989831,
+    "ast_hash": "8bcfe4cad30d094ceb624aeeb0880151",
+    "semantic_hash": ""
+  },
+  "tutorial-conciliacion/.thumbnails/v4_v3_679c0bacf70c458c_06c0efee3b33186e_jpeg_preview_index.html_1920x1080_240x135_1788892373618_35.00__scene4_0.jpg": {
+    "mtime": 1788892383.2058458,
+    "ast_hash": "8ae8568fc89d3ec16749407a26a5ca39",
+    "semantic_hash": ""
+  },
+  "tutorial-conciliacion/.thumbnails/v4_v3_679c0bacf70c458c_06c0efee3b33186e_jpeg_preview_index.html_1920x1080_240x135_1788892373618_5.00__scene1_0.jpg": {
+    "mtime": 1788892380.3706272,
+    "ast_hash": "8bcfe4cad30d094ceb624aeeb0880151",
+    "semantic_hash": ""
+  },
+  "tutorial-conciliacion/renders/tutorial-conciliacion_2026-09-08_15-14-25.mp4": {
+    "mtime": 1788891352.7771144,
+    "ast_hash": "fa7bb3a51383fe69376fd2d5247853a1",
+    "semantic_hash": ""
+  },
+  "tutorial-conciliacion/renders/tutorial-conciliacion_2026-09-08_15-21-01.mp4": {
+    "mtime": 1788891734.2286856,
+    "ast_hash": "8d337290ef8153cf808b94e2ffa6e3dc",
+    "semantic_hash": ""
+  },
+  "tutorial-conciliacion/renders/tutorial-conciliacion_2026-09-08_15-25-27.mp4": {
+    "mtime": 1788891971.2392027,
+    "ast_hash": "df2ae02930b7c860dcca176790ce7b32",
+    "semantic_hash": ""
+  },
+  "tutorial-conciliacion/renders/tutorial-conciliacion_2026-09-08_15-26-38.mp4": {
+    "mtime": 1788892041.3182366,
+    "ast_hash": "6da1b60ba5f275d70de2399331704d29",
+    "semantic_hash": ""
+  },
+  "tutorial-conciliacion/renders/tutorial-conciliacion_2026-09-08_15-36-58.mp4": {
+    "mtime": 1788892746.3378048,
+    "ast_hash": "3adf2efb6c9cefe6eb893446438bb65d",
+    "semantic_hash": ""
+  },
+  "tutorial-conciliacion/renders/tutorial-conciliacion_2026-09-08_15-40-24.mp4": {
+    "mtime": 1788892955.1960516,
+    "ast_hash": "3adf2efb6c9cefe6eb893446438bb65d",
     "semantic_hash": ""
   }
 }

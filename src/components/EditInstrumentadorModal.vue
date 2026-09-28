@@ -101,6 +101,19 @@
           </div>
 
           <div>
+            <label for="email" class="block font-bold text-slate-700 dark:text-slate-300 mb-1">
+              Correo Electrónico (Notificaciones)
+            </label>
+            <input 
+              v-model="formData.email" 
+              type="email" 
+              id="email" 
+              placeholder="Ej: profesional@correo.com"
+              class="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl text-xs sm:text-sm font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:bg-white dark:focus:bg-slate-900 focus:outline-none transition-all placeholder:text-slate-400 placeholder:font-normal" 
+            />
+          </div>
+
+          <div class="sm:col-span-2">
             <label for="lugar_trabajo" class="block font-bold text-slate-700 dark:text-slate-300 mb-1">
               Lugar de Trabajo Habitual
             </label>
@@ -233,17 +246,71 @@ const toast = useToast();
 const isSubmitting = ref(false);
 const formData = ref(null);
 
-watch(() => props.instrumentador, (newInstrumentador) => {
-  if (newInstrumentador) {
-    formData.value = { ...newInstrumentador };
-  } else {
+const hydrateFormData = async (inst) => {
+  if (!inst) {
     formData.value = null;
+    return;
+  }
+  const cleanDni = String(inst.dni || '').trim();
+  formData.value = {
+    dni: cleanDni,
+    nombre_completo: inst.nombre_completo || '',
+    cuil: inst.cuil || '',
+    telefono: inst.telefono || '',
+    email: inst.email || '',
+    lugar_trabajo: inst.lugar_trabajo || '',
+    banco: inst.banco || '',
+    alias_bancario: inst.alias_bancario || inst.alias || '',
+    alias: inst.alias || inst.alias_bancario || '',
+    cbu: inst.cbu || '',
+    puntos_manuales: Number(inst.puntos_manuales) || 0
+  };
+
+  // Cargar datos directos y completos desde la tabla para evitar desfaces si el objeto vino de una RPC agregada
+  if (cleanDni) {
+    try {
+      const { data: directData, error: directErr } = await supabase
+        .from('instrumentadores')
+        .select('*')
+        .eq('dni', cleanDni)
+        .maybeSingle();
+
+      if (!directErr && directData && formData.value && formData.value.dni === cleanDni) {
+        formData.value = {
+          ...formData.value,
+          nombre_completo: directData.nombre_completo ?? formData.value.nombre_completo,
+          cuil: directData.cuil ?? formData.value.cuil,
+          telefono: directData.telefono ?? formData.value.telefono,
+          email: directData.email ?? formData.value.email,
+          lugar_trabajo: directData.lugar_trabajo ?? formData.value.lugar_trabajo,
+          banco: directData.banco ?? formData.value.banco,
+          alias_bancario: directData.alias_bancario || directData.alias || formData.value.alias_bancario,
+          alias: directData.alias || directData.alias_bancario || formData.value.alias,
+          cbu: directData.cbu ?? formData.value.cbu,
+          puntos_manuales: directData.puntos_manuales !== undefined && directData.puntos_manuales !== null ? Number(directData.puntos_manuales) : formData.value.puntos_manuales
+        };
+      }
+    } catch (e) {
+      console.warn('No se pudo hidratar datos directos del instrumentador:', e);
+    }
+  }
+};
+
+watch(() => props.instrumentador, (newVal) => {
+  if (newVal && props.show) {
+    hydrateFormData(newVal);
   }
 }, { immediate: true, deep: true });
 
+watch(() => props.show, (isOpen) => {
+  if (isOpen && props.instrumentador) {
+    hydrateFormData(props.instrumentador);
+  }
+});
+
 const iniciales = computed(() => {
   if (!formData.value?.nombre_completo) return 'IQ';
-  const parts = formData.value.nombre_completo.trim().split(' ');
+  const parts = formData.value.nombre_completo.trim().split(/\s+/);
   if (parts.length >= 2) {
     return (parts[0][0] + parts[1][0]).toUpperCase();
   }
@@ -252,25 +319,74 @@ const iniciales = computed(() => {
 
 const handleSubmit = async () => {
   if (!formData.value) return;
+
+  const cleanDni = String(formData.value.dni || props.instrumentador?.dni || '').trim();
+  if (!cleanDni) {
+    toast.error('No se pudo identificar el DNI del instrumentador a actualizar.');
+    return;
+  }
+
+  const nombreClean = String(formData.value.nombre_completo || '').trim();
+  if (!nombreClean) {
+    toast.error('El nombre completo es obligatorio.');
+    return;
+  }
+
   isSubmitting.value = true;
   try {
-    const updateData = {
-      nombre_completo: formData.value.nombre_completo,
-      alias: formData.value.alias,
-      telefono: formData.value.telefono,
-      lugar_trabajo: formData.value.lugar_trabajo,
-      cuil: formData.value.cuil,
-      puntos_manuales: formData.value.puntos_manuales,
-      cbu: formData.value.cbu,
-      alias_bancario: formData.value.alias_bancario,
-      banco: formData.value.banco
+    const aliasValue = formData.value.alias_bancario
+      ? String(formData.value.alias_bancario).trim().toUpperCase()
+      : (formData.value.alias ? String(formData.value.alias).trim().toUpperCase() : null);
+
+    const updatePayload = {
+      nombre_completo: nombreClean,
+      telefono: formData.value.telefono ? String(formData.value.telefono).trim() : null,
+      lugar_trabajo: formData.value.lugar_trabajo ? String(formData.value.lugar_trabajo).trim() : null,
+      cuil: formData.value.cuil ? String(formData.value.cuil).trim() : null,
+      puntos_manuales: Number(formData.value.puntos_manuales) || 0,
+      cbu: formData.value.cbu ? String(formData.value.cbu).trim() : null,
+      alias_bancario: aliasValue,
+      alias: aliasValue,
+      banco: formData.value.banco ? String(formData.value.banco).trim() : null,
+      email: formData.value.email ? String(formData.value.email).trim().toLowerCase() : null
     };
 
-    const { error } = await supabase
+    let updateData = { ...updatePayload };
+    let { data, error } = await supabase
       .from('instrumentadores')
       .update(updateData)
-      .eq('dni', formData.value.dni);
-    
+      .eq('dni', cleanDni)
+      .select();
+
+    // Fallback resiliente si alguna columna opcional no existe en el esquema cacheado
+    if (error) {
+      const errMsg = (error.message || '').toLowerCase();
+      let hadColumnMismatch = false;
+
+      if (errMsg.includes('alias_bancario')) {
+        delete updateData.alias_bancario;
+        hadColumnMismatch = true;
+      }
+      if (errMsg.includes('alias') && !errMsg.includes('alias_bancario')) {
+        delete updateData.alias;
+        hadColumnMismatch = true;
+      }
+      if (errMsg.includes('email')) {
+        delete updateData.email;
+        hadColumnMismatch = true;
+      }
+
+      if (hadColumnMismatch) {
+        const retry = await supabase
+          .from('instrumentadores')
+          .update(updateData)
+          .eq('dni', cleanDni)
+          .select();
+        error = retry.error;
+        data = retry.data;
+      }
+    }
+
     if (error) throw error;
 
     toast.success('Instrumentador actualizado con éxito.');
@@ -278,7 +394,8 @@ const handleSubmit = async () => {
     emit('close');
 
   } catch (err) {
-    toast.error('Error al actualizar el instrumentador: ' + err.message);
+    console.error('Error al actualizar instrumentador:', err);
+    toast.error('Error al actualizar el instrumentador: ' + (err.message || 'Error desconocido'));
   } finally {
     isSubmitting.value = false;
   }

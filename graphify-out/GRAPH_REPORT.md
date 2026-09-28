@@ -1,16 +1,16 @@
-# Graph Report - gestionIq  (2026-08-11)
+# Graph Report - gestionIq  (2026-09-28)
 
 ## Corpus Check
-- 880 files · ~1,149,494 words
+- 981 files · ~1,331,044 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 7526 nodes · 9335 edges · 704 communities (582 shown, 122 thin omitted)
-- Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 76 edges (avg confidence: 0.56)
+- 8802 nodes · 11122 edges · 767 communities (634 shown, 133 thin omitted)
+- Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 83 edges (avg confidence: 0.56)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `63ceea97`
+- Built from commit: `253f8c87`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -110,6 +110,7 @@
 - [[_COMMUNITY_copyPermanentLink|copyPermanentLink]]
 - [[_COMMUNITY_fetchInstrumentadores|fetchInstrumentadores]]
 - [[_COMMUNITY_vercel.json|vercel.json]]
+- [[_COMMUNITY_vite.config.js|vite.config.js]]
 - [[_COMMUNITY_Writing Guidelines for Postgres References|Writing Guidelines for Postgres References]]
 - [[_COMMUNITY_Vue Best Practices Workflow|Vue Best Practices Workflow]]
 - [[_COMMUNITY_Supabase|Supabase]]
@@ -531,6 +532,7 @@
 - [[_COMMUNITY_STORYBOARD.md format — frames → groups|STORYBOARD.md format — frames → groups]]
 - [[_COMMUNITY_parseFrontmatter|parseFrontmatter]]
 - [[_COMMUNITY_Frame worker — per-frame composition author (music-to-video)|Frame worker — per-frame composition author (music-to-video)]]
+- [[_COMMUNITY_ReporteDevolucionModal.vue|ReporteDevolucionModal.vue]]
 - [[_COMMUNITY_Tier 2 — title-image-outro|Tier 2 — title-image-outro]]
 - [[_COMMUNITY_Transitions translation @remotiontransitions → HF crossfades  shader-transitions|Transitions translation: @remotion/transitions → HF crossfades / shader-transitions]]
 - [[_COMMUNITY_na|na]]
@@ -561,6 +563,7 @@
 - [[_COMMUNITY_Frame skeleton (Step 2) — read the music, lay out the frames|Frame skeleton (Step 2) — read the music, lay out the frames]]
 - [[_COMMUNITY_Za|Za]]
 - [[_COMMUNITY_Using `text-spectral-rays` — it OWNS its wordmark|Using `text-spectral-rays` — it OWNS its wordmark]]
+- [[_COMMUNITY_CajasCodificacionTab.vue|CajasCodificacionTab.vue]]
 - [[_COMMUNITY_Frame worker — product-launch delta|Frame worker — product-launch delta]]
 - [[_COMMUNITY_Tier 1 — title-card-fade|Tier 1 — title-card-fade]]
 - [[_COMMUNITY_Root.tsx|Root.tsx]]
@@ -675,57 +678,116 @@
 - [[_COMMUNITY_render_diff.sh|render_diff.sh]]
 - [[_COMMUNITY_smoke.sh|smoke.sh]]
 - [[_COMMUNITY_NOTICE|NOTICE.md]]
+- [[_COMMUNITY_saveDraftDebounced|saveDraftDebounced]]
+- [[_COMMUNITY_DISTRICORR — Padrón consolidado de Cajas, Sets, Códigos y Artículos|DISTRICORR — Padrón consolidado de Cajas, Sets, Códigos y Artículos]]
 - [[_COMMUNITY_SKILL|SKILL.md]]
 - [[_COMMUNITY_Watchers|Watchers]]
+- [[_COMMUNITY_ConfigurarAutomatizacionPagosModal.vue|ConfigurarAutomatizacionPagosModal.vue]]
+- [[_COMMUNITY_CorrectionWorkspace.vue|CorrectionWorkspace.vue]]
+- [[_COMMUNITY_ConfigurarReporteCajasDevueltasModal.vue|ConfigurarReporteCajasDevueltasModal.vue]]
+- [[_COMMUNITY_CajasDiccionarioModal.vue|CajasDiccionarioModal.vue]]
+- [[_COMMUNITY_MJML Interactive Components Reference|MJML Interactive Components Reference]]
+- [[_COMMUNITY_redrawAll|redrawAll]]
+- [[_COMMUNITY_ReporteDevolucionPDF.vue|ReporteDevolucionPDF.vue]]
+- [[_COMMUNITY_MJML General Reference|MJML General Reference]]
+- [[_COMMUNITY_ModalResumenPendientesImprimible.vue|ModalResumenPendientesImprimible.vue]]
+- [[_COMMUNITY_CajaKnowledgeModal.vue|CajaKnowledgeModal.vue]]
+- [[_COMMUNITY_email-html-mjml — Responsive Email Developer|email-html-mjml — Responsive Email Developer]]
+- [[_COMMUNITY_CajaEtiquetaModal.vue|CajaEtiquetaModal.vue]]
+- [[_COMMUNITY_processExcelFile|processExcelFile]]
+- [[_COMMUNITY_ToolModificarMontosNotas.vue|ToolModificarMontosNotas.vue]]
+- [[_COMMUNITY_ModalRegularizacionAntiguos.vue|ModalRegularizacionAntiguos.vue]]
+- [[_COMMUNITY_CajaEditarCodigoModal.vue|CajaEditarCodigoModal.vue]]
+- [[_COMMUNITY_MJML Head Components Reference|MJML Head Components Reference]]
+- [[_COMMUNITY_MJML Layout Components Reference|MJML Layout Components Reference]]
+- [[_COMMUNITY_GuiaEnvioPDF.vue|GuiaEnvioPDF.vue]]
+- [[_COMMUNITY_GlassModal.vue|GlassModal.vue]]
+- [[_COMMUNITY_MorphingTabs.vue|MorphingTabs.vue]]
+- [[_COMMUNITY_formatNumber|formatNumber]]
+- [[_COMMUNITY_hyperframes.json|hyperframes.json]]
+- [[_COMMUNITY_scripts|scripts]]
+- [[_COMMUNITY_MJML Compilation Reference|MJML Compilation Reference]]
+- [[_COMMUNITY_MJML Content Components Reference|MJML Content Components Reference]]
+- [[_COMMUNITY_Guía Técnica Notificaciones Web Push Remotas (VAPID) en Gestión IQ|Guía Técnica: Notificaciones Web Push Remotas (VAPID) en Gestión IQ]]
+- [[_COMMUNITY_2026-09-11 — Separación Estricta de Reportes Automatizados (Single Responsibility)|2026-09-11 — Separación Estricta de Reportes Automatizados (Single Responsibility)]]
+- [[_COMMUNITY_HyperFrames Composition Project|HyperFrames Composition Project]]
+- [[_COMMUNITY_HyperFrames Composition Project|HyperFrames Composition Project]]
+- [[_COMMUNITY_useReportePagosCSV.js|useReportePagosCSV.js]]
+- [[_COMMUNITY_CajaKnowledgeReaderModal.vue|CajaKnowledgeReaderModal.vue]]
+- [[_COMMUNITY_ejecutarConfirmacionConciliacion|ejecutarConfirmacionConciliacion]]
+- [[_COMMUNITY_Task Pestaña de Trazabilidad Logística (Cajas Devueltas sin Ficha) y Reporte Automatizado por Email|Task: Pestaña de Trazabilidad Logística (Cajas Devueltas sin Ficha) y Reporte Automatizado por Email]]
+- [[_COMMUNITY_HyperFrames Creative|HyperFrames Creative]]
+- [[_COMMUNITY_Frame worker — PR-to-video delta|Frame worker — PR-to-video delta]]
+- [[_COMMUNITY_InstrumentadoresFilters.vue|InstrumentadoresFilters.vue]]
+- [[_COMMUNITY_handleGlobalKeyDown|handleGlobalKeyDown]]
+- [[_COMMUNITY_startRecognitionSession|startRecognitionSession]]
+- [[_COMMUNITY_index.ts|index.ts]]
+- [[_COMMUNITY_MJML Advanced Components Reference|MJML Advanced Components Reference]]
+- [[_COMMUNITY_useVersionCheck.js|useVersionCheck.js]]
+- [[_COMMUNITY_syncFormSummaryWithPatients|syncFormSummaryWithPatients]]
+- [[_COMMUNITY_index.ts|index.ts]]
+- [[_COMMUNITY_EmailEnvioExitosoModal.vue|EmailEnvioExitosoModal.vue]]
+- [[_COMMUNITY_isSurgeryMatch|isSurgeryMatch]]
+- [[_COMMUNITY_formatDate|formatDate]]
+- [[_COMMUNITY_processFiles|processFiles]]
+- [[_COMMUNITY_moverBorradorAHoy|moverBorradorAHoy]]
+- [[_COMMUNITY_searchEntregasPendientes|searchEntregasPendientes]]
+- [[_COMMUNITY_index.ts|index.ts]]
+- [[_COMMUNITY_generateRandomGuiaNumber|generateRandomGuiaNumber]]
+- [[_COMMUNITY_isValidUUID|isValidUUID]]
+- [[_COMMUNITY_index.ts|index.ts]]
+- [[_COMMUNITY_index.ts|index.ts]]
+- [[_COMMUNITY_toast|toast]]
+- [[_COMMUNITY_subscribeToWebPush|subscribeToWebPush]]
 
 ## God Nodes (most connected - your core abstractions)
-1. `supabase` - 63 edges
+1. `supabase` - 85 edges
 2. `run()` - 29 edges
-3. `runTests()` - 25 edges
-4. `gestion-iq-safe-coding` - 22 edges
-5. `readManifest()` - 20 edges
-6. `Media treatment recipes` - 20 edges
-7. `appendRecord()` - 19 edges
-8. `The 18 rules` - 19 edges
-9. `Story design — PR → narrative` - 19 edges
-10. `regenerateIndex()` - 17 edges
+3. `useToasts()` - 26 edges
+4. `runTests()` - 25 edges
+5. `gestion-iq-safe-coding` - 22 edges
+6. `readManifest()` - 20 edges
+7. `Media treatment recipes` - 20 edges
+8. `appendRecord()` - 19 edges
+9. `The 18 rules` - 19 edges
+10. `Story design — PR → narrative` - 19 edges
 
 ## Surprising Connections (you probably didn't know these)
-- `generatePDF()` --calls--> `html2canvas`  [INFERRED]
-  src/components/ReportDrawer.vue → package.json
+- `fetchInstrumentadores()` --indirect_call--> `score()`  [INFERRED]
+  src/views/InstrumentadoresView.vue → .agents/skills/media-use/scripts/lib/bundled-sfx-provider.mjs
 - `buildFramePackets()` --indirect_call--> `frame()`  [INFERRED]
   .agents/skills/hyperframes-core/scripts/lib/frame-packets-core.mjs → .agents/skills/figma/scripts/verify-motion.mjs
 - `run()` --indirect_call--> `out()`  [INFERRED]
   .agents/skills/media-use/scripts/transcript-cut.mjs → .agents/skills/motion-graphics/grounding/locate.mjs
-- `generatePDF()` --references--> `jspdf`  [EXTRACTED]
+- `downloadDirectPDF()` --calls--> `html2canvas`  [INFERRED]
+  src/components/logistica/ReporteDevolucionModal.vue → package.json
+- `generatePDF()` --calls--> `html2canvas`  [INFERRED]
   src/components/ReportDrawer.vue → package.json
-- `useOrdenDePagoPDF()` --references--> `jspdf`  [EXTRACTED]
-  src/composables/useOrdenDePagoPDF.js → package.json
 
 ## Import Cycles
 - None detected.
 
-## Communities (704 total, 122 thin omitted)
+## Communities (767 total, 133 thin omitted)
 
 ### Community 0 - "AdminView.vue"
 Cohesion: 0.07
-Nodes (28): jspdf, activeFilters, applyFilters(), copyLinkFromCard(), currentPage, error, exportarListaPDF(), exportarResumenPacientePDF() (+20 more)
+Nodes (22): activeFilters, applyFilters(), copyLinkFromCard(), currentPage, error, exportarSeleccionPDF(), fetchReportes(), goToPage() (+14 more)
 
 ### Community 1 - "ReportEventsAndPdfs.vue"
-Cohesion: 0.04
-Nodes (34): autoSaveMessage, autoSaveStatus, builder, editingIndex, enviadoExistente, filterCounts, filteredMovimientos, informe (+26 more)
+Cohesion: 0.03
+Nodes (54): activeDictationField, adminEditEnabled, autoSaveMessage, autoSaveStatus, baseVersion, builder, conflictData, currentSessionUserId (+46 more)
 
 ### Community 2 - "InformeSemanalSeguimientoView.vue"
 Cohesion: 0.06
 Nodes (48): addDays(), appendPlainSection(), appliedFilters, applyFilters(), buildHtmlSection(), buildReportHtml(), buildReportPlainText(), CandidateBlock (+40 more)
 
 ### Community 3 - "ActivitySummaryView.vue"
-Cohesion: 0.06
-Nodes (27): activeTab, allActivityData, authenticate(), cirugiasCobradasMesCount, cirugiasPendientesCount, comprobantesRecientes, dni, error (+19 more)
+Cohesion: 0.05
+Nodes (35): requestWebNotificationPermission, activeTab, allActivityData, authenticate(), cirugiasCobradasMesCount, cirugiasPendientesCount, comprobantesRecientes, dni (+27 more)
 
 ### Community 4 - "IncidenciasView.vue"
-Cohesion: 0.11
-Nodes (22): generateIncidencesPDF(), activeFilters, applyFilters(), currentPage, error, exportPDF(), fetchData(), fetchInstrumentadores() (+14 more)
+Cohesion: 0.09
+Nodes (27): apply(), clear(), emit, filters, initialFilters, generateIncidencesPDF(), activeFilters, applyFilters() (+19 more)
 
 ### Community 5 - "ReportDrawer.vue"
 Cohesion: 0.08
@@ -748,24 +810,24 @@ Cohesion: 0.21
 Nodes (10): canvasRef, canvasToBlob(), closeModal(), draw(), emit, getCoordinates(), isDrawing, props (+2 more)
 
 ### Community 10 - "CrearOrdenDePagoView.vue"
-Cohesion: 0.10
-Nodes (17): allCirugias, confirmarYRegistrar(), error, fetchData(), fileUploaderRef, { generatePDF }, instrumentadoresConCirugias, instrumentadoresSeleccionados (+9 more)
+Cohesion: 0.09
+Nodes (18): useOrdenDePagoPDF(), allCirugias, confirmarYRegistrar(), error, fetchData(), fileUploaderRef, { generatePDF }, instrumentadoresConCirugias (+10 more)
 
 ### Community 11 - "PagosDashboardView.vue"
-Cohesion: 0.05
-Nodes (41): activeKpiFilter, activeKpiLabel, allPendingSurgeries, amountKpiFilterMode, areAllSelected, cargarSinComprobante, currentMonthAmount, error (+33 more)
+Cohesion: 0.04
+Nodes (58): activeFilterChips, activeKpiFilter, activeKpiLabel, allPendingSurgeries, amountKpiFilterMode, areAllSelected, cargarSinComprobante, currentMonthAmount (+50 more)
 
 ### Community 12 - "dependencies"
 Cohesion: 0.21
 Nodes (9): close(), emit, form, handleSubmit(), isSubmitting, props, quickChips, sugerencias (+1 more)
 
 ### Community 13 - "AdminLayout.vue"
-Cohesion: 0.09
-Nodes (13): handleNotificationClick(), headerConfig, isDrawerVisible, isDropdownOpen, isRinging, isSidebarOpen, notificationMenuRef, notifications (+5 more)
+Cohesion: 0.08
+Nodes (17): handleNotificationClick(), { hasUpdate, reloadApp }, headerConfig, isDrawerVisible, isDropdownOpen, isRinging, isSidebarCollapsed, isSidebarOpen (+9 more)
 
 ### Community 14 - "InstrumentadoresView.vue"
-Cohesion: 0.05
-Nodes (31): xlsx, emit, props, update(), activeTab, capitalizeName(), copyPermanentLink(), currentPage (+23 more)
+Cohesion: 0.04
+Nodes (51): xlsx, generateRankingPDF(), activeTab, avatarBgs, capitalizeName(), copiedDni, copiedMsgDni, copiedNotifDni (+43 more)
 
 ### Community 15 - "FichaView.vue"
 Cohesion: 0.18
@@ -780,8 +842,8 @@ Cohesion: 0.08
 Nodes (20): emit, props, showActions, activePhotoIndex, cancelDeletePhoto(), clearDeleteTimer(), confirmDeletePhoto(), deleteCountdown (+12 more)
 
 ### Community 18 - "Sidebar.vue"
-Cohesion: 0.07
-Nodes (29): BoltIcon, DollarIcon, emit, GiftIcon, go(), handleNavigation(), HeartIcon, HistoryIcon (+21 more)
+Cohesion: 0.13
+Nodes (16): emit, go(), handleNavigation(), { isAuthorizationModalVisible, requestAuthorization, onAuthorized, onCancelled }, isSubmenuOpen(), items, loggingOut, onKey() (+8 more)
 
 ### Community 19 - "NewIncidenceModal.vue"
 Cohesion: 0.09
@@ -812,16 +874,16 @@ Cohesion: 0.11
 Nodes (18): Add a Label, Allowed Types, Automated Checks, Branch Naming, Breaking Changes, Check PR Status, Commands, Conventional Commits (+10 more)
 
 ### Community 26 - "HistorialPagosView.vue"
-Cohesion: 0.09
-Nodes (18): abrirCompartir(), activeTab, dniFilter, endDateFilter, error, fetchHistorial(), filteredHistorial, getShareLink() (+10 more)
+Cohesion: 0.05
+Nodes (33): abrirCompartir(), activeTab, copiarTexto(), correctionWorkspaceRef, descargarPDFInstrumentador(), descargarPDFOrden(), dniFilter, endDateFilter (+25 more)
 
 ### Community 27 - "Portal del Instrumentador - Changelog Frontend"
 Cohesion: 0.12
 Nodes (15): 1. Resumen de actividad, 2. Pagos y Comprobantes, 3. Modal Detalle de liquidacion, 4. Mi Perfil, 5. Dark mode y responsive, Alcance, Archivos involucrados, Cambios principales (+7 more)
 
 ### Community 28 - "FilterBar.vue"
-Cohesion: 0.18
-Nodes (14): clearFilters(), dateRangeMenu, emit, exportAndClose(), exportMenu, filters, formatDateForInput(), handleApply() (+6 more)
+Cohesion: 0.19
+Nodes (12): dateRangeMenu, emit, exportAndClose(), exportMenu, filters, handleApply(), handleClear(), isDateRangeMenuOpen (+4 more)
 
 ### Community 29 - "SalesRepresentativeModal.vue"
 Cohesion: 0.27
@@ -872,20 +934,20 @@ Cohesion: 0.18
 Nodes (11): allUsers, fetchUsers(), filteredUsers, handleGrantRole(), isLoading, isSubmitting, isSuperUser, resetSelection() (+3 more)
 
 ### Community 41 - "StatsView.vue"
-Cohesion: 0.08
-Nodes (28): activeChartTab, activePeriod, avgAsesoramiento, avgCompletadasPorDia, avgCompletadasPorSemana, avgCondiciones, avgGeneral, avgPuntualidad (+20 more)
+Cohesion: 0.07
+Nodes (34): activeChartTab, activePeriod, avgAsesoramiento, avgCompletadasPorDia, avgCompletadasPorDiaHabil, avgCompletadasPorSemana, avgCondiciones, avgGeneral (+26 more)
 
 ### Community 42 - "graphify — Code Navigation Layer"
 Cohesion: 0.18
 Nodes (10): Commands, First-time setup (one-time per machine), Graph Output, `/graphify auto-update` — Bulk update from git diff, `/graphify build` — Build index (first time, or full rebuild), graphify — Code Navigation Layer, `/graphify query <name>` — Search for symbols, `/graphify update <files...>` — Incremental update after edits (+2 more)
 
 ### Community 43 - "EstadisticasInstrumentadorModal.vue"
-Cohesion: 0.20
-Nodes (9): chartData, chartOptions, close(), emit, error, instrumentadorCategoria, loading, props (+1 more)
+Cohesion: 0.12
+Nodes (17): activeToken, capitalizeName(), chartData, chartOptions, close(), copied, copyPortalLink(), currentToken (+9 more)
 
 ### Community 44 - "ConsumoView.vue"
-Cohesion: 0.10
-Nodes (17): activeLightboxIndex, activeTab, existingControlWarning, fetchHistory(), fileUploaderRef, form, historyError, isFormValid (+9 more)
+Cohesion: 0.07
+Nodes (26): activeLightboxIndex, activeTab, existingControlWarning, fetchHistory(), fileUploaderRef, filteredControls, form, formatDate() (+18 more)
 
 ### Community 45 - "NotificationsView.vue"
 Cohesion: 0.13
@@ -912,8 +974,8 @@ Cohesion: 0.25
 Nodes (8): Card Morph Anchor, Critical Constraints, How It Works, Morph channels, Recipe, See also, Values, Variations
 
 ### Community 51 - "NewSurgeryModal.vue"
-Cohesion: 0.07
-Nodes (17): currentUserId, currentUserName, fetchRecentGuides(), form, generateAndPrintPDF(), imagenes, isGeneratingPDF, isSearching (+9 more)
+Cohesion: 0.04
+Nodes (31): activeStep, allImagesAreGrande, currentUserId, currentUserName, effectiveScale, form, imagenes, isDraggingOver (+23 more)
 
 ### Community 52 - "LoginView.vue"
 Cohesion: 0.06
@@ -932,8 +994,8 @@ Cohesion: 0.07
 Nodes (45): generate_bgm(), main(), parse_args(), analyze(), annotate_section_feel(), band_energy_curves(), beat_grid(), classify_drum() (+37 more)
 
 ### Community 56 - "NewInstrumentadorModal.vue"
-Cohesion: 0.29
-Nodes (7): emit, formData, handleSubmit(), initialFormData, isSubmitting, props, toast
+Cohesion: 0.07
+Nodes (27): isLoading, logs, props, emit, handleSubmit(), isSubmitting, pointsToAdd, props (+19 more)
 
 ### Community 57 - "NotificationBell.vue"
 Cohesion: 0.29
@@ -944,8 +1006,8 @@ Cohesion: 0.25
 Nodes (7): Commands, Documentation, HyperFrames Composition Project, Key Rules, Linting — ALWAYS RUN AFTER CHANGES, Project Structure, Skills — USE THESE FIRST
 
 ### Community 59 - "AddPointsModal.vue"
-Cohesion: 0.12
-Nodes (16): dependencies, chart.js, date-fns, file-saver, @heroicons/vue, jspdf-autotable, signature_pad, supabase (+8 more)
+Cohesion: 0.10
+Nodes (20): dependencies, chart.js, date-fns, file-saver, @heroicons/vue, jspdf-autotable, @lucide/vue, lucide-vue-next (+12 more)
 
 ### Community 60 - "useDarkMode.js"
 Cohesion: 0.43
@@ -960,8 +1022,8 @@ Cohesion: 0.33
 Nodes (6): emit, endDate, handleGenerate(), modalContent, startDate, toast
 
 ### Community 63 - "ImportInstrumentadoresModal.vue"
-Cohesion: 0.16
-Nodes (12): html2canvas, closeModal(), descargarPDF(), detalle, emit, error, fetchDetalleOrden(), { generatePDF } (+4 more)
+Cohesion: 0.17
+Nodes (14): html2canvas, jspdf, downloadDirectPDF(), generatePDF(), downloadIndividualOrderPdf(), exportarListaPDF(), exportarResumenPacientePDF(), exportarTrazabilidadPDF() (+6 more)
 
 ### Community 64 - "PostPagoModal.vue"
 Cohesion: 0.13
@@ -972,8 +1034,8 @@ Cohesion: 0.33
 Nodes (6): emit, props, ratingOptions, selectedOptionLabel, selectedOptionTextColor, selectRating()
 
 ### Community 66 - "ReportEventsAndPdfs.vue"
-Cohesion: 0.08
-Nodes (26): activePeriod, activeTab, copyLink(), dailyActivity, error, fetchReportes(), filters, formatDate() (+18 more)
+Cohesion: 0.06
+Nodes (36): activePeriod, activePhotoIndex, activeTab, copyLink(), dailyActivity, error, fetchReportes(), filters (+28 more)
 
 ### Community 67 - "ShareReclamoLinkModal.vue"
 Cohesion: 0.29
@@ -992,12 +1054,12 @@ Cohesion: 0.11
 Nodes (16): emit, fetchCirugias(), handleSearch(), loading, props, results, searchTerm, selectCirugia() (+8 more)
 
 ### Community 71 - "NewSurgeryModal.vue"
-Cohesion: 0.07
-Nodes (25): allSelected, copiedEmail, emailList, emit, formatDate(), handleCopyTable(), isTableCopied, openEmailClient() (+17 more)
+Cohesion: 0.08
+Nodes (34): activeTab, allSelected, computedEmailHtml, currentUserInfo, emailList, emit, formatDate(), formatNowDateTime() (+26 more)
 
 ### Community 72 - "jspdf"
-Cohesion: 0.10
-Nodes (18): activeOperatorDrafts, adminScope, deleteDraft(), fetchDashboardData(), formattedToday, isAdmin, loading, recentInformes (+10 more)
+Cohesion: 0.08
+Nodes (19): activeOperatorDrafts, adminScope, deleteDraft(), fetchDashboardData(), formattedToday, isAdmin, loading, recentInformes (+11 more)
 
 ### Community 73 - "ToggleCard.vue"
 Cohesion: 0.50
@@ -1009,15 +1071,15 @@ Nodes (43): Ambient Glow Bloom, Critical Constraints, How It Works, Recipe, See 
 
 ### Community 75 - "InstrumentadoresFilters.vue"
 Cohesion: 0.11
-Nodes (36): paramsFromIntent(), formatMeasuredNote(), firstSemver(), isLibraryLutOfflineMiss(), colorMiss(), commandText(), DEFAULT_EXT, defaultExt() (+28 more)
+Nodes (35): paramsFromIntent(), freezeLocalFile(), isDirectMediaUrl(), firstSemver(), isLibraryLutOfflineMiss(), colorMiss(), commandText(), DEFAULT_EXT (+27 more)
 
 ### Community 76 - "RadioPillSelector.vue"
 Cohesion: 0.67
 Nodes (3): emit, props, selectOption()
 
 ### Community 77 - "GestionReclamoModal.vue"
-Cohesion: 0.12
-Nodes (10): filteredInformes, filterEstado, filterFechaDesde, filterFechaHasta, filterScope, informes, isAdmin, loading (+2 more)
+Cohesion: 0.07
+Nodes (17): estadoTabs, fetchHistorial(), filteredInformes, filterEstado, filterEstadoTab, filterFechaDesde, filterFechaHasta, filterScope (+9 more)
 
 ### Community 78 - "ReporteModal.vue"
 Cohesion: 0.67
@@ -1028,28 +1090,28 @@ Cohesion: 0.13
 Nodes (11): activePhotoIndex, confirmDeleteFile(), emit, filePendingDelete, getPublicUrl(), getThumbnailUrl(), imageFiles, isLightboxVisible (+3 more)
 
 ### Community 81 - "addFiles"
-Cohesion: 0.06
-Nodes (29): emit, file, isProcessing, processFile(), toast, emit, isUpdating, markAsResolved() (+21 more)
+Cohesion: 0.11
+Nodes (13): DocumentIcon, HistoryIcon, HomeIcon, isLoggingOut, mainNavItems, mobileNavItems, PlusIcon, router (+5 more)
 
 ### Community 82 - "error"
 Cohesion: 0.11
 Nodes (16): Always use `shallowRef()` instead of `ref()` for primitive values (string, number, boolean, null, etc.) for better performance., Avoid destructuring from `reactive()` directly, Best practices for `computed`, Best practices for `reactive`, Best practices for watchers, Choose the correct reactive declaration method for objects/arrays/map/set, Clean up async effects for watchers, Declare reactive state correctly (+8 more)
 
 ### Community 83 - "hasMissingAmount"
-Cohesion: 0.05
-Nodes (35): activeTool, allOrders, fetchOrders(), filteredOrders, handleActionCompleted(), isLoading, resetWorkspace(), searchTerm (+27 more)
+Cohesion: 0.09
+Nodes (18): confirming, emit, handleAnular(), isSubmitting, props, { showSuccessToast, showErrorToast }, emit, fileUploader (+10 more)
 
 ### Community 85 - "handleExport"
-Cohesion: 0.18
-Nodes (22): BRIEF_CONTENT_KEYS, briefWorkflow(), FRAME_CONTENT_KEYS, frameTitle(), freezeRecipe(), FRONTMATTER_CONTENT_KEYS, listRecipes(), prefValue() (+14 more)
+Cohesion: 0.17
+Nodes (23): nextId(), BRIEF_CONTENT_KEYS, briefWorkflow(), FRAME_CONTENT_KEYS, frameTitle(), freezeRecipe(), FRONTMATTER_CONTENT_KEYS, listRecipes() (+15 more)
 
 ### Community 93 - "copyPermanentLink"
 Cohesion: 0.09
 Nodes (18): fileUploaderRef, isSaving, props, toast, uploadedFiles, uploadSuccessMessage, whatsappUrl, activityToken (+10 more)
 
 ### Community 94 - "fetchInstrumentadores"
-Cohesion: 0.25
-Nodes (8): deleteCurrentDraft(), fetchUserDrafts(), loadDraftData(), openResumenModal(), saveDraftInternal(), saveDraftManual(), submitInformeFinal(), switchDraft()
+Cohesion: 0.18
+Nodes (19): clearLocalBackup(), deleteCurrentDraft(), fetchUserDrafts(), handleBeforeUnload(), handleNewReportClick(), handleVisibilityChange(), loadDraftData(), logDraftTrace() (+11 more)
 
 ### Community 117 - "Writing Guidelines for Postgres References"
 Cohesion: 0.12
@@ -1084,7 +1146,7 @@ Cohesion: 0.07
 Nodes (37): annotateFrame(), args, buildOverlaySVG(), COMP_DIR, compositeOver(), HEIGHT, isLargeText(), measureAgainstHiddenTextFrame() (+29 more)
 
 ### Community 125 - "ReportTable.vue"
-Cohesion: 0.14
+Cohesion: 0.15
 Nodes (8): activeLightboxIndex, areAllOnPageSelected, emit, getRowClass(), isLightboxOpen, isReportSelected(), lightboxImages, props
 
 ### Community 126 - "Vite Configuration"
@@ -1140,8 +1202,8 @@ Cohesion: 0.20
 Nodes (10): 10. REFERENCE VOCABULARY (Pattern Names the Agent Should Know), Animation Library Choice, Cards & Containers, Galleries & Media, Hero Paradigms, Layout & Grids, Micro-Interactions & Effects, Navigation & Menus (+2 more)
 
 ### Community 139 - "tasteskill: Anti-Slop Frontend Skill"
-Cohesion: 0.18
-Nodes (11): 0.A Read these signals first, 0.B Output a one-line "Design Read" before generating, 0. BRIEF INFERENCE (Read the Room Before Anything Else), 0.C If the brief is ambiguous, ask one question, do not guess, 0.D Anti-Default Discipline, 13. OUT OF SCOPE, 14. FINAL PRE-FLIGHT CHECK, 2.A When to reach for a real design system (use official packages) (+3 more)
+Cohesion: 0.13
+Nodes (15): 0.A Read these signals first, 0.B Output a one-line "Design Read" before generating, 0. BRIEF INFERENCE (Read the Room Before Anything Else), 0.C If the brief is ambiguous, ask one question, do not guess, 0.D Anti-Default Discipline, 13. OUT OF SCOPE, 14. FINAL PRE-FLIGHT CHECK, 1.A Dial Inference (design read → dial values) (+7 more)
 
 ### Community 140 - "Protocol: Premium Utilitarian Minimalism UI Architect"
 Cohesion: 0.20
@@ -1172,8 +1234,8 @@ Cohesion: 0.20
 Nodes (9): Debugging Memoized Components, Performance Comparison, Task List, Use v-once and v-memo to Skip Unnecessary Updates, v-memo: Conditional Memoization for Lists, v-memo with Empty Array = v-once, v-memo with Multiple Dependencies, v-once: Render Once, Never Update (+1 more)
 
 ### Community 147 - "SubmissionSuccess.vue"
-Cohesion: 0.20
-Nodes (5): InfoBlock, InfoItem, pdfTemplateRef, props, RatingStars
+Cohesion: 0.18
+Nodes (7): InfoBlock, InfoItem, pdfTemplateRef, props, RatingStars, formatDate(), normalizeReport()
 
 ### Community 148 - "Environment API (Vite 6+)"
 Cohesion: 0.22
@@ -1188,8 +1250,8 @@ Cohesion: 0.22
 Nodes (8): Always add keys for list rendering, Implement `v-model` explicitly, Prefer functional components for stateless UI, Prefer templates over render functions, Render Function Patterns and Performance, Task List, Use `withDirectives` for custom directives, Use `withModifiers` / `withKeys` for event modifiers
 
 ### Community 151 - "copyPermanentLink"
-Cohesion: 0.20
-Nodes (10): emit, endDate, filteredLiquidaciones, { generarReportePagos }, handleGenerar(), periodoLabel, props, selectedPeriod (+2 more)
+Cohesion: 0.09
+Nodes (21): closeModal(), descargarPDF(), detalle, emit, error, fetchDetalleOrden(), { generarReporteDesdeDetalleOrden }, isGeneratingPdf (+13 more)
 
 ### Community 152 - "9. AI TELLS (Forbidden Patterns)"
 Cohesion: 0.25
@@ -1264,8 +1326,8 @@ Cohesion: 0.20
 Nodes (7): Component Template, Core, Features, Key Imports, Preferences, Quick Reference, Vue
 
 ### Community 170 - "Key Config Options"
-Cohesion: 0.12
-Nodes (15): devDependencies, autoprefixer, postcss, tailwindcss, @types/signature_pad, vite, @vitejs/plugin-vue, name (+7 more)
+Cohesion: 0.11
+Nodes (17): devDependencies, autoprefixer, @electric-sql/pglite, pg-mem, postcss, tailwindcss, @types/signature_pad, vite (+9 more)
 
 ### Community 171 - "Supabase Postgres Best Practices"
 Cohesion: 0.33
@@ -1276,8 +1338,8 @@ Cohesion: 0.07
 Nodes (14): ia(), Md(), Nd(), oa(), Od(), pa(), Pd(), qa() (+6 more)
 
 ### Community 173 - "Glob Import"
-Cohesion: 0.07
-Nodes (18): errorMsg, isLoading, logisticaControls, props, dateTimeFormatter, errorMsg, isLoading, logisticaData (+10 more)
+Cohesion: 0.06
+Nodes (20): errorMsg, isLoading, logisticaControls, props, selectedControlForReport, showReporteModal, dateTimeFormatter, errorMsg (+12 more)
 
 ### Community 174 - "Async Component Best Practices"
 Cohesion: 0.33
@@ -1285,7 +1347,7 @@ Nodes (5): Async Component Best Practices, Delay Guidelines, Prevent Loading Spi
 
 ### Community 175 - "handleSubmit"
 Cohesion: 0.11
-Nodes (28): CubeValidateError, DEFAULT_DOMAIN_MAX, DEFAULT_DOMAIN_MIN, isNumericDataLine(), main(), parseCube(), parseFiniteNumber(), parseSize() (+20 more)
+Nodes (29): CubeValidateError, DEFAULT_DOMAIN_MAX, DEFAULT_DOMAIN_MIN, isNumericDataLine(), main(), parseCube(), parseFiniteNumber(), parseSize() (+21 more)
 
 ### Community 176 - "FormStepComments.vue"
 Cohesion: 0.47
@@ -1324,8 +1386,8 @@ Cohesion: 0.50
 Nodes (4): 7. DIAL DEFINITIONS (Technical Reference), DESIGN_VARIANCE (Level 1-10), MOTION_INTENSITY (Level 1-10), VISUAL_DENSITY (Level 1-10)
 
 ### Community 185 - "IncidenceFilterBar.vue"
-Cohesion: 0.29
-Nodes (7): datosCompletos, iniciales, normalizeTipoForCompare(), normalizeTipoForDisplay(), props, stats, whatsappUrl
+Cohesion: 0.25
+Nodes (8): datosCompletos, emit, iniciales, normalizeTipoForCompare(), normalizeTipoForDisplay(), props, stats, whatsappUrl
 
 ### Community 186 - "ReportCard.vue"
 Cohesion: 0.67
@@ -1344,8 +1406,8 @@ Cohesion: 0.06
 Nodes (30): Caption Exit Guarantee, Captions, Constraints, Further References, Per-Word Styling, Positioning, Pre-Built Caption Components, Script-to-Style Mapping (+22 more)
 
 ### Community 225 - "ToolCambiarComprobante.vue"
-Cohesion: 0.39
-Nodes (4): bgmProvider, HEYGEN_CLIENT_SOURCE_ARGV, heygenSearch(), sfxProvider
+Cohesion: 0.33
+Nodes (5): HEYGEN_CLIENT_SOURCE_HEADERS, bgmProvider, HEYGEN_CLIENT_SOURCE_ARGV, heygenSearch(), sfxProvider
 
 ### Community 226 - "generatePDF"
 Cohesion: 0.06
@@ -1384,16 +1446,20 @@ Cohesion: 0.33
 Nodes (6): Custom Queries, Eager Loading, Glob Import, Multiple Patterns, Named Imports, Negative Patterns
 
 ### Community 235 - "SKILL.md"
-Cohesion: 0.07
-Nodes (24): Blueprints (the proven shapes), Motion coverage, Picking guidance, Role → blueprint menu, The 22 blueprints, Frame constraints, Frame worker — core contract (shared by the narrative video workflows), Self-check before finishing (you do NOT run the CLI) (+16 more)
+Cohesion: 0.06
+Nodes (27): Designing each element (faceless-explainer constraint), Frame worker — faceless-explainer delta, Your `focal:` / `roles:` — invented elements, Blueprints (the proven shapes), Motion coverage, Picking guidance, Role → blueprint menu, The 22 blueprints (+19 more)
+
+### Community 236 - "FaqSection.vue"
+Cohesion: 0.06
+Nodes (22): baseUrl, customMessage, isCopied, isPreviewEmailOpen, props, selectedTemplate, toast, faqItems (+14 more)
 
 ### Community 237 - "startUpload"
-Cohesion: 0.25
-Nodes (9): addMovementToList(), cancelEditMovement(), clearSelectedCirugia(), deleteMovimiento(), handleNewReportClick(), moveMovementDown(), moveMovementUp(), scheduleAutoSave() (+1 more)
+Cohesion: 0.29
+Nodes (8): addMovementToList(), cancelEditMovement(), clearEntregaOrigen(), clearSelectedCirugia(), deleteMovimiento(), moveMovementDown(), moveMovementUp(), scheduleAutoSave()
 
 ### Community 238 - "saveDraftInternal"
-Cohesion: 0.18
-Nodes (36): cacheEntryDir(), cacheGet(), cacheGetByEntity(), cachePut(), contentHash(), findGlobalBySha(), globalMediaDir(), importFromCache() (+28 more)
+Cohesion: 0.14
+Nodes (44): cacheEntryDir(), cacheGet(), cacheGetByEntity(), cachePut(), contentHash(), findGlobalBySha(), globalMediaDir(), importFromCache() (+36 more)
 
 ### Community 240 - "RecordWeeklyScoreModal.vue"
 Cohesion: 0.29
@@ -1420,12 +1486,12 @@ Cohesion: 0.08
 Nodes (25): argv, brandColors, brandColorStats, brandFonts, brandFontWeights, __dirname, framePath, hexToHsl() (+17 more)
 
 ### Community 246 - "audio.mjs"
-Cohesion: 0.08
-Nodes (21): anomalies, argv, bgmFields, bgmModeOverride, HERE, hyperframesDir, langOverride, lyriaRecipe (+13 more)
+Cohesion: 0.07
+Nodes (22): anomalies, argv, bgmFields, bgmModeOverride, HERE, hyperframesDir, langOverride, lyriaRecipe (+14 more)
 
 ### Community 247 - "resolve.test.mjs"
-Cohesion: 0.12
-Nodes (6): freezeLocalFile(), isDirectMediaUrl(), REPO_ROOT, RESOLVE_CLI, tests, RFC-1918
+Cohesion: 0.14
+Nodes (3): REPO_ROOT, RESOLVE_CLI, tests
 
 ### Community 248 - "Slideshow authoring contract"
 Cohesion: 0.07
@@ -1476,8 +1542,8 @@ Cohesion: 0.16
 Nodes (12): brandProvider, iconProvider, imageProvider, getProvider(), getProviders(), listFor(), listTypes(), providerMatches() (+4 more)
 
 ### Community 260 - "local-models.mjs"
-Cohesion: 0.16
-Nodes (19): SKILL, buildArgv(), CAPABILITIES, describeModelLadder(), listModels(), meetsSpecs(), MODELS, rankedByPreference() (+11 more)
+Cohesion: 0.21
+Nodes (13): SKILL, CAPABILITIES, describeModelLadder(), listModels(), meetsSpecs(), MODELS, rankedByPreference(), IMPORTANT: download the weights with a targeted include list first; (+5 more)
 
 ### Community 261 - "Part 1 — the move vocabulary"
 Cohesion: 0.08
@@ -1513,7 +1579,7 @@ Nodes (24): 1 · Cover (identity · move: oversized EB Garamond · cream), 2 · 
 
 ### Community 269 - "tts.mjs"
 Cohesion: 0.17
-Nodes (16): elevenlabsAvailable(), ffmpegDurationFallback(), ffprobeDuration(), parseFfmpegDurationBanner(), pickProvider(), relTo(), _resetNpxResolutionWarnForTests(), resolveNpxCliFromNpmExecPath() (+8 more)
+Nodes (17): elevenlabsAvailable(), ffmpegDurationFallback(), ffprobeDuration(), heygenAvailable(), parseFfmpegDurationBanner(), pickProvider(), relTo(), _resetNpxResolutionWarnForTests() (+9 more)
 
 ### Community 270 - "Part 1 — the move vocabulary"
 Cohesion: 0.08
@@ -1540,8 +1606,8 @@ Cohesion: 0.19
 Nodes (20): frameRateNumber(), IMAGE_EXTENSIONS, OUTPUT_IMAGE_EXTENSIONS, probe(), processImage(), processVideo(), run(), temporaryOutput() (+12 more)
 
 ### Community 276 - "heygen-cli.mjs"
-Cohesion: 0.18
-Nodes (21): freezeUrl(), ACTIONABLE_MESSAGES, classifyHeygenError(), classifyHeygenErrorCode(), classifyHeygenErrorResult(), consumeHeygenRemediation(), flushHeygenFailureTracking(), heygenErrorDetail() (+13 more)
+Cohesion: 0.19
+Nodes (20): ACTIONABLE_MESSAGES, classifyHeygenError(), classifyHeygenErrorCode(), classifyHeygenErrorResult(), consumeHeygenRemediation(), flushHeygenFailureTracking(), heygenErrorDetail(), pendingFailureTracking (+12 more)
 
 ### Community 277 - "logo-provider.mjs"
 Cohesion: 0.19
@@ -1560,8 +1626,8 @@ Cohesion: 0.16
 Nodes (21): applyDuration(), applyMeta(), applyPoster(), applyStatus(), assignGlobal(), buildFrame(), emptyGlobals(), endsFrameSection() (+13 more)
 
 ### Community 281 - "bgm.mjs"
-Cohesion: 0.16
-Nodes (14): BGM_PY_DEPS, bgmDefaultVolume(), generateBgmDetached(), inferBgmPrompt(), LYRIA_PY_DEPS, lyriaKey(), musicgenScript(), pipInstall() (+6 more)
+Cohesion: 0.18
+Nodes (13): BGM_PY_DEPS, bgmDefaultVolume(), generateBgmDetached(), LYRIA_PY_DEPS, lyriaKey(), musicgenScript(), pipInstall(), pyOk() (+5 more)
 
 ### Community 282 - "stats.mjs"
 Cohesion: 0.15
@@ -1644,8 +1710,8 @@ Cohesion: 0.28
 Nodes (14): applyContrast(), applyExposure(), applyLiftGain(), applyParams(), applySaturation(), applySplitTone(), applyWhiteBalance(), buildCube() (+6 more)
 
 ### Community 302 - "grade-analyzer.mjs"
-Cohesion: 0.20
-Nodes (14): ADJUST_LIMITS, analyzeMediaGrade(), average(), clamp(), IMAGE_EXT, parseMediaTreatmentSignalStats(), probeMedia(), statsToAdjust() (+6 more)
+Cohesion: 0.19
+Nodes (15): ADJUST_LIMITS, analyzeMediaGrade(), average(), clamp(), formatMeasuredNote(), IMAGE_EXT, parseMediaTreatmentSignalStats(), probeMedia() (+7 more)
 
 ### Community 303 - "transcribe.mjs"
 Cohesion: 0.16
@@ -1664,8 +1730,8 @@ Cohesion: 0.11
 Nodes (10): argv, audioMeta, audioMetaPath, base, hyperframesDir, intervalMs, outPath, started (+2 more)
 
 ### Community 307 - "adopt.mjs"
-Cohesion: 0.16
-Nodes (20): adoptExistingAssets(), AUDIO_EXT, findExistingAsset(), IMAGE_EXT, inferType(), scanExistingAssets(), cleanup(), drop() (+12 more)
+Cohesion: 0.22
+Nodes (14): adoptExistingAssets(), AUDIO_EXT, findExistingAsset(), IMAGE_EXT, inferType(), scanExistingAssets(), cleanup(), drop() (+6 more)
 
 ### Community 308 - "candidates.mjs"
 Cohesion: 0.21
@@ -1684,12 +1750,12 @@ Cohesion: 0.12
 Nodes (16): 10. Velocity-Matched Transitions, 11. Audio-Reactive Animation, 12. Clip-Path Reveal Masks, 13. WebGL Fragment Shader Art, 1. SVG Path Drawing, 2. Canvas 2D Procedural Art, 3. CSS 3D Transforms, 4. Per-Word Kinetic Typography (+8 more)
 
 ### Community 312 - "design-spec.md"
-Cohesion: 0.08
-Nodes (17): Consuming it, Design Spec — `frame.md` / `design.md`, Resolving which spec to read, Starting from a preset (optional), What `frame.md` is, Color Presence, Density, Frame Composition (+9 more)
+Cohesion: 0.10
+Nodes (12): Consuming it, Design Spec — `frame.md` / `design.md`, Resolving which spec to read, Starting from a preset (optional), What `frame.md` is, Color Presence, Density, Frame Composition (+4 more)
 
 ### Community 313 - "heygen.mjs"
-Cohesion: 0.14
-Nodes (15): argv, dur, output, positional, HEYGEN_CLI_SOURCE_HEADERS, HEYGEN_CLIENT_SOURCE_HEADERS, heygenAuthHeaders(), heygenAuthMethod() (+7 more)
+Cohesion: 0.16
+Nodes (13): argv, dur, output, positional, HEYGEN_CLI_SOURCE_HEADERS, heygenAuthHeaders(), heygenAuthMethod(), heygenCredential() (+5 more)
 
 ### Community 314 - "storyboard.mjs"
 Cohesion: 0.19
@@ -1732,8 +1798,8 @@ Cohesion: 0.12
 Nodes (15): Cut / trim: keep a slice, Ducking (declare in-composition / bake for export), Exact error-diffusion dither, Generate: images (local first, cloud upsell), Generate: video (`resolve --type video`, HeyGen avatar first), HEVC / H.265 sources, Image-to-video (animate any still into a talking clip), Media operations: agent guidance (+7 more)
 
 ### Community 324 - "probeSpecs"
-Cohesion: 0.18
-Nodes (7): fill(), runLocalModel(), strongCpu, tiny, availableRamMB(), detectGpu(), probeSpecs()
+Cohesion: 0.15
+Nodes (13): buildArgv(), selectModel(), fill(), runLocalModel(), strongCpu, tiny, ltxVideoGenerate(), fittingSpecs (+5 more)
 
 ### Community 325 - "Part 1 — The Seam Law"
 Cohesion: 0.12
@@ -1792,8 +1858,8 @@ Cohesion: 0.14
 Nodes (13): A. Content scene (default), B. Host media + main-timeline driver (one pattern for `<video>`/`<audio>`), C. Multi-scene merge, Composition Patterns, D. Audio at root, reactive visual inside, Editing Existing Projects, Modular Orchestrator Pattern, Naming Conventions (+5 more)
 
 ### Community 339 - "frame-packets-core.mjs"
-Cohesion: 0.27
-Nodes (12): buildFramePackets(), buildRolePayload(), citedRules(), escapeRegExp(), field(), flag(), frameId(), knownRuleIds() (+4 more)
+Cohesion: 0.05
+Nodes (34): buildFramePackets(), CONFIG, SKILL_DIR, buildFramePackets(), CONFIG, SKILL_DIR, buildFramePackets(), buildRolePayload() (+26 more)
 
 ### Community 340 - "Motion Principles"
 Cohesion: 0.14
@@ -1808,8 +1874,8 @@ Cohesion: 0.14
 Nodes (13): Categories — split by the search decision, Design notes (maintainers — execution does not read this), Flow, motion-graphics — dispatch entry, Prerequisites, Resume table, Step 0 — Initialize, Step 1 — Plan (subagent: Director Part 1) (+5 more)
 
 ### Community 343 - "ReclamoView.vue"
-Cohesion: 0.15
-Nodes (9): closeSignatureModal(), formSubmitted, handleSignatureSave(), isDark, isSignatureModalVisible, isSubmitting, signatureBlob, signaturePreviewUrl (+1 more)
+Cohesion: 0.09
+Nodes (18): contactoOptions, emit, errors, formData, handleSubmit(), props, tiposInconveniente, urgencias (+10 more)
 
 ### Community 344 - "align-captions.mjs"
 Cohesion: 0.19
@@ -1860,8 +1926,8 @@ Cohesion: 0.15
 Nodes (13): Composition root, Distributed rendering, Fonts, Lottie, Media, Parameters, React patterns, Reading this table (+5 more)
 
 ### Community 356 - "Cinematic mode (pure embed) — one engine, six DNAs"
-Cohesion: 0.17
-Nodes (9): Adding a DNA, Cinematic mode (pure embed) — one engine, six DNAs, What the engine generates (never author these), What you DON'T do, Workflow, How to use with fresh-eyes review, Per register, The five positive checks (run on the preview sheet, after the failure checks) (+1 more)
+Cohesion: 0.09
+Nodes (20): Adding a DNA, Authoring, Category lock (deliveries field, enforced by the compilers), Climax placement — the lockup is the default, NOT the only composition, Climax selection — what earns the promotion, DNA registry — pick a visual language, not a preset, fx fields (hero block) the engine understands, How to pick (agent) (+12 more)
 
 ### Community 357 - "THEME mode — composed visual constitutions"
 Cohesion: 0.17
@@ -1911,13 +1977,9 @@ Nodes (11): dependencies, react, react-dom, remotion, @remotion/cli, zod, name, 
 Cohesion: 0.24
 Nodes (12): Ao(), cb(), cc(), ga(), gb(), ha(), hb(), r() (+4 more)
 
-### Community 370 - "NotificationDropdown.vue"
-Cohesion: 0.18
-Nodes (7): dropdownRef, emit, focusedIndex, handleKeydown(), props, toast, unreadCount
-
 ### Community 371 - "DNA registry — pick a visual language, not a preset"
-Cohesion: 0.18
-Nodes (11): Adding a DNA, Authoring, Category lock (deliveries field, enforced by the compilers), Climax placement — the lockup is the default, NOT the only composition, Climax selection — what earns the promotion, DNA registry — pick a visual language, not a preset, fx fields (hero block) the engine understands, How to pick (agent) (+3 more)
+Cohesion: 0.02
+Nodes (88): activeAsignadoMonto, activeCirugias, activeErpLiquidaciones, activeErpMatchItem, activeFile, activeFileId, activeMainTab, activeSaldoPendiente (+80 more)
 
 ### Community 373 - "Figma → HyperFrames"
 Cohesion: 0.18
@@ -2160,8 +2222,8 @@ Cohesion: 0.22
 Nodes (7): CENTER, COUNTRIES, __dirname, framesDir, MARGIN, N, IMPORTANT: tileSize:256 matches Esri/CARTO raster endpoints. MapLibre's INTERNAL
 
 ### Community 433 - "workflow-guardrails.test.mjs"
-Cohesion: 0.39
-Nodes (5): flag(), main(), parsePrReference(), resolvePrToVideoProjectDir(), safeSegment()
+Cohesion: 0.05
+Nodes (41): abrirModalNota(), activeNotaFicha, actualizando, actualizarLoteEnVivo(), allLoaded, assetsLoaded, cerrarModalNota(), deselectedCount (+33 more)
 
 ### Community 434 - "Parameter translation: Zod schemas, defaultProps, calculateMetadata"
 Cohesion: 0.22
@@ -2188,8 +2250,8 @@ Cohesion: 0.36
 Nodes (5): arg(), resolveSpawnCommand(), localTtsGenerate(), probeDurationSeconds(), envWithNpxCli
 
 ### Community 440 - "frame-packets.mjs"
-Cohesion: 0.29
-Nodes (3): buildFramePackets(), CONFIG, SKILL_DIR
+Cohesion: 0.05
+Nodes (37): availableInstrumentadores, customEndDate, customStartDate, dbInstrumentadoresMap, destinatarioEmail, ejecutarDescargaPDF(), emit, enviarReportePorEmail() (+29 more)
 
 ### Community 441 - "Timelines and Labels"
 Cohesion: 0.25
@@ -2224,8 +2286,8 @@ Cohesion: 0.25
 Nodes (7): Critical Constraints, How It Works, Recipe, See also, Split Tilt Cards, Values, Variations
 
 ### Community 449 - "Stat Bars & Fills"
-Cohesion: 0.24
-Nodes (9): contactoOptions, emit, errors, formData, handleSubmit(), props, tiposInconveniente, urgencias (+1 more)
+Cohesion: 0.08
+Nodes (33): activeSuggestionIndex, aiExplanation, aiResultDetails, aiSuggestionsHistory, buildIntelligentAiResult(), codigoManual, computedBaseCode, computedNextCode (+25 more)
 
 ### Community 450 - "Vertical Spring Ticker (Slot Machine)"
 Cohesion: 0.25
@@ -2256,11 +2318,11 @@ Cohesion: 0.25
 Nodes (7): 1. Install the block, 2. Wire into index.html, 3. Lint and preview, 4. Customize (optional), Scenario, Steps, Worked Example: Adding a Block
 
 ### Community 457 - "SKILL.md"
-Cohesion: 0.29
+Cohesion: 0.22
 Nodes (5): Caption Template, Component Template, Contribute Templates, registry-item.json Templates, VFX Template
 
 ### Community 458 - "Registry discovery"
-Cohesion: 0.25
+Cohesion: 0.29
 Nodes (7): Available items, Components, Item manifest fields, Read the registry manifest as a fallback, Reading an item's manifest, Registry discovery, Use the catalog command first
 
 ### Community 459 - "Background music (BGM)"
@@ -2284,8 +2346,8 @@ Cohesion: 0.25
 Nodes (7): Checklist, Entry law — physical, never revealed, Exit law & cross-scene handoff, Oversized Cursor — the eye-carrier, Size & look (house convention), The click IGNITES the next beat, Tip-targeting & the click tap
 
 ### Community 465 - "frame-packets.mjs"
-Cohesion: 0.29
-Nodes (5): buildFramePackets(), CONFIG, SKILL_DIR, sourceExcerpt(), validateFrame()
+Cohesion: 0.08
+Nodes (27): addFiles(), candidateOrders, cleanStr(), closeModal(), computeFileHash(), emit, extractFilenameTokens(), fileInputRef (+19 more)
 
 ### Community 467 - "Font translation"
 Cohesion: 0.25
@@ -2336,8 +2398,8 @@ Cohesion: 0.29
 Nodes (6): Bugs we've fixed via this test set, Expansion plan, Regression checklist, Test set — diverse scenes for template stability regression, The test set, Usage
 
 ### Community 479 - "frame-packets.mjs"
-Cohesion: 0.33
-Nodes (3): buildFramePackets(), CONFIG, SKILL_DIR
+Cohesion: 0.11
+Nodes (30): buildLogisticaInformePDF(), generateLogisticaInformePDF(), getLogisticaInformePdfBase64(), computeLogisticaStats(), formatDate(), formatDateTime(), getMovementDisplayInfo(), getMovimientoHoraReal() (+22 more)
 
 ### Community 480 - "3D Camera Flight"
 Cohesion: 0.29
@@ -2364,12 +2426,12 @@ Cohesion: 0.29
 Nodes (7): Context-Sensitive Cursor, Critical Constraints, How It Works, Recipe, See also, Values, Variations
 
 ### Community 486 - "Control-Target Sync"
-Cohesion: 0.33
-Nodes (6): emit, handleSubmit(), isSubmitting, pointsToAdd, props, toast
+Cohesion: 0.06
+Nodes (34): 10. Reglas de integridad recomendadas, 11. Política de nombres recomendada, 12. Flujo recomendado para emitir un código nuevo, 13. Migración del histórico, 14. Datos de cruce actual, 15. Decisiones que todavía deben cerrarse antes de bloquear el generador, 16. Principio rector, 1. Fuentes consolidadas (+26 more)
 
 ### Community 487 - "Counting with Dynamic Scale"
-Cohesion: 0.60
-Nodes (3): hasCliCommand(), main(), runCliPreflight()
+Cohesion: 0.07
+Nodes (31): cancelTextPrompt(), canvasContainerRef, colorPalette, commitTextPrompt(), currentColor, currentPencilPoints, currentStroke, currentTextInput (+23 more)
 
 ### Community 488 - "Depth-of-Field Blur (Selective Focus / Rack Focus)"
 Cohesion: 0.29
@@ -2408,7 +2470,7 @@ Cohesion: 0.29
 Nodes (6): Pitch round — the intent layer's divergent step, Presenting the round, The decision map — "I don't know anything about video", The gate, alone — autonomous runs, The sampling gate — internal, always, When it runs
 
 ### Community 497 - "Wiring Blocks"
-Cohesion: 0.29
+Cohesion: 0.33
 Nodes (6): Basic wiring, Multiple blocks, Positioning blocks, Required attributes, Timeline coordination, Wiring Blocks
 
 ### Community 498 - "HyperFrames Registry"
@@ -2440,12 +2502,12 @@ Cohesion: 0.29
 Nodes (7): Asset treatments — weaving user media onto the beat spine, `beat_cut` — one clip per anchor (only on a `beat_cut` frame), `bg_under_text` — clip dimmed behind a template/free group, Deferred hook (not v1), `ken_burns` — slow push on one clip (fits a `phrase_flow` frame), Rules, The three treatments
 
 ### Community 506 - "Code vocabulary — the `code-*` animation blocks"
-Cohesion: 0.14
-Nodes (11): Code vocabulary — the `code-*` animation blocks, Install + use, PR beat → block cheat-sheet, Showing behavior — the mechanism beat (not a `code-*` block), The animation blocks, The `code-snippet-*` theme family (standalone, not palettes), Batch dispatch — you build a small packet batch, Frame worker — PR-to-video delta (+3 more)
+Cohesion: 0.29
+Nodes (6): Code vocabulary — the `code-*` animation blocks, Install + use, PR beat → block cheat-sheet, Showing behavior — the mechanism beat (not a `code-*` block), The animation blocks, The `code-snippet-*` theme family (standalone, not palettes)
 
 ### Community 507 - "frame-packets.mjs"
-Cohesion: 0.33
-Nodes (3): buildFramePackets(), CONFIG, SKILL_DIR
+Cohesion: 0.06
+Nodes (22): CATEGORIAS, currentPage, filterCategoria, filteredNotes, filterEstado, filterImportancia, handleEditFromReader(), itemsPerPage (+14 more)
 
 ### Community 508 - "run.sh"
 Cohesion: 0.52
@@ -2583,6 +2645,10 @@ Nodes (6): assignGlobal(), emptyGlobals(), findFrontmatterRange(), parseFrontmat
 Cohesion: 0.33
 Nodes (5): Build, Frame worker — per-frame composition author (music-to-video), Inputs (your dispatch context), Self-check, What comes fixed — realize it as given
 
+### Community 542 - "ReporteDevolucionModal.vue"
+Cohesion: 0.09
+Nodes (23): closeModal(), controlFormData, effectiveScale, emit, imagenesList, initReportData(), isEditableInPreview, isExportingPDF (+15 more)
+
 ### Community 543 - "Tier 2 — title-image-outro"
 Cohesion: 0.33
 Nodes (5): How to render and evaluate, Tier 2 — title-image-outro, Translation walk-through, What it tests, Why threshold 0.95?
@@ -2644,8 +2710,8 @@ Cohesion: 0.40
 Nodes (4): CLI tools used (what to run, and how to enable each), Providers, Setup and providers — install, auth, RAM ladders, forcing a provider, Setup — install heygen first (free-usage path)
 
 ### Community 559 - "EditInstrumentadorModal.vue"
-Cohesion: 0.33
-Nodes (6): emit, formData, handleSubmit(), isSubmitting, props, toast
+Cohesion: 0.25
+Nodes (7): emit, formData, handleSubmit(), iniciales, isSubmitting, props, toast
 
 ### Community 560 - "Motion-Graphics Director"
 Cohesion: 0.40
@@ -2699,6 +2765,10 @@ Nodes (5): kb(), ob(), ra(), rb(), Za()
 Cohesion: 0.40
 Nodes (4): Integrate in one pass, Pairs with, The one trap: never give the word a second source, Using `text-spectral-rays` — it OWNS its wordmark
 
+### Community 573 - "CajasCodificacionTab.vue"
+Cohesion: 0.08
+Nodes (25): codigos, currentPage, dictionaryEntries, familias, fetchCodigos(), filteredCodigos, filterEstado, filterFamilia (+17 more)
+
 ### Community 575 - "Frame worker — product-launch delta"
 Cohesion: 0.40
 Nodes (4): Cross-frame handoffs, Frame worker — product-launch delta, Placing candidates (product-launch constraint), Your `focal:` / `roles:` — real captured media
@@ -2720,16 +2790,16 @@ Cohesion: 0.40
 Nodes (5): kb(), ob(), ra(), rb(), Za()
 
 ### Community 581 - "AutocompleteSearch.vue"
-Cohesion: 0.47
-Nodes (5): apply(), clear(), emit, filters, initialFilters
+Cohesion: 0.11
+Nodes (23): compiledHtml, copiedHtml, handleSendTestEmail(), isSendingTest, pacientesList, previewDevice, props, rawPacientes (+15 more)
 
 ### Community 582 - "QuejasFilterBar.vue"
 Cohesion: 0.60
 Nodes (4): emit, filters, handleApply(), handleClear()
 
 ### Community 583 - "ImportInstrumentadoresModal.vue"
-Cohesion: 0.50
-Nodes (4): 1.A Dial Inference (design read → dial values), 1.B Use-Case Presets, 1.C How the Dials Drive Output, 1. THE THREE DIALS (Core Configuration)
+Cohesion: 0.08
+Nodes (22): closeModal(), emailInput, emit, errorMessage, loading, props, successMessage, cardShake (+14 more)
 
 ### Community 585 - "Blur"
 Cohesion: 0.50
@@ -2800,8 +2870,8 @@ Cohesion: 0.50
 Nodes (4): key-press, description, duration, file
 
 ### Community 602 - "notification"
-Cohesion: 0.50
-Nodes (4): notification, description, duration, file
+Cohesion: 0.10
+Nodes (29): notification, description, duration, file, emailAddress, emailEnabled, emit, enablePushNotifications() (+21 more)
 
 ### Community 603 - "ping"
 Cohesion: 0.50
@@ -2859,33 +2929,229 @@ Nodes (4): ja(), Lc(), Nc(), ub()
 Cohesion: 0.50
 Nodes (4): ja(), Lc(), Nc(), ub()
 
+### Community 704 - "saveDraftDebounced"
+Cohesion: 0.12
+Nodes (25): allowAllDuplicatesProcessing(), allowDuplicateProcessing(), autoMatchSurgeriesForFile(), base64ToBlob(), checkDuplicateTransfer(), clearAllFiles(), computeFileHash(), confirmarLoteAutomatico() (+17 more)
+
+### Community 705 - "DISTRICORR — Padrón consolidado de Cajas, Sets, Códigos y Artículos"
+Cohesion: 0.08
+Nodes (23): 1. Resumen, 2. Conteo físico del índice `CAJAS EN GENERAL CATEGORIZADO`, 3. Fuentes de detalle, 4. Catálogo consolidado de las fuentes de detalle, 5. Códigos que aparecen más de una vez en los catálogos de detalle, 6. Códigos presentes en detalle sin coincidencia exacta en ERP, 7. Padrón completo de artículos cargados en ERP, 8. Códigos ERP sin coincidencia exacta en los catálogos de detalle (+15 more)
+
 ### Community 706 - "SKILL.md"
-Cohesion: 0.50
-Nodes (3): Designing each element (faceless-explainer constraint), Frame worker — faceless-explainer delta, Your `focal:` / `roles:` — invented elements
+Cohesion: 0.09
+Nodes (18): abrirLoteActualizado(), emailList, emit, generandoLote, hoursOptions, loading, minutesOptions, newEmail (+10 more)
 
 ### Community 707 - "Watchers"
 Cohesion: 0.50
 Nodes (4): Flush Timing, watch, watchEffect, Watchers
 
+### Community 708 - "ConfigurarAutomatizacionPagosModal.vue"
+Cohesion: 0.11
+Nodes (15): emailList, emit, { generarReporteListadoCompletoPagos }, hoursOptions, loading, minutesOptions, newEmail, props (+7 more)
+
+### Community 709 - "CorrectionWorkspace.vue"
+Cohesion: 0.12
+Nodes (14): activeTool, allOrders, displayOrders, emit, fetchOrders(), handleActionCompleted(), isLoading, latestBatchOrders (+6 more)
+
+### Community 710 - "ConfigurarReporteCajasDevueltasModal.vue"
+Cohesion: 0.12
+Nodes (13): emailList, emit, hoursOptions, loading, minutesOptions, newEmail, props, saveConfig() (+5 more)
+
+### Community 711 - "CajasDiccionarioModal.vue"
+Cohesion: 0.15
+Nodes (15): editingId, emit, filteredEntries, filterGrupo, form, GRUPOS, handleSave(), loadEntries() (+7 more)
+
+### Community 712 - "MJML Interactive Components Reference"
+Cohesion: 0.13
+Nodes (14): mj-accordion, mj-accordion attributes, mj-accordion-text attributes, mj-accordion-title attributes, mj-carousel, mj-carousel attributes, mj-carousel-image attributes, mj-navbar (+6 more)
+
+### Community 713 - "redrawAll"
+Cohesion: 0.19
+Nodes (15): clearAllShapes(), drawArrow(), drawArrowPreview(), drawCircle(), drawCirclePreview(), drawPencil(), drawPencilPreview(), drawText() (+7 more)
+
+### Community 714 - "ReporteDevolucionPDF.vue"
+Cohesion: 0.16
+Nodes (7): annotatedCount, emit, imagePages, props, rotateImg(), toggleImgSize(), totalPages
+
+### Community 715 - "MJML General Reference"
+Cohesion: 0.15
+Nodes (12): css-class and container-background-color, Ending Tags, Gmail 102KB Clip, Hybrid Fluid Design — How Widths Work, mj-body Automatic ARIA Injection, mj-include File Types, MJML 5 Output Differences, MJML General Reference (+4 more)
+
+### Community 716 - "ModalResumenPendientesImprimible.vue"
+Cohesion: 0.15
+Nodes (8): fechaHoyStr, props, sortedSurgeries, totalFaltaControl, totalInstrumentadores, totalListasParaPago, totalProblemas, totalSurgeries
+
+### Community 717 - "CajaKnowledgeModal.vue"
+Cohesion: 0.17
+Nodes (11): CATEGORIAS, emit, form, handleSubmit(), props, renderedContent, saving, showPreview (+3 more)
+
+### Community 718 - "email-html-mjml — Responsive Email Developer"
+Cohesion: 0.18
+Nodes (10): 9 Engineering Rules, Accessibility Checklist, Compilation, Component Index, Critical Gotchas, Dark Mode Pattern, email-html-mjml — Responsive Email Developer, Examples (+2 more)
+
+### Community 719 - "CajaEtiquetaModal.vue"
+Cohesion: 0.25
+Nodes (10): copyImageToClipboard(), downloadImage(), drawArrowHead(), emit, formattedCode, labelCanvas, printLabel(), props (+2 more)
+
+### Community 720 - "processExcelFile"
+Cohesion: 0.29
+Nodes (10): cleanText(), findExactSurgerySubset(), parsearComprobanteBancarioTexto(), parseImporteMonetario(), handleExcelUpload(), handleFileDrop(), handleFileInputChange(), isExcelFile() (+2 more)
+
+### Community 721 - "ToolModificarMontosNotas.vue"
+Cohesion: 0.22
+Nodes (8): emit, error, formData, handleSaveChanges(), isLoading, isSubmitting, props, { showSuccessToast, showErrorToast }
+
+### Community 722 - "ModalRegularizacionAntiguos.vue"
+Cohesion: 0.24
+Nodes (8): auditNotes, confirmationInput, emit, handleClose(), handleConfirm(), isCheckboxConfirmed, isFormValid, props
+
+### Community 723 - "CajaEditarCodigoModal.vue"
+Cohesion: 0.22
+Nodes (8): computedBaseCode, computedCode, emit, form, handleSave(), props, saving, { showSuccessToast, showErrorToast, showWarningToast }
+
+### Community 724 - "MJML Head Components Reference"
+Cohesion: 0.22
+Nodes (8): mj-attributes, mj-breakpoint, mj-font, mj-html-attributes, mj-preview, mj-style, mj-title, MJML Head Components Reference
+
+### Community 725 - "MJML Layout Components Reference"
+Cohesion: 0.22
+Nodes (8): Document Hierarchy, mj-body, mj-column, mj-group, mj-section, mj-wrapper, MJML Layout Components Reference, Root `<mjml>` tag
+
+### Community 726 - "GuiaEnvioPDF.vue"
+Cohesion: 0.25
+Nodes (6): emit, imagePages, pacientesList, props, toggleImgSize(), totalPages
+
+### Community 727 - "GlassModal.vue"
+Cohesion: 0.33
+Nodes (8): closeModal(), emit, handleBackdropClick(), handleEsc(), handleKeydown(), isVisible, maxWidthClass, props
+
+### Community 728 - "MorphingTabs.vue"
+Cohesion: 0.25
+Nodes (6): emit, pillStyle, props, selectTab(), sizeClasses, tabRefs
+
+### Community 729 - "formatNumber"
+Cohesion: 0.22
+Nodes (9): addSurgeryToActiveDirect(), copyInstrumentadorLink(), copyWhatsAppMessage(), downloadBatchSummaryPdf(), formatNumber(), getOrFetchActivityToken(), handleSurgerySearchEnter(), setFullPreallocatedAmount() (+1 more)
+
+### Community 730 - "hyperframes.json"
+Cohesion: 0.22
+Nodes (8): media, autoProxy, paths, assets, blocks, components, registry, $schema
+
+### Community 731 - "scripts"
+Cohesion: 0.22
+Nodes (8): name, private, scripts, check, dev, publish, render, type
+
+### Community 732 - "MJML Compilation Reference"
+Cohesion: 0.25
+Nodes (7): Environment Check, Error Recovery, Hard Rules, Implementation Standards, MJML Compilation Reference, Output Pathing, Standard Compilation Command
+
+### Community 733 - "MJML Content Components Reference"
+Cohesion: 0.25
+Nodes (7): mj-button, mj-divider, mj-image, mj-spacer, mj-table, mj-text, MJML Content Components Reference
+
+### Community 734 - "Guía Técnica: Notificaciones Web Push Remotas (VAPID) en Gestión IQ"
+Cohesion: 0.25
+Nodes (7): 1. Visión General, 2. Claves Criptográficas VAPID de Gestión IQ, 3. Pasos de Instalación en Supabase, 4. Flujo del Instrumentador, Guía Técnica: Notificaciones Web Push Remotas (VAPID) en Gestión IQ, Paso 1: Ejecutar la migración SQL en Supabase Editor, Paso 2: Desplegar la Edge Function
+
+### Community 736 - "2026-09-11 — Separación Estricta de Reportes Automatizados (Single Responsibility)"
+Cohesion: 0.25
+Nodes (7): 2026-08-31 — Módulo de Conciliación de Transferencias (UX/UI y Persistencia), 2026-09-11 — Separación Estricta de Reportes Automatizados (Single Responsibility), Correcciones aplicadas y Patrones Detectados, Corrección recibida, Lessons Learned - Gestión IQ, Patrón detectado, Regla nueva
+
+### Community 737 - "HyperFrames Composition Project"
+Cohesion: 0.25
+Nodes (7): Commands, Documentation, HyperFrames Composition Project, Key Rules, Linting — ALWAYS RUN AFTER CHANGES, Project Structure, Skills — USE THESE FIRST
+
+### Community 738 - "HyperFrames Composition Project"
+Cohesion: 0.25
+Nodes (7): Commands, Documentation, HyperFrames Composition Project, Key Rules, Linting — ALWAYS RUN AFTER CHANGES, Project Structure, Skills — USE THESE FIRST
+
+### Community 739 - "useReportePagosCSV.js"
+Cohesion: 0.48
+Nodes (6): RFC-4180, cleanNumber(), escapeCsvValue(), formatDateArg(), formatDateIso(), useReportePagosCSV()
+
+### Community 740 - "CajaKnowledgeReaderModal.vue"
+Cohesion: 0.29
+Nodes (3): emit, props, renderedMarkdown
+
+### Community 741 - "ejecutarConfirmacionConciliacion"
+Cohesion: 0.33
+Nodes (7): confirmarConciliacion(), ejecutarConfirmacionConciliacion(), handleConfirmAllowZero(), handleConfirmExcludeZero(), openImputacionModal(), openInstrumentadorSearchModal(), sanitizeMatchedInstrumentador()
+
+### Community 742 - "Task: Pestaña de Trazabilidad Logística (Cajas Devueltas sin Ficha) y Reporte Automatizado por Email"
+Cohesion: 0.29
+Nodes (6): Archivos involucrados, Contexto, Plan, Resultado, Task: Pestaña de Trazabilidad Logística (Cajas Devueltas sin Ficha) y Reporte Automatizado por Email, Verificación
+
+### Community 743 - "HyperFrames Creative"
+Cohesion: 0.33
+Nodes (5): Boundaries, HyperFrames Creative, Routing, Scripts, Workflow
+
+### Community 744 - "Frame worker — PR-to-video delta"
+Cohesion: 0.33
+Nodes (5): Batch dispatch — you build a small packet batch, Frame worker — PR-to-video delta, Mostly invented — you build the visual (except code blocks + the credits avatars), PR code beats, mechanism beats + the credits close, PR-specific self-check additions
+
+### Community 745 - "InstrumentadoresFilters.vue"
+Cohesion: 0.47
+Nodes (5): clearFilters(), emit, hasActiveFilters, props, update()
+
+### Community 746 - "handleGlobalKeyDown"
+Cohesion: 0.40
+Nodes (6): closeComprobanteModal(), handleGlobalKeyDown(), handleWheelZoom(), resetZoom(), zoomIn(), zoomOut()
+
+### Community 747 - "startRecognitionSession"
+Cohesion: 0.40
+Nodes (6): formatSpokenText(), getTargetFieldValue(), startRecognitionSession(), stopVoiceDictation(), toggleVoiceDictation(), updateTargetFieldValue()
+
+### Community 749 - "MJML Advanced Components Reference"
+Cohesion: 0.40
+Nodes (4): mj-hero, mj-include, mj-raw, MJML Advanced Components Reference
+
+### Community 750 - "useVersionCheck.js"
+Cohesion: 0.40
+Nodes (4): currentVersion, hasUpdate, newVersion, useVersionCheck()
+
+### Community 751 - "syncFormSummaryWithPatients"
+Cohesion: 0.40
+Nodes (5): addCirugiaToPatients(), fetchRecentGuides(), generateAndPreviewPDF(), removePatient(), syncFormSummaryWithPatients()
+
+### Community 754 - "isSurgeryMatch"
+Cohesion: 0.67
+Nodes (3): cleanDni(), cleanStr(), isSurgeryMatch()
+
+### Community 755 - "formatDate"
+Cohesion: 0.67
+Nodes (3): formatDate(), sendViaGmail(), sendViaOutlook()
+
+### Community 756 - "processFiles"
+Cohesion: 0.67
+Nodes (3): handleFileDrop(), handleImageUpload(), processFiles()
+
+### Community 757 - "moverBorradorAHoy"
+Cohesion: 0.67
+Nodes (3): checkEnviadoForDate(), formatDate(), moverBorradorAHoy()
+
+### Community 758 - "searchEntregasPendientes"
+Cohesion: 0.67
+Nodes (3): onEntregaSearchInput(), openBuscarEntregasModal(), searchEntregasPendientes()
+
 ## Knowledge Gaps
-- **4258 isolated node(s):** `argv`, `outFile`, `tail`, `script`, `stream` (+4253 more)
+- **4942 isolated node(s):** `argv`, `outFile`, `tail`, `script`, `stream` (+4937 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **122 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **133 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `supabase` connect `addFiles` to `AdminView.vue`, `ReportEventsAndPdfs.vue`, `InformeSemanalSeguimientoView.vue`, `ActivitySummaryView.vue`, `IncidenciasView.vue`, `ReportDrawer.vue`, `PedidosEspecialesView.vue`, `FichaForm.vue`, `CrearOrdenDePagoView.vue`, `PagosDashboardView.vue`, `dependencies`, `AdminLayout.vue`, `InstrumentadoresView.vue`, `FichaView.vue`, `LogisticaControl.vue`, `PhotosGallery.vue`, `Sidebar.vue`, `NewIncidenceModal.vue`, `FileUpload.vue`, `GestionPagosView.vue`, `DividirOrdenDePago.vue`, `HistorialPagosView.vue`, `QuejasView.vue`, `Best practices for `computed``, `InstrumentadorUpload.vue`, `GenerateLinkModal.vue`, `ConfigView.vue`, `StatsView.vue`, `EstadisticasInstrumentadorModal.vue`, `ConsumoView.vue`, `Glob Import`, `AuthorizationModal.vue`, `EditInstrumentadorModal.vue`, `GestionPagoModal.vue`, `NotificationsView.vue`, `NewSurgeryModal.vue`, `ToolCambiarComprobante.vue`, `NewInstrumentadorModal.vue`, `ImportInstrumentadoresModal.vue`, `ReportEventsAndPdfs.vue`, `index.js`, `Video Composition`, `NewSurgeryModal.vue`, `jspdf`, `GestionReclamoModal.vue`, `emit`, `hasMissingAmount`, `ReclamoView.vue`, `copyPermanentLink`, `Control-Target Sync`, `RecordWeeklyScoreModal.vue`?**
-  _High betweenness centrality (0.017) - this node is a cross-community bridge._
-- **Why does `track()` connect `telemetry.mjs` to `InstrumentadoresFilters.vue`, `audio-duck.mjs`, `saveDraftInternal`, `transcribe.mjs`, `0. BRIEF INFERENCE (Read the Room Before Anything Else)`, `heygen-cli.mjs`, `candidates.mjs`, `transcript-cut.mjs`?**
-  _High betweenness centrality (0.003) - this node is a cross-community bridge._
-- **Why does `resolveSpawnCommand()` connect `resolveSpawnCommand` to `tts.mjs`, `transcribe.mjs`?**
-  _High betweenness centrality (0.003) - this node is a cross-community bridge._
+- **Why does `fetchInstrumentadores()` connect `InstrumentadoresView.vue` to `bundled-sfx-provider.mjs`?**
+  _High betweenness centrality (0.078) - this node is a cross-community bridge._
+- **Why does `score()` connect `bundled-sfx-provider.mjs` to `InstrumentadoresView.vue`?**
+  _High betweenness centrality (0.078) - this node is a cross-community bridge._
+- **Why does `supabase` connect `NewInstrumentadorModal.vue` to `AdminView.vue`, `ReportEventsAndPdfs.vue`, `InformeSemanalSeguimientoView.vue`, `ActivitySummaryView.vue`, `IncidenciasView.vue`, `ReportDrawer.vue`, `PedidosEspecialesView.vue`, `FichaForm.vue`, `CrearOrdenDePagoView.vue`, `PagosDashboardView.vue`, `dependencies`, `AdminLayout.vue`, `InstrumentadoresView.vue`, `FichaView.vue`, `LogisticaControl.vue`, `PhotosGallery.vue`, `Sidebar.vue`, `NewIncidenceModal.vue`, `FileUpload.vue`, `copyPermanentLink`, `DividirOrdenDePago.vue`, `GestionPagosView.vue`, `HistorialPagosView.vue`, `ReporteDevolucionModal.vue`, `QuejasView.vue`, `Best practices for `computed``, `InstrumentadorUpload.vue`, `GenerateLinkModal.vue`, `ConfigView.vue`, `StatsView.vue`, `EstadisticasInstrumentadorModal.vue`, `ConsumoView.vue`, `Glob Import`, `AuthorizationModal.vue`, `EditInstrumentadorModal.vue`, `GestionPagoModal.vue`, `workflow-guardrails.test.mjs`, `NotificationsView.vue`, `NewSurgeryModal.vue`, `ToolCambiarComprobante.vue`, `frame-packets.mjs`, `CajasCodificacionTab.vue`, `Stat Bars & Fills`, `SKILL.md`, `ReportEventsAndPdfs.vue`, `ConfigurarAutomatizacionPagosModal.vue`, `CorrectionWorkspace.vue`, `ConfigurarReporteCajasDevueltasModal.vue`, `CajasDiccionarioModal.vue`, `ImportInstrumentadoresModal.vue`, `index.js`, `NewSurgeryModal.vue`, `Video Composition`, `AutocompleteSearch.vue`, `CajaKnowledgeModal.vue`, `GestionReclamoModal.vue`, `emit`, `jspdf`, `frame-packets.mjs`, `ToolModificarMontosNotas.vue`, `hasMissingAmount`, `CajaEditarCodigoModal.vue`, `addFiles`, `ReclamoView.vue`, `notification`, `copyPermanentLink`, `frame-packets.mjs`, `RecordWeeklyScoreModal.vue`, `DNA registry — pick a visual language, not a preset`, `frame-packets.mjs`?**
+  _High betweenness centrality (0.068) - this node is a cross-community bridge._
 - **What connects `argv`, `outFile`, `tail` to the rest of the system?**
-  _4277 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _4961 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `AdminView.vue` be split into smaller, more focused modules?**
-  _Cohesion score 0.0728744939271255 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.07196969696969698 - nodes in this community are weakly interconnected._
 - **Should `ReportEventsAndPdfs.vue` be split into smaller, more focused modules?**
-  _Cohesion score 0.0425531914893617 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.029411764705882353 - nodes in this community are weakly interconnected._
 - **Should `InformeSemanalSeguimientoView.vue` be split into smaller, more focused modules?**
   _Cohesion score 0.06037414965986394 - nodes in this community are weakly interconnected._
