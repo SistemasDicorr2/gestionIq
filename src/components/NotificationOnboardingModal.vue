@@ -407,19 +407,21 @@ const savePreferences = async () => {
       console.warn('[Onboarding] Error al guardar en localStorage:', e);
     }
 
-    // 2. Intentar actualizar email en la tabla instrumentadores directamente (si el RLS lo permite)
+    // 2. Intentar actualizar email en Supabase (primero vía RPC segura SECURITY DEFINER, luego directo)
     if (finalEmail) {
       try {
-        const { error } = await supabase
-          .from('instrumentadores')
-          .update({ email: finalEmail })
-          .eq('dni', cleanDni);
-
-        if (error) {
-          console.info('[Onboarding] Sincronizando email mediante canal seguro del backend...');
+        const { error: rpcErr } = await supabase.rpc('registrar_email_notificaciones_instrumentador', {
+          p_dni: cleanDni,
+          p_email: finalEmail
+        });
+        if (rpcErr) {
+          await supabase
+            .from('instrumentadores')
+            .update({ email: finalEmail })
+            .eq('dni', cleanDni);
         }
       } catch (dbErr) {
-        console.warn('[Onboarding] Error update directo:', dbErr);
+        console.warn('[Onboarding] Error update email:', dbErr);
       }
     }
 

@@ -1100,14 +1100,20 @@ const saveOnboardingEmail = async () => {
       console.warn("Error localStorage:", e);
     }
 
-    // 2. Intentar actualizar en Supabase directamente
+    // 2. Intentar actualizar en Supabase (primero vía RPC segura SECURITY DEFINER, luego fallback directo)
     try {
-      await supabase
-        .from('instrumentadores')
-        .update({ email: targetEmail })
-        .eq('dni', cleanDni);
+      const { error: rpcErr } = await supabase.rpc('registrar_email_notificaciones_instrumentador', {
+        p_dni: cleanDni,
+        p_email: targetEmail
+      });
+      if (rpcErr) {
+        await supabase
+          .from('instrumentadores')
+          .update({ email: targetEmail })
+          .eq('dni', cleanDni);
+      }
     } catch (dbErr) {
-      console.warn("Advertencia al actualizar DB:", dbErr);
+      console.warn("Advertencia al actualizar email en DB:", dbErr);
     }
 
     // 3. Activar Push si el usuario lo dejó marcado
