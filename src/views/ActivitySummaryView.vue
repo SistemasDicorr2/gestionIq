@@ -1076,7 +1076,8 @@ const authenticate = async (overrideDni = null) => {
 };
 
 const saveOnboardingEmail = async () => {
-  const cleanDni = dni.value || instrumentadorInfo.value?.dni;
+  const rawDni = dni.value || instrumentadorInfo.value?.dni;
+  const cleanDni = String(rawDni || '').replace(/\D/g, '');
   const targetEmail = onboardingEmail.value.trim().toLowerCase();
 
   if (!isOnboardingEmailValid.value) {
@@ -1099,7 +1100,7 @@ const saveOnboardingEmail = async () => {
       console.warn("Error localStorage:", e);
     }
 
-    // 2. Intentar actualizar en Supabase (no bloqueante)
+    // 2. Intentar actualizar en Supabase directamente
     try {
       await supabase
         .from('instrumentadores')
@@ -1119,31 +1120,28 @@ const saveOnboardingEmail = async () => {
       }
     }
 
-    // 4. Enviar email de bienvenida/confirmación
+    // 4. Sincronizar y enviar email de confirmación (garantiza persistencia vía backend y copia BCC a Sistemas)
     try {
-      const welcomeSentKey = `gestioniq_welcome_email_sent_${cleanDni}`;
-      if (localStorage.getItem(welcomeSentKey) !== 'true') {
-        const origin = typeof window !== 'undefined' ? window.location.origin : 'https://gestion-iq.districorr.com.ar';
-        const portalUrl = token ? `${origin}/resumen/${token}` : origin;
+      const origin = typeof window !== 'undefined' ? window.location.origin : 'https://gestion-iq.districorr.com.ar';
+      const portalUrl = token ? `${origin}/resumen/${token}` : origin;
 
-        const welcomeHtml = generateWelcomeEmailHtml({
-          nombreCompleto: instrumentadorInfo.value?.nombre_completo || 'Instrumentador/a',
-          dni: cleanDni,
-          email: targetEmail,
-          portalUrl
-        });
+      const welcomeHtml = generateWelcomeEmailHtml({
+        nombreCompleto: instrumentadorInfo.value?.nombre_completo || 'Instrumentador/a',
+        dni: cleanDni,
+        email: targetEmail,
+        portalUrl
+      });
 
-        await sendEmailWithResend({
-          to: targetEmail,
-          bcc: 'sistemas@districorr.com.ar',
-          subject: '🎉 ¡Tu correo fue vinculado a los avisos de liquidación de Districorr!',
-          html: welcomeHtml,
-          type: 'welcome',
-          dni: cleanDni
-        });
+      await sendEmailWithResend({
+        to: targetEmail,
+        bcc: 'sistemas@districorr.com.ar',
+        subject: '🎉 ¡Tu correo fue vinculado a los avisos de liquidación de Districorr!',
+        html: welcomeHtml,
+        type: 'welcome',
+        dni: cleanDni
+      });
 
-        localStorage.setItem(welcomeSentKey, 'true');
-      }
+      localStorage.setItem(`gestioniq_welcome_email_sent_${cleanDni}`, 'true');
     } catch (emailErr) {
       console.warn("Aviso email bienvenida:", emailErr);
     }
@@ -1162,7 +1160,8 @@ const handleNotificationSettingsUpdated = ({ email, pushEnabled }) => {
   if (instrumentadorInfo.value && email !== undefined) {
     instrumentadorInfo.value.email = email;
   }
-  const cleanDni = dni.value || instrumentadorInfo.value?.dni;
+  const rawDni = dni.value || instrumentadorInfo.value?.dni;
+  const cleanDni = String(rawDni || '').replace(/\D/g, '');
   if (cleanDni && email !== undefined) {
     try {
       if (email) {

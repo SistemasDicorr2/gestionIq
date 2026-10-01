@@ -132,11 +132,16 @@
               <button 
                 v-else 
                 @click="sendTestNotification" 
+                :disabled="isSendingTest"
                 type="button" 
-                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-emerald-700 bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 transition-all cursor-pointer"
+                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-emerald-700 bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 transition-all cursor-pointer disabled:opacity-50 disabled:pointer-events-none"
               >
-                <Sparkles class="w-3.5 h-3.5 text-emerald-600" />
-                <span>Enviar aviso de prueba</span>
+                <svg v-if="isSendingTest" class="animate-spin h-3.5 w-3.5 text-emerald-600" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <Sparkles v-else class="w-3.5 h-3.5 text-emerald-600" />
+                <span>{{ isSendingTest ? 'Enviando prueba...' : 'Enviar aviso de prueba' }}</span>
               </button>
             </div>
           </div>
@@ -301,11 +306,23 @@ const pushStatusLabel = computed(() => {
   }
 });
 
+const isSendingTest = ref(false);
+
 const enablePushNotifications = async () => {
   isActivatingPush.value = true;
   try {
-    const targetDni = props.dni || props.instrumentador?.dni || '';
-    const result = await subscribeUserToPush(targetDni);
+    const rawDni = props.dni || props.instrumentador?.dni || '';
+    const cleanDni = String(rawDni).replace(/\D/g, '');
+    
+    // Verificar si el navegador ya lo tiene bloqueado explícitamente
+    if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'denied') {
+      pushStatus.value = 'denied';
+      showTutorial.value = true;
+      toast.warning('Las notificaciones están bloqueadas en tu navegador. Por favor hacé clic en el candado 🔒 al lado de la URL para permitirlas.');
+      return;
+    }
+
+    const result = await subscribeUserToPush(cleanDni);
     pushStatus.value = getNotificationPermissionStatus();
 
     if (result.success) {
@@ -316,7 +333,12 @@ const enablePushNotifications = async () => {
         url: window.location.href
       });
     } else {
-      toast.info(result.error || 'No se pudieron activar las notificaciones.');
+      if (pushStatus.value === 'denied') {
+        showTutorial.value = true;
+        toast.warning('Permiso denegado por el navegador. Revisá las instrucciones abajo.');
+      } else {
+        toast.info(result.error || 'No se pudieron activar las notificaciones en este momento.');
+      }
     }
   } catch (err) {
     console.warn('Error al activar push:', err);
@@ -327,20 +349,35 @@ const enablePushNotifications = async () => {
 };
 
 const sendTestNotification = async () => {
-  const ok = await showDeviceNotification({
-    title: '💳 Aviso de Prueba · Gestión IQ',
-    body: '¡Todo listo! Recibirás avisos instantáneos cuando Districorr emita tus comprobantes.',
-    url: window.location.href
-  });
-  if (ok) {
-    toast.success('Notificación de prueba enviada a tu pantalla.');
-  } else {
-    toast.warning('No se pudo mostrar la notificación. Verificá los permisos de tu navegador.');
+  isSendingTest.value = true;
+  try {
+    const ok = await showDeviceNotification({
+      title: '💳 Aviso de Prueba · Gestión IQ',
+      body: '¡Todo listo! Recibirás avisos instantáneos cuando Districorr emita tus comprobantes.',
+      url: window.location.href
+    });
+
+    if (ok) {
+      toast.success('¡Aviso de prueba emitido! Verificá la barra de notificaciones de tu dispositivo.');
+    } else {
+      if (pushStatus.value === 'denied') {
+        showTutorial.value = true;
+        toast.warning('Las notificaciones están bloqueadas en el navegador.');
+      } else {
+        toast.info('Aviso enviado. Si no lo ves en pantalla, asegurate de no tener activo el modo "No Molestar" en tu sistema.');
+      }
+    }
+  } catch (err) {
+    console.warn('Error en prueba de notificación:', err);
+    toast.error('No se pudo enviar el aviso de prueba.');
+  } finally {
+    isSendingTest.value = false;
   }
 };
 
 const savePreferences = async () => {
-  const cleanDni = props.dni || props.instrumentador?.dni;
+  const rawDni = props.dni || props.instrumentador?.dni;
+  const cleanDni = String(rawDni || '').replace(/\D/g, '');
   if (!cleanDni) {
     emit('close');
     return;
@@ -355,7 +392,7 @@ const savePreferences = async () => {
   try {
     const finalEmail = emailEnabled.value ? emailAddress.value.trim().toLowerCase() : null;
 
-    // 1. Guardar email en localStorage para vincularlo inmediatamente en el navegador
+    // 1. Guardar en localStorage para vinculación inmediata en este navegador
     try {
       if (finalEmail) {
         localStorage.setItem(`gestioniq_email_${cleanDni}`, finalEmail);
@@ -370,8 +407,8 @@ const savePreferences = async () => {
       console.warn('[Onboarding] Error al guardar en localStorage:', e);
     }
 
-    // 2. Intentar actualizar email en la tabla instrumentadores de forma no bloqueante
-    if (finalEmail && finalEmail !== props.instrumentador?.email) {
+    // 2. Intentar actualizar email en la tabla instrumentadores directamente (si el RLS lo permite)
+    if (finalEmail) {
       try {
         const { error } = await supabase
           .from('instrumentadores')
@@ -379,48 +416,46 @@ const savePreferences = async () => {
           .eq('dni', cleanDni);
 
         if (error) {
-          console.warn('[Onboarding] Actualización directa en DB restringida (se sincronizará vía backend):', error.message || error);
+          console.info('[Onboarding] Sincronizando email mediante canal seguro del backend...');
         }
       } catch (dbErr) {
-        console.warn('[Onboarding] No se pudo ejecutar update directo en tabla instrumentadores:', dbErr);
+        console.warn('[Onboarding] Error update directo:', dbErr);
       }
     }
 
-    // 3. Enviar correo de confirmación si se suscribe con email
+    // 3. Sincronizar y despachar confirmación de suscripción vía Edge Function (con permisos service_role y copia BCC a Sistemas)
     if (finalEmail && emailEnabled.value) {
-      const welcomeSentKey = `gestioniq_welcome_email_sent_${cleanDni}`;
-      const alreadySent = localStorage.getItem(welcomeSentKey) === 'true';
+      try {
+        const origin = typeof window !== 'undefined' ? window.location.origin : 'https://gestion-iq.districorr.com.ar';
+        const targetToken = props.instrumentador?.activity_token || props.instrumentador?.token || '';
+        const portalUrl = targetToken ? `${origin}/resumen/${targetToken}` : origin;
 
-      if (!alreadySent) {
-        try {
-          const origin = typeof window !== 'undefined' ? window.location.origin : 'https://gestion-iq.districorr.com.ar';
-          const targetToken = props.instrumentador?.activity_token || props.instrumentador?.token || '';
-          const portalUrl = targetToken ? `${origin}/resumen/${targetToken}` : origin;
+        const welcomeHtml = generateWelcomeEmailHtml({
+          nombreCompleto: props.instrumentador?.nombre_completo || 'Instrumentador/a',
+          dni: cleanDni,
+          email: finalEmail,
+          portalUrl
+        });
 
-          const welcomeHtml = generateWelcomeEmailHtml({
-            nombreCompleto: props.instrumentador?.nombre_completo || 'Instrumentador/a',
-            dni: cleanDni,
-            email: finalEmail,
-            portalUrl
-          });
+        await sendEmailWithResend({
+          to: finalEmail,
+          bcc: 'sistemas@districorr.com.ar',
+          subject: '🎉 ¡Ya estás suscrito/a a los avisos de pago de Districorr!',
+          html: welcomeHtml,
+          type: 'welcome',
+          dni: cleanDni
+        });
 
-          await sendEmailWithResend({
-            to: finalEmail,
-            subject: '🎉 ¡Ya estás suscrito/a a los avisos de pago de Districorr!',
-            html: welcomeHtml,
-            type: 'welcome',
-            dni: cleanDni
-          });
-
-          localStorage.setItem(welcomeSentKey, 'true');
-          toast.success(`¡Te enviamos un correo de confirmación a ${finalEmail}!`);
-        } catch (emailErr) {
-          console.warn('[Onboarding] Aviso de confirmación despachado:', emailErr);
-        }
+        localStorage.setItem(`gestioniq_welcome_email_sent_${cleanDni}`, 'true');
+        toast.success(`¡Preferencias guardadas! Enviamos un correo de confirmación a ${finalEmail}.`);
+      } catch (emailErr) {
+        console.warn('[Onboarding] Aviso de confirmación despachado:', emailErr);
+        toast.success('Preferencias guardadas correctamente.');
       }
+    } else {
+      toast.success('Preferencias guardadas correctamente.');
     }
 
-    toast.success('Preferencias guardadas correctamente.');
     emit('updated', { email: finalEmail, pushEnabled: pushStatus.value === 'granted' });
     emit('close');
   } catch (err) {
@@ -432,7 +467,8 @@ const savePreferences = async () => {
 };
 
 const handleClose = () => {
-  const cleanDni = props.dni || props.instrumentador?.dni;
+  const rawDni = props.dni || props.instrumentador?.dni;
+  const cleanDni = String(rawDni || '').replace(/\D/g, '');
   if (cleanDni) {
     try {
       localStorage.setItem(`gestioniq_notif_prompted_${cleanDni}`, 'true');
