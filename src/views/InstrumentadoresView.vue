@@ -683,7 +683,43 @@ const fetchInstrumentadores = async () => {
     const { data, error: fetchError } = await supabase.rpc('get_instrumentadores_con_stats');
     if (fetchError) throw fetchError;
 
-    // Obtener datos del IVO 2.0 (últimos 90 días por defecto) para unificar la métrica entre Lista y Ranking
+    // 1. Obtener datos directos de la tabla instrumentadores para asegurar campos actualizados (email, teléfono, alias, bancarios)
+    let directMap = new Map();
+    try {
+      const { data: directData, error: directErr } = await supabase
+        .from('instrumentadores')
+        .select('*');
+      if (!directErr && directData && Array.isArray(directData)) {
+        directData.forEach(d => {
+          const dniStr = String(d.dni || '').trim();
+          if (dniStr) {
+            directMap.set(dniStr, d);
+          }
+        });
+      }
+    } catch (e) {
+      console.warn('No se pudo consultar tabla instrumentadores:', e);
+    }
+
+    // 2. Consultar suscripciones push reales registradas en la base de datos
+    let pushSubsSet = new Set();
+    try {
+      const { data: pushData, error: pushErr } = await supabase
+        .from('instrumentador_push_subscriptions')
+        .select('instrumentador_dni');
+      if (!pushErr && pushData && Array.isArray(pushData)) {
+        pushData.forEach(p => {
+          const dniStr = String(p.instrumentador_dni || '').trim();
+          if (dniStr) {
+            pushSubsSet.add(dniStr);
+          }
+        });
+      }
+    } catch (e) {
+      console.warn('No se pudo consultar instrumentador_push_subscriptions:', e);
+    }
+
+    // 3. Obtener datos del IVO 2.0 (últimos 90 días por defecto) para unificar la métrica entre Lista y Ranking
     let rankingMap = new Map();
     try {
       const dates = setDefaultDates();
@@ -716,7 +752,7 @@ const fetchInstrumentadores = async () => {
       console.warn('No se pudo mapear IVO 2.0 unificado, utilizando valores por defecto', e);
     }
 
-    // Consultar el historial de accesos al portal para enriquecer con último ingreso y total accesos
+    // 4. Consultar el historial de accesos al portal para enriquecer con último ingreso y total accesos
     let accessMap = new Map();
     try {
       const { data: logsData, error: logsError } = await supabase
@@ -744,10 +780,27 @@ const fetchInstrumentadores = async () => {
       console.warn('No se pudo consultar historial de accesos a portal:', e);
     }
 
-    const list = data || [];
-    // Enriquecer cada instrumentador con score unificado, historial de ingresos y estado de canales
+    const list = [...(data || [])];
+
+    // Asegurar que si hay instrumentadores en la tabla que no hayan enviado fichas aún, también figuren
+    const existingDnis = new Set(list.map(iq => String(iq.dni || '').trim()));
+    directMap.forEach((directInfo, dniStr) => {
+      if (!existingDnis.has(dniStr)) {
+        list.push({
+          dni: dniStr,
+          nombre_completo: directInfo.nombre_completo || 'Sin nombre',
+          ...directInfo,
+          fichas_enviadas: 0,
+          total_cirugias: 0
+        });
+      }
+    });
+
+    // Enriquecer cada instrumentador con datos de perfil directo, score unificado, historial de ingresos y estado de canales
     instrumentadores.value = list.map(iq => {
       const dniStr = String(iq.dni || '').trim();
+      const directInfo = directMap.get(dniStr) || {};
+
       let unifiedIvo = 0;
       if (rankingMap.has(dniStr)) {
         unifiedIvo = rankingMap.get(dniStr);
@@ -761,12 +814,21 @@ const fetchInstrumentadores = async () => {
       }
 
       const accessInfo = accessMap.get(dniStr) || { ultimo_ingreso: null, total_ingresos: 0 };
-      const hasEmail = Boolean(iq.email && String(iq.email).trim().includes('@'));
-      // Solo marcar 'Sí' si el instrumentador otorgó/activó explícitamente el permiso de notificaciones push
-      const hasPush = Boolean(typeof localStorage !== 'undefined' && localStorage.getItem(`gestion_iq_push_optin_${dniStr}`) === 'granted');
+      const finalEmail = directInfo.email || iq.email || null;
+      const hasEmail = Boolean(finalEmail && String(finalEmail).trim().includes('@'));
+      const hasPush = pushSubsSet.has(dniStr) || Boolean(typeof localStorage !== 'undefined' && localStorage.getItem(`gestion_iq_push_optin_${dniStr}`) === 'granted');
 
       return {
+        ...directInfo,
         ...iq,
+        email: finalEmail,
+        telefono: directInfo.telefono || iq.telefono || null,
+        cuil: directInfo.cuil || iq.cuil || null,
+        lugar_trabajo: directInfo.lugar_trabajo || iq.lugar_trabajo || null,
+        banco: directInfo.banco || iq.banco || null,
+        alias_bancario: directInfo.alias_bancario || directInfo.alias || iq.alias_bancario || iq.alias || null,
+        alias: directInfo.alias || directInfo.alias_bancario || iq.alias || iq.alias_bancario || null,
+        cbu: directInfo.cbu || iq.cbu || null,
         ivo_score: unifiedIvo,
         ultimo_ingreso: accessInfo.ultimo_ingreso,
         total_ingresos: accessInfo.total_ingresos,
