@@ -486,13 +486,22 @@
                       <span class="text-base shrink-0">📄</span>
                       <span class="truncate block max-w-[140px]" :title="item.name">{{ item.name }}</span>
                     </div>
-                    <button 
-                      @click.stop="openComprobanteModal(item)"
-                      class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-indigo-50 hover:bg-indigo-100 text-indigo-700 dark:bg-indigo-950/80 dark:hover:bg-indigo-900 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 transition cursor-pointer shrink-0 flex items-center gap-1 active:scale-95"
-                      title="Ver comprobante con zoom"
-                    >
-                      <span>👁️ Ver</span>
-                    </button>
+                    <div class="flex items-center gap-1">
+                      <button 
+                        @click.stop="openComprobanteModal(item)"
+                        class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-indigo-50 hover:bg-indigo-100 text-indigo-700 dark:bg-indigo-950/80 dark:hover:bg-indigo-900 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 transition cursor-pointer shrink-0 flex items-center gap-1 active:scale-95"
+                        title="Ver comprobante con zoom"
+                      >
+                        <span>👁️ Ver</span>
+                      </button>
+                      <button 
+                        @click.stop="removeFileItem(item)"
+                        class="p-1 rounded text-rose-500 hover:text-white hover:bg-rose-600 dark:text-rose-400 dark:hover:bg-rose-600 dark:hover:text-white border border-rose-200 dark:border-rose-900/60 transition cursor-pointer shrink-0 flex items-center justify-center active:scale-95"
+                        title="Quitar comprobante del lote"
+                      >
+                        <Trash2 class="w-3.5 h-3.5" />
+                      </button>
+                    </div>
                   </div>
 
                   <!-- BADGES DE ESTADO Y DUPLICIDAD -->
@@ -546,7 +555,39 @@
 
                 <!-- Monto -->
                 <td class="px-3 py-2.5 text-right font-mono font-black text-xs text-indigo-700 dark:text-indigo-300">
-                  ${{ formatNumber(item.extractedData?.monto_transferido || 0) }}
+                  <div v-if="editingMontoFileId === item.id" class="flex items-center justify-end gap-1">
+                    <span class="text-xs text-slate-500 font-bold">$</span>
+                    <input 
+                      type="number" 
+                      v-model.number="tempEditingMonto" 
+                      @keydown.enter="saveInlineMonto(item)" 
+                      @keydown.esc="cancelInlineMonto" 
+                      class="w-24 px-1.5 py-0.5 text-right font-mono text-xs rounded border border-indigo-500 bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+                      autofocus
+                    />
+                    <button @click="saveInlineMonto(item)" class="px-1 text-emerald-600 hover:text-emerald-700 font-bold text-xs" title="Guardar">✓</button>
+                    <button @click="cancelInlineMonto" class="px-1 text-slate-400 hover:text-slate-600 font-bold text-xs" title="Cancelar">✕</button>
+                  </div>
+                  <div v-else class="flex items-center justify-end gap-1 group">
+                    <span 
+                      @dblclick="startInlineMonto(item)"
+                      :class="[
+                        'cursor-pointer hover:underline transition-colors',
+                        (!item.extractedData?.monto_transferido || item.extractedData?.monto_transferido === 0) ? 'text-amber-600 dark:text-amber-400 font-bold' : ''
+                      ]"
+                      title="Doble clic para editar importe"
+                    >
+                      ${{ formatNumber(item.extractedData?.monto_transferido || 0) }}
+                    </span>
+                    <button 
+                      v-if="!item.extractedData?.monto_transferido || item.extractedData?.monto_transferido === 0" 
+                      @click.stop="startInlineMonto(item)" 
+                      class="px-1.5 py-0.5 rounded text-[9px] bg-amber-100 hover:bg-amber-200 text-amber-900 dark:bg-amber-950 dark:text-amber-200 font-bold cursor-pointer transition"
+                      title="Ingresar monto manual"
+                    >
+                      + Monto
+                    </button>
+                  </div>
                 </td>
 
                 <!-- Instrumentador -->
@@ -629,13 +670,22 @@
             <div class="flex items-center justify-between gap-2">
               <div class="flex items-center gap-1.5 truncate">
                 <span class="font-extrabold text-slate-900 dark:text-white truncate">📄 {{ item.name }}</span>
-                <button 
-                  @click.stop="openComprobanteModal(item)"
-                  class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-indigo-50 hover:bg-indigo-100 text-indigo-700 dark:bg-indigo-950/80 dark:hover:bg-indigo-900 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 transition cursor-pointer shrink-0 flex items-center gap-1 active:scale-95"
-                  title="Ver comprobante"
-                >
-                  <span>👁️ Ver</span>
-                </button>
+                <div class="flex items-center gap-1 shrink-0">
+                  <button 
+                    @click.stop="openComprobanteModal(item)"
+                    class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-indigo-50 hover:bg-indigo-100 text-indigo-700 dark:bg-indigo-950/80 dark:hover:bg-indigo-900 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 transition cursor-pointer flex items-center gap-1 active:scale-95"
+                    title="Ver comprobante"
+                  >
+                    <span>👁️ Ver</span>
+                  </button>
+                  <button 
+                    @click.stop="removeFileItem(item)"
+                    class="p-1 rounded text-rose-500 hover:text-white hover:bg-rose-600 dark:text-rose-400 dark:hover:bg-rose-600 dark:hover:text-white border border-rose-200 dark:border-rose-900/60 transition cursor-pointer flex items-center justify-center active:scale-95"
+                    title="Quitar comprobante"
+                  >
+                    <Trash2 class="w-3 h-3" />
+                  </button>
+                </div>
               </div>
               <span class="font-mono font-black text-xs text-indigo-700 dark:text-indigo-300 shrink-0">
                 ${{ formatNumber(item.extractedData?.monto_transferido || 0) }}
@@ -2371,9 +2421,27 @@ const copyWhatsAppMessage = async (item) => {
   const token = await getOrFetchActivityToken(inst.dni);
   
   const linkStr = token ? `${window.location.origin}/resumen/${token}` : '';
-  const transferMonto = item.extractedData?.monto_transferido || 0;
+  
+  // Fallback inteligente de monto: si monto_transferido es 0, buscar suma de cirugías conciliadas o libro mayor
+  let transferMonto = Number(item.extractedData?.monto_transferido) || 0;
+  if (transferMonto <= 0 && reconciliationsMap.value[item.id]?.cirugias?.length > 0) {
+    transferMonto = reconciliationsMap.value[item.id].cirugias.reduce((acc, c) => acc + (Number(c.parte1 || c.monto_a_pagar || c.monto) || 0), 0);
+  }
+  if (transferMonto <= 0 && libroMayorInstrumentadores.value?.length > 0) {
+    const lm = libroMayorInstrumentadores.value.find(l => 
+      (inst.dni && l.dni && String(l.dni).replace(/\D/g, '') === String(inst.dni).replace(/\D/g, '')) ||
+      (l.nombre && inst.nombre && l.nombre.toLowerCase().includes(inst.nombre.toLowerCase()))
+    );
+    if (lm && Number(lm.total) > 0) {
+      transferMonto = Number(lm.total);
+    }
+  }
 
-  let msg = `¡Hola ${nombrePila}! Te informo que ya procesamos tu transferencia de $${formatNumber(transferMonto)}.\n`;
+  if (transferMonto <= 0) {
+    toast.warning("El monto de la transferencia figura en $0,00. Podés hacer doble clic sobre el monto para corregirlo.");
+  }
+
+  let msg = `¡Hola ${nombrePila}! Te informo que ya procesamos tu transferencia de ${formatNumber(transferMonto)}.\n`;
   if (linkStr) {
     msg += `Podés ver el detalle de tus cirugías y comprobantes en tu perfil digital:\n${linkStr}\n\n`;
   }
@@ -2381,7 +2449,7 @@ const copyWhatsAppMessage = async (item) => {
 
   try {
     await navigator.clipboard.writeText(msg);
-    toast.success(`💬 Mensaje para WhatsApp de ${inst.nombre} copiado al portapapeles.`);
+    toast.success(`📲 Mensaje para WhatsApp de ${inst.nombre} copiado al portapapeles.`);
   } catch (e) {
     toast.error("Error al copiar mensaje de WhatsApp.");
   }
@@ -2900,23 +2968,89 @@ const tryMatchWithAsociacionesBancarias = (item) => {
   }
 };
 
-// NORMALIZACIÓN DE CÓDIGOS DE OPERACIÓN
-const normalizeOpCode = (code) => {
-  if (!code) return '';
-  const cleaned = String(code)
-    .toLowerCase()
-    .replace(/^(op|operacion|operación|nro|n°|num|numero|número|comp|comprobante|trans|transferencia|coelsa|referencia|ref)[:\.\-\s]*/i, '')
-    .replace(/[\s\-_]/g, '');
+// VARIABLES Y MÉTODOS PARA EDICIÓN INLINE DE MONTO Y ELIMINACIÓN
+const editingMontoFileId = ref(null);
+const tempEditingMonto = ref(0);
 
-  // Descartar si es un valor genérico o no contiene un código identificador real con dígitos
-  const genericTerms = ['na', 'null', 'undefined', 'noespecificado', 'sinnro', 'sinnumero', 'comprobante', 'transferencia', 'pendiente', 'error', 'robante', 'ferencia'];
-  if (genericTerms.includes(cleaned) || !/\d/.test(cleaned) || cleaned.length < 4) {
-    return '';
-  }
-  return cleaned;
+const startInlineMonto = (item) => {
+  editingMontoFileId.value = item.id;
+  tempEditingMonto.value = Number(item.extractedData?.monto_transferido) || 0;
 };
 
-// VERIFICAR DUPLICADOS EN HISTORIAL DE ÓRDENES Y LOTE ACTIVO
+const saveInlineMonto = (item) => {
+  if (!item.extractedData) {
+    item.extractedData = {};
+  }
+  item.extractedData.monto_transferido = Math.max(0, Number(tempEditingMonto.value) || 0);
+  editingMontoFileId.value = null;
+  if (item.matchedInstrumentador) {
+    autoMatchSurgeriesForFile(item);
+  }
+  reEvaluateAllDuplicates();
+  saveDraftDebounced();
+  toast.success(`Monto actualizado para ${item.name}: ${formatNumber(item.extractedData.monto_transferido)}`);
+};
+
+const cancelInlineMonto = () => {
+  editingMontoFileId.value = null;
+};
+
+const removeFileItem = (itemToRemove) => {
+  if (!itemToRemove) return;
+  const idx = files.value.findIndex(f => f.id === itemToRemove.id);
+  if (idx !== -1) {
+    const name = files.value[idx].name;
+    if (reconciliationsMap.value[itemToRemove.id]) {
+      delete reconciliationsMap.value[itemToRemove.id];
+    }
+    files.value.splice(idx, 1);
+    if (activeFileId.value === itemToRemove.id) {
+      activeFileId.value = files.value[0]?.id || null;
+    }
+    reEvaluateAllDuplicates();
+    saveDraftDebounced();
+    toast.info(`Comprobante ${name} quitado del lote.`);
+  }
+};
+
+const reEvaluateAllDuplicates = () => {
+  files.value.forEach(f => {
+    checkDuplicateTransfer(f);
+  });
+};
+
+// NORMALIZACIÓN Y VALIDACIÓN ESTRICTA DE CÓDIGOS DE OPERACIÓN BANCARIA (ANTI FALSOS POSITIVOS)
+const isValidOpCode = (code) => {
+  if (!code) return false;
+  const str = String(code).trim();
+  
+  // Descartar si es formato de fecha (DD/MM/YYYY, YYYY-MM-DD, DDMMAAAA, AAAAMMDD, etc.)
+  if (/^\d{1,2}[\/\.-]\d{1,2}[\/\.-]\d{2,4}$/.test(str)) return false;
+  if (/^(?:19|20)\d{6}$/.test(str)) return false; // YYYYMMDD
+  if (/^\d{2}(?:0[1-9]|1[0-2])(?:19|20)\d{2}$/.test(str)) return false; // DDMMAAAA
+  if (/^\d{2}(?:0[1-9]|1[0-2])\d{2}$/.test(str)) return false; // DDMMAA
+
+  const cleaned = str.toLowerCase()
+    .replace(/^(?:op|operacion|operación|nro|n°|num|numero|número|comp|comprobante|trans|transferencia|coelsa|referencia|ref)[:\.\-\s]*/i, '')
+    .replace(/[\s\-_]/g, '');
+
+  const genericTerms = ['na', 'null', 'undefined', 'noespecificado', 'sinnro', 'sinnumero', 'comprobante', 'transferencia', 'pendiente', 'error', 'robante', 'ferencia', 'exitoso', 'aprobado', 'inmediata'];
+  if (genericTerms.includes(cleaned)) return false;
+
+  if (cleaned.length < 5 || !/\d/.test(cleaned)) return false;
+  if (/^(.)\1+$/.test(cleaned)) return false;
+
+  return true;
+};
+
+const normalizeOpCode = (code) => {
+  if (!isValidOpCode(code)) return '';
+  return String(code).toLowerCase()
+    .replace(/^(?:op|operacion|operación|nro|n°|num|numero|número|comp|comprobante|trans|transferencia|coelsa|referencia|ref)[:\.\-\s]*/i, '')
+    .replace(/[\s\-_]/g, '');
+};
+
+// VERIFICAR DUPLICADOS EN HISTORIAL DE ÓRDENES Y LOTE ACTIVO (CREÍBLE, SIN FALSOS POSITIVOS)
 const checkDuplicateTransfer = (fileItem) => {
   if (!fileItem) return;
   if (fileItem.overrideDuplicate) {
@@ -2929,21 +3063,29 @@ const checkDuplicateTransfer = (fileItem) => {
   const rawOp = fileItem.extractedData?.numero_operacion ? String(fileItem.extractedData.numero_operacion).trim() : '';
   const normOp = normalizeOpCode(rawOp);
   const fileHash = fileItem.fileHash || '';
+  const myCuit = fileItem.extractedData?.destinatario_cuit_cuil ? String(fileItem.extractedData.destinatario_cuit_cuil).replace(/\D/g, '') : '';
+  const myDni = fileItem.matchedInstrumentador?.dni ? String(fileItem.matchedInstrumentador.dni).replace(/\D/g, '') : '';
+  const myMonto = Math.round(Number(fileItem.extractedData?.monto_transferido) || 0);
 
   // 1. Chequeo contra el historial de órdenes de pago registradas en Supabase
   if (historialConciliaciones.value && historialConciliaciones.value.length > 0) {
     const found = historialConciliaciones.value.find(orden => {
-      const notas = String(orden.notas || '').toLowerCase();
-      const normNotas = normalizeOpCode(notas);
-      
-      // A. Coincidencia estricta de número de comprobante / operación
-      if (normOp && normOp.length >= 4 && (notas.includes(rawOp.toLowerCase()) || normNotas.includes(normOp))) {
-        return true;
-      }
-      
-      // B. Coincidencia por object_key si ya fue subido
+      // A. Coincidencia por comprobante_object_key exacto
       if (fileItem.uploadedObjectKey && orden.comprobante_object_key && orden.comprobante_object_key === fileItem.uploadedObjectKey) {
         return true;
+      }
+
+      // B. Coincidencia estricta de número de operación bancaria (requiere además coincidencia de DNI, CUIT o Monto)
+      if (normOp && normOp.length >= 5) {
+        const ordenOp = normalizeOpCode(orden.numero_comprobante || orden.numero_operacion || '');
+        if (ordenOp && ordenOp === normOp) {
+          const ordenDni = orden.instrumentador_dni ? String(orden.instrumentador_dni).replace(/\D/g, '') : '';
+          const ordenMonto = Math.round(Number(orden.total_liquidado || orden.monto_total || orden.monto) || 0);
+          
+          if ((myDni && ordenDni && myDni === ordenDni) || (myMonto > 0 && ordenMonto > 0 && myMonto === ordenMonto)) {
+            return true;
+          }
+        }
       }
 
       return false;
@@ -2960,20 +3102,30 @@ const checkDuplicateTransfer = (fileItem) => {
     }
   }
 
-  // 2. Chequeo contra duplicados dentro del mismo lote activo (ÚNICAMENTE por número de comprobante o archivo físico idéntico)
+  // 2. Chequeo contra duplicados dentro del mismo lote activo
   const siblingDuplicate = files.value.find(other => {
     if (other.id === fileItem.id) return false;
     
-    // A. Mismo archivo físico exacto subido dos veces (mismo SHA-256)
-    if (fileHash && other.fileHash && fileHash === other.fileHash) {
+    // A. Mismo archivo físico exacto subido dos veces (mismo SHA-256 no vacío)
+    if (fileHash && other.fileHash && fileHash.length >= 16 && fileHash === other.fileHash) {
       return true;
     }
 
-    // B. Mismo número de comprobante / operación bancaria
+    // B. Mismo número de comprobante bancario válido (requiere además coincidencia en CUIT, DNI o Monto)
     const otherRawOp = other.extractedData?.numero_operacion ? String(other.extractedData.numero_operacion).trim() : '';
     const otherNormOp = normalizeOpCode(otherRawOp);
-    if (normOp && otherNormOp && normOp.length >= 4 && normOp === otherNormOp) {
-      return true;
+    
+    if (normOp && otherNormOp && normOp.length >= 5 && normOp === otherNormOp) {
+      const otherCuit = other.extractedData?.destinatario_cuit_cuil ? String(other.extractedData.destinatario_cuit_cuil).replace(/\D/g, '') : '';
+      const otherDni = other.matchedInstrumentador?.dni ? String(other.matchedInstrumentador.dni).replace(/\D/g, '') : '';
+      const otherMonto = Math.round(Number(other.extractedData?.monto_transferido) || 0);
+
+      const matchIdentity = (myCuit && otherCuit && myCuit === otherCuit) || (myDni && otherDni && myDni === otherDni);
+      const matchAmount = myMonto > 0 && otherMonto > 0 && myMonto === otherMonto;
+
+      if (matchIdentity || matchAmount) {
+        return true;
+      }
     }
 
     return false;

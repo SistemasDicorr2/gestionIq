@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=1920, height=1080">
+    <title>Tutorial Conciliación de Transferencias - Gestión IQ</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html, body {
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: #f8fafc;
+        color: #0f172a;
+        font-family: "Inter", -apple-system, sans-serif;
+      }
+      .font-mono {
+        font-family: "JetBrains Mono", monospace;
+      }
+
+      /* Container Canvas - Exact Light Slate Background of Conciliación View */
+      #root {
+        position: relative;
+        width: 1920px;
+        height: 1080px;
+        background: #f1f5f9;
+        overflow: hidden;
+      }
+
+      /* Oversized Pointer Cursor (House-Style 7cqw) */
+      .cursor {
+        position: absolute;
+        width: 120px;
+        height: 120px;
+        top: 0px;
+        left: 0px;
+        z-index: 9999;
+        filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.35));
+        pointer-events: none;
+        will-change: transform;
+        transform-origin: 21% 14%;
+      }
+
+      /* Click Ripple Effect */
+      .click-ripple {
+        position: absolute;
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        border: 3px solid #6366f1;
+        background: rgba(99, 102, 241, 0.35);
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 0;
+        z-index: 9998;
+        pointer-events: none;
+      }
+
+      /* Top Step Instruction Floating Banner (High Contrast & Clear) */
+      .step-instruction-banner {
+        position: absolute;
+        top: 24px;
+        left: 50px;
+        right: 50px;
+        height: 84px;
+        background: rgba(15, 23, 42, 0.96);
+        border: 1px solid rgba(99, 102, 241, 0.4);
+        border-radius: 20px;
+        padding: 0 28px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        z-index: 400;
+        box-shadow: 0 16px 36px rgba(0, 0, 0, 0.3);
+        backdrop-filter: blur(16px);
+      }
+      .step-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 5px 12px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+      }
+      .badge-indigo {
+        background: rgba(79, 70, 229, 0.35);
+        color: #e0e7ff;
+        border: 1px solid rgba(129, 140, 248, 0.6);
+      }
+      .badge-emerald {
+        background: rgba(16, 185, 129, 0.35);
+        color: #d1fae5;
+        border: 1px solid rgba(52, 211, 153, 0.6);
+      }
+      .badge-amber {
+        background: rgba(245, 158, 11, 0.35);
+        color: #fef08a;
+        border: 1px solid rgba(251, 191, 36, 0.6);
+      }
+
+      .instruction-title {
+        font-size: 20px;
+        font-weight: 900;
+        color: #ffffff;
+        letter-spacing: -0.02em;
+      }
+      .instruction-text {
+        font-size: 13px;
+        color: #e2e8f0;
+        font-weight: 500;
+        margin-top: 2px;
+      }
+      .step-num-display {
+        font-size: 32px;
+        font-weight: 900;
+        color: #a5b4fc;
+        font-family: "JetBrains Mono", monospace;
+      }
+
+      /* Authentic App UI Shell (Matching ConciliacionTransferenciasView.vue) */
+      .app-viewport {
+        position: absolute;
+        top: 124px;
+        left: 50px;
+        right: 50px;
+        bottom: 30px;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+
+      /* Real Header Card */
+      .real-header-card {
+        background: #ffffff;
+        border: 1px solid #cbd5e1;
+        border-radius: 20px;
+        padding: 18px 24px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+      }
+      .header-sub-tag {
+        font-size: 10px;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        background: #f1f5f9;
+        color: #1e293b;
+        padding: 3px 8px;
+        border-radius: 6px;
+      }
+      .header-title-text {
+        font-size: 20px;
+        font-weight: 900;
+        color: #0f172a;
+        letter-spacing: -0.02em;
+      }
+
+      /* Authentic Dropzone (Matching Real Component) */
+      .real-dropzone {
+        background: #ffffff;
+        border: 2px dashed #94a3b8;
+        border-radius: 20px;
+        padding: 50px 30px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 18px;
+        text-align: center;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+        transition: all 0.3s ease;
+      }
+      .drop-icon-bg {
+        width: 64px;
+        height: 64px;
+        background: #e0e7ff;
+        color: #3730a3;
+        border-radius: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 28px;
+        box-shadow: 0 4px 12px rgba(79, 70, 229, 0.15);
+      }
+
+      /* Button Styles (Identical to Real Vue Web App) */
+      .btn-indigo-main {
+        background: #4338ca;
+        color: #ffffff;
+        padding: 10px 20px;
+        border-radius: 12px;
+        font-size: 13px;
+        font-weight: 800;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        box-shadow: 0 4px 12px rgba(67, 56, 202, 0.3);
+      }
+      .btn-slate-sub {
+        background: #f1f5f9;
+        color: #0f172a;
+        border: 1px solid #94a3b8;
+        padding: 10px 18px;
+        border-radius: 12px;
+        font-size: 13px;
+        font-weight: 800;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      /* Real Comprobantes Table */
+      .real-table-card {
+        background: #ffffff;
+        border: 1px solid #cbd5e1;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+      }
+      .real-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+        text-align: left;
+      }
+      .real-table th {
+        background: #f8fafc;
+        color: #1e293b;
+        font-size: 11px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        padding: 14px 18px;
+        border-bottom: 2px solid #cbd5e1;
+      }
+      .real-table td {
+        padding: 16px 18px;
+        border-bottom: 1px solid #f1f5f9;
+        color: #0f172a;
+        font-weight: 600;
+      }
+
+      /* Real Progress Metrics Slim Bar */
+      .real-metrics-bar {
+        background: #ffffff;
+        border: 1px solid #cbd5e1;
+        border-radius: 16px;
+        padding: 12px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+      }
+
+      /* Modal Mockup (Exact Vinculación Slim Modal) */
+      .real-modal-container {
+        position: absolute;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.7);
+        backdrop-filter: blur(8px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 300;
+        padding-top: 100px;
+      }
+      .real-modal-card {
+        background: #ffffff;
+        border: 1px solid #cbd5e1;
+        border-radius: 24px;
+        width: 1100px;
+        padding: 28px;
+        box-shadow: 0 25px 60px rgba(0, 0, 0, 0.3);
+      }
+
+      /* Toast Popup Alert */
+      .toast-popup {
+        position: absolute;
+        bottom: 40px;
+        right: 40px;
+        background: #0f172a;
+        color: #ffffff;
+        border-left: 5px solid #10b981;
+        padding: 14px 22px;
+        border-radius: 14px;
+        font-size: 13px;
+        font-weight: 800;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        z-index: 500;
+        opacity: 0;
+      }
+
+      /* Scene Visibility Controls */
+      .scene {
+        position: absolute;
+        inset: 0;
+      }
+      .scene-inner {
+        width: 100%;
+        height: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <div data-hf-id="hf-rigq" id="root" data-composition-id="main" data-start="0" data-duration="40" data-width="1920" data-height="1080">
+      <!-- Oversized Pointer Cursor (House-Style 7cqw) -->
+      <svg data-hf-id="hf-fny2" id="cursor" class="cursor" viewBox="0 0 24 24" fill="none">
+        <path data-hf-id="hf-76f0" d="M3 3L10.07 19.97L13.58 13.58L19.97 10.07L3 3Z" fill="#0f172a" stroke="#ffffff" stroke-width="1.8" stroke-linejoin="round" />
+      </svg>
+
+      <!-- Click Ripple Ring -->
+      <div data-hf-id="hf-puy6" id="click-ripple" class="click-ripple"></div>
+
+      <!-- Toast Notification Alert -->
+      <div data-hf-id="hf-s9pe" id="toast-alert" class="toast-popup">
+        <span data-hf-id="hf-rctk">💬</span>
+        <span data-hf-id="hf-sen7">Aviso de pago para WhatsApp copiado al portapapeles</span>
+      </div>
+
+      <!-- ================= SCENE 1: PASO 1 - CARGA DE ARCHIVOS (0s - 10s) ================= -->
+      <div data-hf-id="hf-oeo3" id="scene1" class="scene clip" data-start="0" data-duration="10" data-track-index="1">
+        <div data-hf-id="hf-sjfb" id="scene1-inner" class="scene-inner">
+          
+          <!-- Step 1 Top Instruction Banner -->
+          <div data-hf-id="hf-lkel" id="s1-banner" class="step-instruction-banner">
+            <div data-hf-id="hf-yeow">
+              <div data-hf-id="hf-3y10" style="display: flex; align-items: center; gap: 10px; margin-bottom: 2px;">
+                <span data-hf-id="hf-1crc" class="step-badge badge-indigo">PASO 01 DE 04</span>
+                <span data-hf-id="hf-wu8n" class="instruction-title">Carga de Comprobantes &amp; Planilla ERP Excel</span>
+              </div>
+              <div data-hf-id="hf-sfsz" class="instruction-text">
+                Arrastrá archivos PDF/JPG de transferencias bancarias o subí el Excel de Libro Mayor del ERP. La lectura por IA procesa los datos al instante y la caché SHA-256 evita repeticiones.
+              </div>
+            </div>
+            <div data-hf-id="hf-g1cz" class="step-num-display">01</div>
+          </div>
+
+          <!-- Real App UI Viewport -->
+          <div data-hf-id="hf-dk04" class="app-viewport">
+            
+            <!-- Real Header Card -->
+            <div data-hf-id="hf-5fst" class="real-header-card">
+              <div data-hf-id="hf-y7yw">
+                <div data-hf-id="hf-dq0t" style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                  <span data-hf-id="hf-ut9h" class="header-sub-tag">ADMINISTRACIÓN</span>
+                  <span data-hf-id="hf-vax7" style="font-size: 12px; color: #475569; font-weight: 700;">Pagos y Transferencias</span>
+                  <span data-hf-id="hf-irp3" style="font-size: 11px; color: #334155; font-family: monospace; font-weight: 700; margin-left: 8px;">💾 Guardado en borrador</span>
+                </div>
+                <div data-hf-id="hf-xix8" class="header-title-text">Conciliación de Transferencias</div>
+              </div>
+
+              <div data-hf-id="hf-7qsf" style="display: flex; align-items: center; gap: 12px;">
+                <div data-hf-id="hf-tt2g" style="display: flex; background: #f1f5f9; padding: 4px; border-radius: 12px; border: 1px solid #cbd5e1; gap: 4px;">
+                  <div data-hf-id="hf-oyhd" style="background: #ffffff; color: #3730a3; font-weight: 800; padding: 6px 14px; border-radius: 8px; font-size: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.05);">⚡ Conciliador Activo</div>
+                  <div data-hf-id="hf-vhll" style="color: #475569; font-weight: 700; padding: 6px 14px; font-size: 12px;">📜 Historial Efectuados</div>
+                </div>
+
+                <div data-hf-id="hf-4aye" id="s1-btn-nueva" class="btn-indigo-main">
+                  <span data-hf-id="hf-22sm">+ Cargar Nueva Conciliación</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Real Dropzone Component -->
+            <div data-hf-id="hf-w5ty" id="s1-dropzone" class="real-dropzone">
+              <div data-hf-id="hf-5r5o" class="drop-icon-bg">📄</div>
+              <div data-hf-id="hf-x11t">
+                <div data-hf-id="hf-0gih" style="font-size: 18px; font-weight: 900; color: #0f172a;">
+                  Arrastrá los comprobantes de transferencia aquí
+                </div>
+                <div data-hf-id="hf-4f7g" style="font-size: 13px; color: #475569; margin-top: 4px; font-weight: 600;">
+                  Formatos PDF, JPG o PNG. El sistema los procesará con lectura IA y caché SHA-256 instantánea.
+                </div>
+              </div>
+
+              <div data-hf-id="hf-i2uw" style="display: flex; gap: 12px; margin-top: 6px;">
+                <div data-hf-id="hf-m0si" id="s1-btn-select" class="btn-indigo-main">📁 Seleccionar Comprobantes</div>
+                <div data-hf-id="hf-ul5l" class="btn-slate-sub">📊 Cargar Planilla ERP Excel</div>
+              </div>
+
+              <!-- Uploaded Files Preview Row -->
+              <div data-hf-id="hf-qqz2" id="s1-files-preview" style="display: flex; gap: 16px; margin-top: 16px; opacity: 0;">
+                <div data-hf-id="hf-loji" style="background: #f8fafc; border: 1px solid #94a3b8; border-radius: 12px; padding: 12px 18px; display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 800; color: #0f172a;">
+                  <span data-hf-id="hf-k5jh">📄 transferencia_marisel.pdf</span>
+                  <span data-hf-id="hf-dccg" style="background: #dcfce7; color: #14532d; font-size: 10px; padding: 2px 6px; border-radius: 6px; font-weight: 900;">✓ Lectura IA</span>
+                </div>
+                <div data-hf-id="hf-ctb6" style="background: #f8fafc; border: 1px solid #94a3b8; border-radius: 12px; padding: 12px 18px; display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 800; color: #0f172a;">
+                  <span data-hf-id="hf-6xxe">📊 libro_mayor_agosto.xlsx</span>
+                  <span data-hf-id="hf-2v0u" style="background: #e0e7ff; color: #312e81; font-size: 10px; padding: 2px 6px; border-radius: 6px; font-weight: 900;">✓ Caché SHA-256</span>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ================= SCENE 2: PASO 2 - RECONOCIMIENTO & MATCHEO (10s - 20s) ================= -->
+      <div data-hf-id="hf-64mz" id="scene2" class="scene clip" data-start="10" data-duration="10" data-track-index="1">
+        <div data-hf-id="hf-olcg" id="scene2-inner" class="scene-inner">
+          
+          <!-- Step 2 Top Instruction Banner -->
+          <div data-hf-id="hf-kvz8" id="s2-banner" class="step-instruction-banner">
+            <div data-hf-id="hf-xfcu">
+              <div data-hf-id="hf-e62k" style="display: flex; align-items: center; gap: 10px; margin-bottom: 2px;">
+                <span data-hf-id="hf-5dax" class="step-badge badge-emerald">PASO 02 DE 04</span>
+                <span data-hf-id="hf-k7wx" class="instruction-title">Reconocimiento &amp; Matcheo Inteligente de Destinatario</span>
+              </div>
+              <div data-hf-id="hf-yovx" class="instruction-text">
+                El sistema detecta automáticamente al destinatario por CUIT/DNI. Permite asignar cuentas manualmente, guardar reglas para el futuro y enviar alertas directas por WhatsApp.
+              </div>
+            </div>
+            <div data-hf-id="hf-halh" class="step-num-display" style="color: #6ee7b7;">02</div>
+          </div>
+
+          <!-- Real App UI Viewport -->
+          <div data-hf-id="hf-cdrw" class="app-viewport">
+            
+            <!-- Real Metrics Slim Bar -->
+            <div data-hf-id="hf-c8m1" class="real-metrics-bar font-mono">
+              <div data-hf-id="hf-kvza" style="display: flex; align-items: center; gap: 24px;">
+                <div data-hf-id="hf-w8fr"><span data-hf-id="hf-6c9u" style="color: #475569; font-weight: 700;">Comprobantes:</span> <strong data-hf-id="hf-etnm" style="color: #0f172a;">2 (3 CX)</strong></div>
+                <div data-hf-id="hf-wmqs"><span data-hf-id="hf-g20v" style="color: #475569; font-weight: 700;">Total Lote:</span> <strong data-hf-id="hf-oj8i" style="color: #3730a3;">$ 225.000,00</strong></div>
+                <div data-hf-id="hf-vftp"><span data-hf-id="hf-68lu" style="color: #475569; font-weight: 700;">Imputado:</span> <strong data-hf-id="hf-amec" style="color: #5b21b6;">$ 145.000,00</strong></div>
+                <div data-hf-id="hf-vu4q"><span data-hf-id="hf-k3c1" style="color: #475569; font-weight: 700;">Pendiente:</span> <strong data-hf-id="hf-sisq" style="color: #92400e;">$ 80.000,00</strong></div>
+              </div>
+
+              <div data-hf-id="hf-4r1b" style="display: flex; align-items: center; gap: 12px;">
+                <div data-hf-id="hf-xgoe" style="width: 200px; height: 8px; background: #e2e8f0; border-radius: 999px; overflow: hidden;">
+                  <div data-hf-id="hf-h2e1" style="width: 65%; height: 100%; background: linear-gradient(90deg, #4338ca 0%, #059669 100%);"></div>
+                </div>
+                <strong data-hf-id="hf-b06b" style="color: #3730a3;">65%</strong>
+              </div>
+            </div>
+
+            <!-- Real Comprobantes Table -->
+            <div data-hf-id="hf-mbyq" class="real-table-card">
+              <table data-hf-id="hf-3irg" class="real-table">
+                <thead data-hf-id="hf-zd89">
+                  <tr data-hf-id="hf-p3r7">
+                    <th data-hf-id="hf-k9d4">Comprobante / Archivo</th>
+                    <th data-hf-id="hf-7bh7">Destinatario Detectado</th>
+                    <th data-hf-id="hf-xrvi" style="text-align: right;">Monto Transferido</th>
+                    <th data-hf-id="hf-94xw">Instrumentador Asignado</th>
+                    <th data-hf-id="hf-itzc" style="text-align: right;">Acción / Estado</th>
+                  </tr>
+                </thead>
+                <tbody data-hf-id="hf-bsvf">
+                  <tr data-hf-id="hf-q7a4" id="s2-row1" style="background: #f5f3ff; border-left: 4px solid #6366f1;">
+                    <td data-hf-id="hf-54xx">
+                      <div data-hf-id="hf-xifh" style="display: flex; align-items: center; justify-content: space-between;">
+                        <span data-hf-id="hf-2pjv" style="font-weight: 800; color: #0f172a;">📄 transferencia_marisel.pdf</span>
+                        <span data-hf-id="hf-7y77" style="background: #cbd5e1; color: #0f172a; font-size: 9px; font-weight: 900; padding: 2px 6px; border-radius: 4px;" class="font-mono">CACHE SHA-256</span>
+                      </div>
+                    </td>
+                    <td data-hf-id="hf-t9cp">
+                      <div data-hf-id="hf-9yng" style="font-weight: 900; color: #0f172a;">Fleitas Gaona Marisel</div>
+                      <div data-hf-id="hf-tnlp" style="font-size: 11px; color: #475569; font-weight: 700;" class="font-mono">CUIT: 27-32984102-4</div>
+                    </td>
+                    <td data-hf-id="hf-llg9" class="font-mono" style="text-align: right; color: #3730a3; font-weight: 900; font-size: 14px;">
+                      $ 145.000,00
+                    </td>
+                    <td data-hf-id="hf-ug9s">
+                      <div data-hf-id="hf-nnb5" style="display: flex; align-items: center; justify-content: space-between;">
+                        <span data-hf-id="hf-mqx5" style="color: #0f172a; font-weight: 900;">Fleitas Gaona Marisel</span>
+                        <div data-hf-id="hf-hbro" style="display: flex; gap: 4px;">
+                          <span data-hf-id="hf-p93f" style="background: #f1f5f9; border: 1px solid #94a3b8; color: #0f172a; font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 6px; cursor: pointer;">🔗 Link</span>
+                          <span data-hf-id="hf-t0yc" id="s2-btn-wa" style="background: #dcfce7; border: 1px solid #6ee7b7; color: #065f46; font-size: 10px; font-weight: 900; padding: 3px 8px; border-radius: 6px; cursor: pointer;">💬 WhatsApp</span>
+                        </div>
+                      </div>
+                    </td>
+                    <td data-hf-id="hf-571i" style="text-align: right;">
+                      <div data-hf-id="hf-e92s" id="s2-btn-vincular" class="btn-indigo-main" style="padding: 6px 14px; font-size: 11px; cursor: pointer;">
+                        Vincular CX ➔
+                      </div>
+                    </td>
+                  </tr>
+
+                  <tr data-hf-id="hf-ddj7">
+                    <td data-hf-id="hf-u1yr">
+                      <span data-hf-id="hf-zt3b" style="font-weight: 800; color: #0f172a;">📄 comprobante_rossi.pdf</span>
+                    </td>
+                    <td data-hf-id="hf-s2fm">
+                      <div data-hf-id="hf-2dwz" style="font-weight: 900; color: #0f172a;">Rossi Juan Pablo</div>
+                      <div data-hf-id="hf-btwf" style="font-size: 11px; color: #475569; font-weight: 700;" class="font-mono">CUIT: 20-28194012-9</div>
+                    </td>
+                    <td data-hf-id="hf-9c0b" class="font-mono" style="text-align: right; color: #3730a3; font-weight: 900; font-size: 14px;">
+                      $ 80.000,00
+                    </td>
+                    <td data-hf-id="hf-ro4l">
+                      <span data-hf-id="hf-6r7o" style="color: #0f172a; font-weight: 900;">Rossi Juan Pablo</span>
+                    </td>
+                    <td data-hf-id="hf-44tm" style="text-align: right;">
+                      <div data-hf-id="hf-zf4f" class="btn-indigo-main" style="padding: 6px 14px; font-size: 11px;">
+                        Vincular CX ➔
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ================= SCENE 3: PASO 3 - IMPUTACIÓN & CIRUGÍAS (20s - 30s) ================= -->
+      <div data-hf-id="hf-v7pd" id="scene3" class="scene clip" data-start="20" data-duration="10" data-track-index="1">
+        <div data-hf-id="hf-0g8t" id="scene3-inner" class="scene-inner">
+          
+          <!-- Step 3 Top Instruction Banner -->
+          <div data-hf-id="hf-n0qv" id="s3-banner" class="step-instruction-banner">
+            <div data-hf-id="hf-1043">
+              <div data-hf-id="hf-cz5h" style="display: flex; align-items: center; gap: 10px; margin-bottom: 2px;">
+                <span data-hf-id="hf-4lgl" class="step-badge badge-amber">PASO 03 DE 04</span>
+                <span data-hf-id="hf-3wfa" class="instruction-title">Imputación de Cirugías &amp; Sugerencias de Pago</span>
+              </div>
+              <div data-hf-id="hf-nxi0" class="instruction-text">
+                Vinculá cirugías pendientes aplicando montos sugeridos al 50%, 100% o valores ERP. Editá importes por cirugía y usá la tecla Enter en la búsqueda para imputar al instante.
+              </div>
+            </div>
+            <div data-hf-id="hf-lfv2" class="step-num-display" style="color: #fde047;">03</div>
+          </div>
+
+          <!-- Real Modal Container Floating Over App Viewport -->
+          <div data-hf-id="hf-e5g2" class="real-modal-container">
+            <div data-hf-id="hf-b96a" id="s3-modal-card" class="real-modal-card">
+              
+              <!-- Modal Slim Header -->
+              <div data-hf-id="hf-08zo" style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #cbd5e1; padding-bottom: 14px; margin-bottom: 16px;">
+                <div data-hf-id="hf-hikp" style="display: flex; align-items: center; gap: 10px;">
+                  <span data-hf-id="hf-2rhz" class="badge-indigo">VINCULACIÓN (Esc para cerrar)</span>
+                  <span data-hf-id="hf-c1fu" style="font-weight: 900; color: #0f172a; font-size: 15px;">📄 transferencia_marisel.pdf</span>
+                  <span data-hf-id="hf-u9b5" style="color: #3730a3; font-weight: 900; font-size: 14px;">· Fleitas Gaona Marisel</span>
+                </div>
+                <div data-hf-id="hf-uja5" class="btn-slate-sub" style="padding: 4px 12px; font-size: 11px;">📝 Observaciones</div>
+              </div>
+
+              <!-- Real Saldos Summary Bar -->
+              <div data-hf-id="hf-qxxa" style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 14px; padding: 12px 20px; display: flex; justify-content: space-between; font-family: monospace; font-size: 13px; margin-bottom: 20px;">
+                <div data-hf-id="hf-1ef4"><span data-hf-id="hf-1yoo" style="color: #334155; font-weight: 800;">Transferido:</span> <strong data-hf-id="hf-vy6z" style="color: #3730a3; font-size: 15px;">$ 145.000,00</strong></div>
+                <div data-hf-id="hf-c4s8"><span data-hf-id="hf-fwgq" style="color: #334155; font-weight: 800;">Imputado:</span> <strong data-hf-id="hf-ycf0" id="s3-monto-imputado" style="color: #5b21b6; font-size: 15px;">$ 0,00</strong></div>
+                <div data-hf-id="hf-bqh7"><span data-hf-id="hf-g542" style="color: #334155; font-weight: 800;">Saldo Pendiente:</span> <strong data-hf-id="hf-lvnt" id="s3-saldo-pendiente" style="color: #92400e; font-size: 15px;">$ 145.000,00</strong></div>
+              </div>
+
+              <!-- Linked Surgery Table -->
+              <div data-hf-id="hf-h9az" style="border: 1px solid #cbd5e1; border-radius: 14px; overflow: hidden; margin-bottom: 16px;">
+                <table data-hf-id="hf-m6gk" class="real-table">
+                  <thead data-hf-id="hf-qnil">
+                    <tr data-hf-id="hf-cz86">
+                      <th data-hf-id="hf-xys6">Fecha</th>
+                      <th data-hf-id="hf-62bi">Paciente</th>
+                      <th data-hf-id="hf-vifg">Médico / Lugar</th>
+                      <th data-hf-id="hf-mi3r" style="text-align: right;">Total CX</th>
+                      <th data-hf-id="hf-hme8" style="text-align: right;">Monto Imputado</th>
+                    </tr>
+                  </thead>
+                  <tbody data-hf-id="hf-2rij">
+                    <tr data-hf-id="hf-ckx5">
+                      <td data-hf-id="hf-rmho" class="font-mono" style="color: #1e293b;">14/08/2026</td>
+                      <td data-hf-id="hf-87bq" style="font-weight: 900; color: #0f172a;">González Pedro</td>
+                      <td data-hf-id="hf-mwgv" style="color: #1e293b;">Dr. Rossi · Sanatorio Otamendi</td>
+                      <td data-hf-id="hf-poo3" class="font-mono" style="text-align: right; font-weight: 800;">$ 145.000,00</td>
+                      <td data-hf-id="hf-tbrc" class="font-mono" style="text-align: right;">
+                        <div data-hf-id="hf-9f2e" style="display: flex; align-items: center; justify-content: flex-end; gap: 8px;">
+                          <span data-hf-id="hf-azx9" class="badge-indigo" style="font-size: 10px; padding: 2px 6px;">🌓 50%</span>
+                          <span data-hf-id="hf-88nq" style="color: #3730a3; font-weight: 900;">$</span>
+                          <input data-hf-id="hf-98mx" id="s3-input-monto" type="text" value="0,00" style="width: 110px; background: #e0e7ff; border: 1px solid #4338ca; border-radius: 8px; padding: 4px 8px; font-family: monospace; font-weight: 900; color: #1e1b4b; text-align: right; font-size: 13px;">
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- Chips & Quick Action -->
+              <div data-hf-id="hf-cio6" style="display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 20px;">
+                <div data-hf-id="hf-itvu" style="display: flex; align-items: center; gap: 8px;">
+                  <span data-hf-id="hf-ch0z" style="color: #334155; font-weight: 800; font-size: 12px;">Sugeridos:</span>
+                  <div data-hf-id="hf-2ytv" id="s3-chip-50" class="badge-indigo" style="cursor: pointer; padding: 6px 12px; font-size: 11px;">🌓 50% (50-50)</div>
+                  <div data-hf-id="hf-g8ct" class="badge-emerald" style="cursor: pointer; padding: 6px 12px; font-size: 11px;">🌕 100% Saldo</div>
+                  <div data-hf-id="hf-8r30" class="badge-indigo" style="cursor: pointer; padding: 6px 12px; font-size: 11px;">ERP: $ 145.000,00</div>
+                </div>
+
+                <div data-hf-id="hf-clhy" style="font-size: 12px; color: #334155; font-weight: 700;">
+                  💡 Presioná <kbd data-hf-id="hf-9v4f" style="background: #cbd5e1; padding: 2px 6px; border-radius: 4px; color: #0f172a; font-weight: 900;">Enter</kbd> para vincular al instante
+                </div>
+              </div>
+
+              <!-- Confirm Footer Button -->
+              <div data-hf-id="hf-mxvq" style="display: flex; justify-content: flex-end; border-top: 1px solid #cbd5e1; padding-top: 14px;">
+                <div data-hf-id="hf-14vo" id="s3-btn-confirmar" class="btn-indigo-main" style="background: #059669; font-size: 13px; padding: 12px 24px; cursor: pointer;">
+                  ✓ Confirmar Conciliación ($0 exacto)
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ================= SCENE 4: PASO 4 - CIERRE DE LOTE & PDF (30s - 40s) ================= -->
+      <div data-hf-id="hf-a13b" id="scene4" class="scene clip" data-start="30" data-duration="10" data-track-index="1">
+        <div data-hf-id="hf-vuji" id="scene4-inner" class="scene-inner">
+          
+          <!-- Step 4 Top Instruction Banner -->
+          <div data-hf-id="hf-99pq" id="s4-banner" class="step-instruction-banner">
+            <div data-hf-id="hf-bc66">
+              <div data-hf-id="hf-ddgi" style="display: flex; align-items: center; gap: 10px; margin-bottom: 2px;">
+                <span data-hf-id="hf-ddob" class="step-badge badge-emerald">PASO 04 DE 04</span>
+                <span data-hf-id="hf-sjch" class="instruction-title">Conciliación en Lote, Reporte PDF e Historial Auditables</span>
+              </div>
+              <div data-hf-id="hf-1gv3" class="instruction-text">
+                Procesá comprobantes listos en 1 clic con "⚡ Conciliar Automáticos", descargá el resumen completo en PDF vectorial y consultá la pestaña de Historial para auditorías.
+              </div>
+            </div>
+            <div data-hf-id="hf-jofn" class="step-num-display" style="color: #6ee7b7;">04</div>
+          </div>
+
+          <!-- Real App UI Viewport -->
+          <div data-hf-id="hf-b6ut" class="app-viewport">
+            
+            <!-- Real Batch Completed Banner Component -->
+            <div data-hf-id="hf-nuek" id="s4-banner-card" style="background: linear-gradient(135deg, #047857 0%, #0f766e 100%); border-radius: 24px; padding: 36px 40px; color: #ffffff; display: flex; flex-direction: column; gap: 24px; box-shadow: 0 20px 40px rgba(4, 120, 87, 0.35);">
+              
+              <div data-hf-id="hf-ou88" style="display: flex; align-items: center; justify-content: space-between;">
+                <div data-hf-id="hf-axv5">
+                  <span data-hf-id="hf-cdcf" style="font-size: 11px; font-weight: 900; text-transform: uppercase; background: rgba(255,255,255,0.25); padding: 4px 12px; border-radius: 999px;">
+                    LOTE CONCILIADO EXITOSAMENTE
+                  </span>
+                  <h2 data-hf-id="hf-oiry" style="font-size: 32px; font-weight: 900; margin-top: 8px;">
+                    🎉 ¡Conciliación de Lote Finalizada!
+                  </h2>
+                  <p data-hf-id="hf-lvku" style="font-size: 14px; opacity: 0.95; margin-top: 4px; font-weight: 600;">
+                    Todos los comprobantes fueron procesados y las cirugías fueron saldadas en Supabase.
+                  </p>
+                </div>
+
+                <div data-hf-id="hf-rll9" style="display: flex; gap: 12px;">
+                  <div data-hf-id="hf-5aso" id="s4-btn-pdf" class="btn-slate-sub" style="background: #ffffff; color: #064e3b; font-weight: 900; padding: 14px 24px; font-size: 14px; cursor: pointer; box-shadow: 0 4px 14px rgba(0,0,0,0.2);">
+                    📄 Descargar Resumen PDF
+                  </div>
+                  <div data-hf-id="hf-5r20" class="btn-slate-sub" style="background: rgba(0,0,0,0.3); color: #ffffff; border: 1px solid rgba(255,255,255,0.4); padding: 14px 24px; font-size: 14px;">
+                    ✨ Iniciar Nueva Conciliación
+                  </div>
+                </div>
+              </div>
+
+              <!-- Real Metrics Grid -->
+              <div data-hf-id="hf-lu9c" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; padding-top: 20px; border-top: 1px solid rgba(255, 255, 255, 0.3);" class="font-mono">
+                <div data-hf-id="hf-jxp5" style="background: rgba(0, 0, 0, 0.2); border: 1px solid rgba(255, 255, 255, 0.25); padding: 16px; border-radius: 16px; text-align: center;">
+                  <div data-hf-id="hf-3nf3" style="font-size: 11px; opacity: 0.9; font-weight: 800; text-transform: uppercase;">Comprobantes</div>
+                  <div data-hf-id="hf-tsnk" style="font-size: 28px; font-weight: 900; margin-top: 4px;">2</div>
+                </div>
+                <div data-hf-id="hf-wncd" style="background: rgba(0, 0, 0, 0.2); border: 1px solid rgba(255, 255, 255, 0.25); padding: 16px; border-radius: 16px; text-align: center;">
+                  <div data-hf-id="hf-b1l1" style="font-size: 11px; opacity: 0.9; font-weight: 800; text-transform: uppercase;">Monto Procesado</div>
+                  <div data-hf-id="hf-mmd1" style="font-size: 28px; font-weight: 900; margin-top: 4px;">$ 225.000,00</div>
+                </div>
+                <div data-hf-id="hf-xu9g" style="background: rgba(0, 0, 0, 0.2); border: 1px solid rgba(255, 255, 255, 0.25); padding: 16px; border-radius: 16px; text-align: center;">
+                  <div data-hf-id="hf-9a8e" style="font-size: 11px; opacity: 0.9; font-weight: 800; text-transform: uppercase;">Cirugías Saldadas</div>
+                  <div data-hf-id="hf-yyoy" style="font-size: 28px; font-weight: 900; margin-top: 4px;">3 CX</div>
+                </div>
+                <div data-hf-id="hf-xfyf" style="background: rgba(0, 0, 0, 0.2); border: 1px solid rgba(255, 255, 255, 0.25); padding: 16px; border-radius: 16px; text-align: center;">
+                  <div data-hf-id="hf-7b8v" style="font-size: 11px; opacity: 0.9; font-weight: 800; text-transform: uppercase;">Saldos Pendientes</div>
+                  <div data-hf-id="hf-hnii" style="font-size: 28px; font-weight: 900; margin-top: 4px;">$ 0,00</div>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+    <!-- GSAP Animation Engine with Oversized Pointer Cursor & Causal Ignition -->
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      const cursor = document.getElementById("cursor");
+      const ripple = document.getElementById("click-ripple");
+      const toast = document.getElementById("toast-alert");
+
+      // Helper function to trigger click ripple and cursor tap animation
+      function triggerClick(targetX, targetY, timeline, time) {
+        // Cursor compress / expand tap
+        timeline.to(cursor, { scale: 0.82, duration: 0.1, ease: "power2.in", transformOrigin: "21% 14%" }, time);
+        timeline.to(cursor, { scale: 1.0, duration: 0.22, ease: "power2.out", transformOrigin: "21% 14%" }, time + 0.1);
+
+        // Ripple pulse
+        timeline.set(ripple, { left: targetX + "px", top: targetY + "px", opacity: 1, scale: 0 }, time + 0.05);
+        timeline.to(ripple, { scale: 1.5, opacity: 0, duration: 0.4, ease: "power2.out" }, time + 0.05);
+      }
+
+      // ================= SCENE 1 (0s - 10s): PASO 1 - CARGA DE ARCHIVOS =================
+      tl.from("#s1-banner", { opacity: 0, y: -30, duration: 0.6, ease: "power3.out" }, 0.2);
+      
+      // Cursor enters from off-screen bottom below to target button "📁 Seleccionar Comprobantes" (x: 810, y: 580)
+      tl.fromTo(cursor, 
+        { x: 960, y: 1150 },
+        { x: 810, y: 580, duration: 1.1, ease: "power3.out", immediateRender: false }, 
+        0.6
+      );
+
+      // Click on "📁 Seleccionar Comprobantes"
+      triggerClick(810, 580, tl, 1.7);
+
+      // Causal Ignition: Uploaded files pop into view
+      tl.fromTo("#s1-files-preview", 
+        { opacity: 0, y: 15 },
+        { opacity: 1, y: 0, duration: 0.6, ease: "back.out(1.2)" }, 
+        1.85
+      );
+
+      // Cursor drifts off-screen to prepare for Scene 2
+      tl.to(cursor, { y: 1150, duration: 0.6, ease: "power2.in" }, 9.2);
+      tl.to("#scene1-inner", { opacity: 0, duration: 0.6, ease: "power2.in" }, 9.4);
+      tl.set("#scene1-inner", { opacity: 0 }, 10.0);
+
+      // ================= SCENE 2 (10s - 20s): PASO 2 - RECONOCIMIENTO & MATCHEO =================
+      tl.from("#scene2-inner", { opacity: 0, duration: 0.6, ease: "power2.out" }, 10.0);
+      tl.from("#s2-banner", { opacity: 0, y: -30, duration: 0.6, ease: "power3.out" }, 10.2);
+
+      // Cursor enters from below to target button "💬 WhatsApp" (x: 1440, y: 360)
+      tl.fromTo(cursor,
+        { x: 960, y: 1150 },
+        { x: 1440, y: 360, duration: 1.0, ease: "power3.out", immediateRender: false },
+        10.6
+      );
+
+      // Click on WhatsApp button
+      triggerClick(1440, 360, tl, 11.6);
+
+      // Causal Ignition: Toast alert appears
+      tl.fromTo(toast, 
+        { opacity: 0, y: 50 },
+        { opacity: 1, y: 0, duration: 0.5, ease: "back.out(1.2)" }, 
+        11.75
+      );
+      tl.to(toast, { opacity: 0, y: 50, duration: 0.5, ease: "power2.in" }, 14.0);
+
+      // Cursor glides to target button "Vincular CX ➔" (x: 1740, y: 360)
+      tl.to(cursor, { x: 1740, y: 360, duration: 0.8, ease: "power2.inOut" }, 14.2);
+
+      // Click on "Vincular CX ➔"
+      triggerClick(1740, 360, tl, 15.0);
+
+      // Cursor exits below for Scene 3
+      tl.to(cursor, { y: 1150, duration: 0.6, ease: "power2.in" }, 19.2);
+      tl.to("#scene2-inner", { opacity: 0, duration: 0.6, ease: "power2.in" }, 19.4);
+      tl.set("#scene2-inner", { opacity: 0 }, 20.0);
+
+      // ================= SCENE 3 (20s - 30s): PASO 3 - IMPUTACIÓN & CIRUGÍAS =================
+      tl.from("#scene3-inner", { opacity: 0, duration: 0.6, ease: "power2.out" }, 20.0);
+      tl.from("#s3-banner", { opacity: 0, y: -30, duration: 0.6, ease: "power3.out" }, 20.2);
+      tl.from("#s3-modal-card", { opacity: 0, scale: 0.94, duration: 0.7, ease: "back.out(1.1)" }, 20.4);
+
+      // Cursor enters from below to target chip "🌓 50% (50-50)" (x: 520, y: 640)
+      tl.fromTo(cursor,
+        { x: 960, y: 1150 },
+        { x: 520, y: 640, duration: 1.0, ease: "power3.out", immediateRender: false },
+        20.8
+      );
+
+      // Click on 50% chip
+      triggerClick(520, 640, tl, 21.8);
+
+      // Causal Ignition: Input & Saldos update
+      tl.to("#s3-input-monto", { value: "145.000,00", backgroundColor: "#dcfce7", color: "#14532d", duration: 0.4 }, 21.95);
+      tl.to("#s3-monto-imputado", { innerText: "$ 145.000,00", color: "#059669", duration: 0.4 }, 21.95);
+      tl.to("#s3-saldo-pendiente", { innerText: "$ 0,00 (Exacto)", color: "#059669", duration: 0.4 }, 21.95);
+
+      // Cursor glides to "✓ Confirmar Conciliación" button (x: 1350, y: 720)
+      tl.to(cursor, { x: 1350, y: 720, duration: 0.9, ease: "power2.inOut" }, 23.2);
+
+      // Click on Confirmar button
+      triggerClick(1350, 720, tl, 24.1);
+
+      // Cursor exits below for Scene 4
+      tl.to(cursor, { y: 1150, duration: 0.6, ease: "power2.in" }, 29.2);
+      tl.to("#scene3-inner", { opacity: 0, duration: 0.6, ease: "power2.in" }, 29.4);
+      tl.set("#scene3-inner", { opacity: 0 }, 30.0);
+
+      // ================= SCENE 4 (30s - 40s): PASO 4 - CIERRE DE LOTE & PDF =================
+      tl.from("#scene4-inner", { opacity: 0, duration: 0.6, ease: "power2.out" }, 30.0);
+      tl.from("#s4-banner", { opacity: 0, y: -30, duration: 0.6, ease: "power3.out" }, 30.2);
+      tl.from("#s4-banner-card", { opacity: 0, scale: 0.92, duration: 0.8, ease: "back.out(1.1)" }, 30.4);
+
+      // Cursor enters from below to target "📄 Descargar Resumen PDF" button (x: 1280, y: 340)
+      tl.fromTo(cursor,
+        { x: 960, y: 1150 },
+        { x: 1280, y: 340, duration: 1.0, ease: "power3.out", immediateRender: false },
+        30.8
+      );
+
+      // Click on Descargar PDF
+      triggerClick(1280, 340, tl, 31.8);
+
+      // Button press feedback
+      tl.to("#s4-btn-pdf", { scale: 1.05, duration: 0.2, yoyo: true, repeat: 1 }, 31.9);
+
+      // Cursor rests nicely
+      tl.to(cursor, { x: 1350, y: 400, duration: 0.8, ease: "power2.out" }, 32.2);
+
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>

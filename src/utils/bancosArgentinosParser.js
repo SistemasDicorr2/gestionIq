@@ -75,6 +75,32 @@ function cleanText(text) {
  * @param {string} rawText 
  * @returns {object|null}
  */
+
+/**
+ * Valida si una cadena es un identificador de operación bancaria real y no una fecha o texto genérico.
+ */
+export function isValidOperationNumber(val) {
+  if (!val || typeof val !== 'string') return false;
+  const str = val.trim();
+  // Descartar fechas DD/MM/YYYY, YYYY-MM-DD, DDMMAAAA, AAAAMMDD
+  if (/^\d{1,2}[\/\.-]\d{1,2}[\/\.-]\d{2,4}$/.test(str)) return false;
+  if (/^(?:19|20)\d{6}$/.test(str)) return false;
+  if (/^\d{2}(?:0[1-9]|1[0-2])(?:19|20)\d{2}$/.test(str)) return false;
+  if (/^\d{2}(?:0[1-9]|1[0-2])\d{2}$/.test(str)) return false;
+
+  const cleaned = str.toLowerCase()
+    .replace(/^(?:op|operacion|operación|nro|n°|num|numero|número|comp|comprobante|trans|transferencia|coelsa|referencia|ref)[:\.\-\s]*/i, '')
+    .replace(/[\s\-_]/g, '');
+
+  const genericTerms = ['na', 'null', 'undefined', 'noespecificado', 'sinnro', 'sinnumero', 'comprobante', 'transferencia', 'pendiente', 'error', 'robante', 'ferencia', 'exitoso', 'aprobado', 'inmediata'];
+  if (genericTerms.includes(cleaned)) return false;
+
+  if (cleaned.length < 5 || !/\d/.test(cleaned)) return false;
+  if (/^(.)\1+$/.test(cleaned)) return false;
+
+  return true;
+}
+
 export function parsearComprobanteBancarioTexto(rawText) {
   if (!rawText || typeof rawText !== 'string' || rawText.length < 15) {
     return null;
@@ -155,8 +181,11 @@ export function parsearComprobanteBancarioTexto(rawText) {
   for (const reg of opPatterns) {
     const match = text.match(reg);
     if (match) {
-      numero_operacion = match[1].trim();
-      break;
+      const candidate = match[1].trim();
+      if (isValidOperationNumber(candidate)) {
+        numero_operacion = candidate;
+        break;
+      }
     }
   }
 
