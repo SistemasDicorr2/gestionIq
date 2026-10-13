@@ -624,15 +624,37 @@ const confirmDelete = async () => {
 };
 
 const saveChanges = async () => {
-  if (!formData.value) return;
+  if (!formData.value || !formData.value.id) return;
   isSaving.value = true;
   try {
-    const updateData = { ...formData.value };
-    delete updateData.total_count;
-    delete updateData.short_links;
-    delete updateData.instrumentador_nombre;
-    const { id, created_at, token, url_firma, instrumentadores, ...finalUpdateData } = updateData;
-    const { error } = await supabase.from('reportes').update(finalUpdateData).eq('id', id);
+    // Construir un payload limpio exclusivamente con las columnas válidas y editables de la tabla 'reportes'.
+    // Esto previene que atributos virtuales o relaciones del frontend (short_code, evidencias,
+    // fecha_link_generado, tiene_control, control_estado, etc.) se envíen a PostgREST y disparen un HTTP 400 Bad Request.
+    const payload = {
+      paciente: formData.value.paciente?.trim(),
+      medico: formData.value.medico?.trim(),
+      tipo_cirugia: formData.value.tipo_cirugia?.trim() || null,
+      fecha_cirugia: formData.value.fecha_cirugia || null,
+      lugar_cirugia: formData.value.lugar_cirugia?.trim() || null,
+      consumo_realizado: formData.value.consumo_realizado?.trim() || null,
+      observaciones: formData.value.observaciones?.trim() || null,
+      set_completo: typeof formData.value.set_completo === 'boolean' ? formData.value.set_completo : null,
+      informe_faltante: typeof formData.value.informe_faltante === 'boolean' ? formData.value.informe_faltante : null,
+      representante_ventas: formData.value.representante_ventas?.trim() || null,
+      duracion_cirugia: formData.value.duracion_cirugia?.trim() || null,
+      tipo_logistica: formData.value.tipo_logistica?.trim() || null,
+      transporte_utilizado: formData.value.transporte_utilizado?.trim() || null
+    };
+
+    if (formData.value.id_cirugia && String(formData.value.id_cirugia).trim()) {
+      payload.id_cirugia = String(formData.value.id_cirugia).trim();
+    }
+
+    const { error } = await supabase
+      .from('reportes')
+      .update(payload)
+      .eq('id', formData.value.id);
+
     if (error) throw error;
     showSuccessToast('Reporte actualizado con éxito.');
     emit('updated');
