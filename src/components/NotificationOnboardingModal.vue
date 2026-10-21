@@ -265,8 +265,8 @@ const pushStatus = ref(getNotificationPermissionStatus());
 const emailEnabled = ref(true);
 const emailAddress = ref('');
 
-// Sincronizar email desde las props o desde el cache local
-watch(() => [props.instrumentador, props.dni], ([inst, currentDni]) => {
+// Sincronizar email desde las props, cache local o consulta directa a instrumentadores
+watch(() => [props.instrumentador, props.dni], async ([inst, currentDni]) => {
   const cleanDni = currentDni || inst?.dni || '';
   let candidateEmail = inst?.email || '';
 
@@ -275,6 +275,26 @@ watch(() => [props.instrumentador, props.dni], ([inst, currentDni]) => {
       candidateEmail = localStorage.getItem(`gestioniq_email_${cleanDni}`) || '';
     } catch (e) {
       // Ignore localStorage error
+    }
+  }
+
+  // Respaldo defensivo directo a la base de datos si no vino en props ni en localStorage
+  if (!candidateEmail && cleanDni) {
+    try {
+      const { data: dbData } = await supabase
+        .from('instrumentadores')
+        .select('email')
+        .eq('dni', cleanDni)
+        .maybeSingle();
+
+      if (dbData?.email && typeof dbData.email === 'string' && dbData.email.trim()) {
+        candidateEmail = dbData.email.trim();
+        try {
+          localStorage.setItem(`gestioniq_email_${cleanDni}`, candidateEmail);
+        } catch (e) {}
+      }
+    } catch (e) {
+      console.warn('[NotificationOnboardingModal] Error al consultar email directo:', e);
     }
   }
 

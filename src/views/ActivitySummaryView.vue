@@ -1025,11 +1025,28 @@ const authenticate = async (overrideDni = null) => {
     if (data) {
       instrumentadorInfo.value = data.instrumentador_info || {};
 
-      // Vincular directamente el email: sincronización bidireccional inmediata
+      // 1. Obtener email directamente de la tabla instrumentadores si la RPC no lo incluyó
+      if (!instrumentadorInfo.value.email) {
+        try {
+          const { data: dbInst, error: dbInstErr } = await supabase
+            .from('instrumentadores')
+            .select('email')
+            .eq('dni', cleanDni)
+            .maybeSingle();
+
+          if (!dbInstErr && dbInst?.email && typeof dbInst.email === 'string' && dbInst.email.trim()) {
+            instrumentadorInfo.value.email = dbInst.email.trim();
+          }
+        } catch (dbErr) {
+          console.warn("No se pudo consultar el email en instrumentadores:", dbErr);
+        }
+      }
+
+      // 2. Vincular directamente con localStorage: sincronización bidireccional inmediata
       try {
         const cachedEmail = localStorage.getItem(`gestioniq_email_${cleanDni}`);
-        if (!instrumentadorInfo.value.email && cachedEmail) {
-          instrumentadorInfo.value.email = cachedEmail;
+        if (!instrumentadorInfo.value.email && cachedEmail && cachedEmail.includes('@')) {
+          instrumentadorInfo.value.email = cachedEmail.trim();
         } else if (instrumentadorInfo.value.email) {
           localStorage.setItem(`gestioniq_email_${cleanDni}`, instrumentadorInfo.value.email);
         }
@@ -1038,8 +1055,24 @@ const authenticate = async (overrideDni = null) => {
       }
 
       allActivityData.value = (data.activity_summary || []).filter(r => r.estado === 'Enviado');
-      isAuthenticated.value = true;
       dni.value = cleanDni;
+
+      // Determinar si debe mostrarse la pantalla de ingreso / vinculación de correo obligatoria
+      const hasValidEmail = Boolean(
+        instrumentadorInfo.value?.email && 
+        typeof instrumentadorInfo.value.email === 'string' && 
+        instrumentadorInfo.value.email.trim().includes('@')
+      );
+
+      if (!hasValidEmail) {
+        showEmailOnboardingScreen.value = true;
+        onboardingEmail.value = '';
+      } else {
+        showEmailOnboardingScreen.value = false;
+        onboardingEmail.value = instrumentadorInfo.value.email.trim();
+      }
+
+      isAuthenticated.value = true;
 
       // Registrar comprobación de ingreso del usuario a su enlace personal
       await registerAccessLog(cleanDni, token);
@@ -1052,16 +1085,6 @@ const authenticate = async (overrideDni = null) => {
       }
 
       toast.success("Acceso concedido.");
-
-      // Determinar si debe mostrarse la pantalla de ingreso / vinculación de correo obligatoria
-      const hasValidEmail = Boolean(instrumentadorInfo.value?.email && instrumentadorInfo.value.email.trim().includes('@'));
-
-      if (!hasValidEmail) {
-        showEmailOnboardingScreen.value = true;
-        onboardingEmail.value = '';
-      } else {
-        showEmailOnboardingScreen.value = false;
-      }
     } else {
       error.value = "Verificá tu DNI. No coincide con la ficha o el enlace expiró.";
       toast.error("Acceso denegado.");
