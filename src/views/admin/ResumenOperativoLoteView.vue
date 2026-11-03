@@ -413,7 +413,8 @@
           'w-full shadow-sm rounded-xl overflow-hidden print:shadow-none print:rounded-none transition-all',
           { 
             'page-break-card': true,
-            'print:hidden hidden': !selectedIds.has(ficha.id),
+            'print:hidden': !selectedIds.has(ficha.id),
+            'hidden': !selectedIds.has(ficha.id) && !searchQuery.trim(),
             'ring-2 ring-blue-500/20': selectedIds.has(ficha.id),
             'opacity-60': !selectedIds.has(ficha.id)
           }
@@ -431,6 +432,9 @@
             />
             <span class="text-xs font-bold text-slate-900 dark:text-slate-100">
               #{{ String(index + 1).padStart(2, '0') }} · {{ ficha.paciente || 'Sin especificar' }}
+            </span>
+            <span v-if="ficha.id_cirugia" class="px-1.5 py-0.5 rounded bg-slate-200/70 dark:bg-slate-800 text-[10px] font-mono font-bold text-slate-600 dark:text-slate-400">
+              {{ ficha.id_cirugia }}
             </span>
             <span v-if="ficha.instrumentador_completado || ficha.instrumentador" class="text-xs text-slate-500 dark:text-slate-400 hidden sm:inline">
               ({{ ficha.instrumentador_completado || ficha.instrumentador }})
@@ -753,8 +757,9 @@ const displayedFichas = computed(() => {
     const tipo = (f.tipo_cirugia || '').toLowerCase();
     const instrum = (f.instrumentador_completado || f.instrumentador || '').toLowerCase();
     const obs = (f.control_observaciones || f.observaciones || '').toLowerCase();
-    const id = String(f.id || f.id_cirugia || '');
-    return paciente.includes(q) || medico.includes(q) || inst.includes(q) || tipo.includes(q) || instrum.includes(q) || obs.includes(q) || id.includes(q);
+    const id = String(f.id || '').toLowerCase();
+    const idCirugia = String(f.id_cirugia || '').toLowerCase();
+    return paciente.includes(q) || medico.includes(q) || inst.includes(q) || tipo.includes(q) || instrum.includes(q) || obs.includes(q) || id.includes(q) || idCirugia.includes(q);
   });
 });
 
@@ -1253,13 +1258,9 @@ const fetchLote = async () => {
 
     fichas.value = enriched;
 
-    // 5. Preseleccionar automáticamente las fichas con control (o todas si aún no hay controles)
-    const controlledIds = enriched.filter(f => f.tiene_control).map(f => f.id);
-    if (controlledIds.length > 0) {
-      selectedIds.value = new Set(controlledIds);
-    } else {
-      selectedIds.value = new Set(enriched.map(f => f.id));
-    }
+    // 5. Preseleccionar todas las fichas del lote por defecto (incluyendo Falta Control)
+    // para que ningún caso quede oculto inicialmente; el usuario puede destildar grupos arriba si desea excluirlos.
+    selectedIds.value = new Set(enriched.map(f => f.id));
 
     await fetchOmitidas();
     await preloadAssets();

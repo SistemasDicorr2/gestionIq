@@ -108,6 +108,53 @@
             </p>
           </div>
 
+          <!-- SECCIÓN 2: RECORDATORIO SEMANAL DE CIRUGÍAS IMPAGAS DE MARTA BRUGGER -->
+          <div class="p-3.5 bg-amber-50/70 dark:bg-amber-950/25 rounded-xl border border-amber-200/90 dark:border-amber-800/70 space-y-2.5">
+            <div class="flex items-center justify-between gap-2">
+              <div class="flex items-center gap-1.5">
+                <span class="text-sm">📌</span>
+                <div>
+                  <h4 class="text-[11px] font-black text-amber-950 dark:text-amber-200 uppercase tracking-wider">
+                    Recordatorio Semanal · Marta Brugger
+                  </h4>
+                  <p class="text-[10px] text-amber-800 dark:text-amber-300/90">
+                    Cirugías enviadas pendientes de pago: <strong>{{ martaImpagasList.length }}</strong>
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                @click="enviarRecordatorioMarta"
+                :disabled="sendingMarta || loading"
+                class="shrink-0 px-3 py-1.5 bg-amber-600 hover:bg-amber-700 disabled:opacity-50 text-white text-[11px] font-extrabold rounded-lg shadow-2xs transition cursor-pointer flex items-center gap-1"
+                title="Envía un correo sencillo con el resumen de cirugías impagas de Marta Brugger"
+              >
+                <span v-if="sendingMarta" class="animate-spin text-[10px]">🌀</span>
+                <span v-else>📩</span>
+                <span>{{ sendingMarta ? 'Enviando...' : 'Enviar correo de Marta' }}</span>
+              </button>
+            </div>
+
+            <div v-if="martaImpagasList.length > 0" class="space-y-1 max-h-36 overflow-y-auto pr-1">
+              <div
+                v-for="item in martaImpagasList"
+                :key="item.id"
+                class="flex items-center justify-between px-2.5 py-1.5 bg-white dark:bg-slate-900 rounded-lg border border-amber-200/70 dark:border-amber-900/50 text-[11px]"
+              >
+                <div class="truncate mr-2">
+                  <span class="font-black text-amber-700 dark:text-amber-400 mr-1">{{ item.codigo_cx }}</span>
+                  <span class="font-bold text-slate-900 dark:text-white">{{ item.paciente || 'Sin especificar' }}</span>
+                </div>
+                <span class="shrink-0 text-[10px] font-semibold text-slate-500 dark:text-slate-400">
+                  {{ formatShortDate(item.fecha_cirugia) }}
+                </span>
+              </div>
+            </div>
+            <p v-else class="text-[10px] text-emerald-700 dark:text-emerald-400 font-semibold">
+              ✅ Marta Brugger no tiene cirugías enviadas pendientes de pago.
+            </p>
+          </div>
+
           <!-- SECCIÓN 3: CIRUGÍAS OMITIDAS DE PRÓXIMOS REPORTES -->
           <div v-if="omitidasList.length > 0" class="p-3.5 bg-rose-50/50 dark:bg-rose-950/20 rounded-xl border border-rose-200/80 dark:border-rose-900/60">
             <div class="flex items-center justify-between mb-2">
@@ -261,10 +308,62 @@ const toast = useToast();
 const loading = ref(false);
 const saving = ref(false);
 const testing = ref(false);
+const sendingMarta = ref(false);
 const generandoLote = ref(false);
 const newEmail = ref('');
 const emailList = ref([]);
 const omitidasList = ref([]);
+const martaImpagasList = ref([]);
+
+const isMartaBrugger = (s) => {
+  const dni = String(s?.instrumentador_dni || '').trim();
+  if (dni === '28584730') return true;
+  const nombre = String(s?.instrumentador_nombre || s?.instrumentador || '').toLowerCase();
+  return /marta\s*br?ug+er/i.test(nombre);
+};
+
+const formatShortDate = (dateStr) => {
+  if (!dateStr) return '-';
+  const clean = String(dateStr).split('T')[0];
+  const parts = clean.split('-');
+  if (parts.length === 3) return `${parts[2]}/${parts[1]}/${parts[0]}`;
+  return dateStr;
+};
+
+const fetchMartaImpagas = async (omitidasArr = omitidasList.value) => {
+  try {
+    const { data: pendingRaw } = await supabase.rpc('get_todas_cirugias_pendientes');
+    const allPending = pendingRaw || [];
+    const omitidosIds = new Set((omitidasArr || []).map(item => String(item.id || item)));
+
+    const filtered = allPending.filter((s) => {
+      if (s.pago_id) return false;
+      if (omitidosIds.has(String(s.id))) return false;
+      return isMartaBrugger(s);
+    });
+
+    const ids = filtered.map(s => s.id).filter(Boolean);
+    const codeMap = new Map();
+    if (ids.length > 0) {
+      const { data: repData } = await supabase
+        .from('reportes')
+        .select('id, id_cirugia')
+        .in('id', ids);
+      if (repData) {
+        repData.forEach(r => codeMap.set(String(r.id), r.id_cirugia));
+      }
+    }
+
+    martaImpagasList.value = filtered
+      .map(s => ({
+        ...s,
+        codigo_cx: codeMap.get(String(s.id)) || `CX-${Number(s.id) + 1000}`
+      }))
+      .sort((a, b) => String(b.fecha_cirugia || '').localeCompare(String(a.fecha_cirugia || '')));
+  } catch (err) {
+    console.warn('No se pudieron consultar las cirugías impagas de Marta:', err);
+  }
+};
 
 const schedule = reactive({
   dia: 3,      // 3 = Miércoles
@@ -332,6 +431,9 @@ const fetchConfig = async () => {
     } else {
       omitidasList.value = [];
     }
+
+    // 4. Consultar cirugías enviadas impagas de Marta Brugger
+    await fetchMartaImpagas(omitidasList.value);
   } catch (err) {
     toast.error("Error al cargar configuración: " + err.message);
   } finally {
@@ -362,6 +464,7 @@ const reincorporarCirugia = async (cirugiaId) => {
     }
 
     toast.success("Cirugía reincorporada a los próximos resúmenes operativos.");
+    await fetchMartaImpagas(omitidasList.value);
   } catch (err) {
     toast.error("Error al reincorporar cirugía: " + err.message);
   }
@@ -608,6 +711,42 @@ const testReporteEmail = async () => {
     const pagosDashboardUrl = `${appBaseUrl}/admin/pagos`;
 
     // 7. Construcción de filas de la Tabla Única Unificada
+    await fetchMartaImpagas(omitidasList.value);
+    const martaCount = martaImpagasList.value.length;
+    const martaRowsHtml = martaImpagasList.value.map((m) => `
+      <tr>
+        <td style="padding:6px 8px;border-bottom:1px solid #fde68a;font-size:11px;font-weight:800;color:#92400e;">${m.codigo_cx}</td>
+        <td style="padding:6px 8px;border-bottom:1px solid #fde68a;font-size:11px;font-weight:700;color:#0f172a;">${m.paciente || 'Sin especificar'}</td>
+        <td style="padding:6px 8px;border-bottom:1px solid #fde68a;font-size:10px;color:#475569;">${formatDateOnly(m.fecha_cirugia)}</td>
+        <td style="padding:6px 8px;border-bottom:1px solid #fde68a;font-size:10px;color:#475569;">${m.medico || '-'}</td>
+      </tr>
+    `).join('');
+
+    const martaSectionHtml = `
+      <tr>
+        <td style="padding:16px 28px 0 28px;">
+          <div style="background:#fffbeb;border:1px solid #fcd34d;border-radius:12px;padding:14px 16px;">
+            <div style="font-size:12px;font-weight:800;color:#92400e;margin-bottom:6px;">
+              📌 Recordatorio Semanal · Marta Brugger: ${martaCount} ${martaCount === 1 ? 'cirugía impaga' : 'cirugías impagas'}
+            </div>
+            ${martaCount > 0 ? `
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="border-collapse:collapse;background:#ffffff;border-radius:8px;overflow:hidden;border:1px solid #fde68a;">
+                <thead>
+                  <tr bgcolor="#fef3c7" style="color:#92400e;font-size:9px;text-transform:uppercase;">
+                    <th style="padding:6px 8px;text-align:left;">Código</th>
+                    <th style="padding:6px 8px;text-align:left;">Paciente</th>
+                    <th style="padding:6px 8px;text-align:left;">Fecha Cx</th>
+                    <th style="padding:6px 8px;text-align:left;">Médico</th>
+                  </tr>
+                </thead>
+                <tbody>${martaRowsHtml}</tbody>
+              </table>
+            ` : `<div style="font-size:11px;color:#047857;font-weight:700;">✅ No registra cirugías enviadas pendientes de pago.</div>`}
+          </div>
+        </td>
+      </tr>
+    `;
+
     const rowsHtml = enrichedSurgeries.map((s, idx) => {
       const bg = idx % 2 === 0 ? '#ffffff' : '#f8fafc';
       const num = String(idx + 1).padStart(2, '0');
@@ -743,6 +882,8 @@ const testReporteEmail = async () => {
                   </td>
                 </tr>
 
+                ${martaSectionHtml}
+
                 <!-- TABLA ÚNICA UNIFICADA -->
                 <tr>
                   <td style="padding:20px 28px;">
@@ -797,6 +938,109 @@ const testReporteEmail = async () => {
     toast.error("Error en envío de prueba: " + err.message);
   } finally {
     testing.value = false;
+  }
+};
+
+const enviarRecordatorioMarta = async () => {
+  try {
+    sendingMarta.value = true;
+    await fetchMartaImpagas(omitidasList.value);
+
+    const targetEmails = emailList.value.length > 0
+      ? emailList.value
+      : ["sistemas@districorr.com.ar", "contable@districorr.com.ar", "auxiliardeposito@districorr.com.ar"];
+
+    const count = martaImpagasList.value.length;
+    const hoyStr = formatShortDate(new Date().toISOString());
+    const pagosUrl = `${window.location.origin}/admin/pagos`;
+
+    const rowsHtml = martaImpagasList.value.map((m, idx) => `
+      <tr bgcolor="${idx % 2 === 0 ? '#ffffff' : '#fffbeb'}">
+        <td style="padding:10px 12px;border-bottom:1px solid #fde68a;font-size:12px;font-weight:800;color:#b45309;">${m.codigo_cx}</td>
+        <td style="padding:10px 12px;border-bottom:1px solid #fde68a;font-size:12px;font-weight:700;color:#0f172a;">${m.paciente || 'Sin especificar'}</td>
+        <td style="padding:10px 12px;border-bottom:1px solid #fde68a;font-size:12px;color:#334155;">${formatShortDate(m.fecha_cirugia)}</td>
+        <td style="padding:10px 12px;border-bottom:1px solid #fde68a;font-size:11px;color:#475569;">${m.medico || '-'}</td>
+        <td style="padding:10px 12px;border-bottom:1px solid #fde68a;font-size:11px;color:#64748b;">${m.lugar || '-'}</td>
+      </tr>
+    `).join('');
+
+    const html = `
+      <!DOCTYPE html>
+      <html>
+      <head><meta charset="utf-8"><title>Recordatorio Semanal · Marta Brugger</title></head>
+      <body style="margin:0;padding:20px 10px;background-color:#f8fafc;font-family:Arial,Helvetica,sans-serif;">
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width:600px;margin:0 auto;background:#ffffff;border-radius:14px;overflow:hidden;border:1px solid #e2e8f0;">
+          <tr><td height="5" style="background:#d97706;"></td></tr>
+          <tr>
+            <td style="padding:22px 24px;border-bottom:1px solid #f1f5f9;">
+              <div style="font-size:11px;font-weight:800;color:#d97706;letter-spacing:0.5px;">RECORDATORIO SEMANAL · GESTIÓN IQ</div>
+              <h2 style="margin:6px 0 0 0;font-size:18px;font-weight:800;color:#0f172a;">
+                Cirugías Impagas de Marta Brugger: ${count}
+              </h2>
+              <p style="margin:4px 0 0 0;font-size:12px;color:#64748b;">
+                Actualizado al ${hoyStr} · Fichas enviadas pendientes de liquidación
+              </p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:20px 24px;">
+              <div style="background:#fffbeb;border:1px solid #fcd34d;border-radius:12px;padding:14px 16px;margin-bottom:16px;text-align:center;">
+                <div style="font-size:28px;font-weight:900;color:#b45309;line-height:1;">${count}</div>
+                <div style="font-size:11px;font-weight:800;color:#92400e;text-transform:uppercase;margin-top:4px;">
+                  ${count === 1 ? 'Cirugía enviada impaga' : 'Cirugías enviadas impagas'}
+                </div>
+              </div>
+              ${count > 0 ? `
+                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="border-collapse:collapse;border:1px solid #fde68a;border-radius:8px;overflow:hidden;">
+                  <thead>
+                    <tr bgcolor="#fef3c7" style="color:#92400e;font-size:10px;text-transform:uppercase;">
+                      <th style="padding:8px 12px;text-align:left;">Código</th>
+                      <th style="padding:8px 12px;text-align:left;">Paciente</th>
+                      <th style="padding:8px 12px;text-align:left;">Fecha Cx</th>
+                      <th style="padding:8px 12px;text-align:left;">Médico</th>
+                      <th style="padding:8px 12px;text-align:left;">Institución</th>
+                    </tr>
+                  </thead>
+                  <tbody>${rowsHtml}</tbody>
+                </table>
+              ` : `
+                <p style="font-size:13px;color:#047857;font-weight:700;text-align:center;">
+                  ✅ Marta Brugger no tiene cirugías enviadas pendientes de pago en este momento.
+                </p>
+              `}
+              <div style="margin-top:18px;text-align:center;">
+                <a href="${pagosUrl}" target="_blank" style="display:inline-block;padding:10px 22px;background-color:#d97706;color:#ffffff;font-size:12px;font-weight:800;text-decoration:none;border-radius:8px;">
+                  Ir a Estación de Pagos ›
+                </a>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:12px 24px;background:#0f172a;color:#94a3b8;font-size:10px;text-align:center;">
+              DISTRICORR · Gestión IQ — Recordatorio Semanal Sencillo
+            </td>
+          </tr>
+        </table>
+      </body>
+      </html>
+    `;
+
+    const resp = await sendEmailWithResend({
+      to: targetEmails,
+      subject: `📌 Recordatorio Semanal: Marta Brugger tiene ${count} ${count === 1 ? 'cirugía impaga' : 'cirugías impagas'} (${hoyStr})`,
+      html
+    });
+
+    if (!resp || (!resp.success && !resp.id)) {
+      throw new Error(resp?.message || 'No se pudo enviar el recordatorio por correo.');
+    }
+
+    toast.success(`Recordatorio de Marta (${count} impagas) enviado por correo.`);
+  } catch (err) {
+    console.error("Error al enviar recordatorio de Marta:", err);
+    toast.error("Error al enviar recordatorio: " + err.message);
+  } finally {
+    sendingMarta.value = false;
   }
 };
 </script>
