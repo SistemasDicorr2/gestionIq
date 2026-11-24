@@ -322,9 +322,19 @@
                 </span>
               </button>
 
+              <!-- Botón Omitir / Continuar sin correo -->
+              <button
+                type="button"
+                @click="skipEmailOnboarding"
+                :disabled="isOnboardingSaving"
+                class="w-full py-2.5 px-4 text-xs font-bold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white bg-slate-100/80 dark:bg-slate-800/70 hover:bg-slate-200/80 dark:hover:bg-slate-800 rounded-xl transition-colors cursor-pointer disabled:opacity-50"
+              >
+                Continuar al portal sin vincular correo
+              </button>
+
               <div class="pt-1 text-center">
                 <p class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
-                  🔒 El correo es obligatorio para garantizar la recepción segura de tus comprobantes de pago.
+                  Podés vincular o actualizar tu correo más tarde desde tu perfil.
                 </p>
               </div>
             </form>
@@ -1057,19 +1067,56 @@ const authenticate = async (overrideDni = null) => {
       allActivityData.value = (data.activity_summary || []).filter(r => r.estado === 'Enviado');
       dni.value = cleanDni;
 
-      // Determinar si debe mostrarse la pantalla de ingreso / vinculación de correo obligatoria
+      // Determinar si debe mostrarse la pantalla de vinculación de correo (solo en el primer ingreso si no tiene email)
       const hasValidEmail = Boolean(
         instrumentadorInfo.value?.email && 
         typeof instrumentadorInfo.value.email === 'string' && 
         instrumentadorInfo.value.email.trim().includes('@')
       );
 
-      if (!hasValidEmail) {
-        showEmailOnboardingScreen.value = true;
-        onboardingEmail.value = '';
-      } else {
+      if (hasValidEmail) {
         showEmailOnboardingScreen.value = false;
         onboardingEmail.value = instrumentadorInfo.value.email.trim();
+      } else {
+        let alreadyPrompted = false;
+        try {
+          alreadyPrompted = Boolean(
+            localStorage.getItem(`gestioniq_email_prompt_seen_${cleanDni}`) ||
+            localStorage.getItem(`gestioniq_notif_prompted_${cleanDni}`)
+          );
+        } catch (e) {
+          // Ignorar error de localStorage
+        }
+
+        // Consultar eventos previos de ingreso en Supabase para no volver a pedir correo en ingresos posteriores
+        if (!alreadyPrompted) {
+          try {
+            const { data: priorEvents, error: priorErr } = await supabase
+              .from('ficha_access_logs')
+              .select('id')
+              .eq('dni', cleanDni)
+              .limit(1);
+
+            if (!priorErr && priorEvents && priorEvents.length > 0) {
+              alreadyPrompted = true;
+            }
+          } catch (eventsErr) {
+            console.warn("No se pudieron consultar eventos previos de acceso:", eventsErr);
+          }
+        }
+
+        if (alreadyPrompted) {
+          showEmailOnboardingScreen.value = false;
+          onboardingEmail.value = '';
+        } else {
+          showEmailOnboardingScreen.value = true;
+          onboardingEmail.value = '';
+          try {
+            localStorage.setItem(`gestioniq_email_prompt_seen_${cleanDni}`, 'true');
+          } catch (e) {
+            // Ignorar error de localStorage
+          }
+        }
       }
 
       isAuthenticated.value = true;
@@ -1183,6 +1230,20 @@ const saveOnboardingEmail = async () => {
   } finally {
     isOnboardingSaving.value = false;
   }
+};
+
+const skipEmailOnboarding = () => {
+  const rawDni = dni.value || instrumentadorInfo.value?.dni;
+  const cleanDni = String(rawDni || '').replace(/\D/g, '');
+  if (cleanDni) {
+    try {
+      localStorage.setItem(`gestioniq_email_prompt_seen_${cleanDni}`, 'true');
+      localStorage.setItem(`gestioniq_notif_prompted_${cleanDni}`, 'true');
+    } catch (e) {
+      // Ignorar error de localStorage
+    }
+  }
+  showEmailOnboardingScreen.value = false;
 };
 
 const handleNotificationSettingsUpdated = ({ email, pushEnabled }) => {

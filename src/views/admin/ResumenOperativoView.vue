@@ -265,7 +265,16 @@
                   </thead>
                   <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
                     <tr v-for="rep in listCompletadas" :key="rep.id" class="hover:bg-slate-50/30 dark:hover:bg-slate-800/10">
-                      <td class="px-4 py-3 text-slate-700 dark:text-slate-300 whitespace-nowrap">{{ formatDate(rep.fecha_cirugia) }}</td>
+                      <td class="px-4 py-3 text-slate-700 dark:text-slate-300 whitespace-nowrap">
+                        <div>{{ formatDate(rep.fecha_cirugia) }}</div>
+                        <span
+                          v-if="rep.enviada_en_periodo_fuera_cx"
+                          class="inline-block mt-0.5 px-1.5 py-0.5 rounded bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 text-[10px] font-semibold"
+                          :title="`Ficha enviada el ${formatDate(rep.fecha_envio)}`"
+                        >
+                          Enviada {{ formatDate(rep.fecha_envio) }}
+                        </span>
+                      </td>
                       <td class="px-4 py-3 font-semibold text-slate-600 dark:text-slate-400 whitespace-nowrap">{{ rep.id_cirugia }}</td>
                       <td class="px-4 py-3 font-bold text-slate-800 dark:text-slate-200">{{ rep.paciente }}</td>
                       <td class="px-4 py-3 text-slate-700 dark:text-slate-300">{{ rep.medico }}</td>
@@ -845,11 +854,13 @@ const fetchReportes = async () => {
   }
 
   try {
+    const fromUtcIso = new Date(`${filters.value.from}T00:00:00-03:00`).toISOString();
+    const toUtcIso = new Date(`${filters.value.to}T23:59:59.999-03:00`).toISOString();
+
     const { data, error: fetchError } = await supabase
       .from('reportes')
-      .select('id, id_cirugia, paciente, medico, lugar_cirugia, fecha_cirugia, estado, instrumentador, instrumentador_completado, instrumentador_dni, consumo_realizado, observaciones')
-      .gte('fecha_cirugia', filters.value.from)
-      .lte('fecha_cirugia', filters.value.to)
+      .select('id, id_cirugia, paciente, medico, lugar_cirugia, fecha_cirugia, fecha_envio, estado, instrumentador, instrumentador_completado, instrumentador_dni, consumo_realizado, observaciones')
+      .or(`and(fecha_cirugia.gte.${filters.value.from},fecha_cirugia.lte.${filters.value.to}),and(estado.eq.Enviado,fecha_envio.gte.${fromUtcIso},fecha_envio.lte.${toUtcIso})`)
       .order('fecha_cirugia', { ascending: true });
 
     if (fetchError) throw fetchError;
@@ -926,6 +937,8 @@ const fetchReportes = async () => {
 
         // Es anomalía logística si está pendiente pero ya tiene control de devolución o entrega+retiro
         const esAnomalia = isPendiente(r.estado) && (tieneControl || (tieneEntrega && tieneRetiro));
+        const fechaCxClean = r.fecha_cirugia ? String(r.fecha_cirugia).split('T')[0] : '';
+        const enviadaFueraCx = Boolean(fechaCxClean && (fechaCxClean < filters.value.from || fechaCxClean > filters.value.to));
 
         return {
           ...r,
@@ -939,7 +952,8 @@ const fetchReportes = async () => {
           tiene_entrega: tieneEntrega,
           tiene_retiro: tieneRetiro,
           dias_antiguedad: diasAntiguedad,
-          es_anomalia_logistica: esAnomalia
+          es_anomalia_logistica: esAnomalia,
+          enviada_en_periodo_fuera_cx: enviadaFueraCx
         };
       });
     } else {
